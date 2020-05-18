@@ -1,5 +1,3 @@
-sh ./prepare.sh
-
 time python3 ./minsearch_rev.py \
 --dimension 3 \
 --llist "z1"  "z2"  "z3" \
