@@ -4,7 +4,7 @@
 version: 2020-05-18
 
 ``` bash
-$ cd src/RHEED
+$ cd src/TRHEPD
 $ make
 ```
 

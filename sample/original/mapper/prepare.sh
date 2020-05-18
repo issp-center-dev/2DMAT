@@ -4,5 +4,5 @@ rm -f ./log.txt
 rm -f ./ColorMap.txt
 
 ln -sf ../../../src/original/mapper_mpi_py2.py .
-ln -sf ../../../src/RHEED/bulk.exe .
-ln -sf ../../../src/RHEED/surf.exe .
+ln -sf ../../../src/TRHEPD/bulk.exe .
+ln -sf ../../../src/TRHEPD/surf.exe .
