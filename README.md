@@ -13,7 +13,8 @@ $ make
 ### mapper
 
 - Prerequists
-  - Python2
+  - Python2 for original version
+  - Python3 for new version
   - mpi4py
   - numpy
 
@@ -25,6 +26,8 @@ $ sh ./prepare.sh
 
 # perform calculation
 $ sh ./do.sh
+# or
+$ sh ./do_original.sh
 ```
 
 ### minsearch
@@ -42,5 +45,7 @@ $ sh ./prepare.sh
 
 # perform calculation
 $ sh ./do.sh
+# or
+$ sh ./do_original.sh
 ```
 
