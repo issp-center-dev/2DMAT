@@ -1,4 +1,4 @@
-time python3 ../../../src/2dmat/minsearch.py \
+time python3 ../../../src/2dmat/minsearch_rev.py \
 --dimension 3 \
 --llist "z1"  "z2"  "z3" \
 --slist 'value_01' 'value_02' 'value_03' \
