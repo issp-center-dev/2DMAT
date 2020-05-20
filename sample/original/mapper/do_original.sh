@@ -1,3 +1,5 @@
+sh prepare.sh
+
 time mpiexec -np 1 python ../../../src/original/mapper_mpi_py2.py \
   --dimension 3 \
   --llist "z1" "z2" "z3" \
@@ -9,3 +11,12 @@ time mpiexec -np 1 python ../../../src/original/mapper_mpi_py2.py \
   --dmax 7.0 \
   --rnumber 2 \
   | tee log.txt
+
+echo diff ColorMap.txt ref_ColorMap.txt
+diff ColorMap.txt ref_ColorMap.txt
+if [ $? == 0 ]; then
+  echo TEST PASS
+else
+  echo TEST FAILED: ColorMap.txt and ref_ColorMap.txt differ
+fi
+
