@@ -1,3 +1,5 @@
+sh ./prepare.sh
+
 time python3 ../../../src/2dmat/minsearch.py \
 --dimension 3 \
 --llist "z1"  "z2"  "z3" \
@@ -19,4 +21,12 @@ time python3 ../../../src/2dmat/minsearch.py \
 --xtol 0.0001 \
 --ftol 0.0001 \
 | tee log.txt
+tail -n3 log.txt > res.dat
 
+echo diff res.dat ref.dat
+diff res.dat ref.dat
+if [ $? == 0 ]; then
+  echo Test PASS
+else
+  echo Test FAILED: res.dat and ref.dat differ
+fi
