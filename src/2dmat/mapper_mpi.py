@@ -11,7 +11,6 @@ import os
 import shutil
 from argparse import ArgumentParser
 
-
 def main():
     ###### Parameter Settings ######
     parser = ArgumentParser()
@@ -92,15 +91,12 @@ def main():
 
     ###### define functions ######
     def replace(fitted_x_list):
-        file_input = open("template.txt", "r")
-        file_output = open(surface_input_file, "w")
-        for line in file_input:
-            for index in range(dimension):
-                if line.find(string_list[index]) != -1:
-                    line = line.replace(string_list[index], fitted_x_list[index])
-            file_output.write(line)
-        file_input.close()
-        file_output.close()
+        with open("template.txt", "r") as file_input, open(surface_input_file, "w") as file_output:
+            for line in file_input:
+                for index in range(dimension):
+                    if line.find(string_list[index]) != -1:
+                        line = line.replace(string_list[index], fitted_x_list[index])
+                file_output.write(line)
 
     def g(x):
         g = (0.939437 / omega) * np.exp(-2.77259 * (x ** 2.0 / omega ** 2.0))
@@ -121,47 +117,44 @@ def main():
             print(label_list[index], "=", fitted_x_list[index])
         replace(fitted_x_list)
         folder_name = "Log%08d" % Log_number
-        os.mkdir(folder_name)
+        os.makedirs(folder_name, exist_ok=True)
         shutil.copy("%s" % bulk_output_file, "%s/%s" % (folder_name, bulk_output_file))
         shutil.copy(
             "%s" % surface_input_file, "%s/%s" % (folder_name, surface_input_file)
         )
         os.chdir(folder_name)
-        for time in range(100):
+
+        for _ in range(100):
             print("Perform surface-calculation")
             os.system("%s/surf.exe" % main_dir)
+
             NaN_exist = False
-            file_check = open("%s" % surface_output_file, "r")
-            line_count = 0
-            for line in file_check:
-                line_count += 1
-                if calculated_first_line <= line_count <= calculated_last_line:
-                    if line.find("NaN") != -1:
-                        NaN_exist = True
-            file_check.close()
+            with open(surface_output_file, "r") as file_check:
+                lines = file_check.readlines()
+                for line in lines[calculated_first_line-1:calculated_last_line]:
+                        if line.find("NaN") != -1:
+                            NaN_exist = True
             if not NaN_exist:
-                print("RASS : %s does not have NaN." % surface_output_file)
+                print("PASS : %s does not have NaN." % surface_output_file)
                 break
             else:
                 print(
                     "WARNING : %s has NaN. Perform surface-calculation one more time."
                     % surface_output_file
                 )
+
+        ##### post procedure #####
         I_calculated_list = []
-        file_result = open("%s" % surface_output_file, "r")
-        line_count = 0
-        for line in file_result:
-            line_count += 1
-            if calculated_first_line <= line_count <= calculated_last_line:
-                line = line.replace(",", "")
-                line = line.split()
+        with open(surface_output_file, "r") as file_result:
+            lines = file_result.readlines()
+            for line in lines[calculated_first_line-1:calculated_last_line]:
+                line = line.replace(",", "").split()
                 I_calculated_list.append(float(line[row_number - 1]))
-            if line_count == calculated_last_line:
-                if round(float(line[0]), 1) == degree_max:
-                    print("PASS : degree_max = %s" % line[0])
-                else:
-                    print("WARNING : degree_max = %s" % line[0])
-        file_result.close()
+            value = float(lines[calculated_last_line-1].replace(",", "").split()[0])
+            if round(value, 1) == degree_max:
+                print("PASS : degree_max = %s" % value)
+            else:
+                print("WARNING : degree_max = %s" % value)
 
         ##### convolution #####
         convolution_I_calculated_list = []
@@ -199,76 +192,51 @@ def main():
                 convolution_I_calculated_list_normalized.append(
                     convolution_I_calculated_list[i] / I_calculated_max
                 )
+
+        #Calculate Rfactor
         if Rfactor == "A":
             y1 = 0.0
             for i in range(len(degree_list)):
-                y1 = (
-                    y1
-                    + (
-                        I_experiment_list_normalized[i]
-                        - convolution_I_calculated_list_normalized[i]
-                    )
-                    ** 2.0
-                )
+                y1 += (I_experiment_list_normalized[i] - convolution_I_calculated_list_normalized[i]) ** 2.0
             y = np.sqrt(y1)
         elif Rfactor == "B":
             y1 = 0.0
-            for i in range(len(degree_list)):
-                y1 = (
-                    y1
-                    + (
-                        I_experiment_list_normalized[i]
-                        - convolution_I_calculated_list_normalized[i]
-                    )
-                    ** 2.0
-                )
             y2 = 0.0
-            for i in range(len(degree_list)):
-                y2 = y2 + I_experiment_list_normalized[i] ** 2.0
             y3 = 0.0
             for i in range(len(degree_list)):
-                y3 = y3 + convolution_I_calculated_list_normalized[i] ** 2.0
+                y1 += (I_experiment_list_normalized[i] - convolution_I_calculated_list_normalized[i]) ** 2.0
+                y2 += I_experiment_list_normalized[i] ** 2.0
+                y3 += convolution_I_calculated_list_normalized[i] ** 2.0
             y = y1 / (y2 + y3)
         print("R-factor =", y)
-        file_RC = open("RockingCurve.txt", "w")
-        file_RC.write("#")
-        for index in range(dimension):
-            file_RC.write("%s = %s" % (label_list[index], fitted_x_list[index]))
-            if not index == dimension - 1:
+
+        #Output numerical results
+        with open("RockingCurve.txt", "w") as file_RC:
+            file_RC.write("#")
+            for index in range(dimension-1):
+                file_RC.write("%s = %s" % (label_list[index], fitted_x_list[index]))
                 file_RC.write(" ")
-        file_RC.write("\n")
-        file_RC.write("#R-factor = %f" % y)
-        file_RC.write("\n")
-        if normalization == "TOTAL":
-            file_RC.write("#I_calculated_total=%f" % I_calculated_total)
-            file_RC.write("\n")
-            file_RC.write("#I_experiment_total=%f" % I_experiment_total)
-        elif normalization == "MAX":
-            file_RC.write("#I_calculated_max=%f" % I_calculated_max)
-            file_RC.write("\n")
-            file_RC.write("#I_experiment_max=%f" % I_experiment_max)
-        file_RC.write("\n")
-        file_RC.write(
-            "#degree convolution_I_calculated I_experiment convolution_I_calculated(normalized) I_experiment(normalized) I_calculated"
-        )
-        file_RC.write("\n")
-        for index in range(len(degree_list)):
-            file_RC.write(str(degree_list[index]))
-            file_RC.write(" ")
-            file_RC.write(str(convolution_I_calculated_list[index]))
-            file_RC.write(" ")
-            file_RC.write(str(I_experiment_list[index]))
-            file_RC.write(" ")
-            file_RC.write(str(convolution_I_calculated_list_normalized[index]))
-            file_RC.write(" ")
-            file_RC.write(str(I_experiment_list_normalized[index]))
-            file_RC.write(" ")
-            file_RC.write(str(I_calculated_list[index]))
-            file_RC.write("\n")
-        file_RC.close()
+            file_RC.write("%s = %s\n" % (label_list[dimension-1], fitted_x_list[dimension-1]))
+            file_RC.write("#R-factor = %f\n" % y)
+            if normalization == "TOTAL":
+                file_RC.write("#I_calculated_total=%f\n" % I_calculated_total)
+                file_RC.write("#I_experiment_total=%f\n" % I_experiment_total)
+            elif normalization == "MAX":
+                file_RC.write("#I_calculated_max=%f\n" % I_calculated_max)
+                file_RC.write("#I_experiment_max=%f\n" % I_experiment_max)
+            file_RC.write(
+                "#degree convolution_I_calculated I_experiment convolution_I_calculated(normalized) I_experiment(normalized) I_calculated\n"
+            )
+            for index in range(len(degree_list)):
+                file_RC.write("{} {} {} {} {}\n".format(
+                    degree_list[index],
+                    convolution_I_calculated_list[index],
+                    I_experiment_list[index],
+                    convolution_I_calculated_list_normalized[index],
+                    I_calculated_list[index]
+                ))
         os.chdir(main_dir)
         return y
-
     ############################
 
     main_dir = os.getcwd()
@@ -277,16 +245,12 @@ def main():
     print("Read experiment.txt")
     degree_list = []
     I_experiment_list = []
-    fp = open("experiment.txt", "r")
-    read = fp.readlines()
-    count = 0
-    for line in read:
-        count = count + 1
-        if experiment_first_line <= count <= experiment_last_line:
+    with open("experiment.txt", "r") as fp:
+        lines = fp.readlines()
+        for line in lines[experiment_first_line-1:experiment_last_line]:
             line = line.split()
             degree_list.append(float(line[0]))
             I_experiment_list.append(float(line[1]))
-    fp.close()
 
     I_experiment_list_normalized = []
     if normalization == "TOTAL":
@@ -300,22 +264,22 @@ def main():
         for i in range(len(I_experiment_list)):
             I_experiment_list_normalized.append(I_experiment_list[i] / I_experiment_max)
 
-    # Rerform bulk-calculation
+    # Perform bulk-calculation
     print("Perform bulk-calculation")
     os.system("%s/bulk.exe" % main_dir)
 
     # Make ColorMap
     print("Read MeshData.txt")
     mesh_list = []
-    file_MD = open("MeshData.txt", "r")
-    for line in file_MD:
-        if line[0] == "#":
-            continue
-        line = line.split()
-        mesh = []
-        for value in line:
-            mesh.append(float(value))
-        mesh_list.append(mesh)
+    with open(("MeshData.txt", "r")) as file_MD:
+        for line in file_MD:
+            if line[0] == "#":
+                continue
+            line = line.split()
+            mesh = []
+            for value in line:
+                mesh.append(float(value))
+            mesh_list.append(mesh)
 
     # print("check read mesh")
     # for mesh in mesh_list:

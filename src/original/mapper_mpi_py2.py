@@ -34,6 +34,10 @@ def main():
     args = parser.parse_args()
 
     dimension = args.dimension
+    #Debug
+    print("test")
+    print(dimension)
+    exit(0)
     if len(args.llist) != dimension:
         print u"Error: len(llist) is not equal to dimension"
         exit(1)
@@ -324,7 +328,8 @@ if MPI_flag:
     comm.Barrier()
 
 #sys.stdout = open(u"output_from_rank%08d.txt"%(rank), u"w")
-
+print("test")
+exit(0)
 os.chdir(u"mapper%08d"%(rank))
 main()
 

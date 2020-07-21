@@ -3,7 +3,22 @@
 
 from abc import ABCMeta, abstractmethod
 
-class Solver(object, metaclass =ABCMeta):
+class Solver_Base(object, metaclass =ABCMeta):
+    def __init__(self, path_to_solver):
+        """
+        Initialize the solver.
+
+        Parameters
+        ----------
+        solver_name : str
+            Solver name.
+        path_to_solver : str
+            Path to the solver.
+        """
+        self.path_to_solver = path_to_solver
+        self.input = Solver_Base.Input
+        self.output = Solver_Base.Output
+
     @abstractmethod
     def get_run_scheme(self):
         """
@@ -34,23 +49,21 @@ class Solver(object, metaclass =ABCMeta):
         """
         pass
 
-    @abstractmethod
     def get_input(self):
         """
         Return
         -------
         Input object
         """
-        pass
+        return self.Input
 
-    @abstractmethod
     def get_output(self):
         """
         Return
         -------
         Output object
         """
-        pass
+        return self.Output
 
     class Input(object):
         """

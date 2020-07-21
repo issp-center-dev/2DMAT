@@ -36,7 +36,7 @@ class MPI_params:
         Parameters
         ----------
         f: str
-            The name of input toml File
+            The name of an input toml file
 
         Returns
         -------

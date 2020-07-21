@@ -6,7 +6,7 @@ from abc import ABCMeta, abstractmethod
 class Algorithm(metaclass =ABCMeta):
 
     def __init__(self, Solver, myconfig):
-        self.solver =Solver
+        self.solver = Solver
         self.config = myconfig
 
     @abstractmethod
