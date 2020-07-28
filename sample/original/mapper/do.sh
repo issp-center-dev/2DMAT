@@ -1,6 +1,8 @@
 sh prepare.sh
 
-time mpiexec -np 1 python3 ../../../src/2dmat/mapper_mpi.py \
+./bulk.exe
+
+time mpiexec -np 2 python3 ../../../src/2dmat/mapper_mpi.py \
   --dimension 3 \
   --llist "z1" "z2" "z3" \
   --slist "value_01" "value_02" "value_03" \
