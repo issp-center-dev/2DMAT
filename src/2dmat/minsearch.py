@@ -38,7 +38,6 @@ def f_calc(x_list, info, extra=False):
         info["Log_number"] += 1
         sol_surf.set_log(info["Log_number"])
         y = sol_surf.f(x_list, extra)
-        os.chdir(main_dir)
         # callback_list seems not to be used.
         if not extra_data:
             callback = [info["Log_number"]]

@@ -23,6 +23,8 @@ class Surface(object):
         self.Log_number = 0
 
     def f(self, x_list, extra=False):
+        cwd = os.getcwd()
+
         # Make fitted x_list and value
         # Move subdir
         fitted_x_list, fitted_value = self._prepare(x_list, extra)
@@ -33,6 +35,8 @@ class Surface(object):
 
         # Calculate Rfactor and Output numerical results
         Rfactor = self._post(fitted_x_list)
+
+        os.chdir(cwd)
         return Rfactor
 
     def set_log(self, log_number):

@@ -112,7 +112,6 @@ def main(info):
             fx_list.append(fx)
             file_CM.write("%f\n" % fx)
             print("mesh after:", mesh)
-            os.chdir(main_dir)
 
         fx_order = np.argsort(fx_list)
         minimum_point = []
