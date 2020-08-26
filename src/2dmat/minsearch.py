@@ -1,6 +1,5 @@
 import os
-import shutil
-import sys
+from sys import exit
 from argparse import ArgumentParser
 
 import numpy as np
@@ -9,36 +8,36 @@ from scipy.optimize import fmin
 import Solver_Surface as Solver
 
 
-def f_calc(x_list, info, extra=False):
+def f_calc(x_list, info, extra_data=False):
     sol_surf = Solver.Surface(info)
     min_list = info["min_list"]
     max_list = info["max_list"]
     unit_list = info["unit_list"]
     label_list = info["label_list"]
-    main_dir = info["main_dir"]
+
     ##### judge value #####
     out_of_range = False
     for index in range(dimension):
         if x_list[index] < min_list[index] or x_list[index] > max_list[index]:
             print(
-                "Warning: %s = %f is out of range(min%f ~ max%f)."
-                % (label_list[index], x_list[index], min_list[index], max_list[index])
+                "Warning: {} = {} is out of range [{}, {}].".format(
+                    label_list[index], x_list[index], min_list[index], max_list[index]
+                )
             )
             out_of_range = True
+
     ##### unit modify #####
-    new_x_list = []
     for index in range(dimension):
-        new_x_list.append(x_list[index] / unit_list[index])
-    x_list = new_x_list
+        x_list[index] /= unit_list[index]
     print(len(x_list), dimension)
 
     if out_of_range:
-        y = 100.0
+        y = 100.0  # TODO: is it sufficient?
     else:
         info["Log_number"] += 1
         sol_surf.set_log(info["Log_number"])
-        y = sol_surf.f(x_list, extra)
-        # callback_list seems not to be used.
+        y = sol_surf.f(x_list, extra_data)
+        # TODO: callback_list seems not to be used.
         if not extra_data:
             callback = [info["Log_number"]]
             for index in range(dimension):
@@ -47,9 +46,6 @@ def f_calc(x_list, info, extra=False):
             callback_list.append(callback)
         print("Debug: Log {}".format(info["Log_number"]))
     return y
-
-
-############################
 
 
 def get_info(args):
@@ -101,17 +97,23 @@ def get_info(args):
     info["Log_number"] = 0
 
     # Read experiment-data
+    # TODO: make a function
     print("Read experiment.txt")
     degree_list = []
     I_experiment_list = []
-    experiment_first_line = args.efirst
-    experiment_last_line = args.elast
+    firstline = args.efirst
+    lastline = args.elast
+    nline = lastline - firstline + 1
+    assert nline > 0
+
     with open("experiment.txt", "r") as fp:
-        lines = fp.readlines()
-        for line in lines[experiment_first_line - 1 : experiment_last_line]:
-            line = line.split()
-            degree_list.append(float(line[0]))
-            I_experiment_list.append(float(line[1]))
+        for _ in range(firstline - 1):
+            fp.readline()
+        for _ in range(nline):
+            line = fp.readline()
+            words = line.split()
+            degree_list.append(float(words[0]))
+            I_experiment_list.append(float(words[1]))
     info["degree_list"] = degree_list
 
     if info["normalization"] == "TOTAL":
@@ -120,9 +122,9 @@ def get_info(args):
         I_experiment_norm = max(I_experiment_list)
     else:
         # TODO: error handling
+        # TODO: redundant?
         print("ERROR: Unknown normalization", info["normalization"])
-        sys.exit(1)
-
+        exit(1)
     I_experiment_list_normalized = [
         I_exp / I_experiment_norm for I_exp in I_experiment_list
     ]
@@ -227,12 +229,12 @@ if __name__ == "__main__":
     callback_list = []
     info = get_info(args)
 
-    # Is it right ? arg.degree_max is ignored.
+    # TODO: Is it right ? arg.degree_max is ignored.
     info["degree_max"] = info["degree_list"][-1]
     dimension = info["dimension"]
     # Rerform bulk-calculation
     print("Perform bulk-calculation")
-    os.system("%s/bulk.exe" % main_dir)
+    os.system(os.path.join(main_dir, "bulk.exe"))
     # make initial simplex
     initial_simplex_list = []
     initial_list = info["initial_list"]
@@ -250,7 +252,7 @@ if __name__ == "__main__":
 
     # fminsearch
     print("Perform optimization by fminsearch")
-    [xopt, fopt, itera, funcalls, warnflag, allvecs] = fmin(
+    xopt, fopt, itera, funcalls, warnflag, allvecs = fmin(
         f_calc,
         initial_list,
         args=(info,),
@@ -278,25 +280,26 @@ if __name__ == "__main__":
     label_list = info["label_list"]
     with open("SimplexData.txt", "w") as file_SD:
         file_SD.write("#step")
-        for index in range(dimension):
-            file_SD.write(" %s" % label_list[index])
+        for label in label_list:
+            file_SD.write(" ")
+            file_SD.write(label)
         file_SD.write(" R-factor\n")
         for step in range(itera):
             file_SD.write(str(step))
-            for index in range(dimension):
-                file_SD.write(" %f" % allvecs[step][index])
-            file_SD.write(" %f\n" % fx_for_simplex_list[step])
+            for v in allvecs[step]:
+                file_SD.write(" {}".format(v))
+            file_SD.write(" {}\n".format(fx_for_simplex_list[step]))
 
     with open("History_FunctionCall.txt", "w") as file_callback:
         file_callback.write("#No")
-        for index in range(dimension):
-            file_callback.write(" %s" % label_list[index])
+        for label in label_list:
+            file_callback.write(" ")
+            file_callback.write(label)
         file_callback.write("\n")
         for callback in callback_list:
-            for index in range(dimension + 2):
-                file_callback.write(str(callback[index]))
-                if not index == dimension + 1:
-                    file_callback.write(" ")
+            for v in callback[0 : dimension + 2]:
+                file_callback.write(str(v))
+                file_callback.write(" ")
             file_callback.write("\n")
 
     if warnflag == 0:
@@ -310,5 +313,5 @@ if __name__ == "__main__":
     print("Iterations:", itera)
     print("Function evaluations:", funcalls)
     print("Solution:")
-    for index in range(dimension):
-        print("%s =" % (label_list[index]), xopt[index])
+    for x, y in zip(label_list, xopt):
+        print(x, "=", y)
