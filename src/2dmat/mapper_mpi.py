@@ -1,8 +1,8 @@
-import sys
 import os
 import shutil
 from argparse import ArgumentParser
 from io import open
+from sys import exit
 
 import numpy as np
 
@@ -11,6 +11,7 @@ try:
 
     MPI_flag = True
 except ImportError:
+    print("Warning: failed to import mpi4py")
     MPI_flag = False
 import Solver_Surface as Solver
 
@@ -41,17 +42,23 @@ def get_info(args):
     info["main_dir"] = os.getcwd()
 
     # Read experiment-data
+    # TODO: make a function
     print("Read experiment.txt")
     degree_list = []
     I_experiment_list = []
-    experiment_first_line = args.efirst
-    experiment_last_line = args.elast
+    firstline = args.efirst
+    lastline = args.elast
+    nline = lastline - firstline + 1
+    assert nline > 0
+
     with open("experiment.txt", "r") as fp:
-        lines = fp.readlines()
-        for line in lines[experiment_first_line - 1 : experiment_last_line]:
-            line = line.split()
-            degree_list.append(float(line[0]))
-            I_experiment_list.append(float(line[1]))
+        for _ in range(firstline - 1):
+            fp.readline()
+        for _ in range(nline):
+            line = fp.readline()
+            words = line.split()
+            degree_list.append(float(words[0]))
+            I_experiment_list.append(float(words[1]))
     info["degree_list"] = degree_list
 
     if info["normalization"] == "TOTAL":
@@ -60,9 +67,12 @@ def get_info(args):
         I_experiment_norm = max(I_experiment_list)
     else:
         # TODO: error handling
+        # TODO: redundant?
         print("ERROR: Unknown normalization", info["normalization"])
-        sys.exit(1)
-    I_experiment_list_normalized = [I_exp / I_experiment_norm for I_exp in I_experiment_list]
+        exit(1)
+    I_experiment_list_normalized = [
+        I_exp / I_experiment_norm for I_exp in I_experiment_list
+    ]
 
     info["experiment"] = {}
     info["experiment"]["I"] = I_experiment_list
@@ -72,22 +82,21 @@ def get_info(args):
 
 
 def get_mesh_list_from_file(filename="MeshData.txt"):
-    print("Read MeshData.txt")
+    print("Read", filename)
     mesh_list = []
     with open(filename, "r") as file_MD:
         for line in file_MD:
-            if line[0] == "#":
+            line = line.lstrip()
+            if line.startswith("#"):
                 continue
-            line = line.split()
             mesh = []
-            for value in line:
+            for value in line.split():
                 mesh.append(float(value))
             mesh_list.append(mesh)
     return mesh_list
 
 
 def main(info):
-    main_dir = info["main_dir"]
     solver = Solver.Surface(info)
     # Make ColorMap
     label_list = info["label_list"]
@@ -98,19 +107,19 @@ def main(info):
         fx_list = []
         file_CM.write("#")
         for label in label_list:
-            file_CM.write("%s " % label)
+            file_CM.write("{} ".format(label))
         file_CM.write("R-factor\n")
         mesh_list = get_mesh_list_from_file()
         iterations = len(mesh_list)
         for iteration_count, mesh in enumerate(mesh_list):
-            print("Iteration : %d/%d" % (iteration_count + 1, iterations))
+            print("Iteration : {}/{}".format(iteration_count + 1, iterations))
             print("mesh before:", mesh)
             for value in mesh[1:]:
-                file_CM.write("%f " % value)
-            solver.set_log(round(mesh[1:][0]))
+                file_CM.write("{:8f} ".format(value))
+            solver.set_log(round(mesh[0]))
             fx = solver.f(mesh[1:])
             fx_list.append(fx)
-            file_CM.write("%f\n" % fx)
+            file_CM.write("{:8f}\n".format(fx))
             print("mesh after:", mesh)
 
         fx_order = np.argsort(fx_list)
@@ -121,10 +130,10 @@ def main(info):
             minimum_point.append(mesh_list[fx_order[0]][index])
         file_CM.write("#Minimum point :")
         for value in minimum_point:
-            file_CM.write(" %f" % value)
+            file_CM.write(" {:8f}".format(value))
         file_CM.write("\n")
-        file_CM.write("#R-factor : %f\n" % fx_list[fx_order[0]])
-        file_CM.write("#see Log%d" % round(mesh_list[fx_order[0]][0]))
+        file_CM.write("#R-factor : {:8f}\n".format(fx_list[fx_order[0]]))
+        file_CM.write("#see Log{}\n".format(round(mesh_list[fx_order[0]][0])))
 
 
 if __name__ == "__main__":
@@ -196,20 +205,18 @@ if __name__ == "__main__":
         lines = []
         with open("MeshData.txt", "r") as file_input:
             for line in file_input:
-                if not line[0] == "#":
+                if line.lstrip().startswith("#"):
                     lines.append(line)
-        total = len(lines)
-        elements = total // size
 
         mesh_total = np.array(lines)
         mesh_divided = np.array_split(mesh_total, size)
         for index, mesh in enumerate(mesh_divided):
-            with open("devided_MeshData%08d.txt" % (index), "w") as file_output:
+            with open("devided_MeshData{:08d}.txt".format(index), "w") as file_output:
                 for data in mesh:
                     file_output.write(data)
 
         for i in range(size):
-            sub_folder_name = "mapper%08d" % (i)
+            sub_folder_name = "mapper{:08d}".format(i)
             os.mkdir(sub_folder_name)
             for item in [
                 "bulk.exe",
@@ -217,41 +224,38 @@ if __name__ == "__main__":
                 "bulk.txt",
                 "template.txt",
                 "experiment.txt",
+                args.boutput,
             ]:
-                shutil.copy(item, "%s/%s" % (sub_folder_name, item))
+                shutil.copy(item, os.path.join(sub_folder_name, item))
             shutil.copy(
-                "devided_MeshData%08d.txt" % (i), "%s/MeshData.txt" % (sub_folder_name)
+                "devided_MeshData{:08d}.txt".format(i),
+                os.path.join(sub_folder_name, "MeshData.txt"),
             )
 
     if MPI_flag:
         comm.Barrier()
 
-    os.chdir("mapper%08d" % (rank))
-    # Copy bulk-calculation
-    os.system("cp ../{} ./".format(args.boutput))
+    os.chdir("mapper{:08d}".format(rank))
 
     info = get_info(args)
     main(info)
 
-    print("complete main process : rank%08d/%08d" % (rank, size))
+    print("complete main process : rank {:08d}/{:08d}".format(rank, size))
 
     if MPI_flag:
         comm.Barrier()
 
+    # gather colormaps
     if rank == 0:
         os.chdir(maindir2)
         all_data = []
-        for i in range(size):
-            file_input = open("mapper%08d/ColorMap.txt" % (i), "r")
-            lines = file_input.readlines()
-            file_input.close()
-            for line in lines:
-                if line[0] == "#":
-                    continue
-                all_data.append(line)
-
-        file_output = open("ColorMap.txt", "w")
-        for line in all_data:
-            file_output.write(line)
-        file_output.close()
+        with open("ColorMap.txt", "w") as file_output:
+            for i in range(size):
+                with open(
+                    os.path.join("mapper{:08d}".format(i), "ColorMap.txt"), "r"
+                ) as file_input:
+                    for line in file_input:
+                        line = line.lstrip()
+                        if not line.startswith("#"):
+                            file_output.write(line)
         print("complete")
