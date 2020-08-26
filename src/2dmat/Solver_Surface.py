@@ -2,6 +2,7 @@ import numpy as np
 import os
 import shutil
 
+
 class Surface(object):
     def __init__(self, info):
         self.info_file = info["file"]
@@ -69,11 +70,15 @@ class Surface(object):
 
     def _replace(self, fitted_x_list):
         print(os.getcwd())
-        with open("template.txt", "r") as file_input, open(self.surface_input_file, "w") as file_output:
+        with open("template.txt", "r") as file_input, open(
+            self.surface_input_file, "w"
+        ) as file_output:
             for line in file_input:
                 for index in range(self.dimension):
                     if line.find(self.string_list[index]) != -1:
-                        line = line.replace(self.string_list[index], fitted_x_list[index])
+                        line = line.replace(
+                            self.string_list[index], fitted_x_list[index]
+                        )
                 file_output.write(line)
         print(os.getcwd())
 
@@ -86,8 +91,12 @@ class Surface(object):
         I_experiment_total = self.info_experiment["I_total"]
         I_experiment_list = self.info_experiment["I"]
 
-        convolution_I_calculated_list_normalized, I_calculated_total, \
-        I_calculated_list, convolution_I_calculated_list = self._calc_I_from_file()
+        (
+            convolution_I_calculated_list_normalized,
+            I_calculated_total,
+            I_calculated_list,
+            convolution_I_calculated_list,
+        ) = self._calc_I_from_file()
         I_calculated_max = max(convolution_I_calculated_list)
 
         # Calculate Rfactor
@@ -102,7 +111,9 @@ class Surface(object):
             for index in range(dimension - 1):
                 file_RC.write("%s = %s" % (label_list[index], fitted_x_list[index]))
                 file_RC.write(" ")
-            file_RC.write("%s = %s\n" % (label_list[dimension - 1], fitted_x_list[dimension - 1]))
+            file_RC.write(
+                "%s = %s\n" % (label_list[dimension - 1], fitted_x_list[dimension - 1])
+            )
             file_RC.write("#R-factor = %f\n" % y)
             if normalization == "TOTAL":
                 file_RC.write("#I_calculated_total=%f\n" % I_calculated_total)
@@ -114,13 +125,15 @@ class Surface(object):
                 "#degree convolution_I_calculated I_experiment convolution_I_calculated(normalized) I_experiment(normalized) I_calculated\n"
             )
             for index in range(len(degree_list)):
-                file_RC.write("{} {} {} {} {}\n".format(
-                    degree_list[index],
-                    convolution_I_calculated_list[index],
-                    I_experiment_list[index],
-                    convolution_I_calculated_list_normalized[index],
-                    I_calculated_list[index]
-                ))
+                file_RC.write(
+                    "{} {} {} {} {}\n".format(
+                        degree_list[index],
+                        convolution_I_calculated_list[index],
+                        I_experiment_list[index],
+                        convolution_I_calculated_list_normalized[index],
+                        I_calculated_list[index],
+                    )
+                )
         return y
 
     def _g(self, x):
@@ -139,7 +152,7 @@ class Surface(object):
         I_calculated_list = []
         with open(surface_output_file, "r") as file_result:
             lines = file_result.readlines()
-            for line in lines[calculated_first_line - 1:calculated_last_line]:
+            for line in lines[calculated_first_line - 1 : calculated_last_line]:
                 line = line.replace(",", "").split()
                 I_calculated_list.append(float(line[row_number - 1]))
             value = float(lines[calculated_last_line - 1].replace(",", "").split()[0])
@@ -154,7 +167,11 @@ class Surface(object):
             integral = 0.0
             degree_org = degree_list[index]
             for index2 in range(len(I_calculated_list)):
-                integral += (I_calculated_list[index2] * self._g(degree_org - degree_list[index2]) * 0.1)
+                integral += (
+                    I_calculated_list[index2]
+                    * self._g(degree_org - degree_list[index2])
+                    * 0.1
+                )
             convolution_I_calculated_list.append(integral)
         if len(I_calculated_list) == len(convolution_I_calculated_list):
             print(
@@ -180,7 +197,12 @@ class Surface(object):
                 convolution_I_calculated_list_normalized.append(
                     convolution_I_calculated_list[i] / I_calculated_max
                 )
-        return convolution_I_calculated_list_normalized, I_calculated_total, I_calculated_list, convolution_I_calculated_list
+        return (
+            convolution_I_calculated_list_normalized,
+            I_calculated_total,
+            I_calculated_list,
+            convolution_I_calculated_list,
+        )
 
     def _calc_Rfactor(self, calc_reslut):
         Rfactor = self.Rfactor
@@ -201,4 +223,5 @@ class Surface(object):
                 y3 += calc_reslut[i] ** 2.0
             y = y1 / (y2 + y3)
         return y
+
     #####[E] Post #####

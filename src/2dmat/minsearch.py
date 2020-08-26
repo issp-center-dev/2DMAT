@@ -5,6 +5,7 @@ import shutil
 import Solver_Surface as Solver
 from argparse import ArgumentParser
 
+
 def f_calc(x_list, info, extra=False):
     sol_surf = Solver.Surface(info)
     min_list = info["min_list"]
@@ -47,6 +48,7 @@ def f_calc(x_list, info, extra=False):
 
 
 ############################
+
 
 def get_info(args):
     dimension = args.dimension
@@ -104,7 +106,7 @@ def get_info(args):
     experiment_last_line = args.elast
     with open("experiment.txt", "r") as fp:
         lines = fp.readlines()
-        for line in lines[experiment_first_line - 1:experiment_last_line]:
+        for line in lines[experiment_first_line - 1 : experiment_last_line]:
             line = line.split()
             degree_list.append(float(line[0]))
             I_experiment_list.append(float(line[1]))

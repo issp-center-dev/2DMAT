@@ -1,4 +1,5 @@
 from io import open
+
 try:
     from mpi4py import MPI
     MPI_flag = True
@@ -9,6 +10,8 @@ import os
 import shutil
 from argparse import ArgumentParser
 import Solver_Surface as Solver
+
+
 def get_info(args):
     if len(args.llist) != args.dimension:
         print("Error: len(llist) is not equal to dimension")
@@ -42,7 +45,7 @@ def get_info(args):
     experiment_last_line = args.elast
     with open("experiment.txt", "r") as fp:
         lines = fp.readlines()
-        for line in lines[experiment_first_line - 1:experiment_last_line]:
+        for line in lines[experiment_first_line - 1 : experiment_last_line]:
             line = line.split()
             degree_list.append(float(line[0]))
             I_experiment_list.append(float(line[1]))
