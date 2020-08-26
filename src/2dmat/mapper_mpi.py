@@ -1,14 +1,17 @@
-from io import open
-
-try:
-    from mpi4py import MPI
-    MPI_flag = True
-except ImportError:
-    MPI_flag = False
-import numpy as np
+import sys
 import os
 import shutil
 from argparse import ArgumentParser
+from io import open
+
+import numpy as np
+
+try:
+    from mpi4py import MPI
+
+    MPI_flag = True
+except ImportError:
+    MPI_flag = False
 import Solver_Surface as Solver
 
 
@@ -28,7 +31,7 @@ def get_info(args):
     info["surface_input_file"] = args.sinput
     info["bulk_output_file"] = args.boutput
     info["surface_output_file"] = args.soutput
-    info["Rfactor"] = args.rfactor  # "A":General or "B":Pendry
+    info["Rfactor_type"] = args.rfactor  # "A":General or "B":Pendry
     info["file"] = {}
     info["file"]["calculated_first_line"] = args.cfirst
     info["file"]["calculated_last_line"] = args.clast
@@ -51,22 +54,20 @@ def get_info(args):
             I_experiment_list.append(float(line[1]))
     info["degree_list"] = degree_list
 
-    I_experiment_list_normalized = []
     if info["normalization"] == "TOTAL":
-        I_experiment_total = sum(I_experiment_list)
-        for i in range(len(I_experiment_list)):
-            I_experiment_list_normalized.append(
-                (I_experiment_list[i]) / I_experiment_total
-            )
+        I_experiment_norm = sum(I_experiment_list)
     elif info["normalization"] == "MAX":
-        I_experiment_max = max(I_experiment_list)
-        for i in range(len(I_experiment_list)):
-            I_experiment_list_normalized.append(I_experiment_list[i] / I_experiment_max)
+        I_experiment_norm = max(I_experiment_list)
+    else:
+        # TODO: error handling
+        print("ERROR: Unknown normalization", info["normalization"])
+        sys.exit(1)
+    I_experiment_list_normalized = [I_exp / I_experiment_norm for I_exp in I_experiment_list]
 
     info["experiment"] = {}
     info["experiment"]["I"] = I_experiment_list
     info["experiment"]["I_normalized"] = I_experiment_list_normalized
-    info["experiment"]["I_total"] = I_experiment_total
+    info["experiment"]["I_norm"] = I_experiment_norm
     return info
 
 
@@ -168,7 +169,7 @@ if __name__ == "__main__":
         type=str,
         default="A",
         choices=["A", "B"],
-        help="(default: %(default)s)",
+        help="type of R factor(default: %(default)s)",
     )
     parser.add_argument("--efirst", type=int, default=1, help="(default: %(default)s)")
     parser.add_argument("--elast", type=int, default=56, help="(default: %(default)s)")

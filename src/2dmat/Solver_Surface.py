@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import shutil
+import sys
 
 
 class Surface(object):
@@ -17,7 +18,7 @@ class Surface(object):
         self.degree_max = info["degree_max"]
         self.degree_list = info["degree_list"]
         self.normalization = info["normalization"]
-        self.Rfactor = info["Rfactor"]
+        self.Rfactor_type = info["Rfactor_type"]
         self.info_experiment = info["experiment"]
         self.Log_number = 0
 
@@ -25,9 +26,11 @@ class Surface(object):
         # Make fitted x_list and value
         # Move subdir
         fitted_x_list, fitted_value = self._prepare(x_list, extra)
+
         # Run surf.exe
         print("Perform surface-calculation")
         os.system("%s/surf.exe" % self.main_dir)
+
         # Calculate Rfactor and Output numerical results
         Rfactor = self._post(fitted_x_list)
         return Rfactor
@@ -44,31 +47,19 @@ class Surface(object):
         surface_input_file = self.surface_input_file
         fitted_x_list = []
         for index in range(dimension):
-            if x_list[index] < 0:
-                fitted_value = "%.8f" % (x_list[index])
-            else:
-                fitted_value = " " + "%.8f" % (x_list[index])
+            fitted_value = " " if x_list[index] >= 0 else ""
+            fitted_value += format(x_list[index], ".8f")
             fitted_value = fitted_value[: len(string_list[index])]
             fitted_x_list.append(fitted_value)
         for index in range(dimension):
             print(label_list[index], "=", fitted_x_list[index])
         self._replace(fitted_x_list)
         self._pre_bulk(self.Log_number, bulk_output_file, surface_input_file, extra)
+        # TODO: Need to return fitted_value? (it is unused)
         return fitted_x_list, fitted_value
 
-    def _pre_bulk(self, Log_number, bulk_output_file, surface_input_file, extra):
-        if extra:
-            folder_name = "Extra_Log%08d" % Log_number
-        else:
-            folder_name = "Log%08d" % Log_number
-        os.makedirs(folder_name, exist_ok=True)
-        shutil.copy("%s" % bulk_output_file, "%s/%s" % (folder_name, bulk_output_file))
-        shutil.copy(
-            "%s" % surface_input_file, "%s/%s" % (folder_name, surface_input_file)
-        )
-        os.chdir(folder_name)
-
     def _replace(self, fitted_x_list):
+        # TODO: print elsewhere?
         print(os.getcwd())
         with open("template.txt", "r") as file_input, open(
             self.surface_input_file, "w"
@@ -80,7 +71,18 @@ class Surface(object):
                             self.string_list[index], fitted_x_list[index]
                         )
                 file_output.write(line)
+        # TODO: Too redundant
         print(os.getcwd())
+
+    def _pre_bulk(self, Log_number, bulk_output_file, surface_input_file, extra):
+        if extra:
+            folder_name = "Extra_Log{:08d}".format(Log_number)
+        else:
+            folder_name = "Log{:08d}".format(Log_number)
+        os.makedirs(folder_name, exist_ok=True)
+        shutil.copy(bulk_output_file, os.path.join(folder_name, bulk_output_file))
+        shutil.copy(surface_input_file, os.path.join(folder_name, surface_input_file))
+        os.chdir(folder_name)
 
     #####[E] Prepare #####
 
@@ -88,42 +90,51 @@ class Surface(object):
     def _post(self, fitted_x_list):
         degree_list = self.degree_list
         normalization = self.normalization
-        I_experiment_total = self.info_experiment["I_total"]
+        I_experiment_norm = self.info_experiment["I_norm"]
         I_experiment_list = self.info_experiment["I"]
 
         (
             convolution_I_calculated_list_normalized,
-            I_calculated_total,
+            I_calculated_norm,
             I_calculated_list,
             convolution_I_calculated_list,
         ) = self._calc_I_from_file()
-        I_calculated_max = max(convolution_I_calculated_list)
 
-        # Calculate Rfactor
-        y = self._calc_Rfactor(convolution_I_calculated_list_normalized)
-        print("R-factor =", y)
+        Rfactor = self._calc_Rfactor(convolution_I_calculated_list_normalized)
+        print("R-factor =", Rfactor)
 
         dimension = self.dimension
         label_list = self.label_list
 
         with open("RockingCurve.txt", "w") as file_RC:
+            # Write headers
             file_RC.write("#")
-            for index in range(dimension - 1):
-                file_RC.write("%s = %s" % (label_list[index], fitted_x_list[index]))
-                file_RC.write(" ")
-            file_RC.write(
-                "%s = %s\n" % (label_list[dimension - 1], fitted_x_list[dimension - 1])
-            )
-            file_RC.write("#R-factor = %f\n" % y)
+            for index in range(dimension):
+                file_RC.write(
+                    "{} = {} ".format(label_list[index], fitted_x_list[index])
+                )
+            file_RC.write("\n")
+            file_RC.write("#R-factor = {}\n".format(Rfactor))
             if normalization == "TOTAL":
-                file_RC.write("#I_calculated_total=%f\n" % I_calculated_total)
-                file_RC.write("#I_experiment_total=%f\n" % I_experiment_total)
+                file_RC.write("#I_calculated_total={}\n".format(I_calculated_norm))
+                file_RC.write("#I_experiment_total={}\n".format(I_experiment_norm))
             elif normalization == "MAX":
-                file_RC.write("#I_calculated_max=%f\n" % I_calculated_max)
-                file_RC.write("#I_experiment_max=%f\n" % I_experiment_max)
-            file_RC.write(
-                "#degree convolution_I_calculated I_experiment convolution_I_calculated(normalized) I_experiment(normalized) I_calculated\n"
-            )
+                file_RC.write("#I_calculated_max={}\n".format(I_calculated_norm))
+                file_RC.write("#I_experiment_max={}\n".format(I_experiment_norm))
+            file_RC.write("#")
+            for xname in (
+                "degree",
+                "convolution_I_calculated",
+                "I_experiment",
+                "convolution_I_calculated(normalized)",
+                "I_experiment(normalized)",
+                "I_calculated",
+            ):
+                file_RC.write(xname)
+                file_RC.write(" ")
+            file_RC.write("\n")
+
+            # Write rocking curve
             for index in range(len(degree_list)):
                 file_RC.write(
                     "{} {} {} {} {}\n".format(
@@ -134,7 +145,7 @@ class Surface(object):
                         I_calculated_list[index],
                     )
                 )
-        return y
+        return Rfactor
 
     def _g(self, x):
         g = (0.939437 / self.omega) * np.exp(-2.77259 * (x ** 2.0 / self.omega ** 2.0))
@@ -147,19 +158,32 @@ class Surface(object):
         row_number = self.info_file["row_number"]
         degree_max = self.degree_max
         degree_list = self.degree_list
-        normalization = self.normalization
+
+        nlines = calculated_last_line - calculated_first_line + 1
+        # TODO: handling error
+        assert 0 < nlines
+
+        # TODO: nlines == len(degree_list) ?
+        # assert nlines == len(degree_list)
 
         I_calculated_list = []
         with open(surface_output_file, "r") as file_result:
-            lines = file_result.readlines()
-            for line in lines[calculated_first_line - 1 : calculated_last_line]:
-                line = line.replace(",", "").split()
-                I_calculated_list.append(float(line[row_number - 1]))
-            value = float(lines[calculated_last_line - 1].replace(",", "").split()[0])
-            if round(value, 1) == degree_max:
-                print("PASS : degree_max = %s" % value)
+            for _ in range(calculated_first_line - 1):
+                file_result.readline()
+            for _ in range(nlines):
+                line = file_result.readline()
+                words = line.replace(",", "").split()
+                I_calculated_list.append(float(words[row_number - 1]))
+            # TODO: degree_calc == degree_exp should be checked for every line?
+            degree_last = round(float(words[0]), 1)
+            if degree_last == degree_max:
+                print("PASS : degree in lastline = {}".format(degree_last))
             else:
-                print("WARNING : degree_max = %s" % value)
+                print(
+                    "WARNING : degree in lastline = {}, but {} expected".format(
+                        degree_last, degree_max
+                    )
+                )
 
         ##### convolution #####
         convolution_I_calculated_list = []
@@ -173,55 +197,61 @@ class Surface(object):
                     * 0.1
                 )
             convolution_I_calculated_list.append(integral)
+
+        # TODO: Is the following statement trivially true?
         if len(I_calculated_list) == len(convolution_I_calculated_list):
             print(
-                "PASS : len(calculated_list)%d = len(convolution_I_calculated_list)%d"
-                % (len(I_calculated_list), len(convolution_I_calculated_list))
+                "PASS : len(calculated_list) {} == len(convolution_I_calculated_list){}".format(
+                    len(I_calculated_list), len(convolution_I_calculated_list)
+                )
             )
         else:
             print(
-                "WARNING : len(calculated_list)%d != len(convolution_I_calculated_list)%d"
-                % (len(I_calculated_list), len(convolution_I_calculated_list))
+                "WARNING : len(calculated_list) {} != len(convolution_I_calculated_list) {}".format(
+                    len(I_calculated_list), len(convolution_I_calculated_list)
+                )
             )
 
-        convolution_I_calculated_list_normalized = []
-        if normalization == "TOTAL":
-            I_calculated_total = sum(convolution_I_calculated_list)
-            for i in range(len(convolution_I_calculated_list)):
-                convolution_I_calculated_list_normalized.append(
-                    (convolution_I_calculated_list[i]) / I_calculated_total
-                )
-        elif normalization == "MAX":
-            I_calculated_max = max(convolution_I_calculated_list)
-            for i in range(len(convolution_I_calculated_list)):
-                convolution_I_calculated_list_normalized.append(
-                    convolution_I_calculated_list[i] / I_calculated_max
-                )
+        if self.normalization == "TOTAL":
+            I_calculated_norm = sum(convolution_I_calculated_list)
+        elif self.normalization == "MAX":
+            I_calculated_norm = max(convolution_I_calculated_list)
+        else:
+            # TODO: redundant?
+            # TODO: error handling
+            print("ERROR: unknown normalization", self.normalization)
+            sys.exit(1)
+        convolution_I_calculated_list_normalized = [
+            c / I_calculated_norm for c in convolution_I_calculated_list
+        ]
         return (
             convolution_I_calculated_list_normalized,
-            I_calculated_total,
+            I_calculated_norm,
             I_calculated_list,
             convolution_I_calculated_list,
         )
 
-    def _calc_Rfactor(self, calc_reslut):
-        Rfactor = self.Rfactor
-        degree_list = self.degree_list
+    def _calc_Rfactor(self, calc_result):
         I_experiment_list_normalized = self.info_experiment["I_normalized"]
-        if Rfactor == "A":
-            y1 = 0.0
-            for i in range(len(degree_list)):
-                y1 += (I_experiment_list_normalized[i] - calc_reslut[i]) ** 2.0
-            y = np.sqrt(y1)
-        elif Rfactor == "B":
+        if self.Rfactor_type == "A":
+            R = 0.0
+            for I_exp, I_calc in zip(I_experiment_list_normalized, calc_result):
+                R += (I_exp - I_calc) ** 2
+            R = np.sqrt(R)
+        elif self.Rfactor_type == "B":
             y1 = 0.0
             y2 = 0.0
             y3 = 0.0
-            for i in range(len(degree_list)):
-                y1 += (I_experiment_list_normalized[i] - calc_reslut[i]) ** 2.0
-                y2 += I_experiment_list_normalized[i] ** 2.0
-                y3 += calc_reslut[i] ** 2.0
-            y = y1 / (y2 + y3)
-        return y
+            for I_exp, I_calc in zip(I_experiment_list_normalized, calc_result):
+                y1 += (I_exp - I_calc) ** 2
+                y2 += I_exp ** 2
+                y3 += I_calc ** 2
+            R = y1 / (y2 + y3)
+        else:
+            # TODO: redundant?
+            # TODO: error handling
+            print("ERROR: unknown Rfactor type", self.Rfactor_type)
+            sys.exit(1)
+        return R
 
     #####[E] Post #####
