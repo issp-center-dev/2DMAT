@@ -205,7 +205,7 @@ if __name__ == "__main__":
         lines = []
         with open("MeshData.txt", "r") as file_input:
             for line in file_input:
-                if line.lstrip().startswith("#"):
+                if not line.lstrip().startswith("#"):
                     lines.append(line)
 
         mesh_total = np.array(lines)
@@ -219,9 +219,7 @@ if __name__ == "__main__":
             sub_folder_name = "mapper{:08d}".format(i)
             os.mkdir(sub_folder_name)
             for item in [
-                "bulk.exe",
                 "surf.exe",
-                "bulk.txt",
                 "template.txt",
                 "experiment.txt",
                 args.boutput,

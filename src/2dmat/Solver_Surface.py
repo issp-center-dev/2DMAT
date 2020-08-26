@@ -2,6 +2,7 @@ import numpy as np
 import os
 import shutil
 import sys
+import subprocess
 
 
 class Surface(object):
@@ -31,7 +32,7 @@ class Surface(object):
 
         # Run surf.exe
         print("Perform surface-calculation")
-        os.system("%s/surf.exe" % self.main_dir)
+        subprocess.call([os.path.join(self.main_dir, "surf.exe")])
 
         # Calculate Rfactor and Output numerical results
         Rfactor = self._post(fitted_x_list)

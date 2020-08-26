@@ -1,4 +1,5 @@
 import os
+import subprocess
 from sys import exit
 from argparse import ArgumentParser
 
@@ -234,7 +235,7 @@ if __name__ == "__main__":
     dimension = info["dimension"]
     # Rerform bulk-calculation
     print("Perform bulk-calculation")
-    os.system(os.path.join(main_dir, "bulk.exe"))
+    subprocess.call([os.path.join(main_dir, "bulk.exe")])
     # make initial simplex
     initial_simplex_list = []
     initial_list = info["initial_list"]
