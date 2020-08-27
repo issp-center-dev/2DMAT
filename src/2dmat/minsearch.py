@@ -35,17 +35,17 @@ def f_calc(x_list, info, extra_data=False):
     if out_of_range:
         y = 100.0  # TODO: is it sufficient?
     else:
-        info["Log_number"] += 1
-        sol_surf.set_log(info["Log_number"])
+        info["log"]["Log_number"] += 1
+        sol_surf.set_log(info["log"]["Log_number"])
         y = sol_surf.f(x_list, extra_data)
         # TODO: callback_list seems not to be used.
         if not extra_data:
-            callback = [info["Log_number"]]
+            callback = [info["log"]["Log_number"]]
             for index in range(dimension):
                 callback.append(x_list[index])
             callback.append(y)
             callback_list.append(callback)
-        print("Debug: Log {}".format(info["Log_number"]))
+        print("Debug: Log {}".format(info["log"]["Log_number"]))
     return y
 
 
@@ -95,7 +95,8 @@ def get_info(args):
     info["xtol_value"] = args.xtol
     info["ftol_value"] = args.ftol
     info["main_dir"] = os.getcwd()
-    info["Log_number"] = 0
+    info["log"]={}
+    info["log"]["Log_number"] = 0
 
     # Read experiment-data
     # TODO: make a function
@@ -269,7 +270,7 @@ if __name__ == "__main__":
     # print(result)
 
     extra_data = True
-    info["Log_number"] = 0
+    info["log"]["Log_number"] = 0
     fx_for_simplex_list = []
     print("iteration:", itera)
     print("len(allvecs):", len(allvecs))

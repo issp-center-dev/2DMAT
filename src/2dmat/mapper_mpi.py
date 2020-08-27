@@ -13,8 +13,8 @@ try:
 except ImportError:
     print("Warning: failed to import mpi4py")
     MPI_flag = False
-import Solver_Surface as Solver
 
+import solver.sol_surface as Solver
 
 def get_info(args):
     if len(args.llist) != args.dimension:
@@ -25,21 +25,24 @@ def get_info(args):
         exit(1)
 
     info = {}
-    info["dimension"] = args.dimension
-    info["normalization"] = args.norm  # "TOTAL" or "MAX"
-    info["label_list"] = args.llist
-    info["string_list"] = args.slist
-    info["surface_input_file"] = args.sinput
-    info["bulk_output_file"] = args.boutput
-    info["surface_output_file"] = args.soutput
-    info["Rfactor_type"] = args.rfactor  # "A":General or "B":Pendry
+    info["base"] = {}
+    info["base"]["dimension"] = args.dimension
+    info["base"]["normalization"] = args.norm  # "TOTAL" or "MAX"
+    info["base"]["label_list"] = args.llist
+    info["base"]["string_list"] = args.slist
+    info["base"]["surface_input_file"] = args.sinput
+    info["base"]["bulk_output_file"] = args.boutput
+    info["base"]["surface_output_file"] = args.soutput
+    info["base"]["Rfactor_type"] = args.rfactor  # "A":General or "B":Pendry
+    info["base"]["omega"] = args.omega  # half width of convolution
+    info["base"]["main_dir"] = os.getcwd()
     info["file"] = {}
     info["file"]["calculated_first_line"] = args.cfirst
     info["file"]["calculated_last_line"] = args.clast
     info["file"]["row_number"] = args.rnumber  # row number of 00 spot in .s file
-    info["degree_max"] = args.dmax
-    info["omega"] = args.omega  # half width of convolution
-    info["main_dir"] = os.getcwd()
+    info["base"]["degree_max"] = args.dmax
+    info["log"] = {}
+    info["log"]["Log_number"] = 0
 
     # Read experiment-data
     # TODO: make a function
@@ -59,11 +62,11 @@ def get_info(args):
             words = line.split()
             degree_list.append(float(words[0]))
             I_experiment_list.append(float(words[1]))
-    info["degree_list"] = degree_list
+    info["base"]["degree_list"] = degree_list
 
-    if info["normalization"] == "TOTAL":
+    if info["base"]["normalization"] == "TOTAL":
         I_experiment_norm = sum(I_experiment_list)
-    elif info["normalization"] == "MAX":
+    elif info["base"]["normalization"] == "MAX":
         I_experiment_norm = max(I_experiment_list)
     else:
         # TODO: error handling
@@ -97,10 +100,10 @@ def get_mesh_list_from_file(filename="MeshData.txt"):
 
 
 def main(info):
-    solver = Solver.Surface(info)
+    solver = Solver.sol_surface(info)
     # Make ColorMap
-    label_list = info["label_list"]
-    dimension = info["dimension"]
+    label_list = info["base"]["label_list"]
+    dimension = info["base"]["dimension"]
 
     print("Make ColorMap")
     with open("ColorMap.txt", "w") as file_CM:
@@ -116,8 +119,14 @@ def main(info):
             print("mesh before:", mesh)
             for value in mesh[1:]:
                 file_CM.write("{:8f} ".format(value))
-            solver.set_log(round(mesh[0]))
-            fx = solver.f(mesh[1:])
+            #update information
+            info["log"]["Log_number"] = round(mesh[0])
+            info["calc"]["x_list"] = mesh[1:]
+            info["base"]["base_dir"] = os.getcwd()
+            solver.input.update_info(info)
+            #Run surf.exe
+            solver.run()
+            fx = solver.output.get_results(solver.input.calc_info)
             fx_list.append(fx)
             file_CM.write("{:8f}\n".format(fx))
             print("mesh after:", mesh)
