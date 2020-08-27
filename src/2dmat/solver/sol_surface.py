@@ -17,22 +17,8 @@ class sol_surface(solver_base.Solver_Base):
         path_to_solver : str
             Path to the solver.
         """
-        self.info_file = info["file"]
-        self.string_list = info["base"]["string_list"]
-        self.surface_input_file = info["base"]["surface_input_file"]
-        self.surface_output_file = info["base"]["surface_output_file"]
-        self.dimension = info["base"]["dimension"]
-        self.label_list = info["base"]["label_list"]
-        self.bulk_output_file = info["base"]["bulk_output_file"]
-        self.main_dir = info["base"]["main_dir"]
-        self.omega = info["base"]["omega"]
-        self.degree_max = info["base"]["degree_max"]
-        self.degree_list = info["base"]["degree_list"]
-        self.normalization = info["base"]["normalization"]
-        self.Rfactor_type = info["base"]["Rfactor_type"]
-        self.info_experiment = info["experiment"]
         info["calc"] = {}
-        self.path_to_solver = path_to_solver
+        self.path_to_solver = info["base"]["main_dir"]
         self.input = sol_surface.Input(info)
         self.output = sol_surface.Output(info)
         self.base_info = info
@@ -64,12 +50,10 @@ class sol_surface(solver_base.Solver_Base):
         """
         return "surf.exe"
 
-
-
     def run(self):
         # Run surf.exe
         print("Perform surface-calculation")
-        subprocess.call([os.path.join(self.main_dir, "surf.exe")])
+        subprocess.call([os.path.join(self.path_to_solver, "surf.exe")])
 
     class Input(object):
         """
@@ -106,6 +90,9 @@ class sol_surface(solver_base.Solver_Base):
             fitted_x_list, fitted_value = self._prepare(self.calc_info["x_list"], self.base_info["extra"])
             self.calc_info["fitted_x_list"] = fitted_x_list
             self.calc_info["fitted_value"] = fitted_value
+            update_info["calc"]["fitted_value"] = fitted_x_list
+            update_info["calc"]["fitted_value"] = fitted_value
+            return update_info
 
             #####[S] Prepare #####
         def _prepare(self, x_list, extra=False):
@@ -204,9 +191,13 @@ class sol_surface(solver_base.Solver_Base):
             self.base_info = info["base"]
             self.experiment_info = info["experiment"]
             self.file_info = info["file"]
+            self.calc_info = info["calc"]
+
+        def update_info(self, updated_info):
+            self.calc_info = updated_info["calc"]
 
 
-        def get_results(self, calc_info):
+        def get_results(self):
             """
             Get energy and structure obtained by the solver program.
 
@@ -219,7 +210,7 @@ class sol_surface(solver_base.Solver_Base):
             """
 
             # Calculate Rfactor and Output numerical results
-            Rfactor = self._post(calc_info["fitted_x_list"])
+            Rfactor = self._post(self.calc_info["fitted_x_list"])
             os.chdir(self.base_info["base_dir"])
             return Rfactor
 

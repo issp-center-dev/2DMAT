@@ -151,3 +151,14 @@ class Solver_Base(object, metaclass =ABCMeta):
             raise NotImplementedError()
 
 
+        def update_info(self, update_info):
+            """
+            Update information.
+
+            Parameters
+            ----------
+            update_info : dict
+                Atomic structure.
+
+            """
+            pass

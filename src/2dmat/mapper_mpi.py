@@ -15,6 +15,7 @@ except ImportError:
     MPI_flag = False
 
 import solver.sol_surface as Solver
+import runner.runner as Runner
 
 def get_info(args):
     if len(args.llist) != args.dimension:
@@ -123,10 +124,11 @@ def main(info):
             info["log"]["Log_number"] = round(mesh[0])
             info["calc"]["x_list"] = mesh[1:]
             info["base"]["base_dir"] = os.getcwd()
-            solver.input.update_info(info)
+            update_info = solver.input.update_info(info)
+            solver.output.update_info(update_info)
             #Run surf.exe
             solver.run()
-            fx = solver.output.get_results(solver.input.calc_info)
+            fx = solver.output.get_results()
             fx_list.append(fx)
             file_CM.write("{:8f}\n".format(fx))
             print("mesh after:", mesh)

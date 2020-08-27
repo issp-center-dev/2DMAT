@@ -40,7 +40,8 @@ class Runner(object):
     def submit(self, update_info = None):
         solverinput = self.base_solver_input
         if update_info is not None:
-            solverinput.update_info(update_info)
+            update_info = solverinput.update_info(update_info)
+            self.output.update_info(update_info)
         self.run.submit(self.solver_name, solverinput, self.output)
         results = self.output.get_results(self.output)
         return results
