@@ -1,0 +1,13 @@
+[base]
+dimension = 3
+label_list = ["z1", "z2", "z3"]
+string_list = ["value_01", "value_02", "value_03" ]
+degree_max = 7.0
+[experiment]
+path = "experiment.txt"
+first = 1
+last = 70
+[file]
+calculated_first_line = 5
+calculated_last_line = 74
+row_number = 2

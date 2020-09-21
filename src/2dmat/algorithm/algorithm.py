@@ -12,3 +12,17 @@ class Algorithm(metaclass =ABCMeta):
     @abstractmethod
     def run(self, run_info):
         pass
+
+class Param(metaclass =ABCMeta):
+
+    def __init__(self):
+        pass
+
+    def from_dict(cls, dict):
+        params = cls()
+        return params
+
+    def from_toml(cls, file_name):
+        import toml
+        return cls.from_dict(toml.load(file_name))
+

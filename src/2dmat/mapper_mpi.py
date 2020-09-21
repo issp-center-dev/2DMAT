@@ -17,6 +17,89 @@ except ImportError:
 import solver.sol_surface as Solver
 import runner.runner as Runner
 
+def from_dict(dict):
+    # Set basic information
+    info={}
+    info["base"] = {}
+    info["base"]["dimension"] = dict["base"].get("dimension", 2)
+    info["base"]["normalization"] = dict["base"].get("normalization", "TOTAL")
+    if info["base"]["normalization"] not in ["TOTAL", "MAX"]:
+        raise ValueError("normalization must be TOTAL or MAX.")
+    info["base"]["label_list"] = dict["base"].get("label_list", ["z1(Si)", "z2(Si)"])
+    info["base"]["string_list"] = dict["base"].get("string_list", ["value_01", "value_02"])
+    info["base"]["surface_input_file"] = dict["base"].get("surface_input_file", "surf.txt")
+    info["base"]["bulk_output_file"] = dict["base"].get("bulk_output_file", "bulkP.b")
+    info["base"]["surface_output_file"] = dict["base"].get("surface_output_file", "surf-bulkP.s")
+    info["base"]["Rfactor_type"] = dict["base"].get("Rfactor_type", "A")
+    if info["base"]["Rfactor_type"] not in ["A", "B"]:
+        raise ValueError("Rfactor_type must be A or B.")
+    info["base"]["omega"] = dict["base"].get("omega", 0.5)
+    info["base"]["main_dir"] = dict["base"].get("main_dir", os.getcwd())
+    info["base"]["degree_max"] = dict["base"].get("degree_max", 6.0)
+
+    if len(info["base"]["label_list"] ) != info["base"]["dimension"]:
+        print("Error: len(label_list) is not equal to dimension")
+        exit(1)
+    if len(info["base"]["string_list"]) != info["base"]["dimension"]:
+        print("Error: len(slstring_list) is not equal to dimension")
+        exit(1)
+
+    #Set file information
+    info["file"] = {}
+    info["file"]["calculated_first_line"] = dict["file"].get("calculated_first_line", 5)
+    info["file"]["calculated_last_line"] = dict["file"].get("calculated_last_line", 60)
+    info["file"]["row_number"] = dict["file"].get("row_number", 8)
+
+    #Set experiment information
+    experiment_path = dict["experiment"].get("path", "experiment.txt")
+    firstline = dict["experiment"].get("first", 1)
+    lastline = dict["experiment"].get("last", 56)
+
+    # Set log information
+    info["log"] = {}
+    info["log"]["Log_number"] = 0
+
+    # Read experiment-data
+    # TODO: make a function
+    print("Read experiment.txt")
+    degree_list = []
+    I_experiment_list = []
+    nline = lastline - firstline + 1
+    assert nline > 0
+
+    with open(experiment_path, "r") as fp:
+        for _ in range(firstline - 1):
+            fp.readline()
+        for _ in range(nline):
+            line = fp.readline()
+            words = line.split()
+            degree_list.append(float(words[0]))
+            I_experiment_list.append(float(words[1]))
+    info["base"]["degree_list"] = degree_list
+
+    if info["base"]["normalization"] == "TOTAL":
+        I_experiment_norm = sum(I_experiment_list)
+    elif info["base"]["normalization"] == "MAX":
+        I_experiment_norm = max(I_experiment_list)
+    else:
+        # TODO: error handling
+        # TODO: redundant?
+        print("ERROR: Unknown normalization", info["normalization"])
+        exit(1)
+    I_experiment_list_normalized = [
+        I_exp / I_experiment_norm for I_exp in I_experiment_list
+    ]
+
+    info["experiment"] = {}
+    info["experiment"]["I"] = I_experiment_list
+    info["experiment"]["I_normalized"] = I_experiment_list_normalized
+    info["experiment"]["I_norm"] = I_experiment_norm
+    return info
+
+def from_toml(file_name):
+    import toml
+    return from_dict(toml.load(file_name))
+
 def get_info(args):
     if len(args.llist) != args.dimension:
         print("Error: len(llist) is not equal to dimension")
@@ -152,60 +235,12 @@ def main(info):
 
 
 if __name__ == "__main__":
-    ###### Parameter Settings ######
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--dimension", type=int, default=2, help="(default: %(default)s)"
-    )
-    parser.add_argument(
-        "--llist",
-        type=str,
-        nargs="*",
-        default=["z1(Si)", "z2(Si)"],
-        help="(default: %(default)s)",
-    )
-    parser.add_argument(
-        "--slist",
-        type=str,
-        nargs="*",
-        default=["value_01", "value_02"],
-        help="(default: %(default)s)",
-    )
-    parser.add_argument(
-        "--sinput", type=str, default="surf.txt", help="(default: %(default)s)"
-    )
-    parser.add_argument(
-        "--boutput", type=str, default="bulkP.b", help="(default: %(default)s)"
-    )
-    parser.add_argument(
-        "--soutput", type=str, default="surf-bulkP.s", help="(default: %(default)s)"
-    )
-    parser.add_argument(
-        "--norm",
-        type=str,
-        default="TOTAL",
-        choices=["TOTAL", "MAX"],
-        help="(default: %(default)s)",
-    )
-    parser.add_argument(
-        "--rfactor",
-        type=str,
-        default="A",
-        choices=["A", "B"],
-        help="type of R factor(default: %(default)s)",
-    )
-    parser.add_argument("--efirst", type=int, default=1, help="(default: %(default)s)")
-    parser.add_argument("--elast", type=int, default=56, help="(default: %(default)s)")
-    parser.add_argument("--cfirst", type=int, default=5, help="(default: %(default)s)")
-    parser.add_argument("--clast", type=int, default=60, help="(default: %(default)s)")
-    parser.add_argument(
-        "--dmax", type=float, default=6.0, help="(default: %(default)s)"
-    )
-    parser.add_argument("--rnumber", type=int, default=8, help="(default: %(default)s)")
-    parser.add_argument(
-        "--omega", type=float, default=0.5, help="(default: %(default)s)"
-    )
-    args = parser.parse_args()
+    import sys
+    if len(sys.argv) != 2:
+        print ("Usage: python mapper_mpi.py toml_file_name.")
+        exit(1)
+    file_name = sys.argv[1]
+    info = from_toml(file_name)
 
     rank = 0
     size = 1
@@ -236,8 +271,7 @@ if __name__ == "__main__":
             for item in [
                 "surf.exe",
                 "template.txt",
-                "experiment.txt",
-                args.boutput,
+                info["base"]["bulk_output_file"]
             ]:
                 shutil.copy(item, os.path.join(sub_folder_name, item))
             shutil.copy(
@@ -250,7 +284,6 @@ if __name__ == "__main__":
 
     os.chdir("mapper{:08d}".format(rank))
 
-    info = get_info(args)
     info["mpi"]={}
     info["mpi"]["comm"] = comm
     info["mpi"]["nprocs_per_solver"] = None
