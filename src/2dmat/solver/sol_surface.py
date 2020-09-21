@@ -18,10 +18,10 @@ class sol_surface(solver_base.Solver_Base):
             Path to the solver.
         """
         info["calc"] = {}
-        self.path_to_solver = info["base"]["main_dir"]
+        self.path_to_solver = os.path.join(info["base"]["main_dir"], self.get_name())
         self.input = sol_surface.Input(info)
         self.output = sol_surface.Output(info)
-        self.base_info = info
+        self.base_info = info["base"]
 
     def get_run_scheme(self):
         """
@@ -30,7 +30,7 @@ class sol_surface(solver_base.Solver_Base):
         str
             run_scheme.
         """
-        return "subprocess_from_python"
+        return "subprocess"
 
     def get_path_to_solver(self):
         """
@@ -52,8 +52,10 @@ class sol_surface(solver_base.Solver_Base):
 
     def run(self):
         # Run surf.exe
+        os.chdir(self.input.base_info["output_dir"])
         print("Perform surface-calculation")
-        subprocess.call([os.path.join(self.path_to_solver, "surf.exe")])
+        subprocess.call([self.path_to_solver])
+        os.chdir(self.input.base_info["base_dir"])
 
     class Input(object):
         """
@@ -87,11 +89,13 @@ class sol_surface(solver_base.Solver_Base):
             self.base_info["base_dir"] = update_info["base"]["base_dir"]
             # Make fitted x_list and value
             # Move subdir
-            fitted_x_list, fitted_value = self._prepare(self.calc_info["x_list"], self.base_info["extra"])
+            fitted_x_list, fitted_value, folder_name = self._prepare(self.calc_info["x_list"], self.base_info["extra"])
             self.calc_info["fitted_x_list"] = fitted_x_list
             self.calc_info["fitted_value"] = fitted_value
-            update_info["calc"]["fitted_value"] = fitted_x_list
-            update_info["calc"]["fitted_value"] = fitted_value
+            self.base_info["output_dir"] = os.path.join(self.base_info["base_dir"], folder_name)
+            update_info["calc"] = self.calc_info
+            update_info["base"] = self.base_info
+            update_info["log"] = self.base_info
             return update_info
 
             #####[S] Prepare #####
@@ -110,13 +114,10 @@ class sol_surface(solver_base.Solver_Base):
             for index in range(dimension):
                 print(label_list[index], "=", fitted_x_list[index])
             self._replace(fitted_x_list)
-            self._pre_bulk(self.log_info["Log_number"], bulk_output_file, surface_input_file, extra)
-            # TODO: Need to return fitted_value? (it is unused)
-            return fitted_x_list, fitted_value
+            folder_name = self._pre_bulk(self.log_info["Log_number"], bulk_output_file, surface_input_file, extra)
+            return fitted_x_list, fitted_value, folder_name
 
         def _replace(self, fitted_x_list):
-            # TODO: print elsewhere?
-            print(os.getcwd())
             with open("template.txt", "r") as file_input, open(
                     self.base_info["surface_input_file"], "w"
             ) as file_output:
@@ -136,7 +137,7 @@ class sol_surface(solver_base.Solver_Base):
             os.makedirs(folder_name, exist_ok=True)
             shutil.copy(bulk_output_file, os.path.join(folder_name, bulk_output_file))
             shutil.copy(surface_input_file, os.path.join(folder_name, surface_input_file))
-            os.chdir(folder_name)
+            return folder_name
 
         #####[E] Prepare #####
 
@@ -149,7 +150,7 @@ class sol_surface(solver_base.Solver_Base):
             workdir : str
                 Path to working directory.
             """
-            raise NotImplementedError()
+            pass
 
         def from_directory(self, base_input_dir):
             """
@@ -195,7 +196,7 @@ class sol_surface(solver_base.Solver_Base):
 
         def update_info(self, updated_info):
             self.calc_info = updated_info["calc"]
-
+            self.base_info = updated_info["base"]
 
         def get_results(self):
             """
@@ -210,6 +211,7 @@ class sol_surface(solver_base.Solver_Base):
             """
 
             # Calculate Rfactor and Output numerical results
+            os.chdir(self.base_info["output_dir"])
             Rfactor = self._post(self.calc_info["fitted_x_list"])
             os.chdir(self.base_info["base_dir"])
             return Rfactor

@@ -16,7 +16,7 @@ class Runner(object):
         self.base_solver_input = Solver.get_input()
         self.output = Solver.get_output()
         path_to_solver = Solver.get_path_to_solver()
-        run_scheme = Solver.get_run_schemes()
+        run_scheme = Solver.get_run_scheme()
         try:
             #Is it better to define mpi_info class ?
             comm = mpi_info["comm"]
@@ -37,13 +37,13 @@ class Runner(object):
             msg = "Unknown scheme: {}".format(run_scheme)
             raise ValueError(msg)
 
-    def submit(self, update_info = None):
+    def submit(self, update_info=None):
         solverinput = self.base_solver_input
         if update_info is not None:
             update_info = solverinput.update_info(update_info)
             self.output.update_info(update_info)
         self.run.submit(self.solver_name, solverinput, self.output)
-        results = self.output.get_results(self.output)
+        results = self.output.get_results()
         return results
 
 class Run(metaclass = ABCMeta):
@@ -86,7 +86,7 @@ class run_subprocess(Run):
     Invoker via subprocess
 
     """
-    def submit(self, solver_name, input_info, output_info):
+    def submit(self, solver_name, solverinput, solveroutput):
         """
             Run solver
 
@@ -110,20 +110,22 @@ class run_subprocess(Run):
                 Raises RuntimeError when solver failed.
             """
         try:
-            output_dir = output_info["output_dir"]
+            output_dir = solveroutput.base_info["output_dir"]
         except KeyError:
             print("Error: output_info does not have the key output_dir.")
             sys.exit(1)
 
-        input_info.write_input(output_dir=output_dir)
+        solverinput.write_input(workdir=output_dir)
         cwd = os.getcwd()
         os.chdir(output_dir)
-        args = input_info.cl_args(self.nprocs, self.nthreads, output_dir)
+        print(output_dir)
         command = [self.path_to_solver]
-        command.extend(args)
+        #print("Debug {}".format(command))
+        #args = solverinput.cl_args(self.nprocs, self.nthreads, output_dir)
+        #command.extend(args)
         with open(os.path.join(output_dir, "stdout"), "w") as fi:
             try:
-                subprocess.run(command, stdout=fi, stderr=subprocess.STDOUT, check=True)
+                subprocess.run(command, stdout=fi, stderr=subprocess.STDOUT, check=True, shell=True)
             except subprocess.CalledProcessError as e:
                 raise
         os.chdir(cwd)

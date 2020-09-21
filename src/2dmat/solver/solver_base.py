@@ -55,7 +55,7 @@ class Solver_Base(object, metaclass =ABCMeta):
         -------
         Input object
         """
-        return self.Input
+        return self.input
 
     def get_output(self):
         """
@@ -63,7 +63,7 @@ class Solver_Base(object, metaclass =ABCMeta):
         -------
         Output object
         """
-        return self.Output
+        return self.output
 
     class Input(object):
         """

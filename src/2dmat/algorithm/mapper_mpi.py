@@ -4,8 +4,9 @@ import numpy as np
 import os
 import shutil
 from argparse import ArgumentParser
+from . import algorithm
 
-class MapperMPI(Algorithm):
+class MapperMPI(algorithm.Algorithm):
     def main():
         ###### Parameter Settings ######
         parser = ArgumentParser()

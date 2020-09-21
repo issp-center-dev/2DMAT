@@ -33,12 +33,12 @@ def f_calc(x_list, info, extra_data=False):
     print(len(x_list), dimension)
 
     if out_of_range:
-        y = 100.0  # TODO: is it sufficient?
+        y = 100.0  # TODO: is it sufficient? -> cutoff value
     else:
         info["log"]["Log_number"] += 1
         sol_surf.set_log(info["log"]["Log_number"])
         y = sol_surf.f(x_list, extra_data)
-        # TODO: callback_list seems not to be used.
+        # TODO: callback_list seems not to be used. -> used.
         if not extra_data:
             callback = [info["log"]["Log_number"]]
             for index in range(dimension):
@@ -232,9 +232,10 @@ if __name__ == "__main__":
     info = get_info(args)
 
     # TODO: Is it right ? arg.degree_max is ignored.
+    # TODO: Delete arg.degree_max
     info["degree_max"] = info["degree_list"][-1]
     dimension = info["dimension"]
-    # Rerform bulk-calculation
+    # Perform bulk-calculation
     print("Perform bulk-calculation")
     subprocess.call([os.path.join(main_dir, "bulk.exe")])
     # make initial simplex

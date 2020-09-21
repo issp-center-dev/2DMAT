@@ -105,7 +105,9 @@ def main(info):
     # Make ColorMap
     label_list = info["base"]["label_list"]
     dimension = info["base"]["dimension"]
+    mpi_info = info ["mpi"]
 
+    run = Runner.Runner(solver, mpi_info)
     print("Make ColorMap")
     with open("ColorMap.txt", "w") as file_CM:
         fx_list = []
@@ -124,11 +126,13 @@ def main(info):
             info["log"]["Log_number"] = round(mesh[0])
             info["calc"]["x_list"] = mesh[1:]
             info["base"]["base_dir"] = os.getcwd()
-            update_info = solver.input.update_info(info)
-            solver.output.update_info(update_info)
-            #Run surf.exe
-            solver.run()
-            fx = solver.output.get_results()
+            print(info["base"]["base_dir"])
+            #update_info = solver.input.update_info(info)
+            #solver.output.update_info(update_info)
+            fx = run.submit(update_info=info)
+            ##Run surf.exe
+            #solver.run()
+            #fx = solver.output.get_results()
             fx_list.append(fx)
             file_CM.write("{:8f}\n".format(fx))
             print("mesh after:", mesh)
@@ -247,6 +251,10 @@ if __name__ == "__main__":
     os.chdir("mapper{:08d}".format(rank))
 
     info = get_info(args)
+    info["mpi"]={}
+    info["mpi"]["comm"] = comm
+    info["mpi"]["nprocs_per_solver"] = None
+    info["mpi"]["nthreads_per_proc"] = None
     main(info)
 
     print("complete main process : rank {:08d}/{:08d}".format(rank, size))
