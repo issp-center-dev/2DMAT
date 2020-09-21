@@ -1,431 +1,191 @@
 from io import open
-from mpi4py import MPI
 import numpy as np
 import os
-import shutil
-from argparse import ArgumentParser
 from . import algorithm
 
 class MapperMPI(algorithm.Algorithm):
-    def main():
-        ###### Parameter Settings ######
-        parser = ArgumentParser()
-        parser.add_argument(
-            "--dimension", type=int, default=2, help="(default: %(default)s)"
-        )
-        parser.add_argument(
-            "--llist",
-            type=str,
-            nargs="*",
-            default=["z1(Si)", "z2(Si)"],
-            help="(default: %(default)s)",
-        )
-        parser.add_argument(
-            "--slist",
-            type=str,
-            nargs="*",
-            default=["value_01", "value_02"],
-            help="(default: %(default)s)",
-        )
-        parser.add_argument(
-            "--sinput", type=str, default="surf.txt", help="(default: %(default)s)"
-        )
-        parser.add_argument(
-            "--boutput", type=str, default="bulkP.b", help="(default: %(default)s)"
-        )
-        parser.add_argument(
-            "--soutput", type=str, default="surf-bulkP.s", help="(default: %(default)s)"
-        )
-        parser.add_argument(
-            "--norm",
-            type=str,
-            default="TOTAL",
-            choices=["TOTAL", "MAX"],
-            help="(default: %(default)s)",
-        )
-        parser.add_argument(
-            "--rfactor",
-            type=str,
-            default="A",
-            choices=["A", "B"],
-            help="(default: %(default)s)",
-        )
-        parser.add_argument("--efirst", type=int, default=1, help="(default: %(default)s)")
-        parser.add_argument("--elast", type=int, default=56, help="(default: %(default)s)")
-        parser.add_argument("--cfirst", type=int, default=5, help="(default: %(default)s)")
-        parser.add_argument("--clast", type=int, default=60, help="(default: %(default)s)")
-        parser.add_argument(
-            "--dmax", type=float, default=6.0, help="(default: %(default)s)"
-        )
-        parser.add_argument("--rnumber", type=int, default=8, help="(default: %(default)s)")
-        parser.add_argument(
-            "--omega", type=float, default=0.5, help="(default: %(default)s)"
-        )
-        args = parser.parse_args()
+    def _get_mesh_list_from_file(self, filename="MeshData.txt"):
+        print("Read", filename)
+        mesh_list = []
+        with open(filename, "r") as file_MD:
+            for line in file_MD:
+                line = line.lstrip()
+                if line.startswith("#"):
+                    continue
+                mesh = []
+                for value in line.split():
+                    mesh.append(float(value))
+                mesh_list.append(mesh)
+        return mesh_list
 
-        dimension = args.dimension
-        if len(args.llist) != dimension:
-            print("Error: len(llist) is not equal to dimension")
+    def run(self, run_info):
+        original_dir = os.getcwd()
+        rank = run_info["mpi"]["rank"]
+        size = run_info["mpi"]["size"]
+        os.chdir(str(rank))
+        # Make ColorMap
+        label_list = run_info["base"]["label_list"]
+        dimension = run_info["base"]["dimension"]
+        run = self.runner
+        print("Make ColorMap")
+        with open("ColorMap.txt", "w") as file_CM:
+            fx_list = []
+            file_CM.write("#")
+            for label in label_list:
+                file_CM.write("{} ".format(label))
+            file_CM.write("R-factor\n")
+            mesh_list = self._get_mesh_list_from_file()
+            iterations = len(mesh_list)
+            for iteration_count, mesh in enumerate(mesh_list):
+                print("Iteration : {}/{}".format(iteration_count + 1, iterations))
+                print("mesh before:", mesh)
+                for value in mesh[1:]:
+                    file_CM.write("{:8f} ".format(value))
+                # update information
+                run_info["log"]["Log_number"] = round(mesh[0])
+                run_info["calc"]["x_list"] = mesh[1:]
+                run_info["base"]["base_dir"] = os.getcwd()
+                print(run_info["base"]["base_dir"])
+                fx = run.submit(update_info=run_info)
+                fx_list.append(fx)
+                file_CM.write("{:8f}\n".format(fx))
+                print("mesh after:", mesh)
+
+            fx_order = np.argsort(fx_list)
+            minimum_point = []
+            print("mesh_list[fx_order[0]]:")
+            print(mesh_list[fx_order[0]])
+            for index in range(1, dimension + 1):
+                minimum_point.append(mesh_list[fx_order[0]][index])
+            file_CM.write("#Minimum point :")
+            for value in minimum_point:
+                file_CM.write(" {:8f}".format(value))
+            file_CM.write("\n")
+            file_CM.write("#R-factor : {:8f}\n".format(fx_list[fx_order[0]]))
+            file_CM.write("#see Log{}\n".format(round(mesh_list[fx_order[0]][0])))
+        os.chdir(original_dir)
+        print("complete main process : rank {:08d}/{:08d}".format(rank, size))
+
+    def prepare(self, prepare_info):
+        # Mesh data is devided.
+        import shutil
+        if prepare_info["mpi"]["rank"] == 0:
+            size = prepare_info["mpi"]["size"]
+            lines = []
+            with open("MeshData.txt", "r") as file_input:
+                for line in file_input:
+                    if not line.lstrip().startswith("#"):
+                        lines.append(line)
+            mesh_total = np.array(lines)
+            mesh_divided = np.array_split(mesh_total, size)
+            for index, mesh in enumerate(mesh_divided):
+                sub_folder_name = str(index)
+                for item in ["surf.exe", "template.txt", prepare_info["base"]["bulk_output_file"]]:
+                    shutil.copy(item, os.path.join(sub_folder_name, item))
+                with open(os.path.join(sub_folder_name, "MeshData.txt"), "w") as file_output:
+                    for data in mesh:
+                        file_output.write(data)
+
+    def post(self, post_info):
+        rank = post_info["mpi"]["rank"]
+        size = post_info["mpi"]["size"]
+        if rank == 0:
+            with open("ColorMap.txt", "w") as file_output:
+                for i in range(size):
+                    with open(
+                            os.path.join(str(i), "ColorMap.txt"), "r"
+                    ) as file_input:
+                        for line in file_input:
+                            line = line.lstrip()
+                            if not line.startswith("#"):
+                                file_output.write(line)
+
+
+class MapperMPI_Param(algorithm.Param):
+    def from_dict(cls, dict):
+        # Set basic information
+        info = {}
+        info["base"] = {}
+        info["base"]["dimension"] = dict["base"].get("dimension", 2)
+        info["base"]["normalization"] = dict["base"].get("normalization", "TOTAL")
+        if info["base"]["normalization"] not in ["TOTAL", "MAX"]:
+            raise ValueError("normalization must be TOTAL or MAX.")
+        info["base"]["label_list"] = dict["base"].get("label_list", ["z1(Si)", "z2(Si)"])
+        info["base"]["string_list"] = dict["base"].get("string_list", ["value_01", "value_02"])
+        info["base"]["surface_input_file"] = dict["base"].get("surface_input_file", "surf.txt")
+        info["base"]["bulk_output_file"] = dict["base"].get("bulk_output_file", "bulkP.b")
+        info["base"]["surface_output_file"] = dict["base"].get("surface_output_file", "surf-bulkP.s")
+        info["base"]["Rfactor_type"] = dict["base"].get("Rfactor_type", "A")
+        if info["base"]["Rfactor_type"] not in ["A", "B"]:
+            raise ValueError("Rfactor_type must be A or B.")
+        info["base"]["omega"] = dict["base"].get("omega", 0.5)
+        info["base"]["main_dir"] = dict["base"].get("main_dir", os.getcwd())
+        info["base"]["degree_max"] = dict["base"].get("degree_max", 6.0)
+
+        if len(info["base"]["label_list"]) != info["base"]["dimension"]:
+            print("Error: len(label_list) is not equal to dimension")
             exit(1)
-        if len(args.slist) != dimension:
-            print("Error: len(slist) is not equal to dimension")
+        if len(info["base"]["string_list"]) != info["base"]["dimension"]:
+            print("Error: len(slstring_list) is not equal to dimension")
             exit(1)
-        label_list = args.llist
-        string_list = args.slist
-        surface_input_file = args.sinput
-        bulk_output_file = args.boutput
-        surface_output_file = args.soutput
-        normalization = args.norm  # "TOTAL" or "MAX"
-        Rfactor = args.rfactor  # "A":General or "B":Pendry
-        experiment_first_line = args.efirst
-        experiment_last_line = args.elast
-        calculated_first_line = args.cfirst
-        calculated_last_line = args.clast
-        degree_max = args.dmax
-        row_number = args.rnumber  # row number of 00 spot in .s file
-        omega = args.omega  # half width of convolution
 
-        ###### define functions ######
-        def replace(fitted_x_list):
-            file_input = open("template.txt", "r")
-            file_output = open(surface_input_file, "w")
-            for line in file_input:
-                for index in range(dimension):
-                    if line.find(string_list[index]) != -1:
-                        line = line.replace(string_list[index], fitted_x_list[index])
-                file_output.write(line)
-            file_input.close()
-            file_output.close()
+        # Set file information
+        info["file"] = {}
+        info["file"]["calculated_first_line"] = dict["file"].get("calculated_first_line", 5)
+        info["file"]["calculated_last_line"] = dict["file"].get("calculated_last_line", 60)
+        info["file"]["row_number"] = dict["file"].get("row_number", 8)
 
-        def g(x):
-            g = (0.939437 / omega) * np.exp(-2.77259 * (x ** 2.0 / omega ** 2.0))
-            return g
+        # Set experiment information
+        experiment_path = dict["experiment"].get("path", "experiment.txt")
+        firstline = dict["experiment"].get("first", 1)
+        lastline = dict["experiment"].get("last", 56)
 
-        def f(x_list):
-            Log_number = round(x_list[0])
-            x_list = x_list[1:]
-            fitted_x_list = []
-            for index in range(dimension):
-                if x_list[index] < 0:
-                    fitted_value = "%.8f" % (x_list[index])
-                else:
-                    fitted_value = " " + "%.8f" % (x_list[index])
-                fitted_value = fitted_value[: len(string_list[index])]
-                fitted_x_list.append(fitted_value)
-            for index in range(dimension):
-                print(label_list[index], "=", fitted_x_list[index])
-            replace(fitted_x_list)
-            folder_name = "Log%08d" % Log_number
-            os.mkdir(folder_name)
-            shutil.copy("%s" % bulk_output_file, "%s/%s" % (folder_name, bulk_output_file))
-            shutil.copy(
-                "%s" % surface_input_file, "%s/%s" % (folder_name, surface_input_file)
-            )
-            os.chdir(folder_name)
-            for time in range(100):
-                print("Perform surface-calculation")
-                os.system("%s/surf.exe" % main_dir)
-                NaN_exist = False
-                file_check = open("%s" % surface_output_file, "r")
-                line_count = 0
-                for line in file_check:
-                    line_count += 1
-                    if calculated_first_line <= line_count <= calculated_last_line:
-                        if line.find("NaN") != -1:
-                            NaN_exist = True
-                file_check.close()
-                if not NaN_exist:
-                    print("RASS : %s does not have NaN." % surface_output_file)
-                    break
-                else:
-                    print(
-                        "WARNING : %s has NaN. Perform surface-calculation one more time."
-                        % surface_output_file
-                    )
-            I_calculated_list = []
-            file_result = open("%s" % surface_output_file, "r")
-            line_count = 0
-            for line in file_result:
-                line_count += 1
-                if calculated_first_line <= line_count <= calculated_last_line:
-                    line = line.replace(",", "")
-                    line = line.split()
-                    I_calculated_list.append(float(line[row_number - 1]))
-                if line_count == calculated_last_line:
-                    if round(float(line[0]), 1) == degree_max:
-                        print("PASS : degree_max = %s" % line[0])
-                    else:
-                        print("WARNING : degree_max = %s" % line[0])
-            file_result.close()
+        # Set log information
+        info["log"] = {}
+        info["log"]["Log_number"] = 0
 
-            ##### convolution #####
-            convolution_I_calculated_list = []
-            for index in range(len(I_calculated_list)):
-                integral = 0.0
-                for index2 in range(len(I_calculated_list)):
-                    integral += (
-                        I_calculated_list[index2]
-                        * g(degree_list[index] - degree_list[index2])
-                        * 0.1
-                    )
-                convolution_I_calculated_list.append(integral)
-            if len(I_calculated_list) == len(convolution_I_calculated_list):
-                print(
-                    "PASS : len(calculated_list)%d = len(convolution_I_calculated_list)%d"
-                    % (len(I_calculated_list), len(convolution_I_calculated_list))
-                )
-            else:
-                print(
-                    "WARNING : len(calculated_list)%d != len(convolution_I_calculated_list)%d"
-                    % (len(I_calculated_list), len(convolution_I_calculated_list))
-                )
-            #####################
-
-            convolution_I_calculated_list_normalized = []
-            if normalization == "TOTAL":
-                I_calculated_total = sum(convolution_I_calculated_list)
-                for i in range(len(convolution_I_calculated_list)):
-                    convolution_I_calculated_list_normalized.append(
-                        (convolution_I_calculated_list[i]) / I_calculated_total
-                    )
-            elif normalization == "MAX":
-                I_calculated_max = max(convolution_I_calculated_list)
-                for i in range(len(convolution_I_calculated_list)):
-                    convolution_I_calculated_list_normalized.append(
-                        convolution_I_calculated_list[i] / I_calculated_max
-                    )
-            if Rfactor == "A":
-                y1 = 0.0
-                for i in range(len(degree_list)):
-                    y1 = (
-                        y1
-                        + (
-                            I_experiment_list_normalized[i]
-                            - convolution_I_calculated_list_normalized[i]
-                        )
-                        ** 2.0
-                    )
-                y = np.sqrt(y1)
-            elif Rfactor == "B":
-                y1 = 0.0
-                for i in range(len(degree_list)):
-                    y1 = (
-                        y1
-                        + (
-                            I_experiment_list_normalized[i]
-                            - convolution_I_calculated_list_normalized[i]
-                        )
-                        ** 2.0
-                    )
-                y2 = 0.0
-                for i in range(len(degree_list)):
-                    y2 = y2 + I_experiment_list_normalized[i] ** 2.0
-                y3 = 0.0
-                for i in range(len(degree_list)):
-                    y3 = y3 + convolution_I_calculated_list_normalized[i] ** 2.0
-                y = y1 / (y2 + y3)
-            print("R-factor =", y)
-            file_RC = open("RockingCurve.txt", "w")
-            file_RC.write("#")
-            for index in range(dimension):
-                file_RC.write("%s = %s" % (label_list[index], fitted_x_list[index]))
-                if not index == dimension - 1:
-                    file_RC.write(" ")
-            file_RC.write("\n")
-            file_RC.write("#R-factor = %f" % y)
-            file_RC.write("\n")
-            if normalization == "TOTAL":
-                file_RC.write("#I_calculated_total=%f" % I_calculated_total)
-                file_RC.write("\n")
-                file_RC.write("#I_experiment_total=%f" % I_experiment_total)
-            elif normalization == "MAX":
-                file_RC.write("#I_calculated_max=%f" % I_calculated_max)
-                file_RC.write("\n")
-                file_RC.write("#I_experiment_max=%f" % I_experiment_max)
-            file_RC.write("\n")
-            file_RC.write(
-                "#degree convolution_I_calculated I_experiment convolution_I_calculated(normalized) I_experiment(normalized) I_calculated"
-            )
-            file_RC.write("\n")
-            for index in range(len(degree_list)):
-                file_RC.write(str(degree_list[index]))
-                file_RC.write(" ")
-                file_RC.write(str(convolution_I_calculated_list[index]))
-                file_RC.write(" ")
-                file_RC.write(str(I_experiment_list[index]))
-                file_RC.write(" ")
-                file_RC.write(str(convolution_I_calculated_list_normalized[index]))
-                file_RC.write(" ")
-                file_RC.write(str(I_experiment_list_normalized[index]))
-                file_RC.write(" ")
-                file_RC.write(str(I_calculated_list[index]))
-                file_RC.write("\n")
-            file_RC.close()
-            os.chdir(main_dir)
-            return y
-
-        ############################
-
-        main_dir = os.getcwd()
+        # Set Default value
+        info["mpi"] = {}
+        info["mpi"]["nprocs_per_solver"] = None
+        info["mpi"]["nthreads_per_proc"] = None
 
         # Read experiment-data
+        # TODO: make a function
         print("Read experiment.txt")
         degree_list = []
         I_experiment_list = []
-        fp = open("experiment.txt", "r")
-        read = fp.readlines()
-        count = 0
-        for line in read:
-            count = count + 1
-            if experiment_first_line <= count <= experiment_last_line:
-                line = line.split()
-                degree_list.append(float(line[0]))
-                I_experiment_list.append(float(line[1]))
-        fp.close()
+        nline = lastline - firstline + 1
+        assert nline > 0
 
-        I_experiment_list_normalized = []
-        if normalization == "TOTAL":
-            I_experiment_total = sum(I_experiment_list)
-            for i in range(len(I_experiment_list)):
-                I_experiment_list_normalized.append(
-                    (I_experiment_list[i]) / I_experiment_total
-                )
-        elif normalization == "MAX":
-            I_experiment_max = max(I_experiment_list)
-            for i in range(len(I_experiment_list)):
-                I_experiment_list_normalized.append(I_experiment_list[i] / I_experiment_max)
+        with open(experiment_path, "r") as fp:
+            for _ in range(firstline - 1):
+                fp.readline()
+            for _ in range(nline):
+                line = fp.readline()
+                words = line.split()
+                degree_list.append(float(words[0]))
+                I_experiment_list.append(float(words[1]))
+        info["base"]["degree_list"] = degree_list
 
-        # Rerform bulk-calculation
-        print("Perform bulk-calculation")
-        os.system("%s/bulk.exe" % main_dir)
+        if info["base"]["normalization"] == "TOTAL":
+            I_experiment_norm = sum(I_experiment_list)
+        elif info["base"]["normalization"] == "MAX":
+            I_experiment_norm = max(I_experiment_list)
+        else:
+            # TODO: error handling
+            # TODO: redundant?
+            print("ERROR: Unknown normalization", info["normalization"])
+            exit(1)
+        I_experiment_list_normalized = [
+            I_exp / I_experiment_norm for I_exp in I_experiment_list
+        ]
 
-        # Make ColorMap
-        print("Read MeshData.txt")
-        mesh_list = []
-        file_MD = open("MeshData.txt", "r")
-        for line in file_MD:
-            if line[0] == "#":
-                continue
-            line = line.split()
-            mesh = []
-            for value in line:
-                mesh.append(float(value))
-            mesh_list.append(mesh)
+        info["experiment"] = {}
+        info["experiment"]["I"] = I_experiment_list
+        info["experiment"]["I_normalized"] = I_experiment_list_normalized
+        info["experiment"]["I_norm"] = I_experiment_norm
+        return info
 
-        # print("check read mesh")
-        # for mesh in mesh_list:
-        #    print(mesh)
-
-        print("Make ColorMap")
-        fx_list = []
-        file_CM = open("ColorMap.txt", "w")
-        file_CM.write("#")
-        for label in label_list:
-            file_CM.write("%s " % label)
-        file_CM.write("R-factor\n")
-        iterations = len(mesh_list)
-        iteration_count = 0
-        for mesh in mesh_list:
-            iteration_count += 1
-            print("Iteration : %d/%d" % (iteration_count, iterations))
-            print("mesh before:", mesh)
-            for value in mesh[1:]:
-                file_CM.write("%f " % value)
-            fx = f(mesh)
-            fx_list.append(fx)
-            file_CM.write("%f\n" % fx)
-            print("mesh after:", mesh)
-        fx_order = np.argsort(fx_list)
-        minimum_point = []
-        print("mesh_list[fx_order[0]]:")
-        print(mesh_list[fx_order[0]])
-        for index in range(1, dimension + 1):
-            minimum_point.append(mesh_list[fx_order[0]][index])
-        file_CM.write("#Minimum point :")
-        for value in minimum_point:
-            file_CM.write(" %f" % value)
-        file_CM.write("\n")
-        file_CM.write("#R-factor : %f" % fx_list[fx_order[0]])
-        file_CM.write("\n")
-        file_CM.write("#see Log%d" % round(mesh_list[fx_order[0]][0]))
-        file_CM.close()
-
-
-    rank = 0
-    size = 1
-    if MPI_flag:
-        comm = MPI.COMM_WORLD
-        rank = comm.Get_rank()
-        size = comm.Get_size()
-    maindir2 = os.getcwd()
-
-    if rank == 0:
-        pieces = size
-        lines = []
-        file_input = open("MeshData.txt", "r")
-        for line in file_input:
-            if not line[0] == "#":
-                lines.append(line)
-        file_input.close()
-
-        total = len(lines)
-        elements = total // pieces
-
-        for index in range(pieces):
-            file_output = open("devided_MeshData%08d.txt" % (index), "w")
-            for index2 in range(elements):
-                file_output.write(lines[index2])
-            del lines[0:elements]
-            if index == pieces - 1:
-                for index3 in range(len(lines)):
-                    file_output.write(lines[index3])
-            file_output.close()
-
-        for i in range(pieces):
-            sub_folder_name = "mapper%08d" % (i)
-            os.mkdir(sub_folder_name)
-            for item in [
-                "bulk.exe",
-                "surf.exe",
-                "bulk.txt",
-                "template.txt",
-                "experiment.txt",
-            ]:
-                shutil.copy(item, "%s/%s" % (sub_folder_name, item))
-            shutil.copy(
-                "devided_MeshData%08d.txt" % (i), "%s/MeshData.txt" % (sub_folder_name)
-            )
-
-    if MPI_flag:
-        comm.Barrier()
-
-    # sys.stdout = open(u"output_from_rank%08d.txt"%(rank), u"w")
-
-    os.chdir("mapper%08d" % (rank))
-    main()
-
-    # sys.stdout.close()
-    # sys.stdout = sys.__stdout__
-
-    print("complete main process : rank%08d/%08d" % (rank, size))
-
-    if MPI_flag:
-        comm.Barrier()
-
-    if rank == 0:
-        os.chdir(maindir2)
-        all_data = []
-        for i in range(size):
-            file_input = open("mapper%08d/ColorMap.txt" % (i), "r")
-            lines = file_input.readlines()
-            file_input.close()
-            for line in lines:
-                if line[0] == "#":
-                    continue
-                all_data.append(line)
-
-        file_output = open("ColorMap.txt", "w")
-        for line in all_data:
-            file_output.write(line)
-        file_output.close()
-        print("complete")
+    def from_toml(cls, file_name):
+        import toml
+        return cls.from_dict(toml.load(file_name))
