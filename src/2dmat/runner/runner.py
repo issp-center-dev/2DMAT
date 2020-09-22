@@ -5,12 +5,15 @@ import os
 import subprocess
 from abc import ABCMeta, abstractmethod
 
+
 class Runner(object):
     def __init__(self, Solver, mpi_info):
         """
 
-        :param solver: 2dmat.solver.solver_base object
-        :param mpi_info:
+        Parameters
+        ----------
+        Solver: 2dmat.solver.solver_base object
+        mpi_info:
         """
         self.solver_name = Solver.get_name()
         self.base_solver_input = Solver.get_input()
@@ -18,7 +21,7 @@ class Runner(object):
         path_to_solver = Solver.get_path_to_solver()
         run_scheme = Solver.get_run_scheme()
         try:
-            #Is it better to define mpi_info class ?
+            # TODO: Is it better to define mpi_info class ?
             comm = mpi_info["comm"]
             nprocs_per_solver = mpi_info["nprocs_per_solver"]
             nthreads_per_proc = mpi_info["nthreads_per_proc"]
@@ -26,13 +29,21 @@ class Runner(object):
             print("Error: key for mpi_info.")
             sys.exit(1)
         if run_scheme == "mpi_spawn_ready":
-            self.run = run_mpispawn_ready(path_to_solver, nprocs_per_solver, nthreads_per_proc, comm)
+            self.run = run_mpispawn_ready(
+                path_to_solver, nprocs_per_solver, nthreads_per_proc, comm
+            )
         elif run_scheme == "mpi_spawn":
-            self.run = run_mpispawn(path_to_solver, nprocs_per_solver, nthreads_per_proc, comm)
+            self.run = run_mpispawn(
+                path_to_solver, nprocs_per_solver, nthreads_per_proc, comm
+            )
         elif run_scheme == "mpi_spawn_wrapper":
-            self.run = run_mpispawn_wrapper(path_to_solver, nprocs_per_solver, nthreads_per_proc, comm)
+            self.run = run_mpispawn_wrapper(
+                path_to_solver, nprocs_per_solver, nthreads_per_proc, comm
+            )
         elif run_scheme == "subprocess":
-            self.run = run_subprocess(path_to_solver, nprocs_per_solver, nthreads_per_proc, comm)
+            self.run = run_subprocess(
+                path_to_solver, nprocs_per_solver, nthreads_per_proc, comm
+            )
         else:
             msg = "Unknown scheme: {}".format(run_scheme)
             raise ValueError(msg)
@@ -46,7 +57,8 @@ class Runner(object):
         results = self.output.get_results()
         return results
 
-class Run(metaclass = ABCMeta):
+
+class Run(metaclass=ABCMeta):
     def __init__(self, path_to_solver, nprocs, nthreads, comm):
         """
         Parameters
@@ -69,46 +81,51 @@ class Run(metaclass = ABCMeta):
     def submit(self, solver_name, input_info, output_info):
         pass
 
+
 class run_mpispawn_wrapper(Run):
     def submit(self, solver_name, input_info, output_info):
         raise NotImplementedError()
+
 
 class run_mpispawn(Run):
     def submit(self, solver_name, input_info, output_info):
         raise NotImplementedError()
 
+
 class run_mpispawn_ready(Run):
     def submit(self, solver_name, input_info, output_info):
         raise NotImplementedError()
+
 
 class run_subprocess(Run):
     """
     Invoker via subprocess
 
     """
+
     def submit(self, solver_name, solverinput, solveroutput):
         """
-            Run solver
+        Run solver
 
-            Parameters
-            ----------
-            solver_name : str
-                Name of solver
-            solverinput : Solver.Input
-                Input manager
-            output_dir : str
-                Path to directory where a solver saves output
+        Parameters
+        ----------
+        solver_name : str
+            Name of solver
+        solverinput : Solver.Input
+            Input manager
+        output_dir : str
+            Path to directory where a solver saves output
 
-            Returns
-            -------
-            status : int
-                Always returns 0
+        Returns
+        -------
+        status : int
+            Always returns 0
 
-            Raises
-            ------
-            RuntimeError
-                Raises RuntimeError when solver failed.
-            """
+        Raises
+        ------
+        subprocess.CalledProcessError
+            Raises when solver failed.
+        """
         try:
             output_dir = solveroutput.base_info["output_dir"]
         except KeyError:
@@ -120,13 +137,12 @@ class run_subprocess(Run):
         os.chdir(output_dir)
         print(output_dir)
         command = [self.path_to_solver]
-        #print("Debug {}".format(command))
-        #args = solverinput.cl_args(self.nprocs, self.nthreads, output_dir)
-        #command.extend(args)
+        # print("Debug {}".format(command))
+        # args = solverinput.cl_args(self.nprocs, self.nthreads, output_dir)
+        # command.extend(args)
         with open(os.path.join(output_dir, "stdout"), "w") as fi:
-            try:
-                subprocess.run(command, stdout=fi, stderr=subprocess.STDOUT, check=True, shell=True)
-            except subprocess.CalledProcessError as e:
-                raise
+            subprocess.run(
+                command, stdout=fi, stderr=subprocess.STDOUT, check=True, shell=True
+            )
         os.chdir(cwd)
         return 0

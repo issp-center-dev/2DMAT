@@ -14,8 +14,9 @@ import runner.runner as Runner
 
 if __name__ == "__main__":
     import sys
+
     if len(sys.argv) != 2:
-        print ("Usage: python mapper_mpi.py toml_file_name.")
+        print("Usage: python mapper_mpi.py toml_file_name.")
         exit(1)
     file_name = sys.argv[1]
     maindir = os.getcwd()
@@ -33,13 +34,12 @@ if __name__ == "__main__":
         info["mpi"]["size"] = size
 
     solver = Solver.sol_surface(info)
-    runner = Runner.Runner(solver, info ["mpi"])
+    runner = Runner.Runner(solver, info["mpi"])
     alg = mapper_mpi_alg.MapperMPI(Runner=runner)
 
-    #Make directories at each rank
-    for idx in range(size):
-        sub_folder_name = str(idx)
-        os.makedirs(sub_folder_name, exist_ok=True)
+    # Make directories at each rank
+    sub_folder_name = str(rank)
+    os.makedirs(sub_folder_name, exist_ok=True)
     alg.prepare(info)
     if MPI_flag:
         comm.Barrier()

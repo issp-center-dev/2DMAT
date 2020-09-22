@@ -3,7 +3,8 @@
 
 from abc import ABCMeta, abstractmethod
 
-class Solver_Base(object, metaclass =ABCMeta):
+
+class Solver_Base(object, metaclass=ABCMeta):
     def __init__(self, path_to_solver):
         """
         Initialize the solver.
@@ -137,6 +138,7 @@ class Solver_Base(object, metaclass =ABCMeta):
         """
         Output manager.
         """
+
         def get_results(self, output_info):
             """
             Get energy and structure obtained by the solver program.
@@ -149,7 +151,6 @@ class Solver_Base(object, metaclass =ABCMeta):
             -------
             """
             raise NotImplementedError()
-
 
         def update_info(self, update_info):
             """
