@@ -1,4 +1,5 @@
 [base]
+method = "mapper"
 dimension = 3
 label_list = ["z1", "z2", "z3"]
 string_list = ["value_01", "value_02", "value_03" ]

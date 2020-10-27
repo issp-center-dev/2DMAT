@@ -39,15 +39,17 @@ class Runner(object):
 
     def submit(self, update_info=None):
         solverinput = self.base_solver_input
-        if update_info is not None:
-            update_info = solverinput.update_info(update_info)
-            self.output.update_info(update_info)
+        # if update_info is not None:
+        #     update_info = solverinput.update_info(update_info)
+        #     self.output.update_info(update_info)
+        update_info = solverinput.update_info(update_info)
+        self.output.update_info(update_info)
         self.run.submit(self.solver_name, solverinput, self.output)
         results = self.output.get_results()
         return results
 
 class Run(metaclass = ABCMeta):
-    def __init__(self, path_to_solver, nprocs, nthreads, comm):
+    def __init__(self, path_to_solver, nprocs=None, nthreads=None, comm=None):
         """
         Parameters
         ----------
@@ -118,11 +120,7 @@ class run_subprocess(Run):
         solverinput.write_input(workdir=output_dir)
         cwd = os.getcwd()
         os.chdir(output_dir)
-        print(output_dir)
         command = [self.path_to_solver]
-        #print("Debug {}".format(command))
-        #args = solverinput.cl_args(self.nprocs, self.nthreads, output_dir)
-        #command.extend(args)
         with open(os.path.join(output_dir, "stdout"), "w") as fi:
             try:
                 subprocess.run(command, stdout=fi, stderr=subprocess.STDOUT, check=True, shell=True)

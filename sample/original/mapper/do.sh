@@ -2,7 +2,7 @@ sh prepare.sh
 
 ./bulk.exe
 
-time mpiexec -np 2 python3 ../../../src/2dmat/mapper_mpi.py input.toml
+time mpiexec -np 2 python3 ../../../src/2dmat/main.py input.toml
 
 echo diff ColorMap.txt ref_ColorMap.txt
 diff ColorMap.txt ref_ColorMap.txt

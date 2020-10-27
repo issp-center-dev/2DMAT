@@ -71,10 +71,12 @@ class sol_surface(solver_base.Solver_Base):
             # Set default value
             self.base_info = info["base"]
             self.base_info["extra"] = info["base"].get("extra", False)
+            #TODO main_dir is suitable?
+            self.base_info["output_dir"] = self.base_info["main_dir"]
             self.log_info = info["log"]
             self.calc_info = info["calc"]
 
-        def update_info(self, update_info):
+        def update_info(self, update_info=None):
             """
             Update information.
 
@@ -84,9 +86,10 @@ class sol_surface(solver_base.Solver_Base):
                 Atomic structure.
 
             """
-            self.log_info["Log_number"] = update_info["log"]["Log_number"]
-            self.calc_info["x_list"] = update_info["calc"]["x_list"]
-            self.base_info["base_dir"] = update_info["base"]["base_dir"]
+            if update_info is not None:
+                self.log_info["Log_number"] = update_info["log"]["Log_number"]
+                self.calc_info["x_list"] = update_info["calc"]["x_list"]
+                self.base_info["base_dir"] = update_info["base"]["base_dir"]
             # Make fitted x_list and value
             # Move subdir
             fitted_x_list, fitted_value, folder_name = self._prepare(self.calc_info["x_list"], self.base_info["extra"])
@@ -95,7 +98,7 @@ class sol_surface(solver_base.Solver_Base):
             self.base_info["output_dir"] = os.path.join(self.base_info["base_dir"], folder_name)
             update_info["calc"] = self.calc_info
             update_info["base"] = self.base_info
-            update_info["log"] = self.base_info
+            update_info["log"] = self.log_info
             return update_info
 
             #####[S] Prepare #####
@@ -212,6 +215,7 @@ class sol_surface(solver_base.Solver_Base):
 
             # Calculate Rfactor and Output numerical results
             os.chdir(self.base_info["output_dir"])
+            print(self.calc_info["fitted_x_list"])
             Rfactor = self._post(self.calc_info["fitted_x_list"])
             os.chdir(self.base_info["base_dir"])
             return Rfactor
@@ -232,6 +236,7 @@ class sol_surface(solver_base.Solver_Base):
             ) = self._calc_I_from_file()
 
             Rfactor = self._calc_Rfactor(convolution_I_calculated_list_normalized)
+
             print("R-factor =", Rfactor)
 
             dimension = self.base_info["dimension"]

@@ -3,7 +3,7 @@ import numpy as np
 import os
 from . import algorithm
 
-class MapperMPI(algorithm.Algorithm):
+class Algorithm(algorithm.Algorithm):
     def _get_mesh_list_from_file(self, filename="MeshData.txt"):
         print("Read", filename)
         mesh_list = []
@@ -45,7 +45,6 @@ class MapperMPI(algorithm.Algorithm):
                 run_info["log"]["Log_number"] = round(mesh[0])
                 run_info["calc"]["x_list"] = mesh[1:]
                 run_info["base"]["base_dir"] = os.getcwd()
-                print(run_info["base"]["base_dir"])
                 fx = run.submit(update_info=run_info)
                 fx_list.append(fx)
                 file_CM.write("{:8f}\n".format(fx))
@@ -67,7 +66,7 @@ class MapperMPI(algorithm.Algorithm):
         print("complete main process : rank {:08d}/{:08d}".format(rank, size))
 
     def prepare(self, prepare_info):
-        # Mesh data is devided.
+        # Mesh data is divided.
         import shutil
         if prepare_info["mpi"]["rank"] == 0:
             size = prepare_info["mpi"]["size"]
@@ -101,7 +100,7 @@ class MapperMPI(algorithm.Algorithm):
                                 file_output.write(line)
 
 
-class MapperMPI_Param(algorithm.Param):
+class Init_Param(algorithm.Param):
     def from_dict(cls, dict):
         # Set basic information
         info = {}
@@ -146,6 +145,7 @@ class MapperMPI_Param(algorithm.Param):
 
         # Set Default value
         info["mpi"] = {}
+        info["mpi"]["comm"] = None
         info["mpi"]["nprocs_per_solver"] = None
         info["mpi"]["nthreads_per_proc"] = None
 
