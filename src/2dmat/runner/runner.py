@@ -48,11 +48,8 @@ class Runner(object):
             msg = "Unknown scheme: {}".format(run_scheme)
             raise ValueError(msg)
 
-    def submit(self, update_info=None):
+    def submit(self, update_info):
         solverinput = self.base_solver_input
-        # if update_info is not None:
-        #     update_info = solverinput.update_info(update_info)
-        #     self.output.update_info(update_info)
         update_info = solverinput.update_info(update_info)
         self.output.update_info(update_info)
         self.run.submit(self.solver_name, solverinput, self.output)

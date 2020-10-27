@@ -3,6 +3,8 @@ import subprocess
 import numpy as np
 import os
 from . import algorithm
+from . import surf_base
+import time
 
 class Algorithm(algorithm.Algorithm):
 
@@ -49,6 +51,7 @@ class Algorithm(algorithm.Algorithm):
                     callback_list.append(callback)
             return y
 
+        time_sta = time.perf_counter()
         self.xopt, self.fopt, self.itera, self.funcalls, self.warnflag, self.allvecs = fmin(
             _f_calc,
             self.initial_list,
@@ -61,32 +64,31 @@ class Algorithm(algorithm.Algorithm):
             maxfun=100000,
             initial_simplex=self.initial_simplex_list,
         )
+        time_end = time.perf_counter()
+        run_info["log"]["time"]["run"]["min_search"] = time_end - time_sta
 
         extra_data = True
         fx_for_simplex_list = []
         run_info["log"]["Log_number"] = 0
         print("iteration:", self.itera)
         print("len(allvecs):", len(self.allvecs))
+
+        time_sta = time.perf_counter()
         for step in range(self.itera):
             print("step:", step)
             print("allvecs[step]:", self.allvecs[step])
             fx_for_simplex_list.append(_f_calc(self.allvecs[step], run_info, extra_data))
+        time_end = time.perf_counter()
+        run_info["log"]["time"]["run"]["recalc"] = time_end - time_sta
+
         self.fx_for_simplex_list = fx_for_simplex_list
         self.callback_list = callback_list
-
-        # original_dir = os.getcwd()
-        # Log_number = 0
-        # extra_data = False
-        #
-        # run_info["degree_max"] = run_info["degree_list"][-1]
-        # dimension = run_info["dimension"]
 
     def prepare(self, prepare_info):
         # TODO: Is it right ? arg.degree_max is ignored.
         # TODO: Delete arg.degree_max
         prepare_info["base"]["degree_max"] = prepare_info["base"]["degree_list"][-1]
         dimension = prepare_info["base"]["dimension"]
-        # TODO: check bulk.P exists.
 
         # make initial simple
         initial_simplex_list = []
@@ -141,55 +143,9 @@ class Algorithm(algorithm.Algorithm):
         for x, y in zip(label_list, self.xopt):
             print(x, "=", y)
 
-class Init_Param(algorithm.Param):
+class Init_Param(surf_base.Init_Param):
     def from_dict(cls, dict):
-        # Set basic information
-        info = {}
-        info["base"] = {}
-        info["base"]["dimension"] = dict["base"].get("dimension", 2)
-        info["base"]["normalization"] = dict["base"].get("normalization", "TOTAL")
-        if info["base"]["normalization"] not in ["TOTAL", "MAX"]:
-            raise ValueError("normalization must be TOTAL or MAX.")
-        info["base"]["label_list"] = dict["base"].get("label_list", ["z1(Si)", "z2(Si)"])
-        info["base"]["string_list"] = dict["base"].get("string_list", ["value_01", "value_02"])
-        info["base"]["surface_input_file"] = dict["base"].get("surface_input_file", "surf.txt")
-        info["base"]["bulk_output_file"] = dict["base"].get("bulk_output_file", "bulkP.b")
-        info["base"]["surface_output_file"] = dict["base"].get("surface_output_file", "surf-bulkP.s")
-        info["base"]["Rfactor_type"] = dict["base"].get("Rfactor_type", "A")
-        if info["base"]["Rfactor_type"] not in ["A", "B"]:
-            raise ValueError("Rfactor_type must be A or B.")
-        info["base"]["omega"] = dict["base"].get("omega", 0.5)
-        info["base"]["main_dir"] = dict["base"].get("main_dir", os.getcwd())
-        info["base"]["degree_max"] = dict["base"].get("degree_max", 6.0)
-
-        if len(info["base"]["label_list"]) != info["base"]["dimension"]:
-            print("Error: len(label_list) is not equal to dimension")
-            exit(1)
-        if len(info["base"]["string_list"]) != info["base"]["dimension"]:
-            print("Error: len(slstring_list) is not equal to dimension")
-            exit(1)
-
-        # Set file information
-        info["file"] = {}
-        info["file"]["calculated_first_line"] = dict["file"].get("calculated_first_line", 5)
-        info["file"]["calculated_last_line"] = dict["file"].get("calculated_last_line", 60)
-        info["file"]["row_number"] = dict["file"].get("row_number", 8)
-
-        # Set experiment information
-        experiment_path = dict["experiment"].get("path", "experiment.txt")
-        firstline = dict["experiment"].get("first", 1)
-        lastline = dict["experiment"].get("last", 56)
-
-        # Set log information
-        info["log"] = {}
-        info["log"]["Log_number"] = 0
-
-        # Set Default value
-        info["mpi"] = {}
-        info["mpi"]["comm"] = None
-        info["mpi"]["nprocs_per_solver"] = None
-        info["mpi"]["nthreads_per_proc"] = None
-
+        info = super().from_dict(dict)
         # Set Parameters
         info["param"]={}
         dict_param = dict.get("param", {})
@@ -200,44 +156,4 @@ class Init_Param(algorithm.Param):
         info["param"]["initial_scale_list"] = dict_param.get("initial_scale_list", [0.25, 0.25, 0.25])
         info["param"]["xtol"] = dict_param.get("xtol", 0.0001)
         info["param"]["ftol"] = dict_param.get("ftol", 0.0001)
-
-        # Read experiment-data
-        # TODO: make a function
-        print("Read experiment.txt")
-        degree_list = []
-        I_experiment_list = []
-        nline = lastline - firstline + 1
-        assert nline > 0
-
-        with open(experiment_path, "r") as fp:
-            for _ in range(firstline - 1):
-                fp.readline()
-            for _ in range(nline):
-                line = fp.readline()
-                words = line.split()
-                degree_list.append(float(words[0]))
-                I_experiment_list.append(float(words[1]))
-        info["base"]["degree_list"] = degree_list
-
-        if info["base"]["normalization"] == "TOTAL":
-            I_experiment_norm = sum(I_experiment_list)
-        elif info["base"]["normalization"] == "MAX":
-            I_experiment_norm = max(I_experiment_list)
-        else:
-            # TODO: error handling
-            # TODO: redundant?
-            print("ERROR: Unknown normalization", info["normalization"])
-            exit(1)
-        I_experiment_list_normalized = [
-            I_exp / I_experiment_norm for I_exp in I_experiment_list
-        ]
-
-        info["experiment"] = {}
-        info["experiment"]["I"] = I_experiment_list
-        info["experiment"]["I_normalized"] = I_experiment_list_normalized
-        info["experiment"]["I_norm"] = I_experiment_norm
         return info
-
-    def from_toml(cls, file_name):
-        import toml
-        return cls.from_dict(toml.load(file_name))

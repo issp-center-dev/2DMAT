@@ -1,6 +1,6 @@
 import os
 from sys import exit
-
+import time
 import toml
 
 try:
@@ -38,10 +38,10 @@ if __name__ == "__main__":
     #Get parameters
     param = algorithm.Init_Param()
     info = param.from_toml(file_name)
+    rank = 0
+    size = 1
     if method == "mapper":
         #TODO: Use MPI_INIT and Calculator_base
-        rank = 0
-        size = 1
         if MPI_flag:
             comm = MPI.COMM_WORLD
             rank = comm.Get_rank()
@@ -57,10 +57,34 @@ if __name__ == "__main__":
     solver = Solver.sol_surface(info)
     runner = Runner.Runner(solver, info ["mpi"])
     alg = algorithm.Algorithm(Runner=runner)
+
+    time_sta = time.perf_counter()
     alg.prepare(info)
+    time_end = time.perf_counter()
+    info["log"]["time"]["prepare"]["total"] = time_end-time_sta
     if MPI_flag:
         comm.Barrier()
+
+    time_sta = time.perf_counter()
     alg.run(info)
+    time_end = time.perf_counter()
+    info["log"]["time"]["run"]["total"] = time_end-time_sta
     if MPI_flag:
         comm.Barrier()
+
+    time_sta = time.perf_counter()
     alg.post(info)
+    time_end = time.perf_counter()
+    info["log"]["time"]["post"]["total"] = time_end-time_sta
+
+    with open("time_rank{}.log".format(rank), "w") as fw:
+        def output_file(type):
+            tmp_dict = info["log"]["time"][type]
+            fw.write("#{}\n total = {} [s]\n".format(type, tmp_dict["total"]))
+            for key, time in tmp_dict.items():
+                if key == "total":
+                    continue
+                fw.write(" - {} = {}\n".format(key, time))
+        output_file("prepare")
+        output_file("run")
+        output_file("post")
