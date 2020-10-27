@@ -3,6 +3,7 @@ import os
 from mpi4py import MPI
 import numpy as np
 
+
 class MPI_params:
     def __init__(self):
         self.nprocs_parent = None
@@ -11,17 +12,17 @@ class MPI_params:
     @classmethod
     def from_dict(cls, d):
         """
-           Read information from dictionary
+        Read information from dictionary
 
-           Parameters
-           ----------
-           d: dict
-               Dictionary including parameters for replica exchange Monte Carlo method
+        Parameters
+        ----------
+        d: dict
+            Dictionary including parameters for replica exchange Monte Carlo method
 
-           Returns
-           -------
-           params: MPI_params object
-               self
+        Returns
+        -------
+        params: MPI_params object
+            self
         """
         params = cls()
         params.nprocs_parent = d["nprocs_parent"]
@@ -44,14 +45,18 @@ class MPI_params:
             self
         """
         import toml
+
         return cls.from_dict(toml.load(fname))
 
-def MPI_Init(mpi_params):
-    """
 
+def MPI_Init(mpi_params: MPI_params):
+    """Initialize MPI environment
+
+    Parameters
+    ----------
     mpi_params: MPI_params
 
-    Returns:
+    Returns
     -------
     comm: comm world
         MPI communicator
@@ -64,7 +69,9 @@ def MPI_Init(mpi_params):
 
     if worldprocs < nprocs_parent:
         if worldrank == 0:
-            print("ERROR! Please run with at least as many MPI processes as the number of parent processes")
+            print(
+                "ERROR! Please run with at least as many MPI processes as the number of parent processes"
+            )
         sys.exit(1)
 
     if worldprocs > nprocs_parent:
@@ -86,15 +93,14 @@ def MPI_Init(mpi_params):
     return comm
 
 
-
 class Calculator_base(object):
     def __init__(self, comm, mpi_params, Algorithm, subdirs=True):
         self.comm = comm
         self.rank = self.comm.Get_rank()
         self.procs = self.comm.Get_size()
         self.nprocs_parent = mpi_params["nprocs_parent"]
-        #myconfig = configs[self.rank]
-        #self.mycalc = Algorithm(Solver, myconfig)
+        # myconfig = configs[self.rank]
+        # self.mycalc = Algorithm(Solver, myconfig)
         self.mycalc = Algorithm
         self.subdirs = subdirs
 

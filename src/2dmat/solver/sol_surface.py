@@ -5,6 +5,7 @@ import shutil
 import numpy as np
 import subprocess
 
+
 class sol_surface(solver_base.Solver_Base):
     def __init__(self, info, path_to_solver=None):
         """
@@ -92,16 +93,21 @@ class sol_surface(solver_base.Solver_Base):
                 self.base_info["base_dir"] = update_info["base"]["base_dir"]
             # Make fitted x_list and value
             # Move subdir
-            fitted_x_list, fitted_value, folder_name = self._prepare(self.calc_info["x_list"], self.base_info["extra"])
+            fitted_x_list, fitted_value, folder_name = self._prepare(
+                self.calc_info["x_list"], self.base_info["extra"]
+            )
             self.calc_info["fitted_x_list"] = fitted_x_list
             self.calc_info["fitted_value"] = fitted_value
-            self.base_info["output_dir"] = os.path.join(self.base_info["base_dir"], folder_name)
+            self.base_info["output_dir"] = os.path.join(
+                self.base_info["base_dir"], folder_name
+            )
             update_info["calc"] = self.calc_info
             update_info["base"] = self.base_info
             update_info["log"] = self.log_info
             return update_info
 
             #####[S] Prepare #####
+
         def _prepare(self, x_list, extra=False):
             dimension = self.base_info["dimension"]
             string_list = self.base_info["string_list"]
@@ -117,18 +123,21 @@ class sol_surface(solver_base.Solver_Base):
             for index in range(dimension):
                 print(label_list[index], "=", fitted_x_list[index])
             self._replace(fitted_x_list)
-            folder_name = self._pre_bulk(self.log_info["Log_number"], bulk_output_file, surface_input_file, extra)
+            folder_name = self._pre_bulk(
+                self.log_info["Log_number"], bulk_output_file, surface_input_file, extra
+            )
             return fitted_x_list, fitted_value, folder_name
 
         def _replace(self, fitted_x_list):
             with open("template.txt", "r") as file_input, open(
-                    self.base_info["surface_input_file"], "w"
+                self.base_info["surface_input_file"], "w"
             ) as file_output:
                 for line in file_input:
                     for index in range(self.base_info["dimension"]):
                         if line.find(self.base_info["string_list"][index]) != -1:
                             line = line.replace(
-                                self.base_info["string_list"][index], fitted_x_list[index]
+                                self.base_info["string_list"][index],
+                                fitted_x_list[index],
                             )
                     file_output.write(line)
 
@@ -139,7 +148,9 @@ class sol_surface(solver_base.Solver_Base):
                 folder_name = "Log{:08d}".format(Log_number)
             os.makedirs(folder_name, exist_ok=True)
             shutil.copy(bulk_output_file, os.path.join(folder_name, bulk_output_file))
-            shutil.copy(surface_input_file, os.path.join(folder_name, surface_input_file))
+            shutil.copy(
+                surface_input_file, os.path.join(folder_name, surface_input_file)
+            )
             return folder_name
 
         #####[E] Prepare #####
@@ -191,6 +202,7 @@ class sol_surface(solver_base.Solver_Base):
         """
         Output manager.
         """
+
         def __init__(self, info):
             self.base_info = info["base"]
             self.experiment_info = info["experiment"]
@@ -219,7 +231,6 @@ class sol_surface(solver_base.Solver_Base):
             Rfactor = self._post(self.calc_info["fitted_x_list"])
             os.chdir(self.base_info["base_dir"])
             return Rfactor
-
 
         #####[S] Post #####
         def _post(self, fitted_x_list):
@@ -259,12 +270,12 @@ class sol_surface(solver_base.Solver_Base):
                     file_RC.write("#I_experiment_max={}\n".format(I_experiment_norm))
                 file_RC.write("#")
                 for xname in (
-                        "degree",
-                        "convolution_I_calculated",
-                        "I_experiment",
-                        "convolution_I_calculated(normalized)",
-                        "I_experiment(normalized)",
-                        "I_calculated",
+                    "degree",
+                    "convolution_I_calculated",
+                    "I_experiment",
+                    "convolution_I_calculated(normalized)",
+                    "I_experiment(normalized)",
+                    "I_calculated",
                 ):
                     file_RC.write(xname)
                     file_RC.write(" ")
@@ -284,7 +295,9 @@ class sol_surface(solver_base.Solver_Base):
             return Rfactor
 
         def _g(self, x):
-            g = (0.939437 / self.base_info["omega"]) * np.exp(-2.77259 * (x ** 2.0 / self.base_info["omega"] ** 2.0))
+            g = (0.939437 / self.base_info["omega"]) * np.exp(
+                -2.77259 * (x ** 2.0 / self.base_info["omega"] ** 2.0)
+            )
             return g
 
         def _calc_I_from_file(self):
@@ -328,9 +341,9 @@ class sol_surface(solver_base.Solver_Base):
                 degree_org = degree_list[index]
                 for index2 in range(len(I_calculated_list)):
                     integral += (
-                            I_calculated_list[index2]
-                            * self._g(degree_org - degree_list[index2])
-                            * 0.1
+                        I_calculated_list[index2]
+                        * self._g(degree_org - degree_list[index2])
+                        * 0.1
                     )
                 convolution_I_calculated_list.append(integral)
 

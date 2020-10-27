@@ -68,6 +68,7 @@ class Algorithm(algorithm.Algorithm):
     def prepare(self, prepare_info):
         # Mesh data is divided.
         import shutil
+
         if prepare_info["mpi"]["rank"] == 0:
             size = prepare_info["mpi"]["size"]
             lines = []
@@ -79,9 +80,15 @@ class Algorithm(algorithm.Algorithm):
             mesh_divided = np.array_split(mesh_total, size)
             for index, mesh in enumerate(mesh_divided):
                 sub_folder_name = str(index)
-                for item in ["surf.exe", "template.txt", prepare_info["base"]["bulk_output_file"]]:
+                for item in [
+                    "surf.exe",
+                    "template.txt",
+                    prepare_info["base"]["bulk_output_file"],
+                ]:
                     shutil.copy(item, os.path.join(sub_folder_name, item))
-                with open(os.path.join(sub_folder_name, "MeshData.txt"), "w") as file_output:
+                with open(
+                    os.path.join(sub_folder_name, "MeshData.txt"), "w"
+                ) as file_output:
                     for data in mesh:
                         file_output.write(data)
 
@@ -91,9 +98,7 @@ class Algorithm(algorithm.Algorithm):
         if rank == 0:
             with open("ColorMap.txt", "w") as file_output:
                 for i in range(size):
-                    with open(
-                            os.path.join(str(i), "ColorMap.txt"), "r"
-                    ) as file_input:
+                    with open(os.path.join(str(i), "ColorMap.txt"), "r") as file_input:
                         for line in file_input:
                             line = line.lstrip()
                             if not line.startswith("#"):
@@ -103,41 +108,56 @@ class Algorithm(algorithm.Algorithm):
 class Init_Param(algorithm.Param):
     def from_dict(cls, dict):
         # Set basic information
-        info = {}
+        info = cls()
         info["base"] = {}
-        info["base"]["dimension"] = dict["base"].get("dimension", 2)
-        info["base"]["normalization"] = dict["base"].get("normalization", "TOTAL")
+        base_arg = d.get("base", {})
+        info["base"]["dimension"] = base_arg.get("dimension", 2)
+        info["base"]["normalization"] = base_arg.get("normalization", "TOTAL")
         if info["base"]["normalization"] not in ["TOTAL", "MAX"]:
             raise ValueError("normalization must be TOTAL or MAX.")
-        info["base"]["label_list"] = dict["base"].get("label_list", ["z1(Si)", "z2(Si)"])
-        info["base"]["string_list"] = dict["base"].get("string_list", ["value_01", "value_02"])
-        info["base"]["surface_input_file"] = dict["base"].get("surface_input_file", "surf.txt")
-        info["base"]["bulk_output_file"] = dict["base"].get("bulk_output_file", "bulkP.b")
-        info["base"]["surface_output_file"] = dict["base"].get("surface_output_file", "surf-bulkP.s")
-        info["base"]["Rfactor_type"] = dict["base"].get("Rfactor_type", "A")
+        info["base"]["label_list"] = base_arg.get(
+            "label_list", ["z1(Si)", "z2(Si)"]
+        )
+        info["base"]["string_list"] = base_arg.get(
+            "string_list", ["value_01", "value_02"]
+        )
+        info["base"]["surface_input_file"] = base_arg.get(
+            "surface_input_file", "surf.txt"
+        )
+        info["base"]["bulk_output_file"] = base_arg.get(
+            "bulk_output_file", "bulkP.b"
+        )
+        info["base"]["surface_output_file"] = base_arg.get(
+            "surface_output_file", "surf-bulkP.s"
+        )
+        info["base"]["Rfactor_type"] = base_arg.get("Rfactor_type", "A")
         if info["base"]["Rfactor_type"] not in ["A", "B"]:
             raise ValueError("Rfactor_type must be A or B.")
-        info["base"]["omega"] = dict["base"].get("omega", 0.5)
-        info["base"]["main_dir"] = dict["base"].get("main_dir", os.getcwd())
-        info["base"]["degree_max"] = dict["base"].get("degree_max", 6.0)
+        info["base"]["omega"] = base_arg.get("omega", 0.5)
+        info["base"]["main_dir"] = base_arg.get("main_dir", os.getcwd())
+        info["base"]["degree_max"] = base_arg.get("degree_max", 6.0)
 
         if len(info["base"]["label_list"]) != info["base"]["dimension"]:
-            print("Error: len(label_list) is not equal to dimension")
-            exit(1)
+            raise ValueError("Error: len(label_list) is not equal to dimension")
         if len(info["base"]["string_list"]) != info["base"]["dimension"]:
-            print("Error: len(slstring_list) is not equal to dimension")
-            exit(1)
+            raise ValueError("Error: len(slstring_list) is not equal to dimension")
 
         # Set file information
+        file_arg = d.get("file", {})
         info["file"] = {}
-        info["file"]["calculated_first_line"] = dict["file"].get("calculated_first_line", 5)
-        info["file"]["calculated_last_line"] = dict["file"].get("calculated_last_line", 60)
-        info["file"]["row_number"] = dict["file"].get("row_number", 8)
+        info["file"]["calculated_first_line"] = file_arg.get(
+            "calculated_first_line", 5
+        )
+        info["file"]["calculated_last_line"] = file_arg.get(
+            "calculated_last_line", 60
+        )
+        info["file"]["row_number"] = file_arg.get("row_number", 8)
 
         # Set experiment information
-        experiment_path = dict["experiment"].get("path", "experiment.txt")
-        firstline = dict["experiment"].get("first", 1)
-        lastline = dict["experiment"].get("last", 56)
+        exp_arg = d.get("experiment", {})
+        experiment_path = exp_arg.get("path", "experiment.txt")
+        firstline = exp_arg.get("first", 1)
+        lastline = exp_arg.get("last", 56)
 
         # Set log information
         info["log"] = {}
@@ -169,13 +189,8 @@ class Init_Param(algorithm.Param):
 
         if info["base"]["normalization"] == "TOTAL":
             I_experiment_norm = sum(I_experiment_list)
-        elif info["base"]["normalization"] == "MAX":
+        else: # info["base"]["normalization"] == "MAX":
             I_experiment_norm = max(I_experiment_list)
-        else:
-            # TODO: error handling
-            # TODO: redundant?
-            print("ERROR: Unknown normalization", info["normalization"])
-            exit(1)
         I_experiment_list_normalized = [
             I_exp / I_experiment_norm for I_exp in I_experiment_list
         ]
@@ -186,6 +201,8 @@ class Init_Param(algorithm.Param):
         info["experiment"]["I_norm"] = I_experiment_norm
         return info
 
+    @classmethod
     def from_toml(cls, file_name):
         import toml
+
         return cls.from_dict(toml.load(file_name))

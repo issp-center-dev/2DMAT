@@ -3,8 +3,8 @@
 
 from abc import ABCMeta, abstractmethod
 
-class Algorithm(metaclass =ABCMeta):
 
+class Algorithm(metaclass=ABCMeta):
     def __init__(self, Runner, myconfig=None):
         self.runner = Runner
         self.config = myconfig
@@ -21,16 +21,20 @@ class Algorithm(metaclass =ABCMeta):
     def post(self, post_info):
         pass
 
-class Param(metaclass =ABCMeta):
 
+class Param(dict, metaclass=ABCMeta):
     def __init__(self):
         pass
 
+    @classmethod
+    @abstractmethod
     def from_dict(cls, dict):
         params = cls()
         return params
 
+    @classmethod
+    @abstractmethod
     def from_toml(cls, file_name):
         import toml
-        return cls.from_dict(toml.load(file_name))
 
+        return cls.from_dict(toml.load(file_name))
