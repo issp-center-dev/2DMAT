@@ -286,14 +286,9 @@ class Init_Param(surf_base.Init_Param):
 
         # if empty, initialized uniformly random later
         info["param"]["initial_list"] = d_param.get("initial_list", [])
-
         info["param"]["min_list"] = d_param["min_list"]
         info["param"]["max_list"] = d_param["max_list"]
-
         info["param"]["unit_list"] = d_param.get("unit_list", [1.0] * dimension)
-        info["param"]["initial_scale_list"] = d_param.get(
-            "initial_scale_list", [0.25] * dimension
-        )
 
         info["param"]["numsteps"] = d_param["numsteps"]
         info["param"]["numsteps_exchange"] = d_param["numsteps_exchange"]
