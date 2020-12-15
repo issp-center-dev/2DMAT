@@ -1,6 +1,6 @@
 sh ./prepare.sh
 
-time python3 ../../../src/2dmat/main.py input.toml | tee log.txt
+time python3 ../../../src/py2dmat/main.py input.toml | tee log.txt
 tail -n3 log.txt > res.dat
 
 echo diff res.dat ref.dat

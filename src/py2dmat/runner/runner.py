@@ -12,7 +12,7 @@ class Runner(object):
 
         Parameters
         ----------
-        Solver: 2dmat.solver.solver_base object
+        Solver: py2dmat.solver.solver_base object
         mpi_info:
         """
         self.solver_name = Solver.get_name()
