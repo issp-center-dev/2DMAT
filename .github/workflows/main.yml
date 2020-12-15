@@ -1,0 +1,34 @@
+name: main
+
+on: [push]
+
+jobs:
+  apps:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: apt
+        run: sudo apt install openmpi-bin libopenmpi-dev
+
+      - name: pip
+        run: |
+          python3 -m pip install -U pip
+          python3 -m pip install numpy scipy toml mpi4py
+
+      - name: TRHEPD
+        run: |
+          cd src/TRHEPD
+          make
+
+      - name: minsearch
+        run: |
+          cd ${GITHUB_WORKSPACE}/sample/original/minsearch
+          sh ./do.sh
+
+      - name: mapper
+        run: |
+          cd ${GITHUB_WORKSPACE}/sample/original/mapper
+          sh ./do.sh
