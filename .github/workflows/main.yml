@@ -10,13 +10,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+
       - name: apt
         run: sudo apt install openmpi-bin libopenmpi-dev
 
       - name: pip
         run: |
-          python3 -m pip install -U pip
-          python3 -m pip install numpy scipy toml mpi4py
+          python -m pip install -U pip
+          python -m pip install setuptools
+          python -m pip install numpy scipy toml mpi4py
 
       - name: TRHEPD
         run: |
