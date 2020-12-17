@@ -227,10 +227,11 @@ class Algorithm(algorithm.Algorithm):
         self.nreplica = prepare_info["mpi"]["size"]
         self.rank = prepare_info["mpi"]["rank"]
         seed = prepare_info["param"]["seed"]
+        seed_delta = prepare_info["param"]["seed_delta"]
         if seed is None:
             self.rng = default_rng()
         else:
-            self.rng = default_rng(seed + self.rank * 137)
+            self.rng = default_rng(seed + self.rank * seed_delta)
 
         for item in [
             "surf.exe",
@@ -298,5 +299,6 @@ class Init_Param(surf_base.Init_Param):
         info["param"]["Tlogspace"] = d_param.get("Tlogspace", True)
 
         info["param"]["seed"] = d_param.get("seed", None)
+        info["param"]["seed_delta"] = d_param.get("seed", 314159)
 
         return info
