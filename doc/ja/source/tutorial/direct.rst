@@ -41,7 +41,7 @@ workディレクトリ内でbulk.exeを実行します。
 
 .. code-block:: none
 
-   bulk.exe
+   ./bulk.exe
 
 上記実行時に、以下のように出力されます。
 
@@ -69,7 +69,7 @@ workディレクトリ内でsurf.exeを実行します。
 
 .. code-block:: none
 
-   surf.exe
+   ./surf.exe
 
 上記実行時に、以下のように出力されます。
 
