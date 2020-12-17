@@ -1,13 +1,14 @@
-name: main
+name: Test
 
 on: [push]
 
 jobs:
   main:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9]
+        algorithm: [mapper, minsearch]
       fail-fast: false
 
     steps:
@@ -33,12 +34,7 @@ jobs:
           cd src/TRHEPD
           make
 
-      - name: minsearch
+      - name: ${{ matrix.algorithm }}
         run: |
-          cd ${GITHUB_WORKSPACE}/sample/original/minsearch
-          sh ./do.sh
-
-      - name: mapper
-        run: |
-          cd ${GITHUB_WORKSPACE}/sample/original/mapper
+          cd ${GITHUB_WORKSPACE}/sample/original/${{ matrix.algorithm }}
           sh ./do.sh
