@@ -1,0 +1,23 @@
+.. 2dmat documentation master file, created by
+   sphinx-quickstart on Tue May 26 18:44:52 2020.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+チュートリアル
+==================================
+
+本ソフトウェアは、東北大学の花田貴先生によって開発された
+物質反射高速（陽）電子回折(RHEED, TRHEPD)の解析ソフトウェアをベースに作成されています。
+TRHEPDでは原子座標を与えた場合に、回折データがシミュレーション結果として与えられます。そのため、原子座標→回折データの順問題を取り扱っているといえます。
+一方、多くの場合回折データは実験で与えられ、それを再現するような原子座標などが求められます。これらは上記の順問題に対して、逆問題に相当します。 本ソフトウェアでは逆問題を解くための手法として ``minsearch``, ``maper_mpi`` を用意しています。 ``minsearch`` では、Nealder-Mead法を用い回析データが既知の場合に最もらしい原子座標を推定します。 ``mapper_mpi`` は、与えられたパラメータの探索グリッドを全探索することで、最もらしい原子座標を推定します。
+
+本チュートリアルでは、最初に順問題プログラムの実行方法、その後 ``minsearch`` , ``mapper_mpi`` の実行方法について順に説明します。
+
+
+.. toctree::
+   :maxdepth: 1
+
+   direct
+   minsearch
+   mpi
+   

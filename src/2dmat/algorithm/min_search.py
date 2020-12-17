@@ -34,7 +34,6 @@ class Algorithm(algorithm.Algorithm):
             ##### unit modify #####
             for index in range(dimension):
                 x_list[index] /= unit_list[index]
-            print(len(x_list), dimension)
             if out_of_range:
                 y = 100.0  # TODO: is it sufficient? -> cutoff value
             else:

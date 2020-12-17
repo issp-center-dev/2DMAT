@@ -6,7 +6,6 @@ from . import surf_base
 import time
 
 class Algorithm(algorithm.Algorithm):
-
     def _get_mesh_list_from_file(self, filename="MeshData.txt"):
         print("Read", filename)
         mesh_list = []
@@ -137,3 +136,14 @@ class Init_Param(surf_base.Init_Param):
     def from_dict(cls, dict):
         info = super().from_dict(dict)
         return info
+
+def MPI_Init(info):
+    from mpi4py import MPI
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    # Check size ?: size * nprocs_per_solver
+    size = comm.Get_size()
+    info["mpi"]["comm"] = comm
+    info["mpi"]["rank"] = rank
+    info["mpi"]["size"] = size
+    return info

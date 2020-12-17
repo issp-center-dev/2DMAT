@@ -40,16 +40,11 @@ if __name__ == "__main__":
     info = param.from_toml(file_name)
     rank = 0
     size = 1
-    if method == "mapper":
-        #TODO: Use MPI_INIT and Calculator_base
+    if method != "min_search":
         if MPI_flag:
-            comm = MPI.COMM_WORLD
-            rank = comm.Get_rank()
-            # Check size ?: size * nprocs_per_solver
-            size = comm.Get_size()
-            info["mpi"]["comm"] = comm
-            info["mpi"]["rank"] = rank
-            info["mpi"]["size"] = size
+            #Get info["mpi"]
+            info = algorithm.MPI_Init(info)
+            size = info["mpi"]["size"]
         for idx in range(size):
             sub_folder_name = str(idx)
             os.makedirs(sub_folder_name, exist_ok=True)
@@ -63,14 +58,14 @@ if __name__ == "__main__":
     time_end = time.perf_counter()
     info["log"]["time"]["prepare"]["total"] = time_end-time_sta
     if MPI_flag:
-        comm.Barrier()
+        info ["mpi"]["comm"].Barrier()
 
     time_sta = time.perf_counter()
     alg.run(info)
     time_end = time.perf_counter()
     info["log"]["time"]["run"]["total"] = time_end-time_sta
     if MPI_flag:
-        comm.Barrier()
+        info ["mpi"]["comm"].Barrier()
 
     time_sta = time.perf_counter()
     alg.post(info)
