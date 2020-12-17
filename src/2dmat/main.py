@@ -31,6 +31,10 @@ if __name__ == "__main__":
         import algorithm.min_search as min_search_alg
         algorithm = min_search_alg
         MPI_flag = False
+    elif method == "exchange":
+        import algorithm.exchange as exchange_alg
+        algorithm = exchange_alg
+        MPI_flag = True
     else:
         print("method:{} is not implemented.".format(method))
         exit(1)
@@ -64,6 +68,7 @@ if __name__ == "__main__":
     alg.run(info)
     time_end = time.perf_counter()
     info["log"]["time"]["run"]["total"] = time_end-time_sta
+    print("end of run")
     if MPI_flag:
         info ["mpi"]["comm"].Barrier()
 
