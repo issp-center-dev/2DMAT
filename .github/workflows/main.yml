@@ -1,0 +1,44 @@
+name: main
+
+on: [push]
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8, 3.9]
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: apt
+        run: sudo apt install openmpi-bin libopenmpi-dev
+
+      - name: pip
+        run: |
+          python -m pip install -U pip
+          python -m pip install setuptools wheel
+          python -m pip install numpy scipy toml mpi4py
+
+      - name: TRHEPD
+        run: |
+          cd src/TRHEPD
+          make
+
+      - name: minsearch
+        run: |
+          cd ${GITHUB_WORKSPACE}/sample/original/minsearch
+          sh ./do.sh
+
+      - name: mapper
+        run: |
+          cd ${GITHUB_WORKSPACE}/sample/original/mapper
+          sh ./do.sh
