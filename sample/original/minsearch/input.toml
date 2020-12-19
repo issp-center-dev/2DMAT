@@ -5,6 +5,7 @@ label_list = ["z1", "z2", "z3"]
 string_list = ["value_01", "value_02", "value_03" ]
 degree_max = 7.0
 [solver]
+type = "surface"
 
 [experiment]
 path = "experiment.txt"
