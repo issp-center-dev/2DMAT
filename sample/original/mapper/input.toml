@@ -12,3 +12,5 @@ last = 70
 calculated_first_line = 5
 calculated_last_line = 74
 row_number = 2
+[solver]
+type = "surface"
