@@ -51,13 +51,6 @@ class sol_surface(solver_base.Solver_Base):
         """
         return "surf.exe"
 
-    def run(self):
-        # Run surf.exe
-        os.chdir(self.input.base_info["output_dir"])
-        print("Perform surface-calculation")
-        subprocess.call([self.path_to_solver])
-        os.chdir(self.input.base_info["base_dir"])
-
     class Input(object):
         """
         Input manager.
