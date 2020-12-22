@@ -254,6 +254,7 @@ class sol_surface(solver_base.Solver_Base):
             label_list = self.base_info["label_list"]
 
             with open("RockingCurve.txt", "w") as file_RC:
+                I_experiment_list_normalized = self.experiment_info["I_normalized"]
                 # Write headers
                 file_RC.write("#")
                 for index in range(dimension):
@@ -289,7 +290,7 @@ class sol_surface(solver_base.Solver_Base):
                             convolution_I_calculated_list[index],
                             I_experiment_list[index],
                             convolution_I_calculated_list_normalized[index],
-                            I_experiment_norm[index],
+                            I_experiment_list_normalized[index],
                             I_calculated_list[index]
                         )
                     )
