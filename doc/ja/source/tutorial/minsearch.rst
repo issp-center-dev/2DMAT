@@ -1,7 +1,7 @@
-Nealder-Mead法による最適化
+Nelder-Mead法による最適化
 ====================================
 
-ここでは、Nealder-Mead法を用いて回折データから原子座標を解析する逆問題の計算を行う方法について説明します。
+ここでは、Nelder-Mead法を用いて回折データから原子座標を解析する逆問題の計算を行う方法について説明します。
 具体的な計算手順は以下の通りです。
 
 0. 参照ファイルの準備
@@ -17,7 +17,7 @@ Nealder-Mead法による最適化
    ``src/2dmat/main.py`` を用いて計算実行し原子座標を推定する。
 
 メインプログラムでは、
-Nealder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.fmin.html>`_ を使用)を用いて、
+Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.fmin.html>`_ を使用)を用いて、
 ソルバー(今回は ``surf.exe`` )を用いて得られた強度と、
 参照ファイル(``experiment.txt``)に記載された強度のずれ(R値)を最小化するパラメータを探索します。
 
@@ -120,7 +120,7 @@ Nealder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/referenc
 
 最初に ``[base]`` セクションについて説明します。
 
-- ``method`` は手法選択するキーで、 ``min_search`` を指定することでNealder-Mead法を用いた原子座標の推定が行われます。
+- ``method`` は手法選択するキーで、 ``min_search`` を指定することでNelder-Mead法を用いた原子座標の推定が行われます。
 
 - ``dimension`` は最適化したい変数の個数で、今の場合は ``template.txt`` で説明したように3つの変数の最適化を行うので、``3`` を指定します。
 
@@ -148,7 +148,7 @@ Nealder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/referenc
 - ``row_number`` は出力ファイルの何列目を読み込むかを指定します。
 
 ここではデフォルト値を用いるため省略しましたが、
-Nealder-Mead法で探索するパラメータ空間の指定や収束判定のパラメータについては、``param`` セクションで行うことが可能です。
+Nelder-Mead法で探索するパラメータ空間の指定や収束判定のパラメータについては、``param`` セクションで行うことが可能です。
 詳細については入力ファイルの章をご覧ください。
 
 計算実行
@@ -257,6 +257,6 @@ Nealder-Mead法で探索するパラメータ空間の指定や収束判定の�
 
 .. figure:: ../img/RC_double_minsearch.pdf
 
-    Nealder-Mead法を用いた解析。赤丸が実験値、青線が最初のステップ、緑線が最後のステップで得られたロッキングカーブを表す。
+    Nelder-Mead法を用いた解析。赤丸が実験値、青線が最初のステップ、緑線が最後のステップで得られたロッキングカーブを表す。
 
 図から最後のステップでは実験値と一致していることがわかります。
