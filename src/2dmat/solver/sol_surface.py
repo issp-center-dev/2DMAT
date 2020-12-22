@@ -284,12 +284,13 @@ class sol_surface(solver_base.Solver_Base):
                 # Write rocking curve
                 for index in range(len(degree_list)):
                     file_RC.write(
-                        "{} {} {} {} {}\n".format(
+                        "{} {} {} {} {} {}\n".format(
                             degree_list[index],
                             convolution_I_calculated_list[index],
                             I_experiment_list[index],
                             convolution_I_calculated_list_normalized[index],
-                            I_calculated_list[index],
+                            I_experiment_norm[index],
+                            I_calculated_list[index]
                         )
                     )
             return Rfactor
