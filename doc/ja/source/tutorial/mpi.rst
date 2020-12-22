@@ -1,55 +1,62 @@
-MPI対応のグリッド型探索コードの実行
+グリッド型探索
 =====================================
 
-ここでは、mpi対応のグリッド型探索コードmapper\_mpi.pyの実行方法について記します。
-基本的にはOpenMPIがインストールされたLinux, Mac環境を
-想定しますが、合わせてWindowsにおける実行方法についても記載します。
+ここでは、グリッド型探索を行い、回折データから原子座標を解析する方法について説明します。
+グリッド型探索はMPIに対応しています。具体的な計算手順は ``minsearch`` の時と同様です。
+ただし、探索グリッドを与えるデータ ``MeshData.txt`` を事前に準備する必要があります。
 
-minsearch.pyで用いた入力ファイルに加えて、探索グリッドを与えるデータ
-MeshData.txtを準備する必要があります。
-実行用のフォルダを作成し、そこに必要ファイルをコピーします。
+サンプルファイルの場所
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-フォルダ構造は以下のようになります。
-ここで、test-mapperの名前、場所は任意です。
+サンプルファイルは ``sample/original/mapper`` にあります。
+フォルダには以下のファイルが格納されています。
 
-.. code-block:: none
+- ``bulk.txt``
 
-   test-minsearch（任意のフォルダ名）
-   ┣ bulk.exe
-   ┣ surf.exe
-   ┣ mapper_mpi.py
-   ┣ bulk.txt
-   ┣ template.txt
-   ┣ experiment.txt
-   ┗ MeshData.txt
+  ``bulk.exe`` の入力ファイル
 
-*Linux, Macの場合*
+- ``experiment.txt`` , ``template.txt``
 
-.. code-block:: none
+  メインプログラムでの計算を進めるための参照ファイル
 
-   mkdir test-mapper
-   cd test-mapper
-   cp ../source/bulk.exe .
-   cp ../source/surf.exe .
-   cp ../scripts/mapper_mpi.py
-   cp ../sample/Si001b.txt bulk.txt
-   cp ../sample/template1.txt template.txt
-   cp ../sample/experiment.txt .
-   cp ../sample/MeshData.txt .
+- ``ref_ColorMap.txt``
 
-*Windowsの場合*
+  計算が正しく実行されたか確認するためのファイル(本チュートリアルを行うことで得られる ``ColorMap.txt`` の回答)。
 
-.. code-block:: none
+- ``input.toml``
 
-   mkdir test-mapper
-   cd test-mapper
-   copy ..\source\bulk.exe .
-   copy ..\source\surf.exe .
-   copy ..\scripts\mapper_mpi.py .
-   copy ..\sample\Si001b.txt bulk.txt
-   copy ..\sample\template1.txt template.txt
-   copy ..\sample\experiment.txt .
-   copy ..\sample\MeshData.txt .
+  メインプログラムの入力ファイル
+
+- ``prepare.sh`` , ``do.sh``
+
+  本チュートリアルを一括計算するために準備されたスクリプト
+
+以下、これらのファイルについて説明したあと、実際の計算結果を紹介します。
+
+参照ファイルの説明
+~~~~~~~~~~~~~~~~~~~
+
+``template.txt`` , ``experiment.txt`` については、
+前のチュートリアル(Nealder-Mead法による最適化)と同じものを使用します。
+詳細についてはそちらをご覧ください。
+グリッド型探索では探索グリッドを与えるデータ
+``MeshData.txt`` を事前に準備する必要があります。
+``MeshData.txt`` の中身は以下のようになっています。
+
+.. code-block::
+
+    1 6.000000 6.000000 3.500000
+    2 6.000000 5.750000 3.500000
+    3 6.000000 5.500000 3.500000
+    4 6.000000 5.250000 3.500000
+    5 6.000000 5.000000 3.500000
+    6 6.000000 4.750000 3.500000
+    7 6.000000 4.500000 3.500000
+    8 6.000000 4.250000 3.500000
+    9 6.000000 4.000000 3.500000
+    ...
+
+1列目が通し番号、2列目以降は ``template.txt`` に入る ``value_*`` の値を順に入ります。
 
 続いてmapper\_mpi.pyを実行します。
 
@@ -57,7 +64,7 @@ MeshData.txtを準備する必要があります。
 
 Linux, Macの場合はmpirunコマンドを用いて並列化して実行します。
 
-.. code-block:: none
+.. code-block::
 
    mpirun -np 4 python mapper_mpi.py
 
@@ -69,7 +76,7 @@ Linux, Macの場合はmpirunコマンドを用いて並列化して実行しま�
 Windows環境では並列計算に対応していないため、
 minsearch.pyと同様にそのまま実行します。
 
-.. code-block:: none
+.. code-block::
 
    python mapper_mpi.py
 
