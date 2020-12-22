@@ -1,26 +1,38 @@
-from io import open
-import subprocess
-import numpy as np
+from typing import List, MutableMapping
+
 import os
+import time
+
+import numpy as np
+from scipy.optimize import minimize
+
 from . import algorithm
 from . import surf_base
-import time
 
 class Algorithm(algorithm.Algorithm):
 
-    def run(self, run_info):
+    xopt: np.ndarray
+    fopt: float
+    itera: int
+    funcalls: int
+    allvecs: List[np.ndarray]
+    fx_for_simplex_list: List[float]
+    callback_list: List[List[int]]
+    initial_list: List[float]
+    initial_simplex_list: List[List[float]]
+
+    def run(self, run_info: MutableMapping) -> None:
         run = self.runner
         callback_list = []
         run_info["base"]["base_dir"] = os.getcwd()
-        from scipy.optimize import fmin
 
-        def _f_calc(x_list, info, extra_data=False):
+        def _f_calc(x_list: np.ndarray, info: MutableMapping, extra_data: bool=False) -> float:
             min_list = info["param"]["min_list"]
             max_list = info["param"]["max_list"]
             unit_list = info["param"]["unit_list"]
             label_list = info["base"]["label_list"]
             dimension = info["base"]["dimension"]
-            ##### judge value #####
+
             out_of_range = False
             for index in range(dimension):
                 if x_list[index] < min_list[index] or x_list[index] > max_list[index]:
@@ -31,17 +43,15 @@ class Algorithm(algorithm.Algorithm):
                     )
                     out_of_range = True
 
-            ##### unit modify #####
             for index in range(dimension):
                 x_list[index] /= unit_list[index]
             if out_of_range:
-                y = 100.0  # TODO: is it sufficient? -> cutoff value
+                y = 100.0
             else:
-                run_info["log"]["Log_number"] = run_info["log"]["Log_number"] + 1
+                run_info["log"]["Log_number"] += 1
                 run_info["calc"]["x_list"] = x_list
                 run_info["base"]["base_dir"] = os.getcwd()
                 y = run.submit(update_info=run_info)
-                # TODO: callback_list seems not to be used. -> used.
                 if not extra_data:
                     callback = [run_info["log"]["Log_number"]]
                     for index in range(dimension):
@@ -51,18 +61,26 @@ class Algorithm(algorithm.Algorithm):
             return y
 
         time_sta = time.perf_counter()
-        self.xopt, self.fopt, self.itera, self.funcalls, self.warnflag, self.allvecs = fmin(
+        optres = minimize(
             _f_calc,
             self.initial_list,
             args=(run_info,),
-            xtol=run_info["param"]["xtol"],
-            ftol=run_info["param"]["ftol"],
-            retall=True,
-            full_output=True,
-            maxiter=10000,
-            maxfun=100000,
-            initial_simplex=self.initial_simplex_list,
+            method="Nelder-Mead",
+            options={
+                "xatol": run_info["param"]["xtol"],
+                "fatol": run_info["param"]["ftol"],
+                "return_all": True,
+                "disp": True,
+                "maxiter": 10000,
+                "maxfev": 100000,
+                "initial_simplex": self.initial_simplex_list,
+                },
         )
+        self.xopt = optres.x
+        self.fopt = optres.fun
+        self.itera = optres.nit
+        self.funcalls = optres.nfev
+        self.allvecs = optres.allvecs
         time_end = time.perf_counter()
         run_info["log"]["time"]["run"]["min_search"] = time_end - time_sta
 
@@ -84,9 +102,6 @@ class Algorithm(algorithm.Algorithm):
         self.callback_list = callback_list
 
     def prepare(self, prepare_info):
-        # TODO: Is it right ? arg.degree_max is ignored.
-        # TODO: Delete arg.degree_max
-        prepare_info["base"]["degree_max"] = prepare_info["base"]["degree_list"][-1]
         dimension = prepare_info["base"]["dimension"]
 
         # make initial simple
@@ -143,7 +158,7 @@ class Algorithm(algorithm.Algorithm):
             print(x, "=", y)
 
 class Init_Param(surf_base.Init_Param):
-    def from_dict(cls, dict):
+    def from_dict(self, dict):
         info = super().from_dict(dict)
         # Set Parameters
         info["param"]={}

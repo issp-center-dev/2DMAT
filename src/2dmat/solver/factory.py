@@ -2,6 +2,7 @@ from typing import Dict, Type
 
 from .solver_base import Solver_Base
 from . import sol_surface
+from . import sol_analytical
 
 
 class SolverFactory:
@@ -18,6 +19,7 @@ class SolverFactory:
 
     def __init__(self) -> None:
         self.register(sol_surface.sol_surface, "surface")
+        self.register(sol_analytical.sol_analytical, "analytical")
 
     def register(self, solver: Type[Solver_Base], solver_name: str) -> None:
         if solver_name in self.solvers:
