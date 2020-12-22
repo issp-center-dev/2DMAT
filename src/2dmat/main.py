@@ -54,6 +54,7 @@ if __name__ == "__main__":
             os.makedirs(sub_folder_name, exist_ok=True)
 
     input_solver = input["solver"]
+    info["solver"] = input_solver
     factory = SolverFactory.SolverFactory()
     solver = factory.solver(input_solver["type"], info)
     runner = Runner.Runner(solver, info["mpi"])

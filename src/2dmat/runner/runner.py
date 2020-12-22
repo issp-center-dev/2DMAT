@@ -44,6 +44,8 @@ class Runner(object):
             self.run = run_subprocess(
                 path_to_solver, nprocs_per_solver, nthreads_per_proc, comm
             )
+        elif run_scheme == "function":
+            self.run = run_function(Solver)
         else:
             msg = "Unknown scheme: {}".format(run_scheme)
             raise ValueError(msg)
@@ -140,3 +142,8 @@ class run_subprocess(Run):
             )
         os.chdir(cwd)
         return 0
+
+
+class run_function(Run):
+    def submit(self, solver_name, input_info, output_info):
+        self.path_to_solver.run()

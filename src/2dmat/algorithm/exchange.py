@@ -302,3 +302,15 @@ class Init_Param(surf_base.Init_Param):
         info["param"]["seed_delta"] = d_param.get("seed", 314159)
 
         return info
+
+
+def MPI_Init(info):
+    from mpi4py import MPI
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    # Check size ?: size * nprocs_per_solver
+    size = comm.Get_size()
+    info["mpi"]["comm"] = comm
+    info["mpi"]["rank"] = rank
+    info["mpi"]["size"] = size
+    return info
