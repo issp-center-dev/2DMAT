@@ -1,5 +1,9 @@
-from . import solver_base
+from typing import Callable
+
 import numpy as np
+from scipy.optimize import rosen
+
+from . import solver_base
 
 
 def quadratics(xs: np.ndarray) -> float:
@@ -8,23 +12,18 @@ def quadratics(xs: np.ndarray) -> float:
 
 def ackley(xs: np.ndarray) -> float:
     a = np.mean(xs ** 2)
-    a = 20*np.exp(-0.2*np.sqrt(a))
-    b = np.cos(2.0*np.pi*xs)
+    a = 20 * np.exp(-0.2 * np.sqrt(a))
+    b = np.cos(2.0 * np.pi * xs)
     b = np.exp(0.5 * np.sum(b))
     return 20.0 + np.exp(1.0) - a - b
 
 
 def rosenbrock(xs: np.ndarray) -> float:
-    ret = xs[1:] - xs[0:-1]**2
-    ret *= ret
-    ret *= 100
-    ret += (1.0 - xs[0:-1])**2
-    return np.sum(ret)
-
+    return rosen(xs)
 
 
 class sol_analytical(solver_base.Solver_Base):
-    def __init__(self, info):
+    def __init__(self, info) -> None:
         """
         Initialize the solver.
 
@@ -32,8 +31,6 @@ class sol_analytical(solver_base.Solver_Base):
         ----------
         solver_name : str
             Solver name.
-        path_to_solver : str
-            Path to the solver.
         """
         info["calc"] = {}
         self.path_to_solver = ""
@@ -50,7 +47,7 @@ class sol_analytical(solver_base.Solver_Base):
         except NameError:
             raise RuntimeError(f"ERROR: Unknown function, {function_type}")
 
-    def get_run_scheme(self):
+    def get_run_scheme(self) -> str:
         """
         Return
         -------
@@ -59,23 +56,21 @@ class sol_analytical(solver_base.Solver_Base):
         """
         return "function"
 
-    def get_path_to_solver(self):
+    def get_path_to_solver(self) -> Callable[[], None]:
         """
         Return
         -------
-        str
-            Path to solver.
         """
-        return self.path_to_solver
+        return self._run
 
-    def get_name(self):
+    def get_name(self) -> str:
         """
         Return
         -------
         """
         return "analytical"
 
-    def run(self):
+    def _run(self) -> None:
         xs = np.array(self.input.calc_info["x_list"])
         v = self.func(xs)
         self.output.v = v

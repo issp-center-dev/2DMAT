@@ -5,6 +5,8 @@ import os
 import subprocess
 from abc import ABCMeta, abstractmethod
 
+import numpy as np
+
 
 class Runner(object):
     def __init__(self, Solver, mpi_info):
@@ -45,7 +47,7 @@ class Runner(object):
                 path_to_solver, nprocs_per_solver, nthreads_per_proc, comm
             )
         elif run_scheme == "function":
-            self.run = run_function(Solver)
+            self.run = run_function(path_to_solver)
         else:
             msg = "Unknown scheme: {}".format(run_scheme)
             raise ValueError(msg)
@@ -58,7 +60,8 @@ class Runner(object):
         results = self.output.get_results()
         return results
 
-class Run(metaclass = ABCMeta):
+
+class Run(metaclass=ABCMeta):
     def __init__(self, path_to_solver, nprocs=None, nthreads=None, comm=None):
         """
         Parameters
@@ -146,4 +149,4 @@ class run_subprocess(Run):
 
 class run_function(Run):
     def submit(self, solver_name, input_info, output_info):
-        self.path_to_solver.run()
+        self.path_to_solver()
