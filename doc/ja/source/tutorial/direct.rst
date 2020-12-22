@@ -9,13 +9,13 @@
 
 まず、TRHEPDのフォルダに移動します(以下、本ソフトウェアをダウンロードしたディレクトリ直下にいることを仮定します)。
 
-.. code-block:: none
+.. code-block::
 
    cd src/TRHEPD
 
 次に実行ファイル ``bulk.exe``  がない場合には、以下のコマンドで実行ファイルを作成します。
 
-.. code-block:: none
+.. code-block::
 
    make
 
@@ -24,28 +24,28 @@ makeが成功すると、 ``bulk.exe`` 及び  ``surf.exe`` が作成されま�
 次に、実行用のフォルダを作成し、そのフォルダに移動します。
 ここではフォルダ名をworkとします。
 
-.. code-block:: none
+.. code-block::
 
    mkdir work
    cd work
 
 必要なファイルをコピーします。
-最初にbulk.exeとsampleフォルダにあるSiの座標データbukl.txtをworkフォルダにコピーします(bulk.txtの詳細については、花田先生のマニュアル(リンクを貼る)を参考にしてください)。
+最初にbulk.exeとsampleフォルダにあるSiの座標データbulk.txtをworkフォルダにコピーします(bulk.txtの詳細については、花田先生のマニュアル(リンクを貼る)を参考にしてください)。
 
-.. code-block:: none 
+.. code-block::
 
    cp ../bulk.exe .
-   cp ../../../sample/original/bulk/builk.txt .
+   cp ../../../sample/original/bulk/bulk.txt .
 
 workディレクトリ内でbulk.exeを実行します。
 
-.. code-block:: none
+.. code-block::
 
    ./bulk.exe
 
 上記実行時に、以下のように出力されます。
 
-.. code-block:: none
+.. code-block::
 
    0:electron 1:positron ?
    P
@@ -60,20 +60,20 @@ workディレクトリ内でbulk.exeを実行します。
 続いて、surf.exeを実行します。
 最初にsurf.exeとsampleフォルダにあるSiの座標データsurf.txtをworkフォルダにコピーします(surf.txtの詳細については、花田先生のマニュアル(リンクを貼る)を参考にしてください)。
 
-.. code-block:: none 
+.. code-block::
 
    cp ../surf.exe .
    cp ../../../sample/original/surf/surf.txt .
 
 workディレクトリ内でsurf.exeを実行します。
 
-.. code-block:: none
+.. code-block::
 
    ./surf.exe
 
 上記実行時に、以下のように出力されます。
 
-.. code-block:: none
+.. code-block::
 
    bulk-filename (end=e) ? :
    bulkP.b
@@ -92,7 +92,7 @@ workディレクトリ内でsurf.exeを実行します。
 
 surf-bulkP.sは以下の通りです。
 
-.. code-block:: none
+.. code-block::
 
    #azimuths,g-angles,beams
    1 56 13
@@ -111,7 +111,7 @@ surf-bulkP.sは以下の通りです。
 Gnuplot等のグラフソフトを用いる事も出来ますが、ここでは、scriptフォルダにあるプログラムplot_bulkP.pyを用います。
 以下のように実行して下さい。
 
-.. code-block:: none
+.. code-block::
 
    cp ../../../script/plot_bulkP.py .
    python plot_bulkP.py
@@ -127,14 +127,14 @@ Gnuplot等のグラフソフトを用いる事も出来ますが、ここでは�
 surf-bulkP.sを準備して、make_convolution.pyを実行してください。
 
 
-.. code-block:: none
+.. code-block::
 
    cp ../../../script/make_convolution.py
    python make_convolution.py
 
 実行すると、以下のような数表convolution.txtができあがります。
 
-.. code-block:: none
+.. code-block::
 
    0.500000 0.010818010
    0.600000 0.013986716

@@ -1,167 +1,269 @@
 ``minsearch`` を用いた解析
 ====================================
 
-ここでは、Nealder-Mead法を用いて回折データから原子座標を解析する
-逆問題の計算を行います。
+Nealder-Mead法を用いて回折データから原子座標を解析する逆問題の計算を行うことが可能です。
+
+``minsearch`` の計算手順は以下の通りです。
+
+1. 表面構造のバルク部分に関する計算実行 
+   
+   ``bulk.exe`` を ``sample/original/minsearch`` にコピーして計算を実行する。
+
+2. メインプログラムによるNealder-Mead法を用いた計算実行
+
+   ``src/2dmat/main.py`` を用いて計算実行し原子座標を推定する。
+
+メインプログラムでは以下の流れで計算します。
+
+0. 合わせたい参照ファイル (今回は後述する ``experiment.txt`` に相当)を準備する。
+
+1. 最適化したいパラメータの初期値 $$ x_0 $$ を与える。
+
+2. ソルバー(今回は ``surf.exe`` )を用いて参照ファイルと同じ物理量を計算する。
+
+3. 参照ファイルとのずれを計算する。
+
+4. Nealder-Mead法 (メインプログラムでは `scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.fmin.html>`_ を使用)
+
+
+計算は合わせたい参照ファイル (今回は後述する ``experiment.txt`` に相当)に対して、
+メインプログラムで同じ物理量を解析。
+ここでは、人工的に作成したデータをもとに原子座標の位置を推定します。
+
+
+サンプルファイルは ``sample/original/minsearch`` にあります。
+フォルダには以下のファイルが格納されています。
+
+- ``bulk.txt``
+
+  ``bulk.exe`` の入力ファイル
+
+- ``experiment.txt`` , ``template.txt``
+
+  メインプログラムでの計算を進めるための参照ファイル
+
+- ``ref.dat``
+
+  本チュートリアルで求めたい回答が可能されたファイル
+
+- ``input.toml``
+
+  メインプログラムの入力ファイル
+
+- ``prepare.sh`` , ``do.sh``
+
+  本チュートリアルを一括計算するために準備されたスクリプト
+
+以下、これらのファイルを用いて計算を進めます。
+
+参照ファイルの準備
+~~~~~~~~~~~~~~~~~~~
+
+``template.txt`` は ``surf.exe`` の入力ファイルとほぼ同じ形式のファイルです。
+動かすパラメータ（求めたい原子座標などの値）を「 ``value_*`` 」などの適当な文字列に書き換えられています。
+以下が、 ``template.txt`` の中身です。
+
+.. code-block::
+		
+    2                                    ,NELMS,  -------- Ge(001)-c4x2
+    32,1.0,0.1                           ,Ge Z,da1,sap
+    0.6,0.6,0.6                          ,BH(I),BK(I),BZ(I)
+    32,1.0,0.1                           ,Ge Z,da1,sap
+    0.4,0.4,0.4                          ,BH(I),BK(I),BZ(I)
+    9,4,0,0,2, 2.0,-0.5,0.5               ,NSGS,msa,msb,nsa,nsb,dthick,DXS,DYS
+    8                                    ,NATM
+    1, 1.0, 1.34502591	1	value_01   ,IELM(I),ocr(I),X(I),Y(I),Z(I)
+    1, 1.0, 0.752457792	1	value_02
+    2, 1.0, 1.480003343	1.465005851	value_03
+    2, 1.0, 2	1.497500418	2.281675
+    2, 1.0, 1	1.5	1.991675
+    2, 1.0, 0	1	0.847225
+    2, 1.0, 2	1	0.807225
+    2, 1.0, 1.009998328	1	0.597225
+    1,1                                  ,(WDOM,I=1,NDOM)
+
+
+今回の入力ファイルでは、 ``value_01``, ``value_02``, ``value_03`` を用いています。
+サンプルフォルダには、原子位置が正しく推定できているかを知るための参照ファイルとして、
+``ref.dat`` が置いてあります。ファイルの中身は
+
+.. code-block::
+
+    z1 = 5.230524973874179
+    z2 = 4.370622919269477
+    z3 = 3.5961444501081647
+
+となっており、 ``value_0x`` が ``z_x`` (x=1, 2, 3)に対応しています。
+``experiment.txt`` は、メインプログラムで参照に用いるファイルで、
+``template.txt`` に ``ref.dat`` の入っているパラメータをいれ、
+順問題のチュートリアルと同様な手順で計算して得られる ``convolution.txt`` に相当しています
+(順問題のチュートリアルとは ``bulk.exe`` , ``suft.exe`` の入力ファイルが異なるのでご注意ください)。
+
+
+入力ファイルの準備
+~~~~~~~~~~~~~~~~~~~
+
+ここでは、メインプログラム用の入力ファイル ``input.toml`` の準備をします。
+``input.toml`` の詳細については入力ファイルに記載されています。
+ここでは、サンプルファイルにある ``input.toml`` の中身について説明します。
+
+.. code-block::
+
+    [base]
+    method = "min_search"
+    dimension = 3
+    label_list = ["z1", "z2", "z3"]
+    string_list = ["value_01", "value_02", "value_03" ]
+    [solver]
+    type = "surface"
+    [experiment]
+    path = "experiment.txt"
+    first = 1
+    last = 70
+    [file]
+    calculated_first_line = 5
+    calculated_last_line = 74
+    row_number = 2
+
+最初に ``[base]`` セクションについて説明します。
+
+- ``method`` は手法選択するキーで、 ``min_search`` を指定することでNealder-Mead法を用いた原子座標の推定が行われます。
+
+- ``dimension`` は最適化したい変数の個数で、今の場合は ``template.txt`` で説明したように3つの変数の最適化を行うので、``3`` を指定します。
+
+- ``label_list`` は、``value_0x`` (x=1,2,3) を出力する際につけるラベル名のリストです。
+
+- ``string_list`` は、 ``template.txt`` で読み込む、動かしたい変数の名前のリストです。
+
+``[solver]`` セクションではメインプログラムの内部で使用するソルバーを指定します。
+このチュートリアルでは、``surf.exe`` を用いた解析を行うので、 ``surface`` を指定します。
+
+``[experiment]`` セクションでは、実験データの置いてある場所と読みこむ範囲を指定します。
+
+- ``path`` は実験データが置いてあるパスを指定します。
+
+- ``first`` は実験データファイルを読み込む最初の行数を指定します。
+
+- ``end`` は実験データファイルを読み込む最後の行数を指定します。
+
+``[file]`` セクションでは、メインプログラム内部で呼び出す ``surf.exe`` により得られた出力ファイルを読み込む際のオプションを指定します。
+
+- ``calculated_first_line`` は出力ファイルを読み込む最初の行数を指定します。
+
+- ``calculated_last_line`` は出力ファイルを読み込む最後の行数を指定します。
+
+- ``row_number`` は出力ファイルの何列目を読み込むかを指定します。
+
+ここではデフォルト値を用いるため省略しましたが、
+Nealder-Mead法で探索するパラメータ空間の指定や収束判定のパラメータについては、``param`` セクションで行うことが可能です。
+詳細については入力ファイルの章をご覧ください。
 
 計算実行
 ~~~~~~~~~~~~
 
-逆問題を実行するためのPythonスクリプトminsearch.pyを
-フォルダtest-minsearchに移動し、ここに
-Fortranの実行ファイル(bulk.exe, surf.exe)、
-Siの結晶データ(Si001b.txt)をコピーします。
-結晶データの名前はbulk.txtとします。
+最初にサンプルファイルが置いてあるフォルダへ移動します(以下、本ソフトウェアをダウンロードしたディレクトリ直下にいることを仮定します).
 
-ここでは、前章で作成したconvolution.txtを疑似的な実験データとみなし、
-experiment.txtとしてコピーしたものを用います。
-これは、sampleフォルダにあります。
-理論データsurf-bulkP.sをもとにつくられたデータなので、
-これを実験データとみなして最適化を行えば、
-求まる解は前章で用いたsurf.txt（Si2x1.txt）にある数値と厳密に同じになります。
+.. code-block::
 
-また、同フォルダには、surf.txt（Si2x1.txt）を以下のように編集したファイルが、
-template1.txtとして用意されています。surf.txt（Si2x1.txt）の中で、
-動かすパラメータ（求めたい原子座標などの値）を「value_*」などの適当な文字列に
-書き換えたものです。　
+    cd sample/original/minsearch
 
-.. code-block:: none
+順問題の時と同様に、``bulk.exe`` と ``surf.exe`` をコピーします。
 
-   2      ,NELMS,  -------- Si(001)-2x1
-   14,1.0,0.1     ,Si Z,da1,sap
-   0.6,0.6,0.6     ,BH(I),BK(I),BZ(I)
-   14,1.0,0.1     , Si Z,da1,sap
-   0.4,0.4,0.4     ,BH(I),BK(I),BZ(I)
-   6, 2,0,0,1, 1.7, -0.5,0.5          ,NSGS,msa,msb,nsa,nsb,dthick,DXS,DYS
-   6      ,NATM
-   1, 1, 0.3176, 0  ,value_01    ,IELM(I),ocr(I),X(I),Y(I),Z(I)
-   2, 1, 0.4689, 0.5,value_02
-   2, 1, 1  , 0.5,    2.15579
-   2, 1, 0  , 0.5,    1.90049
-   2, 1, 1  , 0  ,    0.74396
-   2, 1, 0  , 0  ,    0.59726
-   1,1           ,(WDOM,I=1,NDOM)
+.. code-block::
 
-ここでは、2つのSi原子のz座標の値、4.62644と3.40471を求めることにします。
-まず、実行用フォルダを作成し、以下のファイルを配置します。
+    cp ../../../src/TRHEPD/bulk.exe .
+    cp ../../../src/TRHEPD/surf.exe .
 
-- minsearch.py (プログラム本体)
-- bulk.exe (バルク計算プログラム)
-- surf.exe (表面計算プログラム)
-- bulk.txt （バルク入力ファイル.Si001b.txtのファイル名を変更したもの）
-- template.txt (表面入力ファイルsurf.txtのもととなるテンプレート。sampleのtemplate1.txtをコピーして用いる。)
-- experiment.txt (reference のrocking curve data．本来は実験データ．今は人工データ)
+最初に ``bulk.exe`` を実行し、``bulkP.b`` を作成します。
 
-以下のようなフォルダ構造になるように配置して下さい。
-ここで、test-minsearchの名前、場所は任意です。
+.. code-block::
 
-.. code-block:: none
+    ./bulk.exe
 
-   test-minsearch（任意のフォルダ名）
-   ┣ bulk.exe
-   ┣ surf.exe
-   ┣ minsearch.py
-   ┣ bulk.txt
-   ┣ template.txt
-   ┗ experiment.txt
+そのあとに、メインプログラムを実行します(計算時間は通常のPCで数秒程度で終わります)。
 
-上記をコマンドで実行するには、例えば以下のようにします。
+.. code-block::
 
-.. code-block:: none
+    python3 ../../../src/2dmat/main.py input.toml | tee log.txt
 
-   cd C:\Users\user\Documents\surface_analysis_tool
-   mkdir test-minsearch
-   cd test-minsearch
-   copy ..\source\bulk.exe .
-   copy ..\source\surf.exe .
-   copy ..\scripts\minsearch.py .
-   copy ..\sample\Si001b.txt bulk.txt
-   copy ..\sample\template1.txt template.txt
-   copy ..\sample\experiment.txt experiment.txt
+実行すると、以下の様な出力がされます。
 
-minsearch.pyは局所探索アルゴリズムNelder-Mead法を用いて、
-初期値として与えられた値の周りで解を探索します。
-今の場合、value_01が4.62644、value_02が3.40471のsurf.txt（Si2x1.txt）を
-入力データにしたsurf-bulkp.sをもとに疑似的な実験データを使っているので、
-求まる解は4.62644と3.40471のはずです。
-したがって、初期値（initial guess）としてそれらに近い値である4.5と3.5を設定します。
+.. code-block::
 
-以下のように、minsearch.pyを実行します。
+    Read experiment.txt
+    z1 =  5.25000
+    z2 =  4.25000
+    z3 =  3.50000
+    [' 5.25000', ' 4.25000', ' 3.50000']
+    PASS : degree in lastline = 7.0
+    PASS : len(calculated_list) 70 == len(convolution_I_calculated_list)70
+    R-factor = 0.015199251773721183
+    z1 =  5.50000
+    z2 =  4.25000
+    z3 =  3.50000
+    [' 5.50000', ' 4.25000', ' 3.50000']
+    PASS : degree in lastline = 7.0
+    PASS : len(calculated_list) 70 == len(convolution_I_calculated_list)70
+    R-factor = 0.04380131351780189
+    z1 =  5.25000
+    z2 =  4.50000
+    z3 =  3.50000
+    [' 5.25000', ' 4.50000', ' 3.50000']
+    ...
 
-.. code-block:: none
+``z1``, ``z2``, ``z3`` に各ステップでの候補パラメータと、その時の``R-factor`` が出力されます。
+また各ステップでの計算結果は ``Logxxxxx`` (xxxxxにステップ数)のフォルダに出力されます。
+最終的に推定されたパラメータは、``res.dat`` に出力されます。今の場合、
 
-   python ./minsearch.py --dimension 2 --llist "z1(Si)" "z2(Si)" --slist "value_01" "value_02" --inilist 4.5 3.5 --minlist -10.0 -10.0 --maxlist 10.0 10.0 --efirst 1 --elast 56 --cfirst 5 --clast 60
+.. code-block::
 
-ここで、
+    z1 = 5.230524973874179
+    z2 = 4.370622919269477
+    z3 = 3.5961444501081647
 
-- --dimension 2で、動かす原子座標（求める原子座標）が2つであること
-- --llist "z1(Si)" "z2(Si)"で、それらの原子座標を"z1(Si)"と"z2(Si)"と名付けること
-- --slist "value_01" "value_02"で、それらの原子座標に対応するtemplate.txt中の文字列が"value_01"と"value_02"であること
-- inilist 4.5 3.5で、初期値（initial guess）として、4.5と3.5という値から最適化をはじめること
-- --minlist -10.0 -10.0、--maxlist 10.0 10.0で、原子座標の値が-10から10までの範囲に収まるように最適化を行うこと
-- --efirst 1、--elast 56で、実験データの読み込む範囲（この場合1行目から56行目まで読み込みます）
-- --cfirst 5、--clast 60で、計算データの読み込む範囲（この場合5行目から60行目まで読み込みます）
+が得られ、正解のデータ ``ref.dat`` と同じ値が得られていることがわかります。
+なお、一括計算するスクリプトとして ``do.sh`` を用意しています。
+``do.sh`` では ``res.dat`` と ``ref.dat`` の差分も比較しています。
+以下、説明は割愛しますが、その中身を掲載します。
 
-を設定しています。（次章、もしくはマニュアルでも説明しています。）
-上記の設定は、解析の条件に合わせて毎回変える必要があります。
+.. code-block::
 
-実行すると、以下のような出力が得られます。
+    sh ./prepare.sh
 
-.. code-block:: none
+    ./bulk.exe
 
-   Read experiment.txt
-   Perform bulk-calculation
-   （中略）
-   Optimization terminated successfully.
-   Current function value: 1.3325422753776586e-06
-   Iterations: 31
-   Function evaluations: 59
-   Solution:
-   z1(Si) = 4.626441878249409
-   z2(Si) = 3.404705315811605
+    time python3 ../../../src/2dmat/main.py input.toml | tee log.txt
+    tail -n3 log.txt > res.dat
 
-59回R-factorの計算が行われ、31回のiterationで、
-z1(Si) = 4.626441878249409, 
-z2(Si) = 3.404705315811605 
-という解が求まりました。
-
-
+    echo diff res.dat ref.dat
+    res=0
+    diff res.dat ref.dat || res=$?
+    if [ $res -eq 0 ]; then
+      echo Test PASS
+      true
+    else
+      echo Test FAILED: res.dat and ref.dat differ
+      false
+    fi
 
 計算結果の可視化
-~~~~~~~~~~~~~~~~~
-31回のiterationそれぞれにおけるロッキングカーブのデータが、
-Extra_Log00000001からExtra_Log00000031に保存されています。
-Extra_Log00000001にあるRockingCurve.txtをRockingCurve_ini.txt、
-Extra_Log00000031にあるRockingCurve.txtをRockingCurve_con.txtとして準備し、
-draw_RC_double.pyを実行します。
+~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: none
+それぞれのステップでのロッキングカーブのデータは、``Logxxxxx`` (xxxxはステップ数)に ``RockingCurve.txt`` として保存されています。
+このデータを可視化するツール ``draw_RC_double.py`` が準備されています。
+ここでは、このツールを利用して結果を可視化します。
 
-    copy Extra_Log00000001\RockingCurve.txt RockingCurve_ini.txt
-    copy Extra_Log00000031\RockingCurve.txt RockingCurve_con.txt
-    copy ..\scripts\draw_RC_double.py .
+.. code-block::
+
+    cp Log00000001/RockingCurve.txt RockingCurve_ini.txt
+    cp Log00000017/RockingCurve.txt RockingCurve_con.txt
+    cp ../../../script/draw_RC_double.py .
     python draw_RC_double.py
 
-実行すると、以下のようなグラフRC_double.pngが得られます。
+上記を実行することで、``RC_double_minsearch.png`` が出力されます。
 
-.. figure:: ../img/RC_double1.png
+.. figure:: ../img/RC_double_minsearch.png
 
-initialとして青で示したグラフが、原子座標が初期値（4.5と3.5）のロッキングカーブになります。
-convergedとして緑で示したグラフが、原子座標が収束後の値
-（4.626441878249409と3.404705315811605）のロッキングカーブになります。
-このように、最適化が行われる前と後で、ロッキングカーブが
-どの程度変化したかをグラフで見ることができます。
+    Nealder-Mead法を用いた解析。赤丸が実験値、青線が最初のステップでのロッキングカーブ、緑線が最後に得られたロッキングカーブを表す。
 
-また、draw_RC_single.pyを用いて、1つのロッキングカーブを
-グラフ化することもできます。
-
-.. code-block:: none
-
-   copy Extra_Log00000031\RockingCurve.txt .
-   copy ..\scripts\draw_RC_single.py .
-   python draw_RC_single.py
-
-上記実行により、ロッキングカーブがRC_single.pngに出力されます。
-
-.. figure:: ../img/RC_single1.png
-
+図から最後のステップでは実験値と一致していることがわかります。
