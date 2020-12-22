@@ -3,7 +3,6 @@ import os
 import sys
 import shutil
 import numpy as np
-import subprocess
 
 
 class sol_surface(solver_base.Solver_Base):
