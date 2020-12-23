@@ -10,7 +10,7 @@ Nelder-Mead法による最適化
 
 1. 表面構造のバルク部分に関する計算実行
    
-   ``bulk.exe`` を ``sample/original/minsearch`` にコピーして計算を実行する。
+   ``bulk.exe`` を ``sample/py2dmat/minsearch`` にコピーして計算を実行する。
 
 2. メインプログラムの実行
 
@@ -24,7 +24,7 @@ Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference
 サンプルファイルの場所
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-サンプルファイルは ``sample/original/minsearch`` にあります。
+サンプルファイルは ``sample/py2dmat/minsearch`` にあります。
 フォルダには以下のファイルが格納されています。
 
 - ``bulk.txt``
@@ -158,7 +158,7 @@ Nelder-Mead法で探索するパラメータ空間の指定や収束判定のパ
 
 .. code-block::
 
-    cd sample/original/minsearch
+    cd sample/py2dmat/minsearch
 
 順問題の時と同様に、``bulk.exe`` と ``surf.exe`` をコピーします。
 

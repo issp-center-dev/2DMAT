@@ -36,5 +36,5 @@ jobs:
 
       - name: ${{ matrix.algorithm }}
         run: |
-          cd ${GITHUB_WORKSPACE}/sample/original/${{ matrix.algorithm }}
+          cd ${GITHUB_WORKSPACE}/sample/py2dmat/${{ matrix.algorithm }}
           sh ./do.sh
