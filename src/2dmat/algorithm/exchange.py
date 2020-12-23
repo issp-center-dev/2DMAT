@@ -271,6 +271,7 @@ class Algorithm(algorithm.Algorithm):
         if self.rank == 0:
             best_rank = np.argmin(best_fx)
             with open("best_result.txt", "w") as f:
+                f.write("nprocs = {}\n".format(self.nreplica))
                 f.write("rank = {}\n".format(best_rank))
                 f.write("step = {}\n".format(best_istep[best_rank]))
                 f.write("fx = {}\n".format(best_fx[best_rank]))
