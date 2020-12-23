@@ -1,7 +1,6 @@
 from typing import Callable
 
 import numpy as np
-from scipy.optimize import rosen
 
 from . import solver_base
 
@@ -19,7 +18,7 @@ def ackley(xs: np.ndarray) -> float:
 
 
 def rosenbrock(xs: np.ndarray) -> float:
-    return rosen(xs)
+    return np.sum(100.0 * (xs[1:] - xs[:-1]**2) ** 2 + (1.0 - xs[:-1]) ** 2)
 
 
 class sol_analytical(solver_base.Solver_Base):
