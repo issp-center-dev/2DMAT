@@ -1,8 +1,8 @@
 [base]
 method = "exchange"
-dimension = 3
-label_list = ["z1", "z2", "z3"]
-string_list = ["value_01", "value_02", "value_03" ]
+dimension = 2
+label_list = ["z1", "z2"]
+string_list = ["value_01", "value_02" ]
 degree_max = 7.0
 
 [experiment]
@@ -16,11 +16,15 @@ calculated_last_line = 74
 row_number = 2
 
 [param]
-min_list = [0.0, 0.0, 0.0]
-max_list = [10.0, 10.0, 10.0]
-numsteps = 1000
+min_list = [-5.0, -5.0]
+max_list = [5.0, 5.0]
+numsteps = 10000
 numsteps_exchange = 20
-Tmin = 0.01
+Tmin = 0.1
 Tmax = 1.0
 Tlogspace = false
 seed = 12345
+
+[solver]
+type = "analytical"
+function_type = "rosenbrock"

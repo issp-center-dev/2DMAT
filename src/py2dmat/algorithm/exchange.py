@@ -1,3 +1,7 @@
+from typing import List
+
+from mpi4py.MPI import Intracomm
+
 from io import open
 import copy
 import os
@@ -44,6 +48,21 @@ class Algorithm(algorithm.Algorithm):
     exchange_direction: bool
     """
 
+    x: np.ndarray
+    fx: float
+    T: float
+    istep: int
+    best_x: np.ndarray
+    best_fx: float
+    best_istep: int
+    comm: Intracomm
+    nreplica: int
+    rank: int
+    Ts: List[float]
+    Tindex: int
+    T2rep: List[int]
+    exchange_direction: bool
+
     def run(self, run_info: dict):
         original_dir = os.getcwd()
         rank = self.rank
@@ -82,7 +101,7 @@ class Algorithm(algorithm.Algorithm):
         self.istep = 0
 
         # first step
-        self.evaluate(run_info)
+        self._evaluate(run_info)
 
         file_trial = open("trial.txt", "w")
         file_result = open("result.txt", "w")
@@ -102,7 +121,7 @@ class Algorithm(algorithm.Algorithm):
             # Exchange
             if self.istep % numsteps_exchange == 0:
                 time_sta = time.perf_counter()
-                self.exchange()
+                self._exchange()
                 time_end = time.perf_counter()
                 run_info["log"]["time"]["run"]["exchange"] += time_end - time_sta
                 mbeta = -1.0 / self.T
@@ -114,7 +133,7 @@ class Algorithm(algorithm.Algorithm):
 
             # evaluate "Energy"
             fx_old = self.fx
-            self.evaluate(run_info)
+            self._evaluate(run_info)
             self.write_result(file_trial)
 
             if bound:
@@ -141,7 +160,7 @@ class Algorithm(algorithm.Algorithm):
         os.chdir(original_dir)
         print("complete main process : rank {:08d}/{:08d}".format(rank, self.nreplica))
 
-    def evaluate(self, run_info: dict):
+    def _evaluate(self, run_info: dict) -> float:
         """evaluate current "Energy"
 
         ``self.fx`` will be overwritten with the result
@@ -162,7 +181,9 @@ class Algorithm(algorithm.Algorithm):
         run_info["log"]["time"]["run"]["submit"] += time_end - time_sta
         return self.fx
 
-    def exchange(self):
+    def _exchange(self):
+        """ try to exchange temperatures
+        """
         self.comm.Barrier()
         if self.exchange_direction:
             if self.Tindex % 2 == 0:
@@ -227,10 +248,11 @@ class Algorithm(algorithm.Algorithm):
         self.nreplica = prepare_info["mpi"]["size"]
         self.rank = prepare_info["mpi"]["rank"]
         seed = prepare_info["param"]["seed"]
+        seed_delta = prepare_info["param"]["seed_delta"]
         if seed is None:
             self.rng = default_rng()
         else:
-            self.rng = default_rng(seed + self.rank * 137)
+            self.rng = default_rng(seed + self.rank * seed_delta)
 
         for item in [
             "surf.exe",
@@ -249,6 +271,7 @@ class Algorithm(algorithm.Algorithm):
         if self.rank == 0:
             best_rank = np.argmin(best_fx)
             with open("best_result.txt", "w") as f:
+                f.write("nprocs = {}\n".format(self.nreplica))
                 f.write("rank = {}\n".format(best_rank))
                 f.write("step = {}\n".format(best_istep[best_rank]))
                 f.write("fx = {}\n".format(best_fx[best_rank]))
@@ -298,5 +321,18 @@ class Init_Param(surf_base.Init_Param):
         info["param"]["Tlogspace"] = d_param.get("Tlogspace", True)
 
         info["param"]["seed"] = d_param.get("seed", None)
+        info["param"]["seed_delta"] = d_param.get("seed", 314159)
 
         return info
+
+
+def MPI_Init(info):
+    from mpi4py import MPI
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    # Check size ?: size * nprocs_per_solver
+    size = comm.Get_size()
+    info["mpi"]["comm"] = comm
+    info["mpi"]["rank"] = rank
+    info["mpi"]["size"] = size
+    return info

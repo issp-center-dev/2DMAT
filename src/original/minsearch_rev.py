@@ -391,9 +391,11 @@ for index in range(dimension):
             initial_list2.append(initial_list[index2])
     initial_simplex_list.append(initial_list2)
 
+
 #fminsearch
 print("Perform optimization by fminsearch")
 [xopt, fopt, itera, funcalls, warnflag, allvecs] = fmin(f, initial_list, xtol=xtol_value, ftol=ftol_value, retall = True, full_output = True, maxiter = 10000, maxfun = 100000, initial_simplex = initial_simplex_list)
+
 #result = fmin(f, initial_list, maxiter = 500, maxfun = 10000)
 #print(result)
 

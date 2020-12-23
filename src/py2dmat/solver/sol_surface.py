@@ -3,7 +3,6 @@ import os
 import sys
 import shutil
 import numpy as np
-import subprocess
 
 
 class sol_surface(solver_base.Solver_Base):
@@ -50,13 +49,6 @@ class sol_surface(solver_base.Solver_Base):
             surf.exe
         """
         return "surf.exe"
-
-    def run(self):
-        # Run surf.exe
-        os.chdir(self.input.base_info["output_dir"])
-        print("Perform surface-calculation")
-        subprocess.call([self.path_to_solver])
-        os.chdir(self.input.base_info["base_dir"])
 
     class Input(object):
         """
@@ -254,6 +246,7 @@ class sol_surface(solver_base.Solver_Base):
             label_list = self.base_info["label_list"]
 
             with open("RockingCurve.txt", "w") as file_RC:
+                I_experiment_list_normalized = self.experiment_info["I_normalized"]
                 # Write headers
                 file_RC.write("#")
                 for index in range(dimension):
@@ -284,12 +277,13 @@ class sol_surface(solver_base.Solver_Base):
                 # Write rocking curve
                 for index in range(len(degree_list)):
                     file_RC.write(
-                        "{} {} {} {} {}\n".format(
+                        "{} {} {} {} {} {}\n".format(
                             degree_list[index],
                             convolution_I_calculated_list[index],
                             I_experiment_list[index],
                             convolution_I_calculated_list_normalized[index],
-                            I_calculated_list[index],
+                            I_experiment_list_normalized[index],
+                            I_calculated_list[index]
                         )
                     )
             return Rfactor
