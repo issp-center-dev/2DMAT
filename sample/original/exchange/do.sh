@@ -1,6 +1,6 @@
 sh prepare.sh
 
-# ./bulk.exe
+./bulk.exe
 
 time mpiexec --oversubscribe -np 4 python3 ../../../src/2dmat/main.py input.toml
 
