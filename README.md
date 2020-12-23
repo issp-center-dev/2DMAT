@@ -3,49 +3,36 @@
 ## sample
 version: 2020-05-18
 
-### make a forward solver
+### make a forward TRHEPD solver
+
+- Prerequists
+  - Fortran compiler
 
 ``` bash
 $ cd src/TRHEPD
 $ make
 ```
 
-### mapper
+### py2dmat
 
-- Prerequists
-  - Python2 for original version
-  - Python3 for new version
-  - mpi4py
+- Prerequists python packages
   - numpy
-
-``` bash
-$ cd sample/original/mapper
-
-# clean-up the previous result & make symbolic links
-$ sh ./prepare.sh
-
-# perform calculation
-$ sh ./do.sh
-# or
-$ sh ./do_original.sh
-```
-
-### minsearch
-
-- Prerequists
-  - Python3
-  - numpy
+  - toml
+- Optional python packages
   - scipy
+    - for `minsearch` algorithm
+  - mpi4py
+    - for `exchange` algorithm
+  - physbo
+    - for `bayes` algorithm
 
 ``` bash
-$ cd sample/original/minsearch
+$ cd sample/py2dmat/mapper
 
 # clean-up the previous result & make symbolic links
 $ sh ./prepare.sh
 
 # perform calculation
 $ sh ./do.sh
-# or
-$ sh ./do_original.sh
 ```
 
