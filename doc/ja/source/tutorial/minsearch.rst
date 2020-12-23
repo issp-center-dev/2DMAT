@@ -14,7 +14,7 @@ Nelder-Mead法による最適化
 
 2. メインプログラムの実行
 
-   ``src/2dmat/main.py`` を用いて計算実行し原子座標を推定する。
+   ``src/py2dmat/main.py`` を用いて計算実行し原子座標を推定する。
 
 メインプログラムでは、
 Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.fmin.html>`_ を使用)を用いて、
@@ -177,7 +177,7 @@ Nelder-Mead法で探索するパラメータ空間の指定や収束判定のパ
 
 .. code-block::
 
-    python3 ../../../src/2dmat/main.py input.toml | tee log.txt
+    python3 ../../../src/py2dmat/main.py input.toml | tee log.txt
 
 実行すると、以下の様な出力がされます。
 
@@ -225,7 +225,7 @@ Nelder-Mead法で探索するパラメータ空間の指定や収束判定のパ
 
     ./bulk.exe
 
-    time python3 ../../../src/2dmat/main.py input.toml | tee log.txt
+    time python3 ../../../src/py2dmat/main.py input.toml | tee log.txt
     tail -n3 log.txt > res.dat
 
     echo diff res.dat ref.dat
