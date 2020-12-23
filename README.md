@@ -27,7 +27,7 @@ $ make
     - for `bayes` algorithm
 
 ``` bash
-$ cd sample/original/mapper
+$ cd sample/py2dmat/mapper
 
 # clean-up the previous result & make symbolic links
 $ sh ./prepare.sh
