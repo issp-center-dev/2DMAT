@@ -35,7 +35,7 @@ makeが成功すると、 ``bulk.exe`` 及び  ``surf.exe`` が作成されま�
 .. code-block::
 
    cp ../bulk.exe .
-   cp ../../../sample/py2dmat/bulk/bulk.txt .
+   cp ../../../sample/original/bulk/bulk.txt .
 
 workディレクトリ内でbulk.exeを実行します。
 
@@ -63,7 +63,7 @@ workディレクトリ内でbulk.exeを実行します。
 .. code-block::
 
    cp ../surf.exe .
-   cp ../../../sample/py2dmat/surf/surf.txt .
+   cp ../../../sample/original/surf/surf.txt .
 
 workディレクトリ内でsurf.exeを実行します。
 
