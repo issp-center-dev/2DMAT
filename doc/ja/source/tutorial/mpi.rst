@@ -8,7 +8,7 @@
 サンプルファイルの場所
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-サンプルファイルは ``sample/original/mapper`` にあります。
+サンプルファイルは ``sample/py2dmat/mapper`` にあります。
 フォルダには以下のファイルが格納されています。
 
 - ``bulk.txt``
@@ -121,7 +121,7 @@
 
 .. code-block::
 
-    cd sample/original/mapper
+    cd sample/py2dmat/mapper
 
 順問題の時と同様に、``bulk.exe`` と ``surf.exe`` をコピーします。
 
@@ -207,7 +207,13 @@
 ~~~~~~~~~~~~~~~~~~~
 
 ``ColorMap.txt`` を図示することで、``R-factor`` の小さいパラメータがどこにあるかを推定することができます。
-今回の場合は、以下の図のように、(5.25, 4.25) 付近に最小値を持っていることがわかります。
+今回の場合は、以下のコマンドをうつことで2次元パラメータ空間の図 ``ColorMapFig.png`` が作成されます。
+
+.. code-block::
+
+    python3 plot_colormap_2d.py
+
+作成された図を見ると、(5.25, 4.25) 付近に最小値を持っていることがわかります。
 
 .. figure:: ../img/mapper.pdf
 
