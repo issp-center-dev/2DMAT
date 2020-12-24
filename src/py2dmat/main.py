@@ -3,21 +3,27 @@ from sys import exit
 import time
 import toml
 
-try:
-    from mpi4py import MPI
-    MPI_flag = True
-except ImportError:
-    print("Warning: failed to import mpi4py")
-    MPI_flag = False
 
-import solver.factory as SolverFactory
-import runner.runner as Runner
+from .solver import factory as SolverFactory
+from .runner import runner as Runner
 
-if __name__ == "__main__":
+
+def main():
     import sys
+
+    MPI_flag = False
+    try:
+        from mpi4py import MPI
+
+        MPI_flag = True
+    except ImportError:
+        print("Warning: failed to import mpi4py")
+        MPI_flag = False
+
     if len(sys.argv) != 2:
         print("Usage: python3 main.py <toml_file_name>.")
         exit(1)
+
     file_name = sys.argv[1]
     maindir = os.getcwd()
     input = toml.load(file_name)
@@ -25,14 +31,17 @@ if __name__ == "__main__":
 
     # Define algorithm
     if method == "mapper":
-        import algorithm.mapper_mpi as mapper_mpi_alg
+        from .algorithm import mapper_mpi as mapper_mpi_alg
+
         algorithm = mapper_mpi_alg
     elif method == "min_search":
-        import algorithm.min_search as min_search_alg
+        from .algorithm import min_search as min_search_alg
+
         algorithm = min_search_alg
         MPI_flag = False
     elif method == "exchange":
-        import algorithm.exchange as exchange_alg
+        from .algorithm import exchange as exchange_alg
+
         algorithm = exchange_alg
         MPI_flag = True
     else:
@@ -63,14 +72,14 @@ if __name__ == "__main__":
     time_sta = time.perf_counter()
     alg.prepare(info)
     time_end = time.perf_counter()
-    info["log"]["time"]["prepare"]["total"] = time_end-time_sta
+    info["log"]["time"]["prepare"]["total"] = time_end - time_sta
     if MPI_flag:
         info["mpi"]["comm"].Barrier()
 
     time_sta = time.perf_counter()
     alg.run(info)
     time_end = time.perf_counter()
-    info["log"]["time"]["run"]["total"] = time_end-time_sta
+    info["log"]["time"]["run"]["total"] = time_end - time_sta
     print("end of run")
     if MPI_flag:
         info["mpi"]["comm"].Barrier()
@@ -78,9 +87,10 @@ if __name__ == "__main__":
     time_sta = time.perf_counter()
     alg.post(info)
     time_end = time.perf_counter()
-    info["log"]["time"]["post"]["total"] = time_end-time_sta
+    info["log"]["time"]["post"]["total"] = time_end - time_sta
 
     with open("time_rank{}.log".format(rank), "w") as fw:
+
         def output_file(type):
             tmp_dict = info["log"]["time"][type]
             fw.write("#{}\n total = {} [s]\n".format(type, tmp_dict["total"]))
@@ -88,6 +98,7 @@ if __name__ == "__main__":
                 if key == "total":
                     continue
                 fw.write(" - {} = {}\n".format(key, t))
+
         output_file("prepare")
         output_file("run")
         output_file("post")
