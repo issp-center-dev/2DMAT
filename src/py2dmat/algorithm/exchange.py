@@ -86,16 +86,16 @@ class Algorithm(algorithm.Algorithm):
             self.x = xmin + (xmax - xmin) * self.rng.random(size=dimension)
         x_old = np.zeros(dimension)
 
-        if info_alg["param"]["Tlogspace"]:
+        if info_alg["exchange"]["Tlogspace"]:
             self.Ts = np.logspace(
-                start=np.log10(info_alg["param"]["Tmin"]),
-                stop=np.log10(info_alg["param"]["Tmax"]),
+                start=np.log10(info_alg["exchange"]["Tmin"]),
+                stop=np.log10(info_alg["exchange"]["Tmax"]),
                 num=nreplica,
             )
         else:
             self.Ts = np.linspace(
-                start=info_alg["param"]["Tmin"],
-                stop=info_alg["param"]["Tmax"],
+                start=info_alg["exchange"]["Tmin"],
+                stop=info_alg["exchange"]["Tmax"],
                 num=nreplica,
             )
         self.Tindex = rank
@@ -121,8 +121,8 @@ class Algorithm(algorithm.Algorithm):
         self.best_fx = self.fx
         self.best_istep = 0
 
-        numsteps = info_alg["param"]["numsteps"]
-        numsteps_exchange = info_alg["param"]["numsteps_exchange"]
+        numsteps = info_alg["exchange"]["numsteps"]
+        numsteps_exchange = info_alg["exchange"]["numsteps_exchange"]
         while self.istep < numsteps:
             # Exchange
             if self.istep % numsteps_exchange == 0:
@@ -252,8 +252,8 @@ class Algorithm(algorithm.Algorithm):
         self.comm = prepare_info["mpi"]["comm"]
         self.nreplica = prepare_info["mpi"]["size"]
         self.rank = prepare_info["mpi"]["rank"]
-        seed = prepare_info["algorithm"]["param"]["seed"]
-        seed_delta = prepare_info["algorithm"]["param"]["seed_delta"]
+        seed = prepare_info["algorithm"]["exchange"]["seed"]
+        seed_delta = prepare_info["algorithm"]["exchange"]["seed_delta"]
         if seed is None:
             self.rng = default_rng()
         else:
@@ -297,23 +297,25 @@ class Algorithm(algorithm.Algorithm):
 
     def prepare_info(self, info: Info) -> None:
         dimension = self.dimension
-        info_alg = info["algorithm"]["param"]
+        info_alg = info["algorithm"]
+        info_param = info_alg["param"]
+        info_exchange = info_alg["exchange"]
 
-        info_alg.setdefault("initial_list", [])
-        info_alg.setdefault("unit_list", [1.0] * dimension)
+        info_param.setdefault("initial_list", [])
+        info_param.setdefault("unit_list", [1.0] * dimension)
 
         # check if defined (FIXME)
-        info_alg["min_list"]
-        info_alg["max_list"]
-        info_alg["numsteps"]
-        info_alg["numsteps_exchange"]
+        info_param["min_list"]
+        info_param["max_list"]
+        info_exchange["numsteps"]
+        info_exchange["numsteps_exchange"]
 
-        info_alg.setdefault("Tmin", 0.1)
-        info_alg.setdefault("Tmax", 10.0)
-        info_alg.setdefault("Tlogspace", True)
+        info_exchange.setdefault("Tmin", 0.1)
+        info_exchange.setdefault("Tmax", 10.0)
+        info_exchange.setdefault("Tlogspace", True)
 
-        info_alg.setdefault("seed", None)
-        info_alg.setdefault("seed_delta", 314159)
+        info_exchange.setdefault("seed", None)
+        info_exchange.setdefault("seed_delta", 314159)
 
 
 def MPI_Init(info):

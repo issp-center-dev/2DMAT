@@ -8,6 +8,8 @@ label_list = ["z1", "z2"]
 [algorithm.param]
 min_list = [-5.0, -5.0]
 max_list = [5.0, 5.0]
+
+[algorithm.exchange]
 numsteps = 10000
 numsteps_exchange = 20
 Tmin = 0.1

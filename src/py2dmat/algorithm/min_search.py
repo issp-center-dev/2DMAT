@@ -21,6 +21,11 @@ class Algorithm(algorithm.Algorithm):
     max_list: List[float]
     unit_list: List[float]
 
+    # hyperparameters of Nelder-Mead
+    initial_simplex_list: List[List[float]]
+    xtol: float
+    ftol: float
+
     # results
     xopt: np.ndarray
     fopt: float
@@ -30,11 +35,6 @@ class Algorithm(algorithm.Algorithm):
     fx_for_simplex_list: List[float]
     callback_list: List[List[int]]
 
-    # hyperparameters of Nelder-Mead
-    initial_simplex_list: List[List[float]]
-    xtol: float
-    ftol: float
-
     def __init__(self, info: Info, runner) -> None:
         super().__init__(info=info, runner=runner)
 
@@ -43,13 +43,18 @@ class Algorithm(algorithm.Algorithm):
         # TODO: change default values
         # TODO: error check
         
-        self.initial_list = info_alg.get("initial_list", [5.25, 4.25, 3.50])
-        self.unit_list = info_alg.get("unit_list", [1.0, 1.0, 1.0])
-        self.min_list = info_alg.get("min_list", [-100.0, -100.0, -100.0])
-        self.max_list = info_alg.get("max_list", [100.0, 100.0, 100.0])
-        self.initial_scale_list = info_alg.get("initial_scale_list", [0.25, 0.25, 0.25])
-        self.xtol = info_alg.get("xtol", 0.0001)
-        self.ftol = info_alg.get("ftol", 0.0001)
+        info_param = info_alg.get("param", {})
+        self.initial_list = info_param.get("initial_list", [5.25, 4.25, 3.50])
+        self.unit_list = info_param.get("unit_list", [1.0, 1.0, 1.0])
+        self.min_list = info_param.get("min_list", [-100.0, -100.0, -100.0])
+        self.max_list = info_param.get("max_list", [100.0, 100.0, 100.0])
+
+        info_minimize = info_alg.get("minimize", {})
+        self.initial_scale_list = info_minimize.get("initial_scale_list", [0.25, 0.25, 0.25])
+        self.xtol = info_minimize.get("xatol", 0.0001)
+        self.ftol = info_minimize.get("fatol", 0.0001)
+        self.maxiter = info_minimize.get("maxiter", 10000)
+        self.maxfev = info_minimize.get("maxfev", 100000)
 
 
     def run(self, run_info: Info) -> None:
@@ -109,8 +114,8 @@ class Algorithm(algorithm.Algorithm):
                 "fatol": self.ftol,
                 "return_all": True,
                 "disp": True,
-                "maxiter": 10000,
-                "maxfev": 100000,
+                "maxiter": self.maxiter,
+                "maxfev": self.maxfev,
                 "initial_simplex": self.initial_simplex_list,
             },
         )
