@@ -7,11 +7,21 @@ import numpy as np
 from scipy.optimize import minimize
 
 from . import algorithm
-from . import surf_base
+
+# for type hints
+from ..info import Info
 
 
 class Algorithm(algorithm.Algorithm):
 
+    # inputs
+    label_list: List[str]
+    initial_list: List[float]
+    min_list: List[float]
+    max_list: List[float]
+    unit_list: List[float]
+
+    # results
     xopt: np.ndarray
     fopt: float
     itera: int
@@ -19,22 +29,43 @@ class Algorithm(algorithm.Algorithm):
     allvecs: List[np.ndarray]
     fx_for_simplex_list: List[float]
     callback_list: List[List[int]]
-    initial_list: List[float]
-    initial_simplex_list: List[List[float]]
 
-    def run(self, run_info: MutableMapping) -> None:
+    # hyperparameters of Nelder-Mead
+    initial_simplex_list: List[List[float]]
+    xtol: float
+    ftol: float
+
+    def __init__(self, info: Info, runner) -> None:
+        super().__init__(info=info, runner=runner)
+
+        info_alg = info["algorithm"]
+
+        # TODO: change default values
+        # TODO: error check
+        
+        self.initial_list = info_alg.get("initial_list", [5.25, 4.25, 3.50])
+        self.unit_list = info_alg.get("unit_list", [1.0, 1.0, 1.0])
+        self.min_list = info_alg.get("min_list", [-100.0, -100.0, -100.0])
+        self.max_list = info_alg.get("max_list", [100.0, 100.0, 100.0])
+        self.initial_scale_list = info_alg.get("initial_scale_list", [0.25, 0.25, 0.25])
+        self.xtol = info_alg.get("xtol", 0.0001)
+        self.ftol = info_alg.get("ftol", 0.0001)
+
+
+    def run(self, run_info: Info) -> None:
         run = self.runner
         callback_list = []
         run_info["base"]["base_dir"] = os.getcwd()
 
+        min_list = self.min_list
+        max_list = self.max_list
+        unit_list = self.unit_list
+        label_list = self.label_list
+        dimension = self.dimension
+
         def _f_calc(
-            x_list: np.ndarray, info: MutableMapping, extra_data: bool = False
+            x_list: np.ndarray, info: Info, extra_data: bool = False
         ) -> float:
-            min_list = info["param"]["min_list"]
-            max_list = info["param"]["max_list"]
-            unit_list = info["param"]["unit_list"]
-            label_list = info["base"]["label_list"]
-            dimension = info["base"]["dimension"]
 
             out_of_range = False
             for index in range(dimension):
@@ -55,6 +86,7 @@ class Algorithm(algorithm.Algorithm):
                 y = 100.0
             else:
                 run_info["log"]["Log_number"] += 1
+                run_info["log"]["ExtraRun"] = extra_data
                 run_info["calc"]["x_list"] = x_list
                 run_info["base"]["base_dir"] = os.getcwd()
                 y = run.submit(update_info=run_info)
@@ -73,8 +105,8 @@ class Algorithm(algorithm.Algorithm):
             args=(run_info,),
             method="Nelder-Mead",
             options={
-                "xatol": run_info["param"]["xtol"],
-                "fatol": run_info["param"]["ftol"],
+                "xatol": self.xtol,
+                "fatol": self.ftol,
                 "return_all": True,
                 "disp": True,
                 "maxiter": 10000,
@@ -110,17 +142,16 @@ class Algorithm(algorithm.Algorithm):
         self.callback_list = callback_list
 
     def prepare(self, prepare_info):
-        dimension = prepare_info["base"]["dimension"]
 
         # make initial simple
         initial_simplex_list = []
-        initial_list = prepare_info["param"]["initial_list"]
-        initial_scale_list = prepare_info["param"]["initial_scale_list"]
+        initial_list = self.initial_list
+        initial_scale_list = self.initial_scale_list
         initial_simplex_list.append(initial_list)
 
-        for index in range(dimension):
+        for index in range(self.dimension):
             initial_list2 = []
-            for index2 in range(dimension):
+            for index2 in range(self.dimension):
                 if index2 == index:
                     initial_list2.append(
                         initial_list[index2] + initial_scale_list[index2]
@@ -133,8 +164,8 @@ class Algorithm(algorithm.Algorithm):
         self.initial_simplex_list = initial_simplex_list
 
     def post(self, post_info):
-        dimension = post_info["base"]["dimension"]
-        label_list = post_info["base"]["label_list"]
+        dimension = self.dimension
+        label_list = self.label_list
         with open("SimplexData.txt", "w") as file_SD:
             file_SD.write("#step")
             for label in label_list:
@@ -165,23 +196,3 @@ class Algorithm(algorithm.Algorithm):
         print("Solution:")
         for x, y in zip(label_list, self.xopt):
             print(x, "=", y)
-
-
-class Init_Param(surf_base.Init_Param):
-    def from_dict(self, dict):
-        info = super().from_dict(dict)
-        # Set Parameters
-        info["param"] = {}
-        dict_param = dict.get("param", {})
-        info["param"]["initial_list"] = dict_param.get(
-            "initial_list", [5.25, 4.25, 3.50]
-        )
-        info["param"]["unit_list"] = dict_param.get("unit_list", [1.0, 1.0, 1.0])
-        info["param"]["min_list"] = dict_param.get("min_list", [-100.0, -100.0, -100.0])
-        info["param"]["max_list"] = dict_param.get("max_list", [100.0, 100.0, 100.0])
-        info["param"]["initial_scale_list"] = dict_param.get(
-            "initial_scale_list", [0.25, 0.25, 0.25]
-        )
-        info["param"]["xtol"] = dict_param.get("xtol", 0.0001)
-        info["param"]["ftol"] = dict_param.get("ftol", 0.0001)
-        return info

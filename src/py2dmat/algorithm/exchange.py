@@ -11,8 +11,8 @@ import numpy as np
 from numpy.random import default_rng
 
 from . import algorithm
-from . import surf_base
 
+from ..info import Info
 
 class Algorithm(algorithm.Algorithm):
     """Replica Exchange Monte Carlo
@@ -63,6 +63,10 @@ class Algorithm(algorithm.Algorithm):
     T2rep: List[int]
     exchange_direction: bool
 
+    def __init__(self, info, runner):
+        super().__init__(info=info, runner=runner)
+        self.prepare_info(info)
+
     def run(self, run_info: dict):
         original_dir = os.getcwd()
         rank = self.rank
@@ -70,26 +74,28 @@ class Algorithm(algorithm.Algorithm):
         os.chdir(str(rank))
         run_info["base"]["base_dir"] = os.getcwd()
 
-        dimension = run_info["base"]["dimension"]
-        xmin = np.array(run_info["param"]["min_list"])
-        xmax = np.array(run_info["param"]["max_list"])
-        xunit = np.array(run_info["param"]["unit_list"])
+        info_alg = run_info["algorithm"]
 
-        self.x = np.array(run_info["param"]["initial_list"])
+        dimension = self.dimension
+        xmin = np.array(info_alg["param"]["min_list"])
+        xmax = np.array(info_alg["param"]["max_list"])
+        xunit = np.array(info_alg["param"]["unit_list"])
+
+        self.x = np.array(info_alg["param"]["initial_list"])
         if self.x.size == 0:
             self.x = xmin + (xmax - xmin) * self.rng.random(size=dimension)
         x_old = np.zeros(dimension)
 
-        if run_info["param"]["Tlogspace"]:
+        if info_alg["param"]["Tlogspace"]:
             self.Ts = np.logspace(
-                start=np.log10(run_info["param"]["Tmin"]),
-                stop=np.log10(run_info["param"]["Tmax"]),
+                start=np.log10(info_alg["param"]["Tmin"]),
+                stop=np.log10(info_alg["param"]["Tmax"]),
                 num=nreplica,
             )
         else:
             self.Ts = np.linspace(
-                start=run_info["param"]["Tmin"],
-                stop=run_info["param"]["Tmax"],
+                start=info_alg["param"]["Tmin"],
+                stop=info_alg["param"]["Tmax"],
                 num=nreplica,
             )
         self.Tindex = rank
@@ -115,8 +121,8 @@ class Algorithm(algorithm.Algorithm):
         self.best_fx = self.fx
         self.best_istep = 0
 
-        numsteps = run_info["param"]["numsteps"]
-        numsteps_exchange = run_info["param"]["numsteps_exchange"]
+        numsteps = info_alg["param"]["numsteps"]
+        numsteps_exchange = info_alg["param"]["numsteps_exchange"]
         while self.istep < numsteps:
             # Exchange
             if self.istep % numsteps_exchange == 0:
@@ -246,19 +252,12 @@ class Algorithm(algorithm.Algorithm):
         self.comm = prepare_info["mpi"]["comm"]
         self.nreplica = prepare_info["mpi"]["size"]
         self.rank = prepare_info["mpi"]["rank"]
-        seed = prepare_info["param"]["seed"]
-        seed_delta = prepare_info["param"]["seed_delta"]
+        seed = prepare_info["algorithm"]["param"]["seed"]
+        seed_delta = prepare_info["algorithm"]["param"]["seed_delta"]
         if seed is None:
             self.rng = default_rng()
         else:
             self.rng = default_rng(seed + self.rank * seed_delta)
-
-        for item in [
-            "surf.exe",
-            "template.txt",
-            prepare_info["base"]["bulk_output_file"],
-        ]:
-            shutil.copy(item, os.path.join(str(self.rank), item))
 
         prepare_info["log"]["time"]["run"]["submit"] = 0.0
         prepare_info["log"]["time"]["run"]["exchange"] = 0.0
@@ -296,33 +295,25 @@ class Algorithm(algorithm.Algorithm):
         fp.write("\n")
         fp.flush()
 
+    def prepare_info(self, info: Info) -> None:
+        dimension = self.dimension
+        info_alg = info["algorithm"]["param"]
 
-class Init_Param(surf_base.Init_Param):
-    def from_dict(cls, dict_in):
-        info = super().from_dict(dict_in)
-        dimension = info["base"]["dimension"]
+        info_alg.setdefault("initial_list", [])
+        info_alg.setdefault("unit_list", [1.0] * dimension)
 
-        # Set Parameters
-        info["param"] = {}
-        d_param = dict_in.get("param", {})
+        # check if defined (FIXME)
+        info_alg["min_list"]
+        info_alg["max_list"]
+        info_alg["numsteps"]
+        info_alg["numsteps_exchange"]
 
-        # if empty, initialized uniformly random later
-        info["param"]["initial_list"] = d_param.get("initial_list", [])
-        info["param"]["min_list"] = d_param["min_list"]
-        info["param"]["max_list"] = d_param["max_list"]
-        info["param"]["unit_list"] = d_param.get("unit_list", [1.0] * dimension)
+        info_alg.setdefault("Tmin", 0.1)
+        info_alg.setdefault("Tmax", 10.0)
+        info_alg.setdefault("Tlogspace", True)
 
-        info["param"]["numsteps"] = d_param["numsteps"]
-        info["param"]["numsteps_exchange"] = d_param["numsteps_exchange"]
-
-        info["param"]["Tmin"] = d_param.get("Tmin", 0.1)
-        info["param"]["Tmax"] = d_param.get("Tmax", 10.0)
-        info["param"]["Tlogspace"] = d_param.get("Tlogspace", True)
-
-        info["param"]["seed"] = d_param.get("seed", None)
-        info["param"]["seed_delta"] = d_param.get("seed", 314159)
-
-        return info
+        info_alg.setdefault("seed", None)
+        info_alg.setdefault("seed_delta", 314159)
 
 
 def MPI_Init(info):

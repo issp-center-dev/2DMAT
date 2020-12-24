@@ -1,12 +1,25 @@
+from typing import List
+
 from io import open
 import numpy as np
 import os
 from . import algorithm
-from . import surf_base
 import time
+
+# for type hints
+from ..info import Info
 
 
 class Algorithm(algorithm.Algorithm):
+    mesh_list: List[float]
+    label_list: List[str]
+
+    def __init__(self, info, runner):
+        super().__init__(info=info, runner=runner)
+        info_alg = info["algorithm"].get("param", {})
+        mesh_path = info_alg.get("mesh_path", "MeshData.txt")
+        self.mesh_list = self._get_mesh_list_from_file(mesh_path)
+
     def _get_mesh_list_from_file(self, filename="MeshData.txt"):
         print("Read", filename)
         mesh_list = []
@@ -27,8 +40,8 @@ class Algorithm(algorithm.Algorithm):
         size = run_info["mpi"]["size"]
         os.chdir(str(rank))
         # Make ColorMap
-        label_list = run_info["base"]["label_list"]
-        dimension = run_info["base"]["dimension"]
+        label_list = self.label_list
+        dimension = self.dimension
         run = self.runner
         print("Make ColorMap")
         with open("ColorMap.txt", "w") as file_CM:
@@ -108,12 +121,6 @@ class Algorithm(algorithm.Algorithm):
             mesh_divided = np.array_split(mesh_total, size)
             for index, mesh in enumerate(mesh_divided):
                 sub_folder_name = str(index)
-                for item in [
-                    "surf.exe",
-                    "template.txt",
-                    prepare_info["base"]["bulk_output_file"],
-                ]:
-                    shutil.copy(item, os.path.join(sub_folder_name, item))
                 with open(
                     os.path.join(sub_folder_name, "MeshData.txt"), "w"
                 ) as file_output:
@@ -131,12 +138,6 @@ class Algorithm(algorithm.Algorithm):
                             line = line.lstrip()
                             if not line.startswith("#"):
                                 file_output.write(line)
-
-
-class Init_Param(surf_base.Init_Param):
-    def from_dict(cls, dict):
-        info = super().from_dict(dict)
-        return info
 
 
 def MPI_Init(info):

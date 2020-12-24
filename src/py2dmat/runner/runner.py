@@ -25,8 +25,8 @@ class Runner(object):
         try:
             # TODO: Is it better to define mpi_info class ?
             comm = mpi_info["comm"]
-            nprocs_per_solver = mpi_info["nprocs_per_solver"]
-            nthreads_per_proc = mpi_info["nthreads_per_proc"]
+            nprocs_per_solver = mpi_info.get("nprocs_per_solver", 1)
+            nthreads_per_proc = mpi_info.get("nthreads_per_proc", 1)
         except KeyError:
             print("Error: key for mpi_info.")
             sys.exit(1)
@@ -116,8 +116,8 @@ class run_subprocess(Run):
             Name of solver
         solverinput : Solver.Input
             Input manager
-        output_dir : str
-            Path to directory where a solver saves output
+        solveroutput : Solver.Output
+            Output manager
 
         Returns
         -------
@@ -129,17 +129,12 @@ class run_subprocess(Run):
         subprocess.CalledProcessError
             Raises when solver failed.
         """
-        try:
-            output_dir = solveroutput.base_info["output_dir"]
-        except KeyError:
-            print("Error: output_info does not have the key output_dir.")
-            sys.exit(1)
-
-        solverinput.write_input(workdir=output_dir)
+        base_dir = solveroutput.base_info["output_dir"]
+        solverinput.write_input(workdir=base_dir)
         cwd = os.getcwd()
-        os.chdir(output_dir)
+        os.chdir(base_dir)
         command = [self.path_to_solver]
-        with open(os.path.join(output_dir, "stdout"), "w") as fi:
+        with open(os.path.join(base_dir, "stdout"), "w") as fi:
             subprocess.run(
                 command, stdout=fi, stderr=subprocess.STDOUT, check=True, shell=True
             )

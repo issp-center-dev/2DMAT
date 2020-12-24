@@ -1,16 +1,25 @@
 [base]
-method = "mapper"
 dimension = 2
-label_list = ["z1", "z2"]
-string_list = ["value_01", "value_02" ]
-degree_max = 7.0
-[experiment]
-path = "experiment.txt"
-first = 1
-last = 70
-[file]
+
+[solver]
+name = "surface"
+
+[solver.config]
 calculated_first_line = 5
 calculated_last_line = 74
 row_number = 2
-[solver]
-type = "surface"
+
+[solver.param]
+string_list = ["value_01", "value_02" ]
+degree_max = 7.0
+
+[solver.reference]
+path = "experiment.txt"
+first = 1
+last = 70
+
+[algorithm]
+name = "mapper"
+label_list = ["z1", "z2"]
+
+[algorithm.param]

@@ -4,6 +4,7 @@ import time
 import toml
 
 
+from .info import Info
 from .solver import factory as SolverFactory
 from .runner import runner as Runner
 
@@ -11,30 +12,23 @@ from .runner import runner as Runner
 def main():
     import sys
 
-    MPI_flag = False
-    try:
-        from mpi4py import MPI
-
-        MPI_flag = True
-    except ImportError:
-        print("Warning: failed to import mpi4py")
-        MPI_flag = False
-
     if len(sys.argv) != 2:
         print("Usage: python3 main.py <toml_file_name>.")
         exit(1)
 
     file_name = sys.argv[1]
     maindir = os.getcwd()
-    input = toml.load(file_name)
-    method = input["base"]["method"]
+    info = Info(toml.load(file_name))
+    method = info["algorithm"]["name"]
+
+    MPI_flag = True
 
     # Define algorithm
     if method == "mapper":
         from .algorithm import mapper_mpi as mapper_mpi_alg
 
         algorithm = mapper_mpi_alg
-    elif method == "min_search":
+    elif method == "minsearch":
         from .algorithm import min_search as min_search_alg
 
         algorithm = min_search_alg
@@ -49,11 +43,9 @@ def main():
         exit(1)
 
     # Get parameters
-    param = algorithm.Init_Param()
-    info = param.from_toml(file_name)
     rank = 0
     size = 1
-    if method != "min_search":
+    if method != "minsearch":
         if MPI_flag:
             # Get info["mpi"]
             info = algorithm.MPI_Init(info)
@@ -61,13 +53,13 @@ def main():
         for idx in range(size):
             sub_folder_name = str(idx)
             os.makedirs(sub_folder_name, exist_ok=True)
+    else:
+        info["mpi"] = {"comm": 0, "size": 1, "rank": 0}
 
-    input_solver = input["solver"]
-    info["solver"] = input_solver
     factory = SolverFactory.SolverFactory()
-    solver = factory.solver(input_solver["type"], info)
+    solver = factory.solver(info["solver"]["name"], info)
     runner = Runner.Runner(solver, info["mpi"])
-    alg = algorithm.Algorithm(Runner=runner)
+    alg = algorithm.Algorithm(info=info, runner=runner)
 
     time_sta = time.perf_counter()
     alg.prepare(info)
