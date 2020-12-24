@@ -5,6 +5,7 @@ from . import algorithm
 from . import surf_base
 import time
 
+
 class Algorithm(algorithm.Algorithm):
     def _get_mesh_list_from_file(self, filename="MeshData.txt"):
         print("Read", filename)
@@ -39,7 +40,7 @@ class Algorithm(algorithm.Algorithm):
             file_CM.write("R-factor\n")
             time_end = time.perf_counter()
 
-            run_info["log"]["time"]["run"]["file_CM"] = (time_end-time_sta)
+            run_info["log"]["time"]["run"]["file_CM"] = time_end - time_sta
             run_info["log"]["time"]["run"]["submit"] = 0.0
 
             mesh_list = self._get_mesh_list_from_file()
@@ -52,7 +53,7 @@ class Algorithm(algorithm.Algorithm):
                 for value in mesh[1:]:
                     file_CM.write("{:8f} ".format(value))
                 time_end = time.perf_counter()
-                run_info["log"]["time"]["run"]["file_CM"] += (time_end - time_sta)
+                run_info["log"]["time"]["run"]["file_CM"] += time_end - time_sta
 
                 # update information
                 run_info["log"]["Log_number"] = round(mesh[0])
@@ -62,13 +63,13 @@ class Algorithm(algorithm.Algorithm):
                 time_sta = time.perf_counter()
                 fx = run.submit(update_info=run_info)
                 time_end = time.perf_counter()
-                run_info["log"]["time"]["run"]["submit"] += (time_end - time_sta)
+                run_info["log"]["time"]["run"]["submit"] += time_end - time_sta
 
                 fx_list.append(fx)
                 time_sta = time.perf_counter()
                 file_CM.write("{:8f}\n".format(fx))
                 time_end = time.perf_counter()
-                run_info["log"]["time"]["run"]["file_CM"] += (time_end - time_sta)
+                run_info["log"]["time"]["run"]["file_CM"] += time_end - time_sta
 
                 print("mesh after:", mesh)
 
@@ -87,7 +88,7 @@ class Algorithm(algorithm.Algorithm):
             file_CM.write("#R-factor : {:8f}\n".format(fx_list[fx_order[0]]))
             file_CM.write("#see Log{}\n".format(round(mesh_list[fx_order[0]][0])))
             time_end = time.perf_counter()
-            run_info["log"]["time"]["run"]["file_CM"] += (time_end - time_sta)
+            run_info["log"]["time"]["run"]["file_CM"] += time_end - time_sta
 
         os.chdir(original_dir)
         print("complete main process : rank {:08d}/{:08d}".format(rank, size))
@@ -137,8 +138,10 @@ class Init_Param(surf_base.Init_Param):
         info = super().from_dict(dict)
         return info
 
+
 def MPI_Init(info):
     from mpi4py import MPI
+
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     # Check size ?: size * nprocs_per_solver

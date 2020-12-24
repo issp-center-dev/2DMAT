@@ -5,7 +5,7 @@ import shutil
 import numpy as np
 
 
-class sol_surface(solver_base.Solver_Base):
+class surface(solver_base.Solver_Base):
     def __init__(self, info, path_to_solver=None):
         """
         Initialize the solver.
@@ -19,8 +19,8 @@ class sol_surface(solver_base.Solver_Base):
         """
         info["calc"] = {}
         self.path_to_solver = os.path.join(info["base"]["main_dir"], self.get_name())
-        self.input = sol_surface.Input(info)
-        self.output = sol_surface.Output(info)
+        self.input = surface.Input(info)
+        self.output = surface.Output(info)
         self.base_info = info["base"]
 
     def get_run_scheme(self):
@@ -64,7 +64,7 @@ class sol_surface(solver_base.Solver_Base):
             # Set default value
             self.base_info = info["base"]
             self.base_info["extra"] = info["base"].get("extra", False)
-            #TODO main_dir is suitable?
+            # TODO main_dir is suitable?
             self.base_info["output_dir"] = self.base_info["main_dir"]
             self.log_info = info["log"]
             self.calc_info = info["calc"]
@@ -283,7 +283,7 @@ class sol_surface(solver_base.Solver_Base):
                             I_experiment_list[index],
                             convolution_I_calculated_list_normalized[index],
                             I_experiment_list_normalized[index],
-                            I_calculated_list[index]
+                            I_calculated_list[index],
                         )
                     )
             return Rfactor

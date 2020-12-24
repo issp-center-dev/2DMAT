@@ -1,8 +1,8 @@
 from typing import Dict, Type
 
 from .solver_base import Solver_Base
-from . import sol_surface
-from . import sol_analytical
+from . import surface
+from . import analytical
 
 
 class SolverFactory:
@@ -18,8 +18,8 @@ class SolverFactory:
     solvers: Dict[str, Type[Solver_Base]] = {}
 
     def __init__(self) -> None:
-        self.register(sol_surface.sol_surface, "surface")
-        self.register(sol_analytical.sol_analytical, "analytical")
+        self.register(surface.surface, "surface")
+        self.register(analytical.analytical, "analytical")
 
     def register(self, solver: Type[Solver_Base], solver_name: str) -> None:
         if solver_name in self.solvers:

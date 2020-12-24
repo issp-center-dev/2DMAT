@@ -18,10 +18,10 @@ def ackley(xs: np.ndarray) -> float:
 
 
 def rosenbrock(xs: np.ndarray) -> float:
-    return np.sum(100.0 * (xs[1:] - xs[:-1]**2) ** 2 + (1.0 - xs[:-1]) ** 2)
+    return np.sum(100.0 * (xs[1:] - xs[:-1] ** 2) ** 2 + (1.0 - xs[:-1]) ** 2)
 
 
-class sol_analytical(solver_base.Solver_Base):
+class analytical(solver_base.Solver_Base):
     def __init__(self, info) -> None:
         """
         Initialize the solver.
@@ -33,8 +33,8 @@ class sol_analytical(solver_base.Solver_Base):
         """
         info["calc"] = {}
         self.path_to_solver = ""
-        self.input = sol_analytical.Input(info)
-        self.output = sol_analytical.Output(info)
+        self.input = analytical.Input(info)
+        self.output = analytical.Output(info)
         self.base_info = info["base"]
         if "solver" in info:
             function_type = info["solver"].get("function_type", "quadratics")

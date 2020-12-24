@@ -3,6 +3,7 @@ import numpy as np
 import os
 from . import algorithm
 
+
 class Init_Param(algorithm.Param):
     def from_dict(cls, dict):
         # Set basic information
@@ -12,11 +13,21 @@ class Init_Param(algorithm.Param):
         info["base"]["normalization"] = dict["base"].get("normalization", "TOTAL")
         if info["base"]["normalization"] not in ["TOTAL", "MAX"]:
             raise ValueError("normalization must be TOTAL or MAX.")
-        info["base"]["label_list"] = dict["base"].get("label_list", ["z1(Si)", "z2(Si)"])
-        info["base"]["string_list"] = dict["base"].get("string_list", ["value_01", "value_02"])
-        info["base"]["surface_input_file"] = dict["base"].get("surface_input_file", "surf.txt")
-        info["base"]["bulk_output_file"] = dict["base"].get("bulk_output_file", "bulkP.b")
-        info["base"]["surface_output_file"] = dict["base"].get("surface_output_file", "surf-bulkP.s")
+        info["base"]["label_list"] = dict["base"].get(
+            "label_list", ["z1(Si)", "z2(Si)"]
+        )
+        info["base"]["string_list"] = dict["base"].get(
+            "string_list", ["value_01", "value_02"]
+        )
+        info["base"]["surface_input_file"] = dict["base"].get(
+            "surface_input_file", "surf.txt"
+        )
+        info["base"]["bulk_output_file"] = dict["base"].get(
+            "bulk_output_file", "bulkP.b"
+        )
+        info["base"]["surface_output_file"] = dict["base"].get(
+            "surface_output_file", "surf-bulkP.s"
+        )
         info["base"]["Rfactor_type"] = dict["base"].get("Rfactor_type", "A")
         if info["base"]["Rfactor_type"] not in ["A", "B"]:
             raise ValueError("Rfactor_type must be A or B.")
@@ -33,8 +44,12 @@ class Init_Param(algorithm.Param):
 
         # Set file information
         info["file"] = {}
-        info["file"]["calculated_first_line"] = dict["file"].get("calculated_first_line", 5)
-        info["file"]["calculated_last_line"] = dict["file"].get("calculated_last_line", 60)
+        info["file"]["calculated_first_line"] = dict["file"].get(
+            "calculated_first_line", 5
+        )
+        info["file"]["calculated_last_line"] = dict["file"].get(
+            "calculated_last_line", 60
+        )
         info["file"]["row_number"] = dict["file"].get("row_number", 8)
 
         # Set experiment information
@@ -94,4 +109,5 @@ class Init_Param(algorithm.Param):
 
     def from_toml(cls, file_name):
         import toml
+
         return cls.from_dict(toml.load(file_name))

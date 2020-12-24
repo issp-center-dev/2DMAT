@@ -9,6 +9,7 @@ from scipy.optimize import minimize
 from . import algorithm
 from . import surf_base
 
+
 class Algorithm(algorithm.Algorithm):
 
     xopt: np.ndarray
@@ -26,7 +27,9 @@ class Algorithm(algorithm.Algorithm):
         callback_list = []
         run_info["base"]["base_dir"] = os.getcwd()
 
-        def _f_calc(x_list: np.ndarray, info: MutableMapping, extra_data: bool=False) -> float:
+        def _f_calc(
+            x_list: np.ndarray, info: MutableMapping, extra_data: bool = False
+        ) -> float:
             min_list = info["param"]["min_list"]
             max_list = info["param"]["max_list"]
             unit_list = info["param"]["unit_list"]
@@ -38,7 +41,10 @@ class Algorithm(algorithm.Algorithm):
                 if x_list[index] < min_list[index] or x_list[index] > max_list[index]:
                     print(
                         "Warning: {} = {} is out of range [{}, {}].".format(
-                            label_list[index], x_list[index], min_list[index], max_list[index]
+                            label_list[index],
+                            x_list[index],
+                            min_list[index],
+                            max_list[index],
                         )
                     )
                     out_of_range = True
@@ -74,7 +80,7 @@ class Algorithm(algorithm.Algorithm):
                 "maxiter": 10000,
                 "maxfev": 100000,
                 "initial_simplex": self.initial_simplex_list,
-                },
+            },
         )
         self.xopt = optres.x
         self.fopt = optres.fun
@@ -94,7 +100,9 @@ class Algorithm(algorithm.Algorithm):
         for step in range(self.itera):
             print("step:", step)
             print("allvecs[step]:", self.allvecs[step])
-            fx_for_simplex_list.append(_f_calc(self.allvecs[step], run_info, extra_data))
+            fx_for_simplex_list.append(
+                _f_calc(self.allvecs[step], run_info, extra_data)
+            )
         time_end = time.perf_counter()
         run_info["log"]["time"]["run"]["recalc"] = time_end - time_sta
 
@@ -114,14 +122,15 @@ class Algorithm(algorithm.Algorithm):
             initial_list2 = []
             for index2 in range(dimension):
                 if index2 == index:
-                    initial_list2.append(initial_list[index2] + initial_scale_list[index2])
+                    initial_list2.append(
+                        initial_list[index2] + initial_scale_list[index2]
+                    )
                 else:
                     initial_list2.append(initial_list[index2])
             initial_simplex_list.append(initial_list2)
 
         self.initial_list = initial_list
         self.initial_simplex_list = initial_simplex_list
-
 
     def post(self, post_info):
         dimension = post_info["base"]["dimension"]
@@ -145,7 +154,7 @@ class Algorithm(algorithm.Algorithm):
                 file_callback.write(label)
             file_callback.write("\n")
             for callback in self.callback_list:
-                for v in callback[0: dimension + 2]:
+                for v in callback[0 : dimension + 2]:
                     file_callback.write(str(v))
                     file_callback.write(" ")
                 file_callback.write("\n")
@@ -157,17 +166,22 @@ class Algorithm(algorithm.Algorithm):
         for x, y in zip(label_list, self.xopt):
             print(x, "=", y)
 
+
 class Init_Param(surf_base.Init_Param):
     def from_dict(self, dict):
         info = super().from_dict(dict)
         # Set Parameters
-        info["param"]={}
+        info["param"] = {}
         dict_param = dict.get("param", {})
-        info["param"]["initial_list"] = dict_param.get("initial_list", [5.25,4.25,3.50])
+        info["param"]["initial_list"] = dict_param.get(
+            "initial_list", [5.25, 4.25, 3.50]
+        )
         info["param"]["unit_list"] = dict_param.get("unit_list", [1.0, 1.0, 1.0])
         info["param"]["min_list"] = dict_param.get("min_list", [-100.0, -100.0, -100.0])
         info["param"]["max_list"] = dict_param.get("max_list", [100.0, 100.0, 100.0])
-        info["param"]["initial_scale_list"] = dict_param.get("initial_scale_list", [0.25, 0.25, 0.25])
+        info["param"]["initial_scale_list"] = dict_param.get(
+            "initial_scale_list", [0.25, 0.25, 0.25]
+        )
         info["param"]["xtol"] = dict_param.get("xtol", 0.0001)
         info["param"]["ftol"] = dict_param.get("ftol", 0.0001)
         return info

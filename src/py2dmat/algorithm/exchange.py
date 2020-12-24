@@ -182,8 +182,7 @@ class Algorithm(algorithm.Algorithm):
         return self.fx
 
     def _exchange(self):
-        """ try to exchange temperatures
-        """
+        """try to exchange temperatures"""
         self.comm.Barrier()
         if self.exchange_direction:
             if self.Tindex % 2 == 0:
@@ -328,6 +327,7 @@ class Init_Param(surf_base.Init_Param):
 
 def MPI_Init(info):
     from mpi4py import MPI
+
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     # Check size ?: size * nprocs_per_solver

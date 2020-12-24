@@ -3,6 +3,7 @@
 
 from abc import ABCMeta, abstractmethod
 
+
 class Algorithm(metaclass=ABCMeta):
     def __init__(self, Runner, myconfig=None):
         self.runner = Runner
