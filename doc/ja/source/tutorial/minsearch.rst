@@ -52,7 +52,7 @@ Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference
 参照ファイルの説明
 ~~~~~~~~~~~~~~~~~~~
 
-``template.txt`` , ``experiment.txt`` については ``surf.exe`` の入力ファイルとほぼ同じ形式のファイルです。
+``template.txt`` は ``surf.exe`` の入力ファイルとほぼ同じ形式のファイルです。
 動かすパラメータ（求めたい原子座標などの値）を「 ``value_*`` 」などの適当な文字列に書き換えられています。
 以下が、 ``template.txt`` の中身です。
 
