@@ -140,7 +140,7 @@
 
 .. code-block::
 
-    mpiexec -np 2 python3 ../../../src/2dmat/main.py input.toml | tee log.txt
+    mpiexec -np 2 python3 ../../../src/py2dmat_main.py input.toml | tee log.txt
 
 ここではプロセス数2のMPI並列を用いた計算を行っています。
 実行すると、各ランクのフォルダが作成され、その下に更にグリッドのidがついたサブフォルダ ``Log%%%%%``  ( ``%%%%%`` がグリッドのid)が作成されます
@@ -190,7 +190,7 @@
 
     ./bulk.exe
 
-    time mpiexec -np 2 python3 ../../../src/2dmat/main.py input.toml
+    time mpiexec -np 2 python3 ../../../src/py2dmat_main.py input.toml
 
     echo diff ColorMap.txt ref_ColorMap.txt
     res=0
