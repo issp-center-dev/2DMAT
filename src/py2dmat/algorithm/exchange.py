@@ -62,6 +62,7 @@ class Algorithm(algorithm.Algorithm):
     Tindex: int
     T2rep: List[int]
     exchange_direction: bool
+    label_list: List[str]
 
     def __init__(self, info, runner):
         super().__init__(info=info, runner=runner)
@@ -283,7 +284,9 @@ class Algorithm(algorithm.Algorithm):
                 print("  x[{}] = {}".format(i, x))
 
     def write_result_header(self, fp):
-        fp.write("# istep T fx x...")
+        fp.write("# step T fx")
+        for label in self.label_list:
+            fp.write(f" {label}")
         fp.write("\n")
 
     def write_result(self, fp):
@@ -303,6 +306,10 @@ class Algorithm(algorithm.Algorithm):
 
         info_param.setdefault("initial_list", [])
         info_param.setdefault("unit_list", [1.0] * dimension)
+        if "label_list" in info_param:
+            self.label_list = info_param["label_list"]
+        else:
+            self.label_list = [f"x{i+1}" for i in range(dimension)]
 
         # check if defined (FIXME)
         info_param["min_list"]
