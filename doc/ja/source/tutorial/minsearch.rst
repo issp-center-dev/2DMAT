@@ -103,20 +103,28 @@ Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference
 .. code-block::
 
     [base]
-    method = "min_search"
     dimension = 3
-    label_list = ["z1", "z2", "z3"]
-    string_list = ["value_01", "value_02", "value_03" ]
+
     [solver]
-    type = "surface"
-    [experiment]
-    path = "experiment.txt"
-    first = 1
-    last = 70
-    [file]
+    name = "surface"
+
+    [solver.config]
     calculated_first_line = 5
     calculated_last_line = 74
     row_number = 2
+
+    [solver.param]
+    string_list = ["value_01", "value_02", "value_03" ]
+    degree_max = 7.0
+
+    [solver.reference]
+    path = "experiment.txt"
+    first = 1
+    last = 70
+
+    [algorithm]
+    name = "minsearch"
+    label_list = ["z1", "z2", "z3"]
 
 最初に ``[base]`` セクションについて説明します。
 

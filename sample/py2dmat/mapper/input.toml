@@ -21,5 +21,3 @@ last = 70
 [algorithm]
 name = "mapper"
 label_list = ["z1", "z2"]
-
-[algorithm.param]
