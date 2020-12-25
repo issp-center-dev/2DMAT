@@ -37,14 +37,14 @@ class analytical(solver_base.Solver_Base):
         self.output = analytical.Output(info)
         self.base_info = info["base"]
         if "solver" in info:
-            function_type = info["solver"].get("function_type", "quadratics")
+            function_name = info["solver"].get("function_name", "quadratics")
         else:
-            function_type = "quadratics"
+            function_name = "quadratics"
 
         try:
-            self.func = eval(function_type)
+            self.func = eval(function_name)
         except NameError:
-            raise RuntimeError(f"ERROR: Unknown function, {function_type}")
+            raise RuntimeError(f"ERROR: Unknown function, {function_name}")
 
     def get_run_scheme(self) -> str:
         """
@@ -89,8 +89,7 @@ class analytical(solver_base.Solver_Base):
             # Set default value
             self.base_info = info["base"]
             self.base_info["extra"] = info["base"].get("extra", False)
-            # TODO main_dir is suitable?
-            self.base_info["output_dir"] = self.base_info["main_dir"]
+            self.base_info["output_dir"] = self.base_info["root_dir"]
             self.log_info = info["log"]
             self.calc_info = info["calc"]
 

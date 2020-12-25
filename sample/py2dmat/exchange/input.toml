@@ -1,23 +1,15 @@
 [base]
-method = "exchange"
 dimension = 2
+
+[algorithm]
+name = "exchange"
 label_list = ["z1", "z2"]
-string_list = ["value_01", "value_02" ]
-degree_max = 7.0
 
-[experiment]
-path = "experiment.txt"
-first = 1
-last = 70
-
-[file]
-calculated_first_line = 5
-calculated_last_line = 74
-row_number = 2
-
-[param]
+[algorithm.param]
 min_list = [-5.0, -5.0]
 max_list = [5.0, 5.0]
+
+[algorithm.exchange]
 numsteps = 10000
 numsteps_exchange = 20
 Tmin = 0.1
@@ -26,5 +18,5 @@ Tlogspace = false
 seed = 12345
 
 [solver]
-type = "analytical"
-function_type = "rosenbrock"
+name = "analytical"
+function_name = "rosenbrock"

@@ -1,24 +1,44 @@
-from . import solver_base
 import os
 import sys
 import shutil
 import numpy as np
 
+from pathlib import Path
+
+
+from . import solver_base
+from .. import exception
+
+# for type hints
+from typing import Dict, Optional, Any, List
+from ..info import Info
+
 
 class surface(solver_base.Solver_Base):
-    def __init__(self, info, path_to_solver=None):
+    root_dir: Path
+    output_dir: Path
+    path_to_solver: Path
+    info_solver: Dict[str, Any]
+
+    def __init__(self, info: Info):
         """
         Initialize the solver.
 
         Parameters
         ----------
-        solver_name : str
-            Solver name.
-        path_to_solver : str
-            Path to the solver.
         """
-        info["calc"] = {}
-        self.path_to_solver = os.path.join(info["base"]["main_dir"], self.get_name())
+
+        self.root_dir = info["base"]["root_dir"]
+        self.output_dir = info["base"]["output_dir"]
+
+        self.info_solver = info["solver"]
+
+        p2solver = "surf.exe"
+        self.path_to_solver = self.root_dir / Path(p2solver).expanduser().resolve()
+        if not self.path_to_solver.exists():
+            raise exception.InputError(
+                f"ERROR: solver ({self.path_to_solver}) does not exist"
+            )
         self.input = surface.Input(info)
         self.output = surface.Output(info)
         self.base_info = info["base"]
@@ -39,7 +59,7 @@ class surface(solver_base.Solver_Base):
         str
             Path to solver.
         """
-        return self.path_to_solver
+        return str(self.path_to_solver)
 
     def get_name(self):
         """
@@ -60,14 +80,51 @@ class surface(solver_base.Solver_Base):
             Common parameter.
         """
 
+        root_dir: Path
+        output_dir: Path
+        dimension: int
+        string_list: List[str]
+        bulk_output_file: Path
+        surface_input_file: Path
+        surface_template_file: Path
+
         def __init__(self, info):
-            # Set default value
             self.base_info = info["base"]
-            self.base_info["extra"] = info["base"].get("extra", False)
-            # TODO main_dir is suitable?
-            self.base_info["output_dir"] = self.base_info["main_dir"]
             self.log_info = info["log"]
             self.calc_info = info["calc"]
+
+            self.dimension = info["base"]["dimension"]
+            self.root_dir = info["base"]["root_dir"]
+            self.output_dir = info["base"]["output_dir"]
+
+            info_s = info["solver"]
+
+            info_param = info_s.get("param", {})
+            v = info_param.setdefault("string_list", ["value_01", "value_02"])
+            if len(v) != self.dimension:
+                raise exception.InputError(
+                    f"ERROR: len(string_list) != dimension ({len(v)} != {dimension})"
+                )
+            self.string_list = v
+
+            info_config = info_s.get("config", {})
+            self.surface_input_file = Path(info_config.get("surface_input_file", "surf.txt"))
+
+            filename = info_config.get("surface_template_file", "template.txt")
+            filename = Path(filename).expanduser().resolve()
+            self.surface_template_file = self.root_dir / filename
+            if not self.surface_template_file.exists():
+                raise exception.InputError(
+                    f"ERROR: surface_template_file ({self.surface_template_file}) does not exist"
+                )
+
+            filename = info_config.get("bulk_output_file", "bulkP.b")
+            filename = Path(filename).expanduser().resolve()
+            self.bulk_output_file = self.root_dir / filename
+            if not self.bulk_output_file.exists():
+                raise exception.InputError(
+                    f"ERROR: bulk_output_file ({self.bulk_output_file}) does not exist"
+                )
 
         def update_info(self, update_info=None):
             """
@@ -81,12 +138,13 @@ class surface(solver_base.Solver_Base):
             """
             if update_info is not None:
                 self.log_info["Log_number"] = update_info["log"]["Log_number"]
+                self.log_info["ExtraRun"] = update_info["log"].get("ExtraRun", False)
                 self.calc_info["x_list"] = update_info["calc"]["x_list"]
                 self.base_info["base_dir"] = update_info["base"]["base_dir"]
             # Make fitted x_list and value
             # Move subdir
             fitted_x_list, fitted_value, folder_name = self._prepare(
-                self.calc_info["x_list"], self.base_info["extra"]
+                self.calc_info["x_list"], self.log_info["ExtraRun"]
             )
             self.calc_info["fitted_x_list"] = fitted_x_list
             self.calc_info["fitted_value"] = fitted_value
@@ -98,14 +156,11 @@ class surface(solver_base.Solver_Base):
             update_info["log"] = self.log_info
             return update_info
 
-            #####[S] Prepare #####
-
         def _prepare(self, x_list, extra=False):
-            dimension = self.base_info["dimension"]
-            string_list = self.base_info["string_list"]
-            label_list = self.base_info["label_list"]
-            bulk_output_file = self.base_info["bulk_output_file"]
-            surface_input_file = self.base_info["surface_input_file"]
+            dimension = self.dimension
+            string_list = self.string_list
+            bulk_output_file = self.bulk_output_file
+            solver_input_file = self.surface_input_file
             fitted_x_list = []
             for index in range(dimension):
                 fitted_value = " " if x_list[index] >= 0 else ""
@@ -113,22 +168,22 @@ class surface(solver_base.Solver_Base):
                 fitted_value = fitted_value[: len(string_list[index])]
                 fitted_x_list.append(fitted_value)
             for index in range(dimension):
-                print(label_list[index], "=", fitted_x_list[index])
-            self._replace(fitted_x_list)
+                print(string_list[index], "=", fitted_x_list[index])
             folder_name = self._pre_bulk(
-                self.log_info["Log_number"], bulk_output_file, surface_input_file, extra
+                self.log_info["Log_number"], bulk_output_file, solver_input_file, extra
             )
+            self._replace(fitted_x_list, folder_name)
             return fitted_x_list, fitted_value, folder_name
 
-        def _replace(self, fitted_x_list):
-            with open("template.txt", "r") as file_input, open(
-                self.base_info["surface_input_file"], "w"
+        def _replace(self, fitted_x_list, folder_name):
+            with open(self.surface_template_file, "r") as file_input, open(
+                os.path.join(folder_name, self.surface_input_file), "w"
             ) as file_output:
                 for line in file_input:
-                    for index in range(self.base_info["dimension"]):
-                        if line.find(self.base_info["string_list"][index]) != -1:
+                    for index in range(self.dimension):
+                        if line.find(self.string_list[index]) != -1:
                             line = line.replace(
-                                self.base_info["string_list"][index],
+                                self.string_list[index],
                                 fitted_x_list[index],
                             )
                     file_output.write(line)
@@ -139,13 +194,8 @@ class surface(solver_base.Solver_Base):
             else:
                 folder_name = "Log{:08d}".format(Log_number)
             os.makedirs(folder_name, exist_ok=True)
-            shutil.copy(bulk_output_file, os.path.join(folder_name, bulk_output_file))
-            shutil.copy(
-                surface_input_file, os.path.join(folder_name, surface_input_file)
-            )
+            shutil.copy(bulk_output_file, os.path.join(folder_name, bulk_output_file.name))
             return folder_name
-
-        #####[E] Prepare #####
 
         def write_input(self, workdir):
             """
@@ -195,19 +245,135 @@ class surface(solver_base.Solver_Base):
         Output manager.
         """
 
+        dimension: int
+        string_list: List[str]
+        surface_output_file: str
+        normalization: str
+        Rfactor_type: str
+        calculated_first_line: int
+        calculated_last_line: int
+        row_number: int
+        degree_max: float
+        degree_list: List[float]
+
+        reference: List[float]
+        reference_norm: float
+        reference_normalized: List[float]
+        degree_list: List[float]
+
         def __init__(self, info):
+            self.dimension = info["base"]["dimension"]
+            info_s = info["solver"]
+
+            # maybe redundunt
             self.base_info = info["base"]
-            self.experiment_info = info["experiment"]
-            self.file_info = info["file"]
             self.calc_info = info["calc"]
+
+            # solver.config
+            info_config = info_s.get("config", {})
+            self.surface_output_file = info_config.get(
+                "surface_output_file", "surf-bulkP.s"
+            )
+
+            v = info_config.get("calculated_first_line", 5)
+            if not (isinstance(v, int) and v >= 0):
+                raise exception.InputError(
+                    "ERROR: calculated_first_line should be non-negative integer"
+                )
+            self.calculated_first_line = v
+
+            v = info_config.get("calculated_last_line", 60)
+            if not (isinstance(v, int) and v >= 0):
+                raise exception.InputError(
+                    "ERROR: calculated_last_line should be non-negative integer"
+                )
+            self.calculated_last_line = v
+
+            v = info_config.get("row_number", 8)
+            if not (isinstance(v, int) and v >= 0):
+                raise exception.InputError(
+                    "ERROR: row_number should be non-negative integer"
+                )
+            self.row_number = v
+
+            # solver.post
+            info_post = info_s.get("post", {})
+
+            v = info_post.get("normalization", "TOTAL")
+            if v not in ["TOTAL", "MAX"]:
+                raise exception.InputError("ERROR: normalization must be TOTAL or MAX")
+            self.normalization = v
+
+            v = info_post.get("Rfactor_type", "A")
+            if v not in ["A", "B"]:
+                raise exception.InputError("ERROR: Rfactor_type must be A or B")
+            self.Rfactor_type = v
+
+            v = info_post.get("omega", 0.5)
+            if v <= 0.0:
+                raise exception.InputError("ERROR: omega should be positive")
+            self.omega = v
+
+            # solver.param
+            info_param = info_s.get("param", {})
+            v = info_param.setdefault("string_list", ["value_01", "value_02"])
+            if len(v) != self.dimension:
+                raise exception.InputError(
+                    f"ERROR: len(string_list) != dimension ({len(v)} != {dimension})"
+                )
+            self.string_list = v
+
+            v = info_s.get("degree_max", 6.0)
+            self.degree_max = v
+
+            # solver.reference
+            info_ref = info_s.get("reference", {})
+            reference_path = info_ref.get("path", "experiment.txt")
+
+            v = info_ref.setdefault("first", 1)
+            if not (isinstance(v, int) and v >= 0):
+                raise exception.InputError(
+                    "ERROR: reference_first_line should be non-negative integer"
+                )
+            firstline = v
+
+            v = info_ref.setdefault("last", 56)
+            if not (isinstance(v, int) and v >= firstline):
+                raise exception.InputError(
+                    "ERROR: reference_last_line < reference_first_line"
+                )
+            lastline = v
+
+            # Read experiment-data
+            nline = lastline - firstline + 1
+            self.degree_list = []
+            self.reference = []
+            with open(reference_path, "r") as fp:
+                for _ in range(firstline - 1):
+                    fp.readline()
+                for _ in range(nline):
+                    line = fp.readline()
+                    words = line.split()
+                    self.degree_list.append(float(words[0]))
+                    self.reference.append(float(words[1]))
+
+            self.reference_norm = 0.0
+            if self.normalization == "TOTAL":
+                self.reference_norm = sum(self.reference)
+            else:  # self.normalization == "MAX":
+                self.reference_norm = max(self.reference)
+
+            self.reference_normalized = [
+                I_exp / self.reference_norm for I_exp in self.reference
+            ]
 
         def update_info(self, updated_info):
             self.calc_info = updated_info["calc"]
             self.base_info = updated_info["base"]
 
-        def get_results(self):
+        def get_results(self) -> float:
             """
-            Get energy and structure obtained by the solver program.
+            Get Rfactor obtained by the solver program.
 
             Parameters
             ----------
@@ -224,12 +390,10 @@ class surface(solver_base.Solver_Base):
             os.chdir(self.base_info["base_dir"])
             return Rfactor
 
-        #####[S] Post #####
         def _post(self, fitted_x_list):
-            degree_list = self.base_info["degree_list"]
-            normalization = self.base_info["normalization"]
-            I_experiment_norm = self.experiment_info["I_norm"]
-            I_experiment_list = self.experiment_info["I"]
+            degree_list = self.degree_list
+            I_experiment_norm = self.reference_norm
+            I_experiment_list = self.reference
 
             (
                 convolution_I_calculated_list_normalized,
@@ -243,22 +407,22 @@ class surface(solver_base.Solver_Base):
             print("R-factor =", Rfactor)
 
             dimension = self.base_info["dimension"]
-            label_list = self.base_info["label_list"]
+            string_list = self.string_list
 
             with open("RockingCurve.txt", "w") as file_RC:
-                I_experiment_list_normalized = self.experiment_info["I_normalized"]
+                I_experiment_list_normalized = self.reference_normalized
                 # Write headers
                 file_RC.write("#")
                 for index in range(dimension):
                     file_RC.write(
-                        "{} = {} ".format(label_list[index], fitted_x_list[index])
+                        "{} = {} ".format(string_list[index], fitted_x_list[index])
                     )
                 file_RC.write("\n")
                 file_RC.write("#R-factor = {}\n".format(Rfactor))
-                if normalization == "TOTAL":
+                if self.normalization == "TOTAL":
                     file_RC.write("#I_calculated_total={}\n".format(I_calculated_norm))
                     file_RC.write("#I_experiment_total={}\n".format(I_experiment_norm))
-                elif normalization == "MAX":
+                else:  # self.normalization == "MAX"
                     file_RC.write("#I_calculated_max={}\n".format(I_calculated_norm))
                     file_RC.write("#I_experiment_max={}\n".format(I_experiment_norm))
                 file_RC.write("#")
@@ -289,18 +453,18 @@ class surface(solver_base.Solver_Base):
             return Rfactor
 
         def _g(self, x):
-            g = (0.939437 / self.base_info["omega"]) * np.exp(
-                -2.77259 * (x ** 2.0 / self.base_info["omega"] ** 2.0)
+            g = (0.939437 / self.omega) * np.exp(
+                -2.77259 * (x ** 2.0 / self.omega ** 2.0)
             )
             return g
 
         def _calc_I_from_file(self):
-            surface_output_file = self.base_info["surface_output_file"]
-            calculated_first_line = self.file_info["calculated_first_line"]
-            calculated_last_line = self.file_info["calculated_last_line"]
-            row_number = self.file_info["row_number"]
-            degree_max = self.base_info["degree_max"]
-            degree_list = self.base_info["degree_list"]
+            surface_output_file = self.surface_output_file
+            calculated_first_line = self.calculated_first_line
+            calculated_last_line = self.calculated_last_line
+            row_number = self.row_number
+            degree_max = self.degree_max
+            degree_list = self.degree_list
 
             nlines = calculated_last_line - calculated_first_line + 1
             # TODO: handling error
@@ -355,15 +519,10 @@ class surface(solver_base.Solver_Base):
                     )
                 )
 
-            if self.base_info["normalization"] == "TOTAL":
+            if self.normalization == "TOTAL":
                 I_calculated_norm = sum(convolution_I_calculated_list)
-            elif self.base_info["normalization"] == "MAX":
+            else:  # self.normalization == "MAX"
                 I_calculated_norm = max(convolution_I_calculated_list)
-            else:
-                # TODO: redundant?
-                # TODO: error handling
-                print("ERROR: unknown normalization", self.normalization)
-                sys.exit(1)
             convolution_I_calculated_list_normalized = [
                 c / I_calculated_norm for c in convolution_I_calculated_list
             ]
@@ -375,13 +534,13 @@ class surface(solver_base.Solver_Base):
             )
 
         def _calc_Rfactor(self, calc_result):
-            I_experiment_list_normalized = self.experiment_info["I_normalized"]
-            if self.base_info["Rfactor_type"] == "A":
+            I_experiment_list_normalized = self.reference_normalized
+            if self.Rfactor_type == "A":
                 R = 0.0
                 for I_exp, I_calc in zip(I_experiment_list_normalized, calc_result):
                     R += (I_exp - I_calc) ** 2
                 R = np.sqrt(R)
-            elif self.base_info["Rfactor_type"] == "B":
+            else:  # self.Rfactor_type == "B"
                 y1 = 0.0
                 y2 = 0.0
                 y3 = 0.0
@@ -390,11 +549,4 @@ class surface(solver_base.Solver_Base):
                     y2 += I_exp ** 2
                     y3 += I_calc ** 2
                 R = y1 / (y2 + y3)
-            else:
-                # TODO: redundant?
-                # TODO: error handling
-                print("ERROR: unknown Rfactor type", self.base_info["Rfactor_type"])
-                sys.exit(1)
             return R
-
-        #####[E] Post #####

@@ -164,7 +164,7 @@
 
     - ``minsearch`` : Nelder-Mead法を用いて最小値を与えるパラメータを探索するアルゴリズム
 
-    - ``mapper`` :　グリッド探索を行うアルゴリズム
+    - ``mapper`` : グリッド探索を行うアルゴリズム
 
     - ``exchange`` :  レプリカ交換モンテカルロを行うアルゴリズム
 
@@ -191,30 +191,55 @@
 
   説明: 各パラメータの単位を指定するリスト。探索アルゴリズム中では、各パラメータをそれぞれこれらの値で割ることで、簡易的な無次元化・正規化を行います。
 
-- ``minlist``
+- ``min_list``
 
   形式: 実数型のリスト。長さはdimensionの値と一致させます。(default: [-10.0, -10.0])
 
   説明: パラメータが取りうる最小値のリスト。
 
-- ``maxlist``
+- ``max_list``
 
   形式: 実数型のリスト。長さはdimensionの値と一致させます。(default: [10.0, 10.0])
 
   説明: パラメータが取りうる最大値のリスト。  
 
+[``minimize``] セクション
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Nelder-Mead 法のハイパーパラメータを設定します。
+詳細は `scipy.optimize.minimize <https://docs.scipy.org/doc/scipy/reference/optimize.minimize-neldermead.html#optimize-minimize-neldermead>`_ のドキュメントを参照してください。
+探索空間が3次元であることを仮定してデフォルトの数値が設定されています。
+
 - ``initial_scale_list``
 
+  形式: 実数型のリスト。長さはdimensionの値と一致させます。 (default: [0.25,0.25,0.25] )
 
-- ``xtol``
+  説明: Nelder-Mead 法の初期 simplex を作るために、初期値からずらす差分のリスト。
+  ``initial_list`` と、 ``initial_list`` に ``initial_scale_list`` の成分ひとつを足してできるdimension 個の点を 合わせたものが ``initial_simplex`` として使われます。
 
-    形式: 実数型 (default: 1e-4)
+- ``xatol``
 
+  形式: 実数型 (default: 1e-4)
 
-- ``ftol``
+  説明: Nelder-Mead 法の収束判定に使うパラメータ
 
-    形式: 実数型 (default: 1e-4)
+- ``fatol``
 
+  形式: 実数型 (default: 1e-4)
+
+  説明: Nelder-Mead 法の収束判定に使うパラメータ
+
+- ``maxiter``
+
+  形式: 整数 (default: 10000)
+
+  説明: Nelder-Mead 法の反復回数の最大値
+
+- ``maxfev``
+
+  形式: 整数 (default: 100000)
+
+  説明: 目的関数を評価する回数の最大値
 
 ``mapper_mpi`` で定義されているパラメータ
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -249,17 +274,21 @@
         探索アルゴリズム中では、各パラメータをそれぞれこれらの値で割ることで、
         簡易的な無次元化・正規化を行います。
 
-- ``minlist``
+- ``min_list``
 
   形式: 実数型のリスト。長さはdimensionの値と一致させます。(default: [-10.0, -10.0])
 
   説明: パラメータが取りうる最小値のリスト。
 
-- ``maxlist``
+- ``max_list``
 
   形式: 実数型のリスト。長さはdimensionの値と一致させます。(default: [10.0, 10.0])
 
   説明: パラメータが取りうる最大値のリスト。  
+
+
+[``exchange``] セクション
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``numstep``
 
