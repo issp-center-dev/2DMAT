@@ -274,14 +274,14 @@ class Algorithm(algorithm.Algorithm):
                 f.write("rank = {}\n".format(best_rank))
                 f.write("step = {}\n".format(best_istep[best_rank]))
                 f.write("fx = {}\n".format(best_fx[best_rank]))
-                for i, x in enumerate(best_x[best_rank]):
-                    f.write("x[{}] = {}\n".format(i, x))
+                for label, x in zip(self.label_list, best_x[best_rank]):
+                    f.write("{} = {}\n".format(label, x))
             print("Result:")
             print("  rank = {}".format(best_rank))
             print("  step = {}".format(best_istep[best_rank]))
             print("  fx = {}".format(best_fx[best_rank]))
-            for i, x in enumerate(best_x[best_rank]):
-                print("  x[{}] = {}".format(i, x))
+            for label, x in zip(self.label_list, best_x[best_rank]):
+                print("  {} = {}".format(label, x))
 
     def write_result_header(self, fp):
         fp.write("# step T fx")
@@ -306,10 +306,6 @@ class Algorithm(algorithm.Algorithm):
 
         info_param.setdefault("initial_list", [])
         info_param.setdefault("unit_list", [1.0] * dimension)
-        if "label_list" in info_param:
-            self.label_list = info_param["label_list"]
-        else:
-            self.label_list = [f"x{i+1}" for i in range(dimension)]
 
         # check if defined (FIXME)
         info_param["min_list"]

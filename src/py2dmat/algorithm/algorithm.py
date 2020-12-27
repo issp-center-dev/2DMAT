@@ -23,7 +23,7 @@ class Algorithm(metaclass=ABCMeta):
             l = info_alg["label_list"]
             if len(l) != self.dimension:
                 raise exception.InputError(
-                    f"ERROR: len(label_list) != dimension ({len(l)} != {dimension})"
+                    f"ERROR: len(label_list) != dimension ({len(l)} != {self.dimension})"
                 )
             self.label_list = l
         else:
