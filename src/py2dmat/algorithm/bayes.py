@@ -4,6 +4,7 @@ import os
 import time
 
 import physbo
+import numpy as np
 
 from . import algorithm
 
@@ -42,14 +43,21 @@ class Algorithm(algorithm.Algorithm):
         info_param = info_alg.get("param", {})
         #Check input files are correct or not
         self.random_max_num_probes = info_param.get("random_max_num_probes", 20)
-        self.bayes_max_num_probes = info_param.get("bayes_max_num_probes", 100)
+        self.bayes_max_num_probes = info_param.get("bayes_max_num_probes", 40)
         self.score = info_param.get("score", "TS")
-        self.interval = info_alg.get("interval", 20)
+        self.interval = info_alg.get("interval", 5)
         self.num_rand_basis = info_alg.get("num_rand_basis", 5000)
 
+        print("#parameter")
+        print("random_max_num_probes = {}".format(self.random_max_num_probes))
+        print("bayes_max_num_probes = {}".format(self.bayes_max_num_probes))
+        print("score = {}" + self.score)
+        print("interval = {}".format(self.interval))
+        print("num_rand_basis = {}".format(self.num_rand_basis))
+
         mesh_path = info_param.get("mesh_path", "MeshData.txt")
-        self.mesh_list = self._get_mesh_list_from_file(mesh_path)
-        X_normalized = physbo.misc.centering(self.mesh_list)
+        self.mesh_list = np.array(self._get_mesh_list_from_file(mesh_path))  
+        X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
         self.policy = physbo.search.discrete.policy(test_X = X_normalized)
         seed = info_alg.get("seed", 1)
         self.policy.set_seed(seed)
@@ -75,18 +83,22 @@ class Algorithm(algorithm.Algorithm):
         run = self.runner
         run_info["base"]["base_dir"] = os.getcwd()
         label_list = self.label_list
+        mesh_list = self.mesh_list
+        dimension = self.dimension
+        fx_list = []
+        param_list = []
 
         class simulator:
             def __init__(self):
                 pass
 
             def __call__(self, action):
-                run_info["log"]["Log_number"] = action
-                run_info["calc"]["x_list"] = self.mesh_list[action][1:]
+                run_info["log"]["Log_number"] = int(action[0])
+                run_info["calc"]["x_list"] = mesh_list[action][0][1:]
                 run_info["base"]["base_dir"] = os.getcwd()
                 fx = run.submit(update_info=run_info)
-                self.fx_list.append(fx)
-                self.param_list.append(self.mesh_list[action][1:])
+                fx_list.append(fx)
+                param_list.append(mesh_list[action])
                 return -fx
 
         time_sta = time.perf_counter()
@@ -100,7 +112,9 @@ class Algorithm(algorithm.Algorithm):
         time_end = time.perf_counter()
         run_info["log"]["time"]["run"]["bayes_search"] = time_end - time_sta
         self.best_fx, self.best_action = res.export_all_sequence_best_fx()
-        self.xopt = self.param_list[self.best_action]
+        self.xopt = mesh_list[int(self.best_action[-1])][1:]
+        self.fx_list = fx_list
+        self.param_list = param_list
 
     def prepare(self, prepare_info):
         pass
@@ -112,12 +126,23 @@ class Algorithm(algorithm.Algorithm):
             for label in label_list:
                 file_BD.write(" ")
                 file_BD.write(label)
-            file_BD.write(" R-factor\n")
+            file_BD.write(" R-factor")
+            for label in label_list:
+                file_BD.write(" {}_action".format(label))
+            file_BD.write(" R-factor_action\n")
+
             for step, fx in enumerate(self.fx_list):
                 file_BD.write(str(step))
-                for v in self.param_list[step]:
+                best_idx = int(self.best_action[step])
+                for v in self.mesh_list[best_idx][1:]:
                     file_BD.write(" {}".format(v))
-                file_BD.write(" {}\n".format(self.fx))
+                file_BD.write(" {}".format(-self.best_fx[step]))
+
+                for v in self.param_list[step][0][1:]:
+                    file_BD.write(" {}".format(v))
+                file_BD.write(" {}\n".format(fx))
+
+
 
         print("Best Solution:")
         for x, y in zip(label_list, self.xopt):

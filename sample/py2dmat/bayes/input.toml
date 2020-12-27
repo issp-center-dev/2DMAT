@@ -21,3 +21,6 @@ last = 70
 [algorithm]
 name = "bayes"
 label_list = ["z1", "z2"]
+[algorithm.param]
+random_max_num_probes = 5
+bayes_max_num_probes = 20
