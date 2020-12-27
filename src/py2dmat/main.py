@@ -38,6 +38,10 @@ def main():
 
         algorithm = exchange_alg
         MPI_flag = True
+    elif method == "bayes":
+        from .algorithm import bayes as bayes_alg
+        algorithm = bayes_alg
+        MPI_flag = False
     else:
         print("method:{} is not implemented.".format(method))
         exit(1)
@@ -45,7 +49,7 @@ def main():
     # Get parameters
     rank = 0
     size = 1
-    if method != "minsearch":
+    if method != "minsearch" and method != "bayes":
         if MPI_flag:
             # Get info["mpi"]
             info = algorithm.MPI_Init(info)
