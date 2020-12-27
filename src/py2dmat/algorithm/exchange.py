@@ -62,6 +62,7 @@ class Algorithm(algorithm.Algorithm):
     Tindex: int
     T2rep: List[int]
     exchange_direction: bool
+    label_list: List[str]
 
     def __init__(self, info, runner):
         super().__init__(info=info, runner=runner)
@@ -273,17 +274,19 @@ class Algorithm(algorithm.Algorithm):
                 f.write("rank = {}\n".format(best_rank))
                 f.write("step = {}\n".format(best_istep[best_rank]))
                 f.write("fx = {}\n".format(best_fx[best_rank]))
-                for i, x in enumerate(best_x[best_rank]):
-                    f.write("x[{}] = {}\n".format(i, x))
+                for label, x in zip(self.label_list, best_x[best_rank]):
+                    f.write("{} = {}\n".format(label, x))
             print("Result:")
             print("  rank = {}".format(best_rank))
             print("  step = {}".format(best_istep[best_rank]))
             print("  fx = {}".format(best_fx[best_rank]))
-            for i, x in enumerate(best_x[best_rank]):
-                print("  x[{}] = {}".format(i, x))
+            for label, x in zip(self.label_list, best_x[best_rank]):
+                print("  {} = {}".format(label, x))
 
     def write_result_header(self, fp):
-        fp.write("# istep T fx x...")
+        fp.write("# step T fx")
+        for label in self.label_list:
+            fp.write(f" {label}")
         fp.write("\n")
 
     def write_result(self, fp):

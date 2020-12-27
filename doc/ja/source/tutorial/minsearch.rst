@@ -35,7 +35,7 @@ Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference
 
   メインプログラムでの計算を進めるための参照ファイル
 
-- ``ref.dat``
+- ``ref.txt``
 
   本チュートリアルで求めたい回答が可能されたファイル
 
@@ -78,17 +78,19 @@ Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference
 
 今回の入力ファイルでは、 ``value_01``, ``value_02``, ``value_03`` を用いています。
 サンプルフォルダには、原子位置が正しく推定できているかを知るための参照ファイルとして、
-``ref.dat`` が置いてあります。ファイルの中身は
+``ref.txt`` が置いてあります。ファイルの中身は
 
 .. code-block::
 
-    z1 = 5.230524973874179
-    z2 = 4.370622919269477
-    z3 = 3.5961444501081647
+  fx = 7.382680568652868e-06
+  z1 = 5.230524973874179
+  z2 = 4.370622919269477
+  z3 = 3.5961444501081647
 
 となっており、 ``value_0x`` が ``z_x`` (x=1, 2, 3)に対応しています。
+``fx`` は目的関数の最適値です。
 ``experiment.txt`` は、メインプログラムで参照に用いるファイルで、
-``template.txt`` に ``ref.dat`` の入っているパラメータをいれ、
+``template.txt`` に ``ref.txt`` の入っているパラメータをいれ、
 順問題のチュートリアルと同様な手順で計算して得られる ``convolution.txt`` に相当しています
 (順問題のチュートリアルとは ``bulk.exe`` , ``suft.exe`` の入力ファイルが異なるのでご注意ください)。
 
@@ -222,30 +224,29 @@ Nelder-Mead法で探索するパラメータ空間の指定や収束判定のパ
     z2 = 4.370622919269477
     z3 = 3.5961444501081647
 
-が得られ、正解のデータ ``ref.dat`` と同じ値が得られていることがわかります。
+が得られ、正解のデータ ``ref.txt`` と同じ値が得られていることがわかります。
 なお、一括計算するスクリプトとして ``do.sh`` を用意しています。
-``do.sh`` では ``res.dat`` と ``ref.dat`` の差分も比較しています。
+``do.sh`` では ``res.txt`` と ``ref.txt`` の差分も比較しています。
 以下、説明は割愛しますが、その中身を掲載します。
 
 .. code-block::
 
-    sh ./prepare.sh
+  sh ./prepare.sh
 
-    ./bulk.exe
+  ./bulk.exe
 
-    time python3 ../../../src/py2dmat_main.py input.toml | tee log.txt
-    tail -n3 log.txt > res.dat
+  time python3 ../../../src/py2dmat_main.py input.toml | tee log.txt
 
-    echo diff res.dat ref.dat
-    res=0
-    diff res.dat ref.dat || res=$?
-    if [ $res -eq 0 ]; then
-      echo Test PASS
-      true
-    else
-      echo Test FAILED: res.dat and ref.dat differ
-      false
-    fi
+  echo diff res.txt ref.txt
+  res=0
+  diff res.txt ref.txt || res=$?
+  if [ $res -eq 0 ]; then
+    echo Test PASS
+    true
+  else
+    echo Test FAILED: res.txt and ref.txt differ
+    false
+  fi
 
 計算結果の可視化
 ~~~~~~~~~~~~~~~~~~~
@@ -263,7 +264,7 @@ Nelder-Mead法で探索するパラメータ空間の指定や収束判定のパ
 
 上記を実行することで、``RC_double_minsearch.png`` が出力されます。
 
-.. figure:: ../img/RC_double_minsearch.pdf
+.. figure:: ../img/RC_double_minsearch.*
 
     Nelder-Mead法を用いた解析。赤丸が実験値、青線が最初のステップ、緑線が最後のステップで得られたロッキングカーブを表す。
 

@@ -1,0 +1,21 @@
+[base]
+dimension = 2
+
+[algorithm]
+name = "exchange"
+
+[algorithm.param]
+min_list = [-5.0, -5.0]
+max_list = [5.0, 5.0]
+
+[algorithm.exchange]
+numsteps = 10000
+numsteps_exchange = 20
+Tmin = 0.1
+Tmax = 1.0
+Tlogspace = false
+seed = 12345
+
+[solver]
+name = "analytical"
+function_name = "rosenbrock"

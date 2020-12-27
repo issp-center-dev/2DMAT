@@ -201,3 +201,7 @@ class Algorithm(algorithm.Algorithm):
         print("Solution:")
         for x, y in zip(label_list, self.xopt):
             print(x, "=", y)
+        with open("res.txt", "w") as f:
+            f.write(f"fx = {self.fopt}\n")
+            for x, y in zip(label_list, self.xopt):
+                f.write(f"{x} = {y}\n")
