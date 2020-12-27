@@ -103,7 +103,7 @@ class surface(solver_base.Solver_Base):
             v = info_param.setdefault("string_list", ["value_01", "value_02"])
             if len(v) != self.dimension:
                 raise exception.InputError(
-                    f"ERROR: len(string_list) != dimension ({len(v)} != {dimension})"
+                    f"ERROR: len(string_list) != dimension ({len(v)} != {self.dimension})"
                 )
             self.string_list = v
 

@@ -1,0 +1,35 @@
+[base]
+dimension = 2
+
+[algorithm]
+name = "exchange"
+label_list = ["z1", "z2"]
+
+[algorithm.param]
+min_list = [3.0, 3.0]
+max_list = [6.0, 6.0]
+
+[algorithm.exchange]
+numsteps = 1000
+numsteps_exchange = 20
+Tmin = 0.005
+Tmax = 0.05
+Tlogspace = true
+seed = 12345
+
+[solver]
+name = "surface"
+
+[solver.config]
+calculated_first_line = 5
+calculated_last_line = 74
+row_number = 2
+
+[solver.param]
+string_list = ["value_01", "value_02" ]
+degree_max = 7.0
+
+[solver.reference]
+path = "experiment.txt"
+first = 1
+last = 70
