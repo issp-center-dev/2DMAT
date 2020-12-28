@@ -385,7 +385,6 @@ class surface(solver_base.Solver_Base):
 
             # Calculate Rfactor and Output numerical results
             os.chdir(self.base_info["output_dir"])
-            print(self.calc_info["fitted_x_list"])
             Rfactor = self._post(self.calc_info["fitted_x_list"])
             os.chdir(self.base_info["base_dir"])
             return Rfactor

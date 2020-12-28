@@ -1,0 +1,26 @@
+[base]
+dimension = 2
+
+[solver]
+name = "surface"
+
+[solver.config]
+calculated_first_line = 5
+calculated_last_line = 74
+row_number = 2
+
+[solver.param]
+string_list = ["value_01", "value_02" ]
+degree_max = 7.0
+
+[solver.reference]
+path = "experiment.txt"
+first = 1
+last = 70
+
+[algorithm]
+name = "bayes"
+label_list = ["z1", "z2"]
+[algorithm.param]
+random_max_num_probes = 5
+bayes_max_num_probes = 20
