@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.6]
-        sample: [mapper, minsearch, exchange-rosenbrock]
+        sample: [mapper, minsearch, exchange-rosenbrock, bayes]
       fail-fast: false
 
     steps:
