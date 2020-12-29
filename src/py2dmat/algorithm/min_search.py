@@ -180,8 +180,8 @@ class Algorithm(algorithm.Algorithm):
             for step in range(self.itera):
                 file_SD.write(str(step))
                 for v in self.allvecs[step]:
-                    file_SD.write(" {}".format(v))
-                file_SD.write(" {}\n".format(self.fx_for_simplex_list[step]))
+                    file_SD.write(f" {v}")
+                file_SD.write(f" {self.fx_for_simplex_list[step]}\n")
 
         with open("History_FunctionCall.txt", "w") as file_callback:
             file_callback.write("#No")

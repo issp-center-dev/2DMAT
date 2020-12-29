@@ -4,6 +4,7 @@ import time
 import toml
 
 
+from . import mpi
 from .info import Info
 from .solver import factory as SolverFactory
 from .runner import runner as Runner
@@ -21,44 +22,35 @@ def main():
     info = Info(toml.load(file_name))
     method = info["algorithm"]["name"]
 
-    MPI_flag = True
+    require_MPI = False
 
     # Define algorithm
     if method == "mapper":
-        from .algorithm import mapper_mpi as mapper_mpi_alg
-
-        algorithm = mapper_mpi_alg
+        from .algorithm import mapper_mpi as algorithm
     elif method == "minsearch":
-        from .algorithm import min_search as min_search_alg
-
-        algorithm = min_search_alg
-        MPI_flag = False
+        from .algorithm import min_search as algorithm
     elif method == "exchange":
-        from .algorithm import exchange as exchange_alg
+        from .algorithm import exchange as algorithm
 
-        algorithm = exchange_alg
-        MPI_flag = True
+        require_MPI = True
     elif method == "bayes":
-        from .algorithm import bayes as bayes_alg
-        algorithm = bayes_alg
-        MPI_flag = False
+        from .algorithm import bayes as algorithm
     else:
-        print("method:{} is not implemented.".format(method))
+        print(f"ERROR: Unknown method ({method})")
         exit(1)
 
     # Get parameters
-    rank = 0
-    size = 1
+    info["mpi"] = {"comm": mpi.comm(), "size": mpi.size(), "rank": mpi.rank()}
+    if require_MPI and not mpi.enabled():
+        print(
+            f"ERROR: algorithm '{method}' requires mpi4py, but mpi4py cannot be imported"
+        )
+        exit(1)
+
     if method != "minsearch" and method != "bayes":
-        if MPI_flag:
-            # Get info["mpi"]
-            info = algorithm.MPI_Init(info)
-            size = info["mpi"]["size"]
-        for idx in range(size):
+        for idx in range(mpi.size()):
             sub_folder_name = str(idx)
             os.makedirs(sub_folder_name, exist_ok=True)
-    else:
-        info["mpi"] = {"comm": 0, "size": 1, "rank": 0}
 
     factory = SolverFactory.SolverFactory()
     solver = factory.solver(info["solver"]["name"], info)
@@ -69,7 +61,7 @@ def main():
     alg.prepare(info)
     time_end = time.perf_counter()
     info["log"]["time"]["prepare"]["total"] = time_end - time_sta
-    if MPI_flag:
+    if mpi.size() > 1:
         info["mpi"]["comm"].Barrier()
 
     time_sta = time.perf_counter()
@@ -77,7 +69,7 @@ def main():
     time_end = time.perf_counter()
     info["log"]["time"]["run"]["total"] = time_end - time_sta
     print("end of run")
-    if MPI_flag:
+    if mpi.size() > 1:
         info["mpi"]["comm"].Barrier()
 
     time_sta = time.perf_counter()
@@ -85,7 +77,7 @@ def main():
     time_end = time.perf_counter()
     info["log"]["time"]["post"]["total"] = time_end - time_sta
 
-    with open("time_rank{}.log".format(rank), "w") as fw:
+    with open(f"time_rank{mpi.rank}.log", "w") as fw:
 
         def output_file(type):
             tmp_dict = info["log"]["time"][type]

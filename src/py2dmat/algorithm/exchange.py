@@ -1,6 +1,4 @@
-from typing import List
-
-from mpi4py.MPI import Intracomm
+from typing import List, TYPE_CHECKING, Optional
 
 from io import open
 import copy
@@ -13,6 +11,10 @@ from numpy.random import default_rng
 from . import algorithm
 
 from ..info import Info
+
+if TYPE_CHECKING:
+    from mpi4py.MPI import Comm
+
 
 class Algorithm(algorithm.Algorithm):
     """Replica Exchange Monte Carlo
@@ -55,7 +57,7 @@ class Algorithm(algorithm.Algorithm):
     best_x: np.ndarray
     best_fx: float
     best_istep: int
-    comm: Intracomm
+    comm: Optional["Comm"]
     nreplica: int
     rank: int
     Ts: List[float]
@@ -188,7 +190,7 @@ class Algorithm(algorithm.Algorithm):
         run_info["log"]["time"]["run"]["submit"] += time_end - time_sta
         return self.fx
 
-    def _exchange(self):
+    def _exchange(self) -> None:
         """try to exchange temperatures"""
         self.comm.Barrier()
         if self.exchange_direction:
@@ -247,9 +249,7 @@ class Algorithm(algorithm.Algorithm):
         if self.nreplica > 2:
             self.exchange_direction = not self.exchange_direction
 
-    def prepare(self, prepare_info):
-        import shutil
-
+    def prepare(self, prepare_info) -> None:
         self.comm = prepare_info["mpi"]["comm"]
         self.nreplica = prepare_info["mpi"]["size"]
         self.rank = prepare_info["mpi"]["rank"]
@@ -263,38 +263,38 @@ class Algorithm(algorithm.Algorithm):
         prepare_info["log"]["time"]["run"]["submit"] = 0.0
         prepare_info["log"]["time"]["run"]["exchange"] = 0.0
 
-    def post(self, post_info):
+    def post(self, post_info) -> None:
         best_fx = self.comm.gather(self.best_fx, root=0)
         best_x = self.comm.gather(self.best_x, root=0)
         best_istep = self.comm.gather(self.best_istep, root=0)
         if self.rank == 0:
             best_rank = np.argmin(best_fx)
             with open("best_result.txt", "w") as f:
-                f.write("nprocs = {}\n".format(self.nreplica))
-                f.write("rank = {}\n".format(best_rank))
-                f.write("step = {}\n".format(best_istep[best_rank]))
-                f.write("fx = {}\n".format(best_fx[best_rank]))
+                f.write(f"nprocs = {self.nreplica}\n")
+                f.write(f"rank = {best_rank}\n")
+                f.write(f"step = {best_istep[best_rank]}\n")
+                f.write(f"fx = {best_fx[best_rank]}\n")
                 for label, x in zip(self.label_list, best_x[best_rank]):
-                    f.write("{} = {}\n".format(label, x))
+                    f.write(f"{label} = {x}\n")
             print("Result:")
-            print("  rank = {}".format(best_rank))
-            print("  step = {}".format(best_istep[best_rank]))
-            print("  fx = {}".format(best_fx[best_rank]))
+            print(f"  rank = {best_rank}")
+            print(f"  step = {best_istep[best_rank]}")
+            print(f"  fx = {best_fx[best_rank]}")
             for label, x in zip(self.label_list, best_x[best_rank]):
-                print("  {} = {}".format(label, x))
+                print(f"  {label} = {x}")
 
-    def write_result_header(self, fp):
+    def write_result_header(self, fp) -> None:
         fp.write("# step T fx")
         for label in self.label_list:
             fp.write(f" {label}")
         fp.write("\n")
 
-    def write_result(self, fp):
-        fp.write("{} ".format(self.istep))
-        fp.write("{} ".format(self.T))
-        fp.write("{} ".format(self.fx))
+    def write_result(self, fp) -> None:
+        fp.write(f"{self.istep} ")
+        fp.write(f"{self.T} ")
+        fp.write(f"{self.fx} ")
         for x in self.x:
-            fp.write("{} ".format(x))
+            fp.write(f"{x} ")
         fp.write("\n")
         fp.flush()
 
@@ -319,16 +319,3 @@ class Algorithm(algorithm.Algorithm):
 
         info_exchange.setdefault("seed", None)
         info_exchange.setdefault("seed_delta", 314159)
-
-
-def MPI_Init(info):
-    from mpi4py import MPI
-
-    comm = MPI.COMM_WORLD
-    rank = comm.Get_rank()
-    # Check size ?: size * nprocs_per_solver
-    size = comm.Get_size()
-    info["mpi"]["comm"] = comm
-    info["mpi"]["rank"] = rank
-    info["mpi"]["size"] = size
-    return info

@@ -138,16 +138,3 @@ class Algorithm(algorithm.Algorithm):
                             line = line.lstrip()
                             if not line.startswith("#"):
                                 file_output.write(line)
-
-
-def MPI_Init(info):
-    from mpi4py import MPI
-
-    comm = MPI.COMM_WORLD
-    rank = comm.Get_rank()
-    # Check size ?: size * nprocs_per_solver
-    size = comm.Get_size()
-    info["mpi"]["comm"] = comm
-    info["mpi"]["rank"] = rank
-    info["mpi"]["size"] = size
-    return info
