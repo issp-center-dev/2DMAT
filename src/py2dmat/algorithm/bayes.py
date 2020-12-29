@@ -12,7 +12,7 @@ from . import algorithm
 from ..info import Info
 
 
-class Algorithm(algorithm.Algorithm):
+class Algorithm(algorithm.AlgorithmBase):
 
     # inputs
     mesh_list: np.ndarray
@@ -32,8 +32,8 @@ class Algorithm(algorithm.Algorithm):
     fx_list: List[float]
     param_list: List[np.ndarray]
 
-    def __init__(self, info: Info, runner) -> None:
-        super().__init__(info=info, runner=runner)
+    def __init__(self, info: Info) -> None:
+        super().__init__(info=info)
 
         info_alg = info["algorithm"]
 
@@ -79,6 +79,7 @@ class Algorithm(algorithm.Algorithm):
         return np.array(mesh_list)
 
     def run(self, run_info: Info) -> None:
+        super().run(run_info)
         run = self.runner
         run_info["base"]["base_dir"] = os.getcwd()
         mesh_list = self.mesh_list
@@ -122,9 +123,10 @@ class Algorithm(algorithm.Algorithm):
         self.param_list = param_list
 
     def prepare(self, prepare_info):
-        pass
+        super().prepare(prepare_info)
 
     def post(self, post_info):
+        super().post(post_info)
         label_list = self.label_list
         with open("BayesData.txt", "w") as file_BD:
             file_BD.write("#step")

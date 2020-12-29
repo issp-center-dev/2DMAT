@@ -12,7 +12,7 @@ from . import algorithm
 from ..info import Info
 
 
-class Algorithm(algorithm.Algorithm):
+class Algorithm(algorithm.AlgorithmBase):
 
     # inputs
     label_list: List[str]
@@ -35,14 +35,14 @@ class Algorithm(algorithm.Algorithm):
     fx_for_simplex_list: List[float]
     callback_list: List[List[int]]
 
-    def __init__(self, info: Info, runner) -> None:
-        super().__init__(info=info, runner=runner)
+    def __init__(self, info: Info) -> None:
+        super().__init__(info=info)
 
         info_alg = info["algorithm"]
 
         # TODO: change default values
         # TODO: error check
-        
+
         info_param = info_alg.get("param", {})
         self.initial_list = info_param.get("initial_list", [5.25, 4.25, 3.50])
         self.unit_list = info_param.get("unit_list", [1.0, 1.0, 1.0])
@@ -50,14 +50,16 @@ class Algorithm(algorithm.Algorithm):
         self.max_list = info_param.get("max_list", [100.0, 100.0, 100.0])
 
         info_minimize = info_alg.get("minimize", {})
-        self.initial_scale_list = info_minimize.get("initial_scale_list", [0.25, 0.25, 0.25])
+        self.initial_scale_list = info_minimize.get(
+            "initial_scale_list", [0.25, 0.25, 0.25]
+        )
         self.xtol = info_minimize.get("xatol", 0.0001)
         self.ftol = info_minimize.get("fatol", 0.0001)
         self.maxiter = info_minimize.get("maxiter", 10000)
         self.maxfev = info_minimize.get("maxfev", 100000)
 
-
     def run(self, run_info: Info) -> None:
+        super().run(run_info)
         run = self.runner
         callback_list = []
         run_info["base"]["base_dir"] = os.getcwd()
@@ -68,9 +70,7 @@ class Algorithm(algorithm.Algorithm):
         label_list = self.label_list
         dimension = self.dimension
 
-        def _f_calc(
-            x_list: np.ndarray, info: Info, extra_data: bool = False
-        ) -> float:
+        def _f_calc(x_list: np.ndarray, info: Info, extra_data: bool = False) -> float:
 
             out_of_range = False
             for index in range(dimension):
@@ -147,6 +147,7 @@ class Algorithm(algorithm.Algorithm):
         self.callback_list = callback_list
 
     def prepare(self, prepare_info):
+        super().prepare(prepare_info)
 
         # make initial simple
         initial_simplex_list = []
@@ -169,6 +170,7 @@ class Algorithm(algorithm.Algorithm):
         self.initial_simplex_list = initial_simplex_list
 
     def post(self, post_info):
+        super().post(post_info)
         dimension = self.dimension
         label_list = self.label_list
         with open("SimplexData.txt", "w") as file_SD:

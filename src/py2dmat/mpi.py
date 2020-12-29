@@ -7,7 +7,7 @@ try:
     __size = __comm.size
     __rank = __comm.rank
 
-    def comm() -> Optional[MPI.Comm]:
+    def comm() -> MPI.Comm:
         return __comm
 
     def size() -> int:

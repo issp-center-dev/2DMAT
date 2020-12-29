@@ -21,7 +21,7 @@ def rosenbrock(xs: np.ndarray) -> float:
     return np.sum(100.0 * (xs[1:] - xs[:-1] ** 2) ** 2 + (1.0 - xs[:-1]) ** 2)
 
 
-class analytical(solver_base.Solver_Base):
+class Solver(solver_base.SolverBase):
     def __init__(self, info) -> None:
         """
         Initialize the solver.
@@ -33,8 +33,8 @@ class analytical(solver_base.Solver_Base):
         """
         info["calc"] = {}
         self.path_to_solver = ""
-        self.input = analytical.Input(info)
-        self.output = analytical.Output(info)
+        self.input = Solver.Input(info)
+        self.output = Solver.Output(info)
         self.base_info = info["base"]
         if "solver" in info:
             function_name = info["solver"].get("function_name", "quadratics")

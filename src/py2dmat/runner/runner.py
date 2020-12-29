@@ -7,9 +7,14 @@ from abc import ABCMeta, abstractmethod
 
 import numpy as np
 
+from .. import mpi
+from ..solver.solver_base import SolverBase
+
 
 class Runner(object):
-    def __init__(self, Solver, mpi_info):
+    solver: SolverBase
+
+    def __init__(self, solver: SolverBase, nprocs: int = 1, nthreads: int = 1):
         """
 
         Parameters
@@ -17,39 +22,43 @@ class Runner(object):
         Solver: py2dmat.solver.solver_base object
         mpi_info:
         """
-        self.solver_name = Solver.get_name()
-        self.base_solver_input = Solver.get_input()
-        self.output = Solver.get_output()
-        path_to_solver = Solver.get_path_to_solver()
-        run_scheme = Solver.get_run_scheme()
-        try:
-            # TODO: Is it better to define mpi_info class ?
-            comm = mpi_info["comm"]
-            nprocs_per_solver = mpi_info.get("nprocs_per_solver", 1)
-            nthreads_per_proc = mpi_info.get("nthreads_per_proc", 1)
-        except KeyError:
-            print("Error: key for mpi_info.")
-            sys.exit(1)
+        self.solver_name = solver.get_name()
+        self.base_solver_input = solver.get_input()
+        self.output = solver.get_output()
+        path_to_solver = solver.get_path_to_solver()
+        run_scheme = solver.get_run_scheme()
         if run_scheme == "mpi_spawn_ready":
             self.run = run_mpispawn_ready(
-                path_to_solver, nprocs_per_solver, nthreads_per_proc, comm
+                path_to_solver,
+                nprocs=nprocs,
+                nthreads=nthreads,
+                comm=mpi.comm(),
             )
         elif run_scheme == "mpi_spawn":
             self.run = run_mpispawn(
-                path_to_solver, nprocs_per_solver, nthreads_per_proc, comm
+                path_to_solver,
+                nprocs=nprocs,
+                nthreads=nthreads,
+                comm=mpi.comm(),
             )
         elif run_scheme == "mpi_spawn_wrapper":
             self.run = run_mpispawn_wrapper(
-                path_to_solver, nprocs_per_solver, nthreads_per_proc, comm
+                path_to_solver,
+                nprocs=nprocs,
+                nthreads=nthreads,
+                comm=mpi.comm(),
             )
         elif run_scheme == "subprocess":
             self.run = run_subprocess(
-                path_to_solver, nprocs_per_solver, nthreads_per_proc, comm
+                path_to_solver,
+                nprocs=nprocs,
+                nthreads=nthreads,
+                comm=mpi.comm(),
             )
         elif run_scheme == "function":
-            self.run = run_function(path_to_solver)
+            self.run = run_function(path_to_solver, comm=mpi.comm())
         else:
-            msg = "Unknown scheme: {}".format(run_scheme)
+            msg = f"Unknown scheme: {run_scheme}"
             raise ValueError(msg)
 
     def submit(self, update_info):

@@ -4,7 +4,7 @@
 from abc import ABCMeta, abstractmethod
 
 
-class Solver_Base(object, metaclass=ABCMeta):
+class SolverBase(object, metaclass=ABCMeta):
     def __init__(self, path_to_solver):
         """
         Initialize the solver.
@@ -17,8 +17,8 @@ class Solver_Base(object, metaclass=ABCMeta):
             Path to the solver.
         """
         self.path_to_solver = path_to_solver
-        self.input = Solver_Base.Input
-        self.output = Solver_Base.Output
+        self.input = SolverBase.Input
+        self.output = SolverBase.Output
 
     @abstractmethod
     def get_run_scheme(self):

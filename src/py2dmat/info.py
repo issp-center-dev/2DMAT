@@ -24,13 +24,14 @@ class Info(dict):
         self["solver"] = d["solver"]
 
         self["base"]["root_dir"] = Path(self["base"].get("root_dir", ".")).absolute()
-        self["base"]["output_dir"] = Path(self["base"].get("output_dir", ".")).absolute()
+        self["base"]["output_dir"] = Path(
+            self["base"].get("output_dir", ".")
+        ).absolute()
 
     def _cleanup(self) -> None:
         self["base"] = {}
         self["algorithm"] = {}
         self["solver"] = {}
-        self["mpi"] = {}
         self["calc"] = {}
         self["log"] = {}
         self["log"]["Log_number"] = 0

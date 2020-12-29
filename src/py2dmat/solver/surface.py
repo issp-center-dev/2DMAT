@@ -10,11 +10,11 @@ from . import solver_base
 from .. import exception
 
 # for type hints
-from typing import Dict, Optional, Any, List
+from typing import Dict, Any, List
 from ..info import Info
 
 
-class surface(solver_base.Solver_Base):
+class Solver(solver_base.SolverBase):
     root_dir: Path
     output_dir: Path
     path_to_solver: Path
@@ -39,8 +39,8 @@ class surface(solver_base.Solver_Base):
             raise exception.InputError(
                 f"ERROR: solver ({self.path_to_solver}) does not exist"
             )
-        self.input = surface.Input(info)
-        self.output = surface.Output(info)
+        self.input = Solver.Input(info)
+        self.output = Solver.Output(info)
         self.base_info = info["base"]
 
     def get_run_scheme(self):
@@ -108,7 +108,9 @@ class surface(solver_base.Solver_Base):
             self.string_list = v
 
             info_config = info_s.get("config", {})
-            self.surface_input_file = Path(info_config.get("surface_input_file", "surf.txt"))
+            self.surface_input_file = Path(
+                info_config.get("surface_input_file", "surf.txt")
+            )
 
             filename = info_config.get("surface_template_file", "template.txt")
             filename = Path(filename).expanduser().resolve()
@@ -194,7 +196,9 @@ class surface(solver_base.Solver_Base):
             else:
                 folder_name = "Log{:08d}".format(Log_number)
             os.makedirs(folder_name, exist_ok=True)
-            shutil.copy(bulk_output_file, os.path.join(folder_name, bulk_output_file.name))
+            shutil.copy(
+                bulk_output_file, os.path.join(folder_name, bulk_output_file.name)
+            )
             return folder_name
 
         def write_input(self, workdir):

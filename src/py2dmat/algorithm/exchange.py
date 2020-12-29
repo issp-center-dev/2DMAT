@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from mpi4py.MPI import Comm
 
 
-class Algorithm(algorithm.Algorithm):
+class Algorithm(algorithm.AlgorithmBase):
     """Replica Exchange Monte Carlo
 
     Attributes
@@ -51,61 +51,84 @@ class Algorithm(algorithm.Algorithm):
     """
 
     x: np.ndarray
+    xmin: np.ndarray
+    xmax: np.ndarray
+    xunit: np.ndarray
+
+    numsteps: int
+    numsteps_exchange: int
+
     fx: float
-    T: float
     istep: int
     best_x: np.ndarray
     best_fx: float
     best_istep: int
-    comm: Optional["Comm"]
     nreplica: int
-    rank: int
-    Ts: List[float]
+    T: float
+    Ts: np.ndarray
     Tindex: int
     T2rep: List[int]
-    exchange_direction: bool
-    label_list: List[str]
 
-    def __init__(self, info, runner):
-        super().__init__(info=info, runner=runner)
-        self.prepare_info(info)
+    rng: np.random.Generator
 
-    def run(self, run_info: dict):
-        original_dir = os.getcwd()
-        rank = self.rank
-        nreplica = self.nreplica
-        os.chdir(str(rank))
-        run_info["base"]["base_dir"] = os.getcwd()
+    def __init__(self, info):
+        super().__init__(info=info)
 
-        info_alg = run_info["algorithm"]
+        if self.comm is None:
+            msg = f"ERROR: algorithm.exchange requires mpi4py, but mpi4py cannot be imported"
+            raise ImportError(msg)
 
-        dimension = self.dimension
-        xmin = np.array(info_alg["param"]["min_list"])
-        xmax = np.array(info_alg["param"]["max_list"])
-        xunit = np.array(info_alg["param"]["unit_list"])
+        info_alg = info["algorithm"]
 
-        self.x = np.array(info_alg["param"]["initial_list"])
-        if self.x.size == 0:
-            self.x = xmin + (xmax - xmin) * self.rng.random(size=dimension)
-        x_old = np.zeros(dimension)
-
-        if info_alg["exchange"]["Tlogspace"]:
+        info_exchange = info_alg["exchange"]
+        if info_exchange.get("Tlogspace", True):
             self.Ts = np.logspace(
-                start=np.log10(info_alg["exchange"]["Tmin"]),
-                stop=np.log10(info_alg["exchange"]["Tmax"]),
-                num=nreplica,
+                start=np.log10(info_exchange.get("Tmin", 0.1)),
+                stop=np.log10(info_exchange.get("Tmax", 10.0)),
+                num=self.size,
             )
         else:
             self.Ts = np.linspace(
-                start=info_alg["exchange"]["Tmin"],
-                stop=info_alg["exchange"]["Tmax"],
-                num=nreplica,
+                start=info_exchange.get("Tmin", 0.1),
+                stop=info_exchange.get("Tmax", 10.0),
+                num=self.size,
             )
-        self.Tindex = rank
-        self.T2rep = list(range(nreplica))
-        self.T = self.Ts[rank]
-        mbeta = -1.0 / self.T
-        self.exchange_direction = True
+        self.Tindex = self.rank
+        self.T2rep = list(range(self.size))
+        self.nreplica = self.size
+
+        seed = info_exchange.get("seed", None)
+        seed_delta = info_exchange.get("seed_delta", 314159)
+
+        if seed is None:
+            self.rng = default_rng()
+        else:
+            self.rng = default_rng(seed + self.rank * seed_delta)
+
+        info_param = info_alg["param"]
+        self.xmin = np.array(info_param["min_list"])
+        self.xmax = np.array(info_param["max_list"])
+        self.xunit = np.array(info_param.get("unit_list", [1.0] * self.dimension))
+
+        self.x = np.array(info_alg["param"].get("initial_list", []))
+        if self.x.size == 0:
+            self.x = self.xmin + (self.xmax - self.xmin) * self.rng.random(
+                size=self.dimension
+            )
+
+        self.numsteps = info_exchange["numsteps"]
+        self.numsteps_exchange = info_exchange["numsteps_exchange"]
+
+    def run(self, run_info: dict):
+        super().run(run_info)
+        original_dir = os.getcwd()
+        rank = self.rank
+        os.chdir(str(rank))
+        run_info["base"]["base_dir"] = os.getcwd()
+
+        x_old = np.zeros(self.dimension)
+        mbeta = -1.0 / self.Ts[self.Tindex]
+        exchange_direction = True
 
         self.istep = 0
 
@@ -124,21 +147,21 @@ class Algorithm(algorithm.Algorithm):
         self.best_fx = self.fx
         self.best_istep = 0
 
-        numsteps = info_alg["exchange"]["numsteps"]
-        numsteps_exchange = info_alg["exchange"]["numsteps_exchange"]
-        while self.istep < numsteps:
+        while self.istep < self.numsteps:
             # Exchange
-            if self.istep % numsteps_exchange == 0:
+            if self.istep % self.numsteps_exchange == 0:
                 time_sta = time.perf_counter()
-                self._exchange()
+                self._exchange(exchange_direction)
+                if self.size > 1:
+                    exchange_direction = not exchange_direction
                 time_end = time.perf_counter()
                 run_info["log"]["time"]["run"]["exchange"] += time_end - time_sta
-                mbeta = -1.0 / self.T
+                mbeta = -1.0 / self.Ts[self.Tindex]
 
             # make candidate
             np.copyto(x_old, self.x)
-            self.x += self.rng.normal(size=dimension) * xunit
-            bound = (xmin <= self.x).all() and (self.x <= xmax).all()
+            self.x += self.rng.normal(size=self.dimension) * self.xunit
+            bound = (self.xmin <= self.x).all() and (self.x <= self.xmax).all()
 
             # evaluate "Energy"
             fx_old = self.fx
@@ -190,10 +213,10 @@ class Algorithm(algorithm.Algorithm):
         run_info["log"]["time"]["run"]["submit"] += time_end - time_sta
         return self.fx
 
-    def _exchange(self) -> None:
+    def _exchange(self, direction: bool) -> None:
         """try to exchange temperatures"""
         self.comm.Barrier()
-        if self.exchange_direction:
+        if direction:
             if self.Tindex % 2 == 0:
                 other_index = self.Tindex + 1
                 is_main = True
@@ -216,7 +239,7 @@ class Algorithm(algorithm.Algorithm):
             if is_main:
                 self.comm.Recv(fbuf, source=other_rank, tag=1)
                 other_fx = fbuf[0]
-                beta = 1.0 / self.T
+                beta = 1.0 / self.Ts[self.Tindex]
                 other_beta = 1.0 / self.Ts[self.Tindex + 1]
                 logp = (other_beta - beta) * (other_fx - self.fx)
                 if logp >= 0.0 or self.rng.random() < np.exp(logp):
@@ -246,24 +269,15 @@ class Algorithm(algorithm.Algorithm):
         self.T2rep[:] = new_T2rep[:]
 
         self.T = self.Ts[self.Tindex]
-        if self.nreplica > 2:
-            self.exchange_direction = not self.exchange_direction
 
     def prepare(self, prepare_info) -> None:
-        self.comm = prepare_info["mpi"]["comm"]
-        self.nreplica = prepare_info["mpi"]["size"]
-        self.rank = prepare_info["mpi"]["rank"]
-        seed = prepare_info["algorithm"]["exchange"]["seed"]
-        seed_delta = prepare_info["algorithm"]["exchange"]["seed_delta"]
-        if seed is None:
-            self.rng = default_rng()
-        else:
-            self.rng = default_rng(seed + self.rank * seed_delta)
-
+        super().prepare(prepare_info)
         prepare_info["log"]["time"]["run"]["submit"] = 0.0
         prepare_info["log"]["time"]["run"]["exchange"] = 0.0
+        os.makedirs(str(self.rank), exist_ok=True)
 
     def post(self, post_info) -> None:
+        super().post(post_info)
         best_fx = self.comm.gather(self.best_fx, root=0)
         best_x = self.comm.gather(self.best_x, root=0)
         best_istep = self.comm.gather(self.best_istep, root=0)
@@ -291,31 +305,9 @@ class Algorithm(algorithm.Algorithm):
 
     def write_result(self, fp) -> None:
         fp.write(f"{self.istep} ")
-        fp.write(f"{self.T} ")
+        fp.write(f"{self.Ts[self.Tindex]} ")
         fp.write(f"{self.fx} ")
         for x in self.x:
             fp.write(f"{x} ")
         fp.write("\n")
         fp.flush()
-
-    def prepare_info(self, info: Info) -> None:
-        dimension = self.dimension
-        info_alg = info["algorithm"]
-        info_param = info_alg["param"]
-        info_exchange = info_alg["exchange"]
-
-        info_param.setdefault("initial_list", [])
-        info_param.setdefault("unit_list", [1.0] * dimension)
-
-        # check if defined (FIXME)
-        info_param["min_list"]
-        info_param["max_list"]
-        info_exchange["numsteps"]
-        info_exchange["numsteps_exchange"]
-
-        info_exchange.setdefault("Tmin", 0.1)
-        info_exchange.setdefault("Tmax", 10.0)
-        info_exchange.setdefault("Tlogspace", True)
-
-        info_exchange.setdefault("seed", None)
-        info_exchange.setdefault("seed_delta", 314159)

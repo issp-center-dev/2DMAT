@@ -3,19 +3,19 @@ from typing import List
 from io import open
 import numpy as np
 import os
-from . import algorithm
 import time
+
+from . import algorithm
 
 # for type hints
 from ..info import Info
 
 
-class Algorithm(algorithm.Algorithm):
+class Algorithm(algorithm.AlgorithmBase):
     mesh_list: List[float]
-    label_list: List[str]
 
-    def __init__(self, info, runner):
-        super().__init__(info=info, runner=runner)
+    def __init__(self, info):
+        super().__init__(info=info)
         info_alg = info["algorithm"].get("param", {})
         mesh_path = info_alg.get("mesh_path", "MeshData.txt")
         self.mesh_list = self._get_mesh_list_from_file(mesh_path)
@@ -35,10 +35,9 @@ class Algorithm(algorithm.Algorithm):
         return mesh_list
 
     def run(self, run_info):
+        super().run(run_info)
         original_dir = os.getcwd()
-        rank = run_info["mpi"]["rank"]
-        size = run_info["mpi"]["size"]
-        os.chdir(str(rank))
+        os.chdir(str(self.rank))
         # Make ColorMap
         label_list = self.label_list
         dimension = self.dimension
@@ -104,21 +103,19 @@ class Algorithm(algorithm.Algorithm):
             run_info["log"]["time"]["run"]["file_CM"] += time_end - time_sta
 
         os.chdir(original_dir)
-        print("complete main process : rank {:08d}/{:08d}".format(rank, size))
+        print("complete main process : rank {:08d}/{:08d}".format(self.rank, self.size))
 
     def prepare(self, prepare_info):
-        # Mesh data is divided.
-        import shutil
-
-        if prepare_info["mpi"]["rank"] == 0:
-            size = prepare_info["mpi"]["size"]
+        super().prepare(prepare_info)
+        os.makedirs(str(self.rank), exist_ok=True)
+        if self.rank == 0:
             lines = []
             with open("MeshData.txt", "r") as file_input:
                 for line in file_input:
                     if not line.lstrip().startswith("#"):
                         lines.append(line)
             mesh_total = np.array(lines)
-            mesh_divided = np.array_split(mesh_total, size)
+            mesh_divided = np.array_split(mesh_total, self.size)
             for index, mesh in enumerate(mesh_divided):
                 sub_folder_name = str(index)
                 with open(
@@ -128,11 +125,10 @@ class Algorithm(algorithm.Algorithm):
                         file_output.write(data)
 
     def post(self, post_info):
-        rank = post_info["mpi"]["rank"]
-        size = post_info["mpi"]["size"]
-        if rank == 0:
+        super().post(post_info)
+        if self.rank == 0:
             with open("ColorMap.txt", "w") as file_output:
-                for i in range(size):
+                for i in range(self.size):
                     with open(os.path.join(str(i), "ColorMap.txt"), "r") as file_input:
                         for line in file_input:
                             line = line.lstrip()
