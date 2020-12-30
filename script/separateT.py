@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
-import os.path
+from sys import argv
 from collections import namedtuple
 from typing import List, Dict
+from pathlib import Path
 
 Entry = namedtuple("Entry", ["rank", "step", "fx", "xs"])
 
 
-def load_best(filename: str = "best_result.txt") -> Dict[str, str]:
+def load_best(filename: Path) -> Dict[str, str]:
     res = {}
     with open(filename) as f:
         for line in f:
@@ -16,7 +17,8 @@ def load_best(filename: str = "best_result.txt") -> Dict[str, str]:
     return res
 
 
-nprocs: int = int(load_best()["nprocs"])
+output_dir = Path("." if len(argv) == 0 else argv[1])
+nprocs: int = int(load_best(output_dir / "best_result.txt")["nprocs"])
 
 Ts: List[float] = []
 labels: List[str] = []
@@ -24,7 +26,7 @@ dim: int = 0
 results: Dict[float, List[Entry]] = {}
 
 for rank in range(nprocs):
-    with open(os.path.join(str(rank), "result.txt")) as f:
+    with open(output_dir / str(rank) / "result.txt") as f:
         line = f.readline()
         labels = line.split()[4:]
 
@@ -36,7 +38,7 @@ for rank in range(nprocs):
         dim = len(words) - 3
 
 for rank in range(nprocs):
-    with open(os.path.join(str(rank), "result.txt")) as f:
+    with open(output_dir / str(rank) / "result.txt") as f:
         f.readline()
         for line in f:
             words = line.split()
@@ -50,7 +52,7 @@ for T in Ts:
     results[T].sort(key=lambda entry: entry.step)
 
 for i, T in enumerate(Ts):
-    with open(f"result_T{i}.txt", "w") as f:
+    with open(output_dir / f"result_T{i}.txt", "w") as f:
         f.write(f"# T = {T}\n")
         f.write("# step rank fx")
         for label in labels:

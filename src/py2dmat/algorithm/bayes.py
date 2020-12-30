@@ -78,9 +78,8 @@ class Algorithm(algorithm.AlgorithmBase):
                 mesh_list.append(mesh)
         return np.array(mesh_list)
 
-    def run(self) -> None:
-        super().run()
-        run = self.runner
+    def _run(self) -> None:
+        runner = self.runner
         mesh_list = self.mesh_list
         fx_list = []
         param_list = []
@@ -92,7 +91,7 @@ class Algorithm(algorithm.AlgorithmBase):
             def __call__(self, action):
                 a = int(action[0])
                 message = Message(mesh_list[a, 1:], a, 0)
-                fx = run.submit(message)
+                fx = runner.submit(message)
                 fx_list.append(fx)
                 param_list.append(mesh_list[a])
                 return -fx
@@ -119,13 +118,11 @@ class Algorithm(algorithm.AlgorithmBase):
         self.fx_list = fx_list
         self.param_list = param_list
 
-    def prepare(self):
-        super().prepare()
+    def _prepare(self):
         self.proc_dir = self.output_dir
         self.runner.set_solver_dir(self.proc_dir)
 
-    def post(self):
-        super().post()
+    def _post(self):
         label_list = self.label_list
         with open("BayesData.txt", "w") as file_BD:
             file_BD.write("#step")

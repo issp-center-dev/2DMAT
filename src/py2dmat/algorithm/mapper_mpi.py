@@ -35,10 +35,7 @@ class Algorithm(algorithm.AlgorithmBase):
                 mesh_list.append(mesh)
         return mesh_list
 
-    def run(self):
-        super().run()
-        original_dir = os.getcwd()
-        os.chdir(str(self.rank))
+    def _run(self):
         # Make ColorMap
         label_list = self.label_list
         dimension = self.dimension
@@ -103,12 +100,11 @@ class Algorithm(algorithm.AlgorithmBase):
             time_end = time.perf_counter()
             self.timer["run"]["file_CM"] += time_end - time_sta
 
-        os.chdir(original_dir)
         print("complete main process : rank {:08d}/{:08d}".format(self.rank, self.size))
 
-    def prepare(self):
-        super().prepare()
-        os.makedirs(str(self.rank), exist_ok=True)
+    def _prepare(self):
+        self.proc_dir = self.output_dir / str(self.rank)
+        self.proc_dir.mkdir(parents=True, exist_ok=True)
         if self.rank == 0:
             lines = []
             with open("MeshData.txt", "r") as file_input:
@@ -118,18 +114,12 @@ class Algorithm(algorithm.AlgorithmBase):
             mesh_total = np.array(lines)
             mesh_divided = np.array_split(mesh_total, self.size)
             for index, mesh in enumerate(mesh_divided):
-                print(os.getcwd())
-                sub_folder_name = str(index)
-                with open(
-                    os.path.join(sub_folder_name, "MeshData.txt"), "w"
-                ) as file_output:
+                with open(self.output_dir / str(index) / "MeshData.txt", "w") as file_output:
                     for data in mesh:
                         file_output.write(data)
-        self.proc_dir = self.output_dir / str(self.rank)
         self.runner.set_solver_dir(self.proc_dir)
 
-    def post(self):
-        super().post()
+    def _post(self):
         if self.rank == 0:
             with open("ColorMap.txt", "w") as file_output:
                 for i in range(self.size):

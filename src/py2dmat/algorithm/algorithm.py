@@ -4,6 +4,7 @@
 from abc import ABCMeta, abstractmethod
 from enum import IntEnum
 import time
+import os
 
 from .. import exception, mpi
 
@@ -34,7 +35,7 @@ class AlgorithmBase(metaclass=ABCMeta):
 
     root_dir: Path
     output_dir: Path
-    proc_dir: Optional[Path] = None
+    proc_dir: Path
 
     timer: Dict[str, Dict] = {"prepare": {}, "run": {}, "post": {}}
 
@@ -42,8 +43,6 @@ class AlgorithmBase(metaclass=ABCMeta):
 
     def __init__(self, info: Info) -> None:
         info_base = info["base"]
-        self.root_dir = info_base["root_dir"]
-        self.output_dir = info_base["output_dir"]
         self.dimension = info_base["dimension"]
 
         info_alg = info["algorithm"]
@@ -56,29 +55,50 @@ class AlgorithmBase(metaclass=ABCMeta):
             self.label_list = label
         else:
             self.label_list = [f"x{d+1}" for d in range(self.dimension)]
+        self.root_dir = info_base["root_dir"]
+        self.output_dir = info_base["output_dir"]
+        self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def set_runner(self, runner: Runner) -> None:
         self.runner = runner
 
-    @abstractmethod
     def prepare(self) -> None:
         if self.runner is None:
             msg = "Runner is not assigned"
             raise RuntimeError(msg)
+        self._prepare()
         self.status = AlgorithmStatus.PREPARE
 
     @abstractmethod
+    def _prepare(self) -> None:
+        pass
+
     def run(self) -> None:
         if self.status < AlgorithmStatus.PREPARE:
             msg = "algorithm has not prepared yet"
             raise RuntimeError(msg)
+        original_dir = os.getcwd()
+        os.chdir(self.proc_dir)
+        self._run()
+        os.chdir(original_dir)
         self.status = AlgorithmStatus.RUN
 
     @abstractmethod
+    def _run(self) -> None:
+        pass
+
     def post(self) -> None:
         if self.status < AlgorithmStatus.RUN:
             msg = "algorithm has not run yet"
             raise RuntimeError(msg)
+        original_dir = os.getcwd()
+        os.chdir(self.output_dir)
+        self._post()
+        os.chdir(original_dir)
+
+    @abstractmethod
+    def _post(self) -> None:
+        pass
 
     def main(self):
         time_sta = time.perf_counter()

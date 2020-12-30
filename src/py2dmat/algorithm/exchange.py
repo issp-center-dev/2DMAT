@@ -4,6 +4,7 @@ from io import open
 import copy
 import os
 import time
+from pathlib import Path
 
 import numpy as np
 from numpy.random import default_rng
@@ -50,6 +51,8 @@ class Algorithm(algorithm.AlgorithmBase):
         Mapping from temperature index to replica index
     exchange_direction: bool
     """
+
+    proc_dir: Path
 
     x: np.ndarray
     xmin: np.ndarray
@@ -120,11 +123,8 @@ class Algorithm(algorithm.AlgorithmBase):
         self.numsteps = info_exchange["numsteps"]
         self.numsteps_exchange = info_exchange["numsteps_exchange"]
 
-    def run(self):
-        super().run()
-        original_dir = os.getcwd()
+    def _run(self):
         rank = self.rank
-        os.chdir(str(rank))
 
         x_old = np.zeros(self.dimension)
         mbeta = -1.0 / self.Ts[self.Tindex]
@@ -189,7 +189,6 @@ class Algorithm(algorithm.AlgorithmBase):
 
         file_result.close()
         file_trial.close()
-        os.chdir(original_dir)
         print("complete main process : rank {:08d}/{:08d}".format(rank, self.nreplica))
 
     def _evaluate(self) -> float:
@@ -269,16 +268,14 @@ class Algorithm(algorithm.AlgorithmBase):
 
         self.T = self.Ts[self.Tindex]
 
-    def prepare(self) -> None:
-        super().prepare()
+    def _prepare(self) -> None:
         self.timer["run"]["submit"] = 0.0
         self.timer["run"]["exchange"] = 0.0
         self.proc_dir = self.output_dir / str(self.rank)
-        os.makedirs(self.proc_dir, exist_ok=True)
+        self.proc_dir.mkdir(parents=True, exist_ok=True)
         self.runner.set_solver_dir(self.proc_dir)
 
-    def post(self) -> None:
-        super().post()
+    def _post(self) -> None:
         best_fx = self.comm.gather(self.best_fx, root=0)
         best_x = self.comm.gather(self.best_x, root=0)
         best_istep = self.comm.gather(self.best_istep, root=0)

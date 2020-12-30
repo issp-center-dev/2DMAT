@@ -59,8 +59,7 @@ class Algorithm(algorithm.AlgorithmBase):
         self.maxiter = info_minimize.get("maxiter", 10000)
         self.maxfev = info_minimize.get("maxfev", 100000)
 
-    def run(self) -> None:
-        super().run()
+    def _run(self) -> None:
         run = self.runner
         callback_list = []
 
@@ -143,8 +142,7 @@ class Algorithm(algorithm.AlgorithmBase):
         self.fx_for_simplex_list = fx_for_simplex_list
         self.callback_list = callback_list
 
-    def prepare(self):
-        super().prepare()
+    def _prepare(self):
         self.proc_dir = self.output_dir
         self.runner.set_solver_dir(self.proc_dir)
 
@@ -168,8 +166,7 @@ class Algorithm(algorithm.AlgorithmBase):
         self.initial_list = initial_list
         self.initial_simplex_list = initial_simplex_list
 
-    def post(self):
-        super().post()
+    def _post(self):
         dimension = self.dimension
         label_list = self.label_list
         with open("SimplexData.txt", "w") as file_SD:

@@ -403,9 +403,7 @@ class Solver(solver_base.SolverBase):
                     I_calculated_list.append(float(words[row_number - 1]))
                 # TODO: degree_calc == degree_exp should be checked for every line?
                 degree_last = round(float(words[0]), 1)
-                if degree_last == degree_max:
-                    print("PASS : degree in lastline = {}".format(degree_last))
-                else:
+                if degree_last != degree_max:
                     print(
                         "WARNING : degree in lastline = {}, but {} expected".format(
                             degree_last, degree_max
