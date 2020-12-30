@@ -327,7 +327,7 @@ class Solver(solver_base.SolverBase):
                 )
             self.string_list = v
 
-            v = info_s.get("degree_max", 6.0)
+            v = info_param.get("degree_max", 6.0)
             self.degree_max = v
 
             # solver.reference
