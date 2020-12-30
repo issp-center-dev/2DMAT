@@ -7,6 +7,7 @@ import numpy as np
 from scipy.optimize import minimize
 
 from . import algorithm
+from ..message import Message
 
 # for type hints
 from ..info import Info
@@ -58,11 +59,10 @@ class Algorithm(algorithm.AlgorithmBase):
         self.maxiter = info_minimize.get("maxiter", 10000)
         self.maxfev = info_minimize.get("maxfev", 100000)
 
-    def run(self, run_info: Info) -> None:
-        super().run(run_info)
+    def run(self) -> None:
+        super().run()
         run = self.runner
         callback_list = []
-        run_info["base"]["base_dir"] = os.getcwd()
 
         min_list = self.min_list
         max_list = self.max_list
@@ -70,8 +70,9 @@ class Algorithm(algorithm.AlgorithmBase):
         label_list = self.label_list
         dimension = self.dimension
 
-        def _f_calc(x_list: np.ndarray, info: Info, extra_data: bool = False) -> float:
+        step = [0]
 
+        def _f_calc(x_list: np.ndarray, extra_data: bool = False) -> float:
             out_of_range = False
             for index in range(dimension):
                 if x_list[index] < min_list[index] or x_list[index] > max_list[index]:
@@ -90,13 +91,12 @@ class Algorithm(algorithm.AlgorithmBase):
             if out_of_range:
                 y = 100.0
             else:
-                run_info["log"]["Log_number"] += 1
-                run_info["log"]["ExtraRun"] = extra_data
-                run_info["calc"]["x_list"] = x_list
-                run_info["base"]["base_dir"] = os.getcwd()
-                y = run.submit(update_info=run_info)
+                step[0] += 1
+                set = 1 if extra_data else 0
+                message = Message(x_list, step[0], set)
+                y = run.submit(message)
                 if not extra_data:
-                    callback = [run_info["log"]["Log_number"]]
+                    callback = step
                     for index in range(dimension):
                         callback.append(x_list[index])
                     callback.append(y)
@@ -107,7 +107,6 @@ class Algorithm(algorithm.AlgorithmBase):
         optres = minimize(
             _f_calc,
             self.initial_list,
-            args=(run_info,),
             method="Nelder-Mead",
             options={
                 "xatol": self.xtol,
@@ -125,29 +124,29 @@ class Algorithm(algorithm.AlgorithmBase):
         self.funcalls = optres.nfev
         self.allvecs = optres.allvecs
         time_end = time.perf_counter()
-        run_info["log"]["time"]["run"]["min_search"] = time_end - time_sta
+        self.timer["run"]["min_search"] = time_end - time_sta
 
         extra_data = True
         fx_for_simplex_list = []
-        run_info["log"]["Log_number"] = 0
+        step[0] = 0
         print("iteration:", self.itera)
         print("len(allvecs):", len(self.allvecs))
 
         time_sta = time.perf_counter()
-        for step in range(self.itera):
-            print("step:", step)
-            print("allvecs[step]:", self.allvecs[step])
-            fx_for_simplex_list.append(
-                _f_calc(self.allvecs[step], run_info, extra_data)
-            )
+        for _ in range(self.itera):
+            print("step:", step[0])
+            print("allvecs[step]:", self.allvecs[step[0]])
+            fx_for_simplex_list.append(_f_calc(self.allvecs[step[0]], extra_data))
         time_end = time.perf_counter()
-        run_info["log"]["time"]["run"]["recalc"] = time_end - time_sta
+        self.timer["run"]["recalc"] = time_end - time_sta
 
         self.fx_for_simplex_list = fx_for_simplex_list
         self.callback_list = callback_list
 
-    def prepare(self, prepare_info):
-        super().prepare(prepare_info)
+    def prepare(self):
+        super().prepare()
+        self.proc_dir = self.output_dir
+        self.runner.set_solver_dir(self.proc_dir)
 
         # make initial simple
         initial_simplex_list = []
@@ -169,8 +168,8 @@ class Algorithm(algorithm.AlgorithmBase):
         self.initial_list = initial_list
         self.initial_simplex_list = initial_simplex_list
 
-    def post(self, post_info):
-        super().post(post_info)
+    def post(self):
+        super().post()
         dimension = self.dimension
         label_list = self.label_list
         with open("SimplexData.txt", "w") as file_SD:

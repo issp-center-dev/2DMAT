@@ -3,6 +3,8 @@ from typing import Callable
 import numpy as np
 
 from . import solver_base
+from ..message import Message
+from ..info import Info
 
 
 def quadratics(xs: np.ndarray) -> float:
@@ -22,7 +24,10 @@ def rosenbrock(xs: np.ndarray) -> float:
 
 
 class Solver(solver_base.SolverBase):
-    def __init__(self, info) -> None:
+    x: np.ndarray
+    fx: float
+
+    def __init__(self, info: Info) -> None:
         """
         Initialize the solver.
 
@@ -31,11 +36,7 @@ class Solver(solver_base.SolverBase):
         solver_name : str
             Solver name.
         """
-        info["calc"] = {}
         self.path_to_solver = ""
-        self.input = Solver.Input(info)
-        self.output = Solver.Output(info)
-        self.base_info = info["base"]
         if "solver" in info:
             function_name = info["solver"].get("function_name", "quadratics")
         else:
@@ -69,111 +70,14 @@ class Solver(solver_base.SolverBase):
         """
         return "analytical"
 
+    def command(self) -> Callable[[], None]:
+        return self._run
+
     def _run(self) -> None:
-        xs = np.array(self.input.calc_info["x_list"])
-        v = self.func(xs)
-        self.output.v = v
+        self.fx = self.func(self.x)
 
-    class Input(object):
+    def prepare(self, message: Message):
+        self.x = message.x
 
-        """
-        Input manager.
-
-        Attributes
-        ----------
-        base_info : Any
-            Common parameter.
-        """
-
-        def __init__(self, info):
-            # Set default value
-            self.base_info = info["base"]
-            self.base_info["extra"] = info["base"].get("extra", False)
-            self.base_info["output_dir"] = self.base_info["root_dir"]
-            self.log_info = info["log"]
-            self.calc_info = info["calc"]
-
-        def update_info(self, update_info=None):
-            """
-            Update information.
-
-            Parameters
-            ----------
-            update_info : dict
-                Atomic structure.
-
-            """
-            if update_info is not None:
-                self.log_info["Log_number"] = update_info["log"]["Log_number"]
-                self.calc_info["x_list"] = update_info["calc"]["x_list"]
-                self.base_info["base_dir"] = update_info["base"]["base_dir"]
-            update_info["calc"] = self.calc_info
-            update_info["base"] = self.base_info
-            update_info["log"] = self.log_info
-            return update_info
-
-        def write_input(self, workdir):
-            """
-            Generate input files of the solver program.
-
-            Parameters
-            ----------
-            workdir : str
-                Path to working directory.
-            """
-            pass
-
-        def from_directory(self, base_input_dir):
-            """
-            Set information from files in the base_input_dir
-
-            Parameters
-            ----------
-            base_input_dir : str
-                Path to the directory including base input files.
-            """
-            # set information of base_input and pos_info from files in base_input_dir
-            raise NotImplementedError()
-
-        def cl_args(self, nprocs, nthreads, workdir):
-            """
-            Generate command line arguments of the solver program.
-
-            Parameters
-            ----------
-            nprocs : int
-                The number of processes.
-            nthreads : int
-                The number of threads.
-            workdir : str
-                Path to the working directory.
-
-            Returns
-            -------
-            args : list[str]
-                Arguments of command
-            """
-            return []
-
-    class Output(object):
-        """
-        Output manager.
-        """
-
-        v: float = 0.0
-
-        def __init__(self, info):
-            pass
-
-        def update_info(self, updated_info):
-            pass
-
-        def get_results(self):
-            """
-            Get energy obtained by the solver program.
-
-            Returns
-            -------
-            """
-
-            return self.v
+    def get_results(self) -> float:
+        return self.fx

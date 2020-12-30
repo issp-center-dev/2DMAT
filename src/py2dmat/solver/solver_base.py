@@ -3,22 +3,26 @@
 
 from abc import ABCMeta, abstractmethod
 
+from pathlib import Path
+from typing import List, Optional, Dict
+
+from ..info import Info
+from ..message import Message
+
 
 class SolverBase(object, metaclass=ABCMeta):
-    def __init__(self, path_to_solver):
-        """
-        Initialize the solver.
+    root_dir: Path
+    output_dir: Path
+    proc_dir: Optional[Path] = None
+    work_dir: Optional[Path] = None
 
-        Parameters
-        ----------
-        solver_name : str
-            Solver name.
-        path_to_solver : str
-            Path to the solver.
-        """
-        self.path_to_solver = path_to_solver
-        self.input = SolverBase.Input
-        self.output = SolverBase.Output
+    timer: Dict[str, Dict] = {"prepare": {}, "run": {}, "post": {}}
+
+    @abstractmethod
+    def __init__(self, info: Info) -> None:
+        info_base = info["base"]
+        self.root_dir = info_base["root_dir"]
+        self.output_dir = info_base["output_dir"]
 
     @abstractmethod
     def get_run_scheme(self):
@@ -31,135 +35,28 @@ class SolverBase(object, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_path_to_solver(self):
-        """
+    def get_name(self) -> str:
+        """Solver's name
         Return
-        -------
-        str
-            Path to solver.
+        ------
+        str:
+            name
         """
         pass
 
     @abstractmethod
-    def get_name(self):
-        """
-        Return
-        -------
-        str
-            Name of solver.
-        """
+    def command(self):
         pass
 
-    def get_input(self):
-        """
-        Return
-        -------
-        Input object
-        """
-        return self.input
+    @abstractmethod
+    def prepare(self, message: Message) -> None:
+        pass
 
-    def get_output(self):
-        """
-        Return
-        -------
-        Output object
-        """
-        return self.output
+    @abstractmethod
+    def get_results(self) -> float:
+        pass
 
-    class Input(object):
-        """
-        Input manager.
-
-        Attributes
-        ----------
-        base_info : Any
-            Common parameter.
-        """
-
-        def __init__(self):
-            self.base_info = None
-
-        def update_info(self, update_info):
-            """
-            Update information.
-
-            Parameters
-            ----------
-            update_info : dict
-                Atomic structure.
-
-            """
-            raise NotImplementedError()
-
-        def write_input(self, workdir):
-            """
-            Generate input files of the solver program.
-
-            Parameters
-            ----------
-            workdir : str
-                Path to working directory.
-            """
-            raise NotImplementedError()
-
-        def from_directory(self, base_input_dir):
-            """
-            Set information from files in the base_input_dir
-
-            Parameters
-            ----------
-            base_input_dir : str
-                Path to the directory including base input files.
-            """
-            # set information of base_input and pos_info from files in base_input_dir
-            raise NotImplementedError()
-
-        def cl_args(self, nprocs, nthreads, workdir):
-            """
-            Generate command line arguments of the solver program.
-
-            Parameters
-            ----------
-            nprocs : int
-                The number of processes.
-            nthreads : int
-                The number of threads.
-            workdir : str
-                Path to the working directory.
-
-            Returns
-            -------
-            args : list[str]
-                Arguments of command
-            """
-            return []
-
-    class Output(object):
-        """
-        Output manager.
-        """
-
-        def get_results(self, output_info):
-            """
-            Get energy and structure obtained by the solver program.
-
-            Parameters
-            ----------
-            output_info : dict
-
-            Returns
-            -------
-            """
-            raise NotImplementedError()
-
-        def update_info(self, update_info):
-            """
-            Update information.
-
-            Parameters
-            ----------
-            update_info : dict
-                Atomic structure.
-
-            """
-            pass
+    def get_working_directory(self) -> Path:
+        if self.work_dir is None:
+            raise RuntimeError("work_dir is not set")
+        return self.work_dir

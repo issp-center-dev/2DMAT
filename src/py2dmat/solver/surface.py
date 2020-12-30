@@ -1,24 +1,22 @@
 import os
-import sys
 import shutil
-import numpy as np
-
 from pathlib import Path
 
+import numpy as np
 
 from . import solver_base
 from .. import exception
 
 # for type hints
-from typing import Dict, Any, List
+from typing import List
 from ..info import Info
+from ..message import Message
 
 
 class Solver(solver_base.SolverBase):
-    root_dir: Path
-    output_dir: Path
     path_to_solver: Path
-    info_solver: Dict[str, Any]
+
+    dimension: int
 
     def __init__(self, info: Info):
         """
@@ -28,20 +26,18 @@ class Solver(solver_base.SolverBase):
         ----------
         """
 
-        self.root_dir = info["base"]["root_dir"]
-        self.output_dir = info["base"]["output_dir"]
+        super().__init__(info)
 
         self.info_solver = info["solver"]
 
         p2solver = "surf.exe"
-        self.path_to_solver = self.root_dir / Path(p2solver).expanduser().resolve()
+        self.path_to_solver = self.root_dir / Path(p2solver).expanduser()
         if not self.path_to_solver.exists():
             raise exception.InputError(
                 f"ERROR: solver ({self.path_to_solver}) does not exist"
             )
         self.input = Solver.Input(info)
         self.output = Solver.Output(info)
-        self.base_info = info["base"]
 
     def get_run_scheme(self):
         """
@@ -52,34 +48,21 @@ class Solver(solver_base.SolverBase):
         """
         return "subprocess"
 
-    def get_path_to_solver(self):
-        """
-        Return
-        -------
-        str
-            Path to solver.
-        """
-        return str(self.path_to_solver)
+    def get_name(self) -> str:
+        return "surf"
 
-    def get_name(self):
-        """
-        Return
-        -------
-        str
-            surf.exe
-        """
-        return "surf.exe"
+    def command(self) -> List[str]:
+        return [str(self.path_to_solver)]
+
+    def prepare(self, message: Message) -> None:
+        fitted_x_list, subdir = self.input.prepare(message)
+        self.work_dir = self.proc_dir / Path(subdir)
+        self.output.prepare(fitted_x_list)
+
+    def get_results(self) -> float:
+        return self.output.get_results(self.work_dir)
 
     class Input(object):
-        """
-        Input manager.
-
-        Attributes
-        ----------
-        base_info : Any
-            Common parameter.
-        """
-
         root_dir: Path
         output_dir: Path
         dimension: int
@@ -128,7 +111,7 @@ class Solver(solver_base.SolverBase):
                     f"ERROR: bulk_output_file ({self.bulk_output_file}) does not exist"
                 )
 
-        def update_info(self, update_info=None):
+        def prepare(self, message: Message):
             """
             Update information.
 
@@ -138,27 +121,10 @@ class Solver(solver_base.SolverBase):
                 Atomic structure.
 
             """
-            if update_info is not None:
-                self.log_info["Log_number"] = update_info["log"]["Log_number"]
-                self.log_info["ExtraRun"] = update_info["log"].get("ExtraRun", False)
-                self.calc_info["x_list"] = update_info["calc"]["x_list"]
-                self.base_info["base_dir"] = update_info["base"]["base_dir"]
-            # Make fitted x_list and value
-            # Move subdir
-            fitted_x_list, fitted_value, folder_name = self._prepare(
-                self.calc_info["x_list"], self.log_info["ExtraRun"]
-            )
-            self.calc_info["fitted_x_list"] = fitted_x_list
-            self.calc_info["fitted_value"] = fitted_value
-            self.base_info["output_dir"] = os.path.join(
-                self.base_info["base_dir"], folder_name
-            )
-            update_info["calc"] = self.calc_info
-            update_info["base"] = self.base_info
-            update_info["log"] = self.log_info
-            return update_info
+            x_list = message.x
+            step = message.step
+            extra = message.set > 0
 
-        def _prepare(self, x_list, extra=False):
             dimension = self.dimension
             string_list = self.string_list
             bulk_output_file = self.bulk_output_file
@@ -171,11 +137,9 @@ class Solver(solver_base.SolverBase):
                 fitted_x_list.append(fitted_value)
             for index in range(dimension):
                 print(string_list[index], "=", fitted_x_list[index])
-            folder_name = self._pre_bulk(
-                self.log_info["Log_number"], bulk_output_file, solver_input_file, extra
-            )
+            folder_name = self._pre_bulk(step, bulk_output_file, extra)
             self._replace(fitted_x_list, folder_name)
-            return fitted_x_list, fitted_value, folder_name
+            return fitted_x_list, folder_name
 
         def _replace(self, fitted_x_list, folder_name):
             with open(self.surface_template_file, "r") as file_input, open(
@@ -190,7 +154,7 @@ class Solver(solver_base.SolverBase):
                             )
                     file_output.write(line)
 
-        def _pre_bulk(self, Log_number, bulk_output_file, surface_input_file, extra):
+        def _pre_bulk(self, Log_number, bulk_output_file, extra):
             if extra:
                 folder_name = "Extra_Log{:08d}".format(Log_number)
             else:
@@ -200,49 +164,6 @@ class Solver(solver_base.SolverBase):
                 bulk_output_file, os.path.join(folder_name, bulk_output_file.name)
             )
             return folder_name
-
-        def write_input(self, workdir):
-            """
-            Generate input files of the solver program.
-
-            Parameters
-            ----------
-            workdir : str
-                Path to working directory.
-            """
-            pass
-
-        def from_directory(self, base_input_dir):
-            """
-            Set information from files in the base_input_dir
-
-            Parameters
-            ----------
-            base_input_dir : str
-                Path to the directory including base input files.
-            """
-            # set information of base_input and pos_info from files in base_input_dir
-            raise NotImplementedError()
-
-        def cl_args(self, nprocs, nthreads, workdir):
-            """
-            Generate command line arguments of the solver program.
-
-            Parameters
-            ----------
-            nprocs : int
-                The number of processes.
-            nthreads : int
-                The number of threads.
-            workdir : str
-                Path to the working directory.
-
-            Returns
-            -------
-            args : list[str]
-                Arguments of command
-            """
-            return []
 
     class Output(object):
         """
@@ -323,7 +244,7 @@ class Solver(solver_base.SolverBase):
             v = info_param.setdefault("string_list", ["value_01", "value_02"])
             if len(v) != self.dimension:
                 raise exception.InputError(
-                    f"ERROR: len(string_list) != dimension ({len(v)} != {dimension})"
+                    f"ERROR: len(string_list) != dimension ({len(v)} != {self.dimension})"
                 )
             self.string_list = v
 
@@ -371,26 +292,22 @@ class Solver(solver_base.SolverBase):
                 I_exp / self.reference_norm for I_exp in self.reference
             ]
 
-        def update_info(self, updated_info):
-            self.calc_info = updated_info["calc"]
-            self.base_info = updated_info["base"]
+        def prepare(self, fitted_x_list):
+            self.fitted_x_list = fitted_x_list
 
-        def get_results(self) -> float:
+        def get_results(self, work_dir) -> float:
             """
             Get Rfactor obtained by the solver program.
-
-            Parameters
-            ----------
-            output_info : dict
 
             Returns
             -------
             """
 
+            cwd = os.getcwd()
             # Calculate Rfactor and Output numerical results
-            os.chdir(self.base_info["output_dir"])
-            Rfactor = self._post(self.calc_info["fitted_x_list"])
-            os.chdir(self.base_info["base_dir"])
+            os.chdir(work_dir)
+            Rfactor = self._post(self.fitted_x_list)
+            os.chdir(cwd)
             return Rfactor
 
         def _post(self, fitted_x_list):
@@ -507,20 +424,6 @@ class Solver(solver_base.SolverBase):
                         * 0.1
                     )
                 convolution_I_calculated_list.append(integral)
-
-            # TODO: Is the following statement trivially true?
-            if len(I_calculated_list) == len(convolution_I_calculated_list):
-                print(
-                    "PASS : len(calculated_list) {} == len(convolution_I_calculated_list){}".format(
-                        len(I_calculated_list), len(convolution_I_calculated_list)
-                    )
-                )
-            else:
-                print(
-                    "WARNING : len(calculated_list) {} != len(convolution_I_calculated_list) {}".format(
-                        len(I_calculated_list), len(convolution_I_calculated_list)
-                    )
-                )
 
             if self.normalization == "TOTAL":
                 I_calculated_norm = sum(convolution_I_calculated_list)

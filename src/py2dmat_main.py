@@ -6,4 +6,4 @@ if __name__ == "__main__":
     sys.path.append(script_dir)
     import py2dmat
 
-    py2dmat.main_script()
+    py2dmat.main()
