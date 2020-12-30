@@ -40,7 +40,7 @@ class Solver(solver_base.SolverBase):
         self.input = Solver.Input(info)
         self.output = Solver.Output(info)
 
-    def get_run_scheme(self):
+    def default_run_scheme(self):
         """
         Return
         -------

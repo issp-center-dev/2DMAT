@@ -41,6 +41,7 @@ class AlgorithmBase(metaclass=ABCMeta):
 
     status: AlgorithmStatus = AlgorithmStatus.INIT
 
+    @abstractmethod
     def __init__(self, info: Info) -> None:
         info_base = info["base"]
         self.dimension = info_base["dimension"]

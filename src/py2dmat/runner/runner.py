@@ -49,7 +49,7 @@ class Runner(object):
         """
         self.solver = solver
         self.solver_name = solver.name
-        run_scheme = solver.get_run_scheme()
+        run_scheme = solver.default_run_scheme()
         if run_scheme == "mpi_spawn_ready":
             self.run = run_mpispawn_ready(
                 nprocs=nprocs,

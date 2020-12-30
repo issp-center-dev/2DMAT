@@ -47,7 +47,7 @@ class Solver(solver_base.SolverBase):
         except NameError:
             raise RuntimeError(f"ERROR: Unknown function, {function_name}")
 
-    def get_run_scheme(self) -> str:
+    def default_run_scheme(self) -> str:
         """
         Return
         -------

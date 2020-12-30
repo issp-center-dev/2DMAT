@@ -28,7 +28,7 @@ class SolverBase(object, metaclass=ABCMeta):
         self._name = ""
 
     @abstractmethod
-    def get_run_scheme(self):
+    def default_run_scheme(self) -> str:
         """
         Return
         -------
