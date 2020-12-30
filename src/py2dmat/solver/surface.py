@@ -28,6 +28,7 @@ class Solver(solver_base.SolverBase):
 
         super().__init__(info)
 
+        self._name = "surf"
         self.info_solver = info["solver"]
 
         p2solver = "surf.exe"
@@ -48,10 +49,9 @@ class Solver(solver_base.SolverBase):
         """
         return "subprocess"
 
-    def get_name(self) -> str:
-        return "surf"
-
     def command(self) -> List[str]:
+        """ Command to invoke solver
+        """
         return [str(self.path_to_solver)]
 
     def prepare(self, message: Message) -> None:

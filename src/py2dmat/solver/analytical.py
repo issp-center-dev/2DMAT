@@ -33,9 +33,9 @@ class Solver(solver_base.SolverBase):
 
         Parameters
         ----------
-        solver_name : str
-            Solver name.
+        info: Info
         """
+        self._name = "analytical"
         self.path_to_solver = ""
         if "solver" in info:
             function_name = info["solver"].get("function_name", "quadratics")
@@ -43,7 +43,7 @@ class Solver(solver_base.SolverBase):
             function_name = "quadratics"
 
         try:
-            self.func = eval(function_name)
+            self._func = eval(function_name)
         except NameError:
             raise RuntimeError(f"ERROR: Unknown function, {function_name}")
 
@@ -56,27 +56,15 @@ class Solver(solver_base.SolverBase):
         """
         return "function"
 
-    def get_path_to_solver(self) -> Callable[[], None]:
+    def function(self) -> Callable[[], None]:
+        """ return function to invoke the solver
         """
-        Return
-        -------
-        """
-        return self._run
-
-    def get_name(self) -> str:
-        """
-        Return
-        -------
-        """
-        return "analytical"
-
-    def command(self) -> Callable[[], None]:
         return self._run
 
     def _run(self) -> None:
-        self.fx = self.func(self.x)
+        self.fx = self._func(self.x)
 
-    def prepare(self, message: Message):
+    def prepare(self, message: Message) -> None:
         self.x = message.x
 
     def get_results(self) -> float:

@@ -48,7 +48,7 @@ class Runner(object):
         mpi_info:
         """
         self.solver = solver
-        self.solver_name = solver.get_name()
+        self.solver_name = solver.name
         run_scheme = solver.get_run_scheme()
         if run_scheme == "mpi_spawn_ready":
             self.run = run_mpispawn_ready(
@@ -58,12 +58,6 @@ class Runner(object):
             )
         elif run_scheme == "mpi_spawn":
             self.run = run_mpispawn(
-                nprocs=nprocs,
-                nthreads=nthreads,
-                comm=mpi.comm(),
-            )
-        elif run_scheme == "mpi_spawn_wrapper":
-            self.run = run_mpispawn_wrapper(
                 nprocs=nprocs,
                 nthreads=nthreads,
                 comm=mpi.comm(),
@@ -92,11 +86,6 @@ class Runner(object):
     def set_solver_dir(self, proc_dir: Path) -> None:
         self.solver.proc_dir = proc_dir
         self.solver.work_dir = proc_dir
-
-
-class run_mpispawn_wrapper(Run):
-    def submit(self, solver: SolverBase):
-        raise NotImplementedError()
 
 
 class run_mpispawn(Run):
@@ -148,5 +137,5 @@ class run_subprocess(Run):
 
 class run_function(Run):
     def submit(self, solver):
-        solver.command()()
+        solver.function()()
         return 0
