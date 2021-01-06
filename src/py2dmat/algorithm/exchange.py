@@ -277,6 +277,7 @@ class Algorithm(algorithm.AlgorithmBase):
         # especially when mkdir just after removing the old one
         while not self.proc_dir.is_dir():
             time.sleep(0.1)
+        self.mpicomm.Barrier()
 
     def _post(self) -> None:
         best_fx = self.mpicomm.gather(self.best_fx, root=0)

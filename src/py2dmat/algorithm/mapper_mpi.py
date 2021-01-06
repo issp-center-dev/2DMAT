@@ -86,7 +86,11 @@ class Algorithm(algorithm.AlgorithmBase):
             time_end = time.perf_counter()
             self.timer["run"]["file_CM"] += time_end - time_sta
 
-        print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
+        print(
+            "complete main process : rank {:08d}/{:08d}".format(
+                self.mpirank, self.mpisize
+            )
+        )
 
     def _prepare(self) -> None:
         self.proc_dir = self.output_dir / str(self.mpirank)
@@ -95,6 +99,8 @@ class Algorithm(algorithm.AlgorithmBase):
         # especially when mkdir just after removing the old one
         while not self.proc_dir.is_dir():
             time.sleep(0.1)
+        if self.mpisize > 1:
+            self.mpicomm.Barrier()
 
         # scatter MeshData
         if self.mpirank == 0:
@@ -106,9 +112,8 @@ class Algorithm(algorithm.AlgorithmBase):
             mesh_total = np.array(lines)
             mesh_divided = np.array_split(mesh_total, self.mpisize)
             for index, mesh in enumerate(mesh_divided):
-                with open(
-                    self.output_dir / str(index) / "MeshData.txt", "w"
-                ) as file_output:
+                wdir = self.output_dir / str(index)
+                with open(wdir / "MeshData.txt", "w") as file_output:
                     for data in mesh:
                         file_output.write(data)
         self.runner.set_solver_dir(self.proc_dir)
