@@ -1,6 +1,4 @@
-from typing import List, MutableMapping
-
-import os
+from typing import List
 import time
 
 import numpy as np
@@ -87,9 +85,8 @@ class Algorithm(algorithm.AlgorithmBase):
 
             for index in range(dimension):
                 x_list[index] /= unit_list[index]
-            if out_of_range:
-                y = 100.0
-            else:
+            y = float("inf")
+            if not out_of_range:
                 step[0] += 1
                 set = 1 if extra_data else 0
                 message = Message(x_list, step[0], set)

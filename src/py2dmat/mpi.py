@@ -1,5 +1,3 @@
-from typing import Optional
-
 try:
     from mpi4py import MPI
 

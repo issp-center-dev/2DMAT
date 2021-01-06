@@ -56,27 +56,13 @@ class Algorithm(algorithm.AlgorithmBase):
         print(f"num_rand_basis = {self.num_rand_basis}")
 
         mesh_path = info_param.get("mesh_path", "MeshData.txt")
-        self.mesh_list = self._get_mesh_list_from_file(mesh_path)
+        self.mesh_list = np.loadtxt(mesh_path)
         X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
         self.policy = physbo.search.discrete.policy(test_X=X_normalized)
         seed = info_alg.get("seed", 1)
         self.policy.set_seed(seed)
         self.param_list = []
         self.fx_list = []
-
-    def _get_mesh_list_from_file(self, filename="MeshData.txt") -> np.ndarray:
-        print("Read", filename)
-        mesh_list = []
-        with open(filename, "r") as file_MD:
-            for line in file_MD:
-                line = line.lstrip()
-                if line.startswith("#"):
-                    continue
-                mesh = []
-                for value in line.split():
-                    mesh.append(float(value))
-                mesh_list.append(mesh)
-        return np.array(mesh_list)
 
     def _run(self) -> None:
         runner = self.runner
@@ -85,10 +71,7 @@ class Algorithm(algorithm.AlgorithmBase):
         param_list = []
 
         class simulator:
-            def __init__(self):
-                pass
-
-            def __call__(self, action):
+            def __call__(self, action: np.ndarray) -> float:
                 a = int(action[0])
                 message = Message(mesh_list[a, 1:], a, 0)
                 fx = runner.submit(message)
@@ -118,11 +101,11 @@ class Algorithm(algorithm.AlgorithmBase):
         self.fx_list = fx_list
         self.param_list = param_list
 
-    def _prepare(self):
+    def _prepare(self) -> None:
         self.proc_dir = self.output_dir
         self.runner.set_solver_dir(self.proc_dir)
 
-    def _post(self):
+    def _post(self) -> None:
         label_list = self.label_list
         with open("BayesData.txt", "w") as file_BD:
             file_BD.write("#step")

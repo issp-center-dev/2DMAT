@@ -26,9 +26,9 @@ class AlgorithmStatus(IntEnum):
 
 
 class AlgorithmBase(metaclass=ABCMeta):
-    comm: Optional["MPI.Comm"] = mpi.comm()
-    size: int = mpi.size()
-    rank: int = mpi.rank()
+    mpicomm: Optional["MPI.Comm"] = mpi.comm()
+    mpisize: int = mpi.size()
+    mpirank: int = mpi.rank()
     dimension: int
     label_list: List[str]
     runner: Optional[Runner] = None

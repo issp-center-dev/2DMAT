@@ -10,32 +10,18 @@ from . import algorithm
 # for type hints
 from ..info import Info
 from ..message import Message
+from pathlib import Path
 
 
 class Algorithm(algorithm.AlgorithmBase):
-    mesh_list: List[float]
+    mesh_path: Path
 
-    def __init__(self, info):
+    def __init__(self, info: Info) -> None:
         super().__init__(info=info)
         info_alg = info["algorithm"].get("param", {})
-        mesh_path = info_alg.get("mesh_path", "MeshData.txt")
-        self.mesh_list = self._get_mesh_list_from_file(mesh_path)
+        self.mesh_path = self.root_dir / info_alg.get("mesh_path", "MeshData.txt")
 
-    def _get_mesh_list_from_file(self, filename="MeshData.txt"):
-        print("Read", filename)
-        mesh_list = []
-        with open(filename, "r") as file_MD:
-            for line in file_MD:
-                line = line.lstrip()
-                if line.startswith("#"):
-                    continue
-                mesh = []
-                for value in line.split():
-                    mesh.append(float(value))
-                mesh_list.append(mesh)
-        return mesh_list
-
-    def _run(self):
+    def _run(self) -> None:
         # Make ColorMap
         label_list = self.label_list
         dimension = self.dimension
@@ -54,7 +40,7 @@ class Algorithm(algorithm.AlgorithmBase):
             self.timer["run"]["submit"] = 0.0
 
             message = Message([], 0, 0)
-            mesh_list = self._get_mesh_list_from_file()
+            mesh_list = np.loadtxt("MeshData.txt")
             iterations = len(mesh_list)
             for iteration_count, mesh in enumerate(mesh_list):
                 print("Iteration : {}/{}".format(iteration_count + 1, iterations))
@@ -100,29 +86,37 @@ class Algorithm(algorithm.AlgorithmBase):
             time_end = time.perf_counter()
             self.timer["run"]["file_CM"] += time_end - time_sta
 
-        print("complete main process : rank {:08d}/{:08d}".format(self.rank, self.size))
+        print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
 
-    def _prepare(self):
-        self.proc_dir = self.output_dir / str(self.rank)
+    def _prepare(self) -> None:
+        self.proc_dir = self.output_dir / str(self.mpirank)
         self.proc_dir.mkdir(parents=True, exist_ok=True)
-        if self.rank == 0:
+        # Some cache of the filesystem may delay making a dictionary
+        # especially when mkdir just after removing the old one
+        while not self.proc_dir.is_dir():
+            time.sleep(0.1)
+
+        # scatter MeshData
+        if self.mpirank == 0:
             lines = []
-            with open("MeshData.txt", "r") as file_input:
+            with open(self.mesh_path, "r") as file_input:
                 for line in file_input:
                     if not line.lstrip().startswith("#"):
                         lines.append(line)
             mesh_total = np.array(lines)
-            mesh_divided = np.array_split(mesh_total, self.size)
+            mesh_divided = np.array_split(mesh_total, self.mpisize)
             for index, mesh in enumerate(mesh_divided):
-                with open(self.output_dir / str(index) / "MeshData.txt", "w") as file_output:
+                with open(
+                    self.output_dir / str(index) / "MeshData.txt", "w"
+                ) as file_output:
                     for data in mesh:
                         file_output.write(data)
         self.runner.set_solver_dir(self.proc_dir)
 
-    def _post(self):
-        if self.rank == 0:
+    def _post(self) -> None:
+        if self.mpirank == 0:
             with open("ColorMap.txt", "w") as file_output:
-                for i in range(self.size):
+                for i in range(self.mpisize):
                     with open(os.path.join(str(i), "ColorMap.txt"), "r") as file_input:
                         for line in file_input:
                             line = line.lstrip()
