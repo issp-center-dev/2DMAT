@@ -23,10 +23,13 @@ class Info(dict):
         self["algorithm"] = d["algorithm"]
         self["solver"] = d["solver"]
 
-        self["base"]["root_dir"] = Path(self["base"].get("root_dir", ".")).absolute()
-        self["base"]["output_dir"] = Path(
-            self["base"].get("output_dir", ".")
-        ).absolute()
+        self["base"]["root_dir"] = (
+            Path(self["base"].get("root_dir", ".")).expanduser().absolute()
+        )
+        self["base"]["output_dir"] = (
+            self["base"]["root_dir"]
+            / Path(self["base"].get("output_dir", ".")).expanduser()
+        )
 
     def _cleanup(self) -> None:
         self["base"] = {}

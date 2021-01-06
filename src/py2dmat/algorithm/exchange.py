@@ -1,9 +1,10 @@
-from typing import List, TYPE_CHECKING, Optional
+from typing import List, TYPE_CHECKING
 
 from io import open
 import copy
 import os
 import time
+from pathlib import Path
 
 import numpy as np
 from numpy.random import default_rng
@@ -11,6 +12,7 @@ from numpy.random import default_rng
 from . import algorithm
 
 from ..info import Info
+from ..message import Message
 
 if TYPE_CHECKING:
     from mpi4py.MPI import Comm
@@ -50,6 +52,8 @@ class Algorithm(algorithm.AlgorithmBase):
     exchange_direction: bool
     """
 
+    proc_dir: Path
+
     x: np.ndarray
     xmin: np.ndarray
     xmax: np.ndarray
@@ -71,11 +75,11 @@ class Algorithm(algorithm.AlgorithmBase):
 
     rng: np.random.Generator
 
-    def __init__(self, info):
+    def __init__(self, info: Info):
         super().__init__(info=info)
 
         if self.comm is None:
-            msg = f"ERROR: algorithm.exchange requires mpi4py, but mpi4py cannot be imported"
+            msg = "ERROR: algorithm.exchange requires mpi4py, but mpi4py cannot be imported"
             raise ImportError(msg)
 
         info_alg = info["algorithm"]
@@ -119,12 +123,8 @@ class Algorithm(algorithm.AlgorithmBase):
         self.numsteps = info_exchange["numsteps"]
         self.numsteps_exchange = info_exchange["numsteps_exchange"]
 
-    def run(self, run_info: dict):
-        super().run(run_info)
-        original_dir = os.getcwd()
+    def _run(self):
         rank = self.rank
-        os.chdir(str(rank))
-        run_info["base"]["base_dir"] = os.getcwd()
 
         x_old = np.zeros(self.dimension)
         mbeta = -1.0 / self.Ts[self.Tindex]
@@ -133,7 +133,7 @@ class Algorithm(algorithm.AlgorithmBase):
         self.istep = 0
 
         # first step
-        self._evaluate(run_info)
+        self._evaluate()
 
         file_trial = open("trial.txt", "w")
         file_result = open("result.txt", "w")
@@ -155,7 +155,7 @@ class Algorithm(algorithm.AlgorithmBase):
                 if self.size > 1:
                     exchange_direction = not exchange_direction
                 time_end = time.perf_counter()
-                run_info["log"]["time"]["run"]["exchange"] += time_end - time_sta
+                self.timer["run"]["exchange"] += time_end - time_sta
                 mbeta = -1.0 / self.Ts[self.Tindex]
 
             # make candidate
@@ -165,7 +165,7 @@ class Algorithm(algorithm.AlgorithmBase):
 
             # evaluate "Energy"
             fx_old = self.fx
-            self._evaluate(run_info)
+            self._evaluate()
             self.write_result(file_trial)
 
             if bound:
@@ -189,10 +189,9 @@ class Algorithm(algorithm.AlgorithmBase):
 
         file_result.close()
         file_trial.close()
-        os.chdir(original_dir)
         print("complete main process : rank {:08d}/{:08d}".format(rank, self.nreplica))
 
-    def _evaluate(self, run_info: dict) -> float:
+    def _evaluate(self) -> float:
         """evaluate current "Energy"
 
         ``self.fx`` will be overwritten with the result
@@ -204,13 +203,12 @@ class Algorithm(algorithm.AlgorithmBase):
             Some parameters will be overwritten.
         """
 
-        run_info["log"]["Log_number"] = self.istep
-        run_info["calc"]["x_list"] = list(self.x)
+        message = Message(self.x, self.istep, 0)
 
         time_sta = time.perf_counter()
-        self.fx = self.runner.submit(update_info=run_info)
+        self.fx = self.runner.submit(message)
         time_end = time.perf_counter()
-        run_info["log"]["time"]["run"]["submit"] += time_end - time_sta
+        self.timer["run"]["submit"] += time_end - time_sta
         return self.fx
 
     def _exchange(self, direction: bool) -> None:
@@ -270,14 +268,14 @@ class Algorithm(algorithm.AlgorithmBase):
 
         self.T = self.Ts[self.Tindex]
 
-    def prepare(self, prepare_info) -> None:
-        super().prepare(prepare_info)
-        prepare_info["log"]["time"]["run"]["submit"] = 0.0
-        prepare_info["log"]["time"]["run"]["exchange"] = 0.0
-        os.makedirs(str(self.rank), exist_ok=True)
+    def _prepare(self) -> None:
+        self.timer["run"]["submit"] = 0.0
+        self.timer["run"]["exchange"] = 0.0
+        self.proc_dir = self.output_dir / str(self.rank)
+        self.proc_dir.mkdir(parents=True, exist_ok=True)
+        self.runner.set_solver_dir(self.proc_dir)
 
-    def post(self, post_info) -> None:
-        super().post(post_info)
+    def _post(self) -> None:
         best_fx = self.comm.gather(self.best_fx, root=0)
         best_x = self.comm.gather(self.best_x, root=0)
         best_istep = self.comm.gather(self.best_istep, root=0)

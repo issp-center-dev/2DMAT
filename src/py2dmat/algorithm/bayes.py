@@ -1,12 +1,12 @@
 from typing import List
 
-import os
 import time
 
 import physbo
 import numpy as np
 
 from . import algorithm
+from ..message import Message
 
 # for type hints
 from ..info import Info
@@ -78,10 +78,8 @@ class Algorithm(algorithm.AlgorithmBase):
                 mesh_list.append(mesh)
         return np.array(mesh_list)
 
-    def run(self, run_info: Info) -> None:
-        super().run(run_info)
-        run = self.runner
-        run_info["base"]["base_dir"] = os.getcwd()
+    def _run(self) -> None:
+        runner = self.runner
         mesh_list = self.mesh_list
         fx_list = []
         param_list = []
@@ -92,10 +90,8 @@ class Algorithm(algorithm.AlgorithmBase):
 
             def __call__(self, action):
                 a = int(action[0])
-                run_info["log"]["Log_number"] = a
-                run_info["calc"]["x_list"] = mesh_list[a, 1:]
-                run_info["base"]["base_dir"] = os.getcwd()
-                fx = run.submit(update_info=run_info)
+                message = Message(mesh_list[a, 1:], a, 0)
+                fx = runner.submit(message)
                 fx_list.append(fx)
                 param_list.append(mesh_list[a])
                 return -fx
@@ -105,7 +101,7 @@ class Algorithm(algorithm.AlgorithmBase):
             max_num_probes=self.random_max_num_probes, simulator=simulator()
         )
         time_end = time.perf_counter()
-        run_info["log"]["time"]["run"]["random_search"] = time_end - time_sta
+        self.timer["run"]["random_search"] = time_end - time_sta
 
         time_sta = time.perf_counter()
         res = self.policy.bayes_search(
@@ -116,17 +112,17 @@ class Algorithm(algorithm.AlgorithmBase):
             num_rand_basis=self.num_rand_basis,
         )
         time_end = time.perf_counter()
-        run_info["log"]["time"]["run"]["bayes_search"] = time_end - time_sta
+        self.timer["run"]["bayes_search"] = time_end - time_sta
         self.best_fx, self.best_action = res.export_all_sequence_best_fx()
         self.xopt = mesh_list[int(self.best_action[-1]), 1:]
         self.fx_list = fx_list
         self.param_list = param_list
 
-    def prepare(self, prepare_info):
-        super().prepare(prepare_info)
+    def _prepare(self):
+        self.proc_dir = self.output_dir
+        self.runner.set_solver_dir(self.proc_dir)
 
-    def post(self, post_info):
-        super().post(post_info)
+    def _post(self):
         label_list = self.label_list
         with open("BayesData.txt", "w") as file_BD:
             file_BD.write("#step")

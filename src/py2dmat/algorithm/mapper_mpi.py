@@ -9,6 +9,7 @@ from . import algorithm
 
 # for type hints
 from ..info import Info
+from ..message import Message
 
 
 class Algorithm(algorithm.AlgorithmBase):
@@ -34,10 +35,7 @@ class Algorithm(algorithm.AlgorithmBase):
                 mesh_list.append(mesh)
         return mesh_list
 
-    def run(self, run_info):
-        super().run(run_info)
-        original_dir = os.getcwd()
-        os.chdir(str(self.rank))
+    def _run(self):
         # Make ColorMap
         label_list = self.label_list
         dimension = self.dimension
@@ -52,9 +50,10 @@ class Algorithm(algorithm.AlgorithmBase):
             file_CM.write("R-factor\n")
             time_end = time.perf_counter()
 
-            run_info["log"]["time"]["run"]["file_CM"] = time_end - time_sta
-            run_info["log"]["time"]["run"]["submit"] = 0.0
+            self.timer["run"]["file_CM"] = time_end - time_sta
+            self.timer["run"]["submit"] = 0.0
 
+            message = Message([], 0, 0)
             mesh_list = self._get_mesh_list_from_file()
             iterations = len(mesh_list)
             for iteration_count, mesh in enumerate(mesh_list):
@@ -65,23 +64,22 @@ class Algorithm(algorithm.AlgorithmBase):
                 for value in mesh[1:]:
                     file_CM.write("{:8f} ".format(value))
                 time_end = time.perf_counter()
-                run_info["log"]["time"]["run"]["file_CM"] += time_end - time_sta
+                self.timer["run"]["file_CM"] += time_end - time_sta
 
                 # update information
-                run_info["log"]["Log_number"] = round(mesh[0])
-                run_info["calc"]["x_list"] = mesh[1:]
-                run_info["base"]["base_dir"] = os.getcwd()
+                message.step = int(mesh[0])
+                message.x = mesh[1:]
 
                 time_sta = time.perf_counter()
-                fx = run.submit(update_info=run_info)
+                fx = run.submit(message)
                 time_end = time.perf_counter()
-                run_info["log"]["time"]["run"]["submit"] += time_end - time_sta
+                self.timer["run"]["submit"] += time_end - time_sta
 
                 fx_list.append(fx)
                 time_sta = time.perf_counter()
                 file_CM.write("{:8f}\n".format(fx))
                 time_end = time.perf_counter()
-                run_info["log"]["time"]["run"]["file_CM"] += time_end - time_sta
+                self.timer["run"]["file_CM"] += time_end - time_sta
 
                 print("mesh after:", mesh)
 
@@ -100,14 +98,13 @@ class Algorithm(algorithm.AlgorithmBase):
             file_CM.write("#R-factor : {:8f}\n".format(fx_list[fx_order[0]]))
             file_CM.write("#see Log{}\n".format(round(mesh_list[fx_order[0]][0])))
             time_end = time.perf_counter()
-            run_info["log"]["time"]["run"]["file_CM"] += time_end - time_sta
+            self.timer["run"]["file_CM"] += time_end - time_sta
 
-        os.chdir(original_dir)
         print("complete main process : rank {:08d}/{:08d}".format(self.rank, self.size))
 
-    def prepare(self, prepare_info):
-        super().prepare(prepare_info)
-        os.makedirs(str(self.rank), exist_ok=True)
+    def _prepare(self):
+        self.proc_dir = self.output_dir / str(self.rank)
+        self.proc_dir.mkdir(parents=True, exist_ok=True)
         if self.rank == 0:
             lines = []
             with open("MeshData.txt", "r") as file_input:
@@ -117,15 +114,12 @@ class Algorithm(algorithm.AlgorithmBase):
             mesh_total = np.array(lines)
             mesh_divided = np.array_split(mesh_total, self.size)
             for index, mesh in enumerate(mesh_divided):
-                sub_folder_name = str(index)
-                with open(
-                    os.path.join(sub_folder_name, "MeshData.txt"), "w"
-                ) as file_output:
+                with open(self.output_dir / str(index) / "MeshData.txt", "w") as file_output:
                     for data in mesh:
                         file_output.write(data)
+        self.runner.set_solver_dir(self.proc_dir)
 
-    def post(self, post_info):
-        super().post(post_info)
+    def _post(self):
         if self.rank == 0:
             with open("ColorMap.txt", "w") as file_output:
                 for i in range(self.size):
