@@ -15,6 +15,7 @@ Welcome to 2DMAT's documentation!
    tutorial/index
    input
    output
+   tool
    algorithm
    acknowledgement
    contact
