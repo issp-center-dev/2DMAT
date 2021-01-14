@@ -1,9 +1,6 @@
-from typing import Callable
-
 import numpy as np
 
-from . import solver_base
-from ..message import Message
+import py2dmat.solver.function
 from ..info import Info
 
 
@@ -23,7 +20,7 @@ def rosenbrock(xs: np.ndarray) -> float:
     return np.sum(100.0 * (xs[1:] - xs[:-1] ** 2) ** 2 + (1.0 - xs[:-1]) ** 2)
 
 
-class Solver(solver_base.SolverBase):
+class Solver(py2dmat.solver.function.Solver):
     x: np.ndarray
     fx: float
 
@@ -43,29 +40,7 @@ class Solver(solver_base.SolverBase):
             function_name = "quadratics"
 
         try:
-            self._func = eval(function_name)
+            f = eval(function_name)
+            self.set_function(f)
         except NameError:
             raise RuntimeError(f"ERROR: Unknown function, {function_name}")
-
-    def default_run_scheme(self) -> str:
-        """
-        Return
-        -------
-        str
-            run_scheme.
-        """
-        return "function"
-
-    def function(self) -> Callable[[], None]:
-        """ return function to invoke the solver
-        """
-        return self._run
-
-    def _run(self) -> None:
-        self.fx = self._func(self.x)
-
-    def prepare(self, message: Message) -> None:
-        self.x = message.x
-
-    def get_results(self) -> float:
-        return self.fx
