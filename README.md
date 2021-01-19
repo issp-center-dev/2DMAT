@@ -1,7 +1,7 @@
 # 2DMAT
 
 ## sample
-version: 2020-05-18
+version: 2021-01-19
 
 ### make a forward TRHEPD solver
 
@@ -16,14 +16,14 @@ $ make
 ### py2dmat
 
 - Prerequists python packages
-  - numpy
+  - numpy >= 1.17
   - toml
 - Optional python packages
   - scipy
     - for `minsearch` algorithm
   - mpi4py
     - for `exchange` algorithm
-  - physbo
+  - physbo >= 0.2
     - for `bayes` algorithm
 
 ``` bash
