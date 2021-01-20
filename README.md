@@ -26,7 +26,7 @@ $ make
   - physbo >= 0.3
     - for `bayes` algorithm
 - Install from source
-  1. update `pip >= 1.19` by `python3 -m pip install -U pip`
+  1. update `pip >= 19` by `python3 -m pip install -U pip`
   2. `python3 -m pip install 2DMAT_ROOT_DIRECTORY` to install `py2dmat` package and `py2dmat` command
     - If you install them locally, use `--user` option like `python3 -m pip install --user`
     - [`pipx`](https://pipxproject.github.io/pipx/) may help you from the dependency hell :p

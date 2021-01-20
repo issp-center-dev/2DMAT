@@ -33,7 +33,7 @@ py2dmat のインストール
     #. ``git clone https://github.com/issp-center-dev/2DMAT``
     #. ``python3 -m pip install 2DMAT``
 
-        - ``pip`` のバージョンは 1.19 以上が必要です (``python3 -m pip install -U pip`` で更新可能)
+        - ``pip`` のバージョンは 19 以上が必要です (``python3 -m pip install -U pip`` で更新可能)
 
 実行方法
 ~~~~~~~~~~~~~
