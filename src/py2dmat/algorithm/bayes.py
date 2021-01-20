@@ -58,7 +58,8 @@ class Algorithm(algorithm.AlgorithmBase):
         mesh_path = info_param.get("mesh_path", "MeshData.txt")
         self.mesh_list = np.loadtxt(mesh_path)
         X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
-        self.policy = physbo.search.discrete.policy(test_X=X_normalized)
+        comm = self.mpicomm if self.mpisize > 1 else None
+        self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
         seed = info_alg.get("seed", 1)
         self.policy.set_seed(seed)
         self.param_list = []

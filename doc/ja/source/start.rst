@@ -14,7 +14,7 @@ py2dmat のインストール
 
         - mpi4py (グリッド探索利用時)
         - scipy (Nelder-Mead法利用時)
-        - physbo (ベイズ最適化利用時, ver. 0.2以上)
+        - physbo (ベイズ最適化利用時, ver. 0.3以上)
 
 
 ダウンロード・インストール

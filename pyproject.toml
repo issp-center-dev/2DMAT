@@ -18,7 +18,7 @@ numpy = "^1.17"
 toml = ">= 0.10.0"
 scipy = { version = "^1", optional = true }
 mpi4py = { version = "^3", optional = true }
-physbo = { version = ">= 0.2.0", optional = true }
+physbo = { version = ">= 0.3.0", optional = true }
 
 [tool.poetry.dev-dependencies]
 

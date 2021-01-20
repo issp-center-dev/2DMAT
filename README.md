@@ -23,7 +23,7 @@ $ make
     - for `minsearch` algorithm
   - mpi4py
     - for `exchange` algorithm
-  - physbo >= 0.2
+  - physbo >= 0.3
     - for `bayes` algorithm
 - Install from source
   1. update `pip >= 1.19` by `python3 -m pip install -U pip`
