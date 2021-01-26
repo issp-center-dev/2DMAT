@@ -93,15 +93,6 @@ class Algorithm(algorithm.AlgorithmBase):
         )
 
     def _prepare(self) -> None:
-        self.proc_dir = self.output_dir / str(self.mpirank)
-        self.proc_dir.mkdir(parents=True, exist_ok=True)
-        # Some cache of the filesystem may delay making a dictionary
-        # especially when mkdir just after removing the old one
-        while not self.proc_dir.is_dir():
-            time.sleep(0.1)
-        if self.mpisize > 1:
-            self.mpicomm.Barrier()
-
         # scatter MeshData
         if self.mpirank == 0:
             lines = []
@@ -116,7 +107,6 @@ class Algorithm(algorithm.AlgorithmBase):
                 with open(wdir / "MeshData.txt", "w") as file_output:
                     for data in mesh:
                         file_output.write(data)
-        self.runner.set_solver_dir(self.proc_dir)
 
     def _post(self) -> None:
         if self.mpirank == 0:

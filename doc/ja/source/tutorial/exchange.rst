@@ -53,6 +53,7 @@
   [algorithm]
   name = "exchange"
   label_list = ["z1", "z2"]
+  seed = 12345
 
   [algorithm.param]
   min_list = [3.0, 3.0]
@@ -64,7 +65,6 @@
   Tmin = 0.005
   Tmax = 0.05
   Tlogspace = true
-  seed = 12345
 
   [solver]
   name = "surface"
@@ -93,6 +93,7 @@
 ``[algorithm]`` セクションは用いる探索アルゴリズムを設定します。
 交換モンテカルロ法を用いる場合には、 ``name`` に ``"exchange"`` を指定します。
 ``label_list`` は、``value_0x`` (x=1,2) を出力する際につけるラベル名のリストです。
+``seed`` は擬似乱数生成器に与える種です。
 
 ``[algorithm.param]`` サブセクションは、最適化したいパラメータの範囲などを指定します。
 ``min_list`` は最小値、 ``max_list`` は最大値を示します。
@@ -103,7 +104,6 @@
 - ``numsteps_exchange`` で指定した回数のモンテカルロ更新の後に、温度交換を試みます。
 - ``Tmin``, ``Tmax`` はそれぞれ温度の下限・上限です。
 - ``Tlogspace`` が ``true`` の場合、温度を対数空間で等分割します
-- ``seed`` は擬似乱数生成器に与える種です。
 
 ``[solver]`` セクションではメインプログラムの内部で使用するソルバーを指定します。
 ``minsearch`` のチュートリアルを参照してください。

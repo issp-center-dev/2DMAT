@@ -83,7 +83,13 @@ class AlgorithmBase(metaclass=ABCMeta):
 
         self.root_dir = info_base["root_dir"]
         self.output_dir = info_base["output_dir"]
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.proc_dir = self.output_dir / str(self.mpirank)
+        self.proc_dir.mkdir(parents=True, exist_ok=True)
+        # Some cache of the filesystem may delay making a dictionary
+        # especially when mkdir just after removing the old one
+        while not self.proc_dir.is_dir():
+            time.sleep(0.1)
+        self.mpicomm.Barrier()
 
     def __init_rng(self, info: Info) -> None:
         info_alg = info["algorithm"]
@@ -156,6 +162,7 @@ class AlgorithmBase(metaclass=ABCMeta):
         if self.runner is None:
             msg = "Runner is not assigned"
             raise RuntimeError(msg)
+        self.runner.set_solver_dir(self.proc_dir)
         self._prepare()
         self.status = AlgorithmStatus.PREPARE
 
@@ -211,11 +218,11 @@ class AlgorithmBase(metaclass=ABCMeta):
         time_end = time.perf_counter()
         self.timer["post"]["total"] = time_end - time_sta
 
-        with open(self.output_dir / f"time_rank{mpi.rank()}.log", "w") as fw:
-
+        with open(self.proc_dir / "time.log", "w") as fw:
+            fw.write("#in units of seconds")
             def output_file(type):
                 tmp_dict = self.timer[type]
-                fw.write("#{}\n total = {} [s]\n".format(type, tmp_dict["total"]))
+                fw.write("#{}\n total = {}\n".format(type, tmp_dict["total"]))
                 for key, t in tmp_dict.items():
                     if key == "total":
                         continue

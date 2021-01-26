@@ -104,8 +104,8 @@ class Algorithm(algorithm.AlgorithmBase):
         self.param_list = param_list
 
     def _prepare(self) -> None:
-        self.proc_dir = self.output_dir
-        self.runner.set_solver_dir(self.proc_dir)
+        # do nothing
+        pass
 
     def _post(self) -> None:
         label_list = self.label_list

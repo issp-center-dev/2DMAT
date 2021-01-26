@@ -131,10 +131,7 @@ class Algorithm(algorithm.AlgorithmBase):
         self.callback_list = callback_list
 
     def _prepare(self):
-        self.proc_dir = self.output_dir
-        self.runner.set_solver_dir(self.proc_dir)
-
-        # make initial simple
+        # make initial simplex
         initial_simplex_list = []
         initial_list = self.initial_list
         initial_scale_list = self.initial_scale_list
