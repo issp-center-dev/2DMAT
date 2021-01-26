@@ -4,6 +4,7 @@ output_dir = "output"
 
 [algorithm]
 name = "exchange"
+seed = 12345
 
 [algorithm.param]
 min_list = [-5.0, -5.0]
@@ -15,7 +16,6 @@ numsteps_exchange = 20
 Tmin = 0.1
 Tmax = 1.0
 Tlogspace = false
-seed = 12345
 
 [solver]
 name = "analytical"

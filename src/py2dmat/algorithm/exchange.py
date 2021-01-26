@@ -6,7 +6,6 @@ import time
 from pathlib import Path
 
 import numpy as np
-from numpy.random import default_rng
 
 from . import algorithm
 
@@ -72,8 +71,6 @@ class Algorithm(algorithm.AlgorithmBase):
     Tindex: int
     T2rep: List[int]
 
-    rng: np.random.Generator
-
     def __init__(self, info: Info) -> None:
         super().__init__(info=info)
 
@@ -100,24 +97,7 @@ class Algorithm(algorithm.AlgorithmBase):
         self.T2rep = list(range(self.mpisize))
         self.nreplica = self.mpisize
 
-        seed = info_exchange.get("seed", None)
-        seed_delta = info_exchange.get("seed_delta", 314159)
-
-        if seed is None:
-            self.rng = default_rng()
-        else:
-            self.rng = default_rng(seed + self.mpirank * seed_delta)
-
-        info_param = info_alg["param"]
-        self.xmin = np.array(info_param["min_list"])
-        self.xmax = np.array(info_param["max_list"])
-        self.xunit = np.array(info_param.get("unit_list", [1.0] * self.dimension))
-
-        self.x = np.array(info_alg["param"].get("initial_list", []))
-        if self.x.size == 0:
-            self.x = self.xmin + (self.xmax - self.xmin) * self.rng.random(
-                size=self.dimension
-            )
+        self.x, self.xmin, self.xmax, self.xunit = self._read_param(info)
 
         self.numsteps = info_exchange["numsteps"]
         self.numsteps_exchange = info_exchange["numsteps_exchange"]

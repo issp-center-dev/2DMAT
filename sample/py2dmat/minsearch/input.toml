@@ -21,3 +21,7 @@ last = 70
 [algorithm]
 name = "minsearch"
 label_list = ["z1", "z2", "z3"]
+[algorithm.param]
+min_list = [0.0, 0.0, 0.0]
+max_list = [10.0, 10.0, 10.0]
+initial_list = [5.25, 4.25, 3.50]

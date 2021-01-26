@@ -6,11 +6,14 @@ from enum import IntEnum
 import time
 import os
 
+import numpy as np
+from numpy.random import default_rng
+
 from .. import exception, mpi
 
 # for type hints
 from pathlib import Path
-from typing import List, Optional, TYPE_CHECKING, Dict
+from typing import List, Optional, TYPE_CHECKING, Dict, Tuple
 from ..runner.runner import Runner
 from ..info import Info
 
@@ -26,12 +29,13 @@ class AlgorithmStatus(IntEnum):
 
 
 class AlgorithmBase(metaclass=ABCMeta):
-    mpicomm: Optional["MPI.Comm"] = mpi.comm()
-    mpisize: int = mpi.size()
-    mpirank: int = mpi.rank()
+    mpicomm: Optional["MPI.Comm"]
+    mpisize: int
+    mpirank: int
+    rng: np.random.Generator
     dimension: int
     label_list: List[str]
-    runner: Optional[Runner] = None
+    runner: Optional[Runner]
 
     root_dir: Path
     output_dir: Path
@@ -43,8 +47,26 @@ class AlgorithmBase(metaclass=ABCMeta):
 
     @abstractmethod
     def __init__(self, info: Info) -> None:
+        self.mpicomm = mpi.comm()
+        self.mpisize = mpi.size()
+        self.mpirank = mpi.rank()
+        self.runner = None
+
         info_base = info["base"]
-        self.dimension = info_base["dimension"]
+        if "dimension" not in info_base:
+            raise exception.InputError(
+                "ERROR: base.dimension is not defined in the input"
+            )
+        try:
+            self.dimension = int(str(info_base["dimension"]))
+        except ValueError:
+            raise exception.InputError(
+                "ERROR: base.dimension should be positive integer"
+            )
+        if self.dimension < 1:
+            raise exception.InputError(
+                "ERROR: base.dimension should be positive integer"
+            )
 
         info_alg = info["algorithm"]
         if "label_list" in info_alg:
@@ -56,9 +78,76 @@ class AlgorithmBase(metaclass=ABCMeta):
             self.label_list = label
         else:
             self.label_list = [f"x{d+1}" for d in range(self.dimension)]
+
+        self.__init_rng(info)
+
         self.root_dir = info_base["root_dir"]
         self.output_dir = info_base["output_dir"]
         self.output_dir.mkdir(parents=True, exist_ok=True)
+
+    def __init_rng(self, info: Info) -> None:
+        info_alg = info["algorithm"]
+        seed = info_alg.get("seed", None)
+        seed_delta = info_alg.get("seed_delta", 314159)
+
+        if seed is None:
+            self.rng = default_rng()
+        else:
+            self.rng = default_rng(seed + self.mpirank * seed_delta)
+
+    def _read_param(self, info: Info) -> Tuple[np.array, np.array, np.array, np.array]:
+        """
+
+        Returns
+        =======
+        initial_list
+        min_list
+        max_list
+        unit_list
+        """
+        info_algorithm = info["algorithm"]
+        if "param" not in info_algorithm:
+            raise exception.InputError(
+                "ERROR: [algorithm.param] is not defined in the input"
+            )
+        info_param = info_algorithm["param"]
+
+        if "min_list" not in info_param:
+            raise exception.InputError(
+                "ERROR: algorithm.param.min_list is not defined in the input"
+            )
+        min_list = np.array(info_param["min_list"])
+        if len(min_list) != self.dimension:
+            raise exception.InputError(
+                f"ERROR: len(min_list) != dimension ({len(min_list)} != {self.dimension})"
+            )
+
+        if "max_list" not in info_param:
+            raise exception.InputError(
+                "ERROR: algorithm.param.max_list is not defined in the input"
+            )
+        max_list = np.array(info_param["max_list"])
+        if len(max_list) != self.dimension:
+            raise exception.InputError(
+                f"ERROR: len(max_list) != dimension ({len(max_list)} != {self.dimension})"
+            )
+
+        unit_list = np.array(info_param.get("unit_list", [1.0] * self.dimension))
+        if len(unit_list) != self.dimension:
+            raise exception.InputError(
+                f"ERROR: len(unit_list) != dimension ({len(unit_list)} != {self.dimension})"
+            )
+
+        initial_list = np.array(info_param.get("initial_list", []))
+        if initial_list.size == 0:
+            initial_list = min_list + (max_list - min_list) * self.rng.random(
+                size=self.dimension
+            )
+        if initial_list.size != self.dimension:
+            raise exception.InputError(
+                f"ERROR: len(initial_list) != dimension ({initial_list.size} != {self.dimension})"
+            )
+        return initial_list, min_list, max_list, unit_list
 
     def set_runner(self, runner: Runner) -> None:
         self.runner = runner
