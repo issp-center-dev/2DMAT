@@ -195,6 +195,23 @@
 
     - ``exchange`` :  レプリカ交換モンテカルロを行うアルゴリズム
 
+- ``seed``
+
+  形式: 整数値。
+
+  説明: 初期値のランダム生成やモンテカルロ更新などで用いる擬似乱数生成器の種を指定します。
+        各MPIプロセスに対して、 ``seed + mpi_rank * seed_delta`` の値が実際の種として用いられます。
+        省略した場合は `Numpy の規定の方法 <https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.default_rng>`_ で初期化されます。
+
+
+- ``seed_delta``
+
+  形式: 整数値。 (default: 314159)
+
+  説明: 疑似乱数生成器の種について、MPI プロセスごとの値を計算する際に用いられます。
+        詳しくは ``seed`` を参照してください。
+
+
 以下、アルゴリズムごとに定義されているパラメータを記載します。
 
 
@@ -394,22 +411,6 @@ Nelder-Mead 法のハイパーパラメータを設定します。
 
   説明: 「温度」を各レプリカに割り当てる際に、対数空間で等分割するか否かを指定します。
         true のときは対数空間で等分割します。
-
-- ``seed``
-
-  形式: 整数値。
-
-  説明: モンテカルロ更新で用いる擬似乱数生成器の種を指定します。
-        各MPIプロセスに対して、 ``seed + mpi_rank * seed_delta`` の値が実際の種として用いられます。
-        省略した場合は `Numpy の規定の方法 <https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.default_rng>`_ で初期化されます。
-
-
-- ``seed_delta``
-
-  形式: 整数値。 (default: 314159)
-
-  説明: 疑似乱数生成器の種について、MPI プロセスごとの値を計算する際に用いられます。
-        詳しくは ``seed`` を参照してください。
 
 参照ファイル
 =====================
