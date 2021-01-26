@@ -9,13 +9,13 @@ import os
 import numpy as np
 from numpy.random import default_rng
 
-from .. import exception, mpi
+import py2dmat
+from py2dmat import exception, mpi
 
 # for type hints
 from pathlib import Path
 from typing import List, Optional, TYPE_CHECKING, Dict, Tuple
-from ..runner.runner import Runner
-from ..info import Info
+from py2dmat.runner import Runner
 
 
 if TYPE_CHECKING:
@@ -46,11 +46,13 @@ class AlgorithmBase(metaclass=ABCMeta):
     status: AlgorithmStatus = AlgorithmStatus.INIT
 
     @abstractmethod
-    def __init__(self, info: Info) -> None:
+    def __init__(self, info: py2dmat.Info) -> None:
         self.mpicomm = mpi.comm()
         self.mpisize = mpi.size()
         self.mpirank = mpi.rank()
         self.runner = None
+        self.timer = {"prepare": {}, "run": {}, "post": {}}
+        self.status = AlgorithmStatus.INIT
 
         info_base = info["base"]
         if "dimension" not in info_base:
@@ -91,7 +93,7 @@ class AlgorithmBase(metaclass=ABCMeta):
             time.sleep(0.1)
         self.mpicomm.Barrier()
 
-    def __init_rng(self, info: Info) -> None:
+    def __init_rng(self, info: py2dmat.Info) -> None:
         info_alg = info["algorithm"]
         seed = info_alg.get("seed", None)
         seed_delta = info_alg.get("seed_delta", 314159)
@@ -101,7 +103,7 @@ class AlgorithmBase(metaclass=ABCMeta):
         else:
             self.rng = default_rng(seed + self.mpirank * seed_delta)
 
-    def _read_param(self, info: Info) -> Tuple[np.array, np.array, np.array, np.array]:
+    def _read_param(self, info: py2dmat.Info) -> Tuple[np.array, np.array, np.array, np.array]:
         """
 
         Returns

@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys
 import os
 import subprocess
 from abc import ABCMeta, abstractmethod
+
+import py2dmat
+
+# type hints
 from pathlib import Path
 from typing import List
-
-import numpy as np
-
 from .. import mpi
-from ..message import Message
-from ..solver.solver_base import SolverBase
 
 
 class Run(metaclass=ABCMeta):
@@ -31,21 +29,20 @@ class Run(metaclass=ABCMeta):
         self.comm = comm
 
     @abstractmethod
-    def submit(self, solver: SolverBase):
+    def submit(self, solver: py2dmat.solver.SolverBase):
         pass
 
 
 class Runner(object):
-    solver: SolverBase
+    solver: "py2dmat.solver.SolverBase"
     run: Run
 
-    def __init__(self, solver: SolverBase, nprocs: int = 1, nthreads: int = 1):
+    def __init__(self, solver: py2dmat.solver.SolverBase, nprocs: int = 1, nthreads: int = 1):
         """
 
         Parameters
         ----------
-        Solver: py2dmat.solver.solver_base object
-        mpi_info:
+        Solver: py2dmat.solver.SolverBase object
         """
         self.solver = solver
         self.solver_name = solver.name
@@ -74,7 +71,7 @@ class Runner(object):
             msg = f"Unknown scheme: {run_scheme}"
             raise ValueError(msg)
 
-    def submit(self, message: Message) -> float:
+    def submit(self, message: py2dmat.Message) -> float:
         self.solver.prepare(message)
         cwd = os.getcwd()
         os.chdir(self.solver.get_working_directory())
@@ -89,12 +86,12 @@ class Runner(object):
 
 
 class run_mpispawn(Run):
-    def submit(self, solver: SolverBase):
+    def submit(self, solver: py2dmat.solver.SolverBase):
         raise NotImplementedError()
 
 
 class run_mpispawn_ready(Run):
-    def submit(self, solver: SolverBase):
+    def submit(self, solver: py2dmat.solver.SolverBase):
         raise NotImplementedError()
 
 
@@ -104,18 +101,14 @@ class run_subprocess(Run):
 
     """
 
-    def submit(self, solver: SolverBase):
+    def submit(self, solver: py2dmat.solver.SolverBase):
         """
         Run solver
 
         Parameters
         ----------
-        solver_name : str
-            Name of solver
-        solverinput : Solver.Input
-            Input manager
-        solveroutput : Solver.Output
-            Output manager
+        solver : py2dmat.solver.SolverBase
+            solver
 
         Returns
         -------

@@ -1,24 +1,20 @@
+from typing import List
 import os
 import shutil
 from pathlib import Path
 
 import numpy as np
 
-from . import solver_base
-from .. import exception
-
-# for type hints
-from typing import List
-from ..info import Info
-from ..message import Message
+import py2dmat
+from py2dmat import exception
 
 
-class Solver(solver_base.SolverBase):
+class Solver(py2dmat.solver.SolverBase):
     path_to_solver: Path
 
     dimension: int
 
-    def __init__(self, info: Info):
+    def __init__(self, info: py2dmat.Info):
         """
         Initialize the solver.
 
@@ -54,7 +50,7 @@ class Solver(solver_base.SolverBase):
         """
         return [str(self.path_to_solver)]
 
-    def prepare(self, message: Message) -> None:
+    def prepare(self, message: py2dmat.Message) -> None:
         fitted_x_list, subdir = self.input.prepare(message)
         self.work_dir = self.proc_dir / Path(subdir)
         self.output.prepare(fitted_x_list)
@@ -111,7 +107,7 @@ class Solver(solver_base.SolverBase):
                     f"ERROR: bulk_output_file ({self.bulk_output_file}) does not exist"
                 )
 
-        def prepare(self, message: Message):
+        def prepare(self, message: py2dmat.Message):
             """
             Update information.
 

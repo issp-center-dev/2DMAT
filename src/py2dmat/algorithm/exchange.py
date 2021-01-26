@@ -1,22 +1,14 @@
-from typing import List, TYPE_CHECKING
-
+from typing import List
 from io import open
 import copy
 import time
-from pathlib import Path
 
 import numpy as np
 
-from . import algorithm
-
-from ..info import Info
-from ..message import Message
-
-if TYPE_CHECKING:
-    from mpi4py.MPI import Comm
+import py2dmat
 
 
-class Algorithm(algorithm.AlgorithmBase):
+class Algorithm(py2dmat.algorithm.AlgorithmBase):
     """Replica Exchange Monte Carlo
 
     Attributes
@@ -69,7 +61,7 @@ class Algorithm(algorithm.AlgorithmBase):
     Tindex: int
     T2rep: List[int]
 
-    def __init__(self, info: Info) -> None:
+    def __init__(self, info: py2dmat.Info) -> None:
         super().__init__(info=info)
 
         if self.mpicomm is None:
@@ -180,7 +172,7 @@ class Algorithm(algorithm.AlgorithmBase):
             Some parameters will be overwritten.
         """
 
-        message = Message(self.x, self.istep, 0)
+        message = py2dmat.Message(self.x, self.istep, 0)
 
         time_sta = time.perf_counter()
         self.fx = self.runner.submit(message)

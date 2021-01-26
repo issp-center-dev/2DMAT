@@ -1,7 +1,9 @@
 import numpy as np
 
+import py2dmat
 import py2dmat.solver.function
-from ..info import Info
+
+# type hints
 
 
 def quadratics(xs: np.ndarray) -> float:
@@ -24,7 +26,7 @@ class Solver(py2dmat.solver.function.Solver):
     x: np.ndarray
     fx: float
 
-    def __init__(self, info: Info) -> None:
+    def __init__(self, info: py2dmat.Info) -> None:
         """
         Initialize the solver.
 

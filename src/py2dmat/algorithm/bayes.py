@@ -1,18 +1,13 @@
 from typing import List
-
 import time
 
 import physbo
 import numpy as np
 
-from . import algorithm
-from ..message import Message
-
-# for type hints
-from ..info import Info
+import py2dmat
 
 
-class Algorithm(algorithm.AlgorithmBase):
+class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
     # inputs
     mesh_list: np.ndarray
@@ -32,7 +27,7 @@ class Algorithm(algorithm.AlgorithmBase):
     fx_list: List[float]
     param_list: List[np.ndarray]
 
-    def __init__(self, info: Info) -> None:
+    def __init__(self, info: py2dmat.Info) -> None:
         super().__init__(info=info)
 
         info_alg = info["algorithm"]
@@ -75,7 +70,7 @@ class Algorithm(algorithm.AlgorithmBase):
         class simulator:
             def __call__(self, action: np.ndarray) -> float:
                 a = int(action[0])
-                message = Message(mesh_list[a, 1:], a, 0)
+                message = py2dmat.Message(mesh_list[a, 1:], a, 0)
                 fx = runner.submit(message)
                 fx_list.append(fx)
                 param_list.append(mesh_list[a])

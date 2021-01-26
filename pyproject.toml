@@ -23,7 +23,7 @@ physbo = { version = ">= 0.3.0", optional = true }
 [tool.poetry.dev-dependencies]
 
 [tool.poetry.scripts]
-py2dmat = "py2dmat.main:main"
+py2dmat = "py2dmat:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

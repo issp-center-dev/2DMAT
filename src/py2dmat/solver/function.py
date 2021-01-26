@@ -1,18 +1,17 @@
-from typing import Callable, Optional
-
 import numpy as np
 
-from . import solver_base
-from ..message import Message
-from ..info import Info
+import py2dmat
+
+# type hints
+from typing import Callable, Optional
 
 
-class Solver(solver_base.SolverBase):
+class Solver(py2dmat.solver.SolverBase):
     x: np.ndarray
     fx: float
     _func: Optional[Callable[[np.ndarray], float]]
 
-    def __init__(self, info: Info) -> None:
+    def __init__(self, info: py2dmat.Info) -> None:
         """
         Initialize the solver.
 
@@ -43,7 +42,7 @@ class Solver(solver_base.SolverBase):
             raise RuntimeError("ERROR: function is not set. Make sure that `set_function` is called.")
         self.fx = self._func(self.x)
 
-    def prepare(self, message: Message) -> None:
+    def prepare(self, message: py2dmat.Message) -> None:
         self.x = message.x
 
     def get_results(self) -> float:

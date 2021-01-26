@@ -1,22 +1,16 @@
-from typing import List
-
+from pathlib import Path
 from io import open
 import numpy as np
 import os
 import time
 
-from . import algorithm
-
-# for type hints
-from ..info import Info
-from ..message import Message
-from pathlib import Path
+import py2dmat
 
 
-class Algorithm(algorithm.AlgorithmBase):
+class Algorithm(py2dmat.algorithm.AlgorithmBase):
     mesh_path: Path
 
-    def __init__(self, info: Info) -> None:
+    def __init__(self, info: py2dmat.Info) -> None:
         super().__init__(info=info)
         info_alg = info["algorithm"].get("param", {})
         self.mesh_path = self.root_dir / info_alg.get("mesh_path", "MeshData.txt")
@@ -39,7 +33,7 @@ class Algorithm(algorithm.AlgorithmBase):
             self.timer["run"]["file_CM"] = time_end - time_sta
             self.timer["run"]["submit"] = 0.0
 
-            message = Message([], 0, 0)
+            message = py2dmat.Message([], 0, 0)
             mesh_list = np.loadtxt("MeshData.txt")
             iterations = len(mesh_list)
             for iteration_count, mesh in enumerate(mesh_list):

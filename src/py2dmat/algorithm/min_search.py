@@ -4,14 +4,10 @@ import time
 import numpy as np
 from scipy.optimize import minimize
 
-from . import algorithm
-from ..message import Message
-
-# for type hints
-from ..info import Info
+import py2dmat
 
 
-class Algorithm(algorithm.AlgorithmBase):
+class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
     # inputs
     label_list: List[str]
@@ -34,10 +30,15 @@ class Algorithm(algorithm.AlgorithmBase):
     fx_for_simplex_list: List[float]
     callback_list: List[List[int]]
 
-    def __init__(self, info: Info) -> None:
+    def __init__(self, info: py2dmat.Info) -> None:
         super().__init__(info=info)
 
-        self.initial_list, self.min_list, self.max_list, self.unit_list = self._read_param(info)
+        (
+            self.initial_list,
+            self.min_list,
+            self.max_list,
+            self.unit_list,
+        ) = self._read_param(info)
 
         info_minimize = info["algorithm"].get("minimize", {})
         self.initial_scale_list = info_minimize.get(
@@ -80,7 +81,7 @@ class Algorithm(algorithm.AlgorithmBase):
             if not out_of_range:
                 step[0] += 1
                 set = 1 if extra_data else 0
-                message = Message(x_list, step[0], set)
+                message = py2dmat.Message(x_list, step[0], set)
                 y = run.submit(message)
                 if not extra_data:
                     callback = step

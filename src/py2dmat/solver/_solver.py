@@ -1,31 +1,30 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 from abc import ABCMeta, abstractmethod
 
-from pathlib import Path
-from typing import List, Optional, Dict
+import py2dmat
 
-from ..info import Info
-from ..message import Message
+# type hints
+from pathlib import Path
+from typing import Optional, Dict
 
 
 class SolverBase(object, metaclass=ABCMeta):
     root_dir: Path
     output_dir: Path
-    proc_dir: Optional[Path] = None
-    work_dir: Optional[Path] = None
-
+    work_dir: Optional[Path]
+    proc_dir: Optional[Path]
     _name: str
-
-    timer: Dict[str, Dict] = {"prepare": {}, "run": {}, "post": {}}
+    timer: Dict[str, Dict]
 
     @abstractmethod
-    def __init__(self, info: Info) -> None:
+    def __init__(self, info: py2dmat.Info) -> None:
         info_base = info["base"]
         self.root_dir = info_base["root_dir"]
         self.output_dir = info_base["output_dir"]
+        self.work_dir = None
+        self.proc_dir = None
         self._name = ""
+        self.timer = {"prepare": {}, "run": {}, "post": {}}
 
     @abstractmethod
     def default_run_scheme(self) -> str:
@@ -48,7 +47,7 @@ class SolverBase(object, metaclass=ABCMeta):
         raise NotImplementedError()
 
     @abstractmethod
-    def prepare(self, message: Message) -> None:
+    def prepare(self, message: py2dmat.Message) -> None:
         pass
 
     @abstractmethod
