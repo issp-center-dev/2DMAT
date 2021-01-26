@@ -37,20 +37,11 @@ class Algorithm(algorithm.AlgorithmBase):
     def __init__(self, info: Info) -> None:
         super().__init__(info=info)
 
-        info_alg = info["algorithm"]
+        self.initial_list, self.min_list, self.max_list, self.unit_list = self._read_param(info)
 
-        # TODO: change default values
-        # TODO: error check
-
-        info_param = info_alg.get("param", {})
-        self.initial_list = info_param.get("initial_list", [5.25, 4.25, 3.50])
-        self.unit_list = info_param.get("unit_list", [1.0, 1.0, 1.0])
-        self.min_list = info_param.get("min_list", [-100.0, -100.0, -100.0])
-        self.max_list = info_param.get("max_list", [100.0, 100.0, 100.0])
-
-        info_minimize = info_alg.get("minimize", {})
+        info_minimize = info["algorithm"].get("minimize", {})
         self.initial_scale_list = info_minimize.get(
-            "initial_scale_list", [0.25, 0.25, 0.25]
+            "initial_scale_list", [0.25] * self.dimension
         )
         self.xtol = info_minimize.get("xatol", 0.0001)
         self.ftol = info_minimize.get("fatol", 0.0001)

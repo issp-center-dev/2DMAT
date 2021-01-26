@@ -60,8 +60,9 @@ class Algorithm(algorithm.AlgorithmBase):
         X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
         comm = self.mpicomm if self.mpisize > 1 else None
         self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
-        seed = info_alg.get("seed", 1)
-        self.policy.set_seed(seed)
+        if "seed" in info_alg:
+            seed = info_alg["seed"]
+            self.policy.set_seed(seed)
         self.param_list = []
         self.fx_list = []
 
