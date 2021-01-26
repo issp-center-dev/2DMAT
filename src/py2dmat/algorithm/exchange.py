@@ -50,8 +50,6 @@ class Algorithm(algorithm.AlgorithmBase):
     exchange_direction: bool
     """
 
-    proc_dir: Path
-
     x: np.ndarray
     xmin: np.ndarray
     xmax: np.ndarray
@@ -250,14 +248,6 @@ class Algorithm(algorithm.AlgorithmBase):
     def _prepare(self) -> None:
         self.timer["run"]["submit"] = 0.0
         self.timer["run"]["exchange"] = 0.0
-        self.proc_dir = self.output_dir / str(self.mpirank)
-        self.proc_dir.mkdir(parents=True, exist_ok=True)
-        self.runner.set_solver_dir(self.proc_dir)
-        # Some cache of the filesystem may delay making a dictionary
-        # especially when mkdir just after removing the old one
-        while not self.proc_dir.is_dir():
-            time.sleep(0.1)
-        self.mpicomm.Barrier()
 
     def _post(self) -> None:
         best_fx = self.mpicomm.gather(self.best_fx, root=0)
