@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "py2dmat"
+version = "0.1.0"
+description = "2dmat"
+authors = ["2DMAT developers <2dmat-dev@issp.u-tokyo.ac.jp>"]
+license = "GPL-3.0-or-later"
+
+readme = "README.md"
+repository = "https://github.com/issp-center-dev/2DMAT"
+
+packages = [
+  { include = "py2dmat", from = "src" }
+  ]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+numpy = "^1.17"
+toml = ">= 0.10.0"
+scipy = {version = "^1", optional = true}
+mpi4py = {version = "^3", optional = true}
+physbo = {version = ">= 0.3.0", optional = true}
+
+[tool.poetry.extras]
+min_search = ["scipy"]
+bayes = ["physbo"]
+exchange = ["mpi4py"]
+all = ["scipy", "mpi4py", "physbo"]
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.scripts]
+py2dmat = "py2dmat:main"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

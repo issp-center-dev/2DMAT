@@ -1,41 +1,21 @@
-from typing import List
-
+from pathlib import Path
 from io import open
 import numpy as np
 import os
 import time
 
-from . import algorithm
-
-# for type hints
-from ..info import Info
-from ..message import Message
+import py2dmat
 
 
-class Algorithm(algorithm.AlgorithmBase):
-    mesh_list: List[float]
+class Algorithm(py2dmat.algorithm.AlgorithmBase):
+    mesh_path: Path
 
-    def __init__(self, info):
-        super().__init__(info=info)
-        info_alg = info["algorithm"].get("param", {})
-        mesh_path = info_alg.get("mesh_path", "MeshData.txt")
-        self.mesh_list = self._get_mesh_list_from_file(mesh_path)
+    def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
+        super().__init__(info=info, runner=runner)
+        info_param = info.algorithm.get("param", {})
+        self.mesh_path = self.root_dir / info_param.get("mesh_path", "MeshData.txt")
 
-    def _get_mesh_list_from_file(self, filename="MeshData.txt"):
-        print("Read", filename)
-        mesh_list = []
-        with open(filename, "r") as file_MD:
-            for line in file_MD:
-                line = line.lstrip()
-                if line.startswith("#"):
-                    continue
-                mesh = []
-                for value in line.split():
-                    mesh.append(float(value))
-                mesh_list.append(mesh)
-        return mesh_list
-
-    def _run(self):
+    def _run(self) -> None:
         # Make ColorMap
         label_list = self.label_list
         dimension = self.dimension
@@ -53,8 +33,8 @@ class Algorithm(algorithm.AlgorithmBase):
             self.timer["run"]["file_CM"] = time_end - time_sta
             self.timer["run"]["submit"] = 0.0
 
-            message = Message([], 0, 0)
-            mesh_list = self._get_mesh_list_from_file()
+            message = py2dmat.Message([], 0, 0)
+            mesh_list = np.loadtxt("MeshData.txt")
             iterations = len(mesh_list)
             for iteration_count, mesh in enumerate(mesh_list):
                 print("Iteration : {}/{}".format(iteration_count + 1, iterations))
@@ -100,29 +80,32 @@ class Algorithm(algorithm.AlgorithmBase):
             time_end = time.perf_counter()
             self.timer["run"]["file_CM"] += time_end - time_sta
 
-        print("complete main process : rank {:08d}/{:08d}".format(self.rank, self.size))
+        print(
+            "complete main process : rank {:08d}/{:08d}".format(
+                self.mpirank, self.mpisize
+            )
+        )
 
-    def _prepare(self):
-        self.proc_dir = self.output_dir / str(self.rank)
-        self.proc_dir.mkdir(parents=True, exist_ok=True)
-        if self.rank == 0:
+    def _prepare(self) -> None:
+        # scatter MeshData
+        if self.mpirank == 0:
             lines = []
-            with open("MeshData.txt", "r") as file_input:
+            with open(self.mesh_path, "r") as file_input:
                 for line in file_input:
                     if not line.lstrip().startswith("#"):
                         lines.append(line)
             mesh_total = np.array(lines)
-            mesh_divided = np.array_split(mesh_total, self.size)
+            mesh_divided = np.array_split(mesh_total, self.mpisize)
             for index, mesh in enumerate(mesh_divided):
-                with open(self.output_dir / str(index) / "MeshData.txt", "w") as file_output:
+                wdir = self.output_dir / str(index)
+                with open(wdir / "MeshData.txt", "w") as file_output:
                     for data in mesh:
                         file_output.write(data)
-        self.runner.set_solver_dir(self.proc_dir)
 
-    def _post(self):
-        if self.rank == 0:
+    def _post(self) -> None:
+        if self.mpirank == 0:
             with open("ColorMap.txt", "w") as file_output:
-                for i in range(self.size):
+                for i in range(self.mpisize):
                     with open(os.path.join(str(i), "ColorMap.txt"), "r") as file_input:
                         for line in file_input:
                             line = line.lstrip()

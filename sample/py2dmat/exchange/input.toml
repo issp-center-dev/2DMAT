@@ -4,6 +4,7 @@ dimension = 2
 [algorithm]
 name = "exchange"
 label_list = ["z1", "z2"]
+seed = 12345
 
 [algorithm.param]
 min_list = [3.0, 3.0]
@@ -15,7 +16,6 @@ numsteps_exchange = 20
 Tmin = 0.005
 Tmax = 0.05
 Tlogspace = true
-seed = 12345
 
 [solver]
 name = "surface"

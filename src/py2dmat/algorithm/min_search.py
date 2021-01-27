@@ -1,19 +1,13 @@
-from typing import List, MutableMapping
-
-import os
+from typing import List
 import time
 
 import numpy as np
 from scipy.optimize import minimize
 
-from . import algorithm
-from ..message import Message
-
-# for type hints
-from ..info import Info
+import py2dmat
 
 
-class Algorithm(algorithm.AlgorithmBase):
+class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
     # inputs
     label_list: List[str]
@@ -36,23 +30,19 @@ class Algorithm(algorithm.AlgorithmBase):
     fx_for_simplex_list: List[float]
     callback_list: List[List[int]]
 
-    def __init__(self, info: Info) -> None:
-        super().__init__(info=info)
+    def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
+        super().__init__(info=info, runner=runner)
 
-        info_alg = info["algorithm"]
+        (
+            self.initial_list,
+            self.min_list,
+            self.max_list,
+            self.unit_list,
+        ) = self._read_param(info)
 
-        # TODO: change default values
-        # TODO: error check
-
-        info_param = info_alg.get("param", {})
-        self.initial_list = info_param.get("initial_list", [5.25, 4.25, 3.50])
-        self.unit_list = info_param.get("unit_list", [1.0, 1.0, 1.0])
-        self.min_list = info_param.get("min_list", [-100.0, -100.0, -100.0])
-        self.max_list = info_param.get("max_list", [100.0, 100.0, 100.0])
-
-        info_minimize = info_alg.get("minimize", {})
+        info_minimize = info.algorithm.get("minimize", {})
         self.initial_scale_list = info_minimize.get(
-            "initial_scale_list", [0.25, 0.25, 0.25]
+            "initial_scale_list", [0.25] * self.dimension
         )
         self.xtol = info_minimize.get("xatol", 0.0001)
         self.ftol = info_minimize.get("fatol", 0.0001)
@@ -87,12 +77,11 @@ class Algorithm(algorithm.AlgorithmBase):
 
             for index in range(dimension):
                 x_list[index] /= unit_list[index]
-            if out_of_range:
-                y = 100.0
-            else:
+            y = float("inf")
+            if not out_of_range:
                 step[0] += 1
                 set = 1 if extra_data else 0
-                message = Message(x_list, step[0], set)
+                message = py2dmat.Message(x_list, step[0], set)
                 y = run.submit(message)
                 if not extra_data:
                     callback = step
@@ -143,10 +132,7 @@ class Algorithm(algorithm.AlgorithmBase):
         self.callback_list = callback_list
 
     def _prepare(self):
-        self.proc_dir = self.output_dir
-        self.runner.set_solver_dir(self.proc_dir)
-
-        # make initial simple
+        # make initial simplex
         initial_simplex_list = []
         initial_list = self.initial_list
         initial_scale_list = self.initial_scale_list

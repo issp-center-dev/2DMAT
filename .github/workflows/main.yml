@@ -5,6 +5,7 @@ on: [push]
 jobs:
   main:
     runs-on: ubuntu-20.04
+    timeout-minutes: 10
     strategy:
       matrix:
         python-version: [3.6]

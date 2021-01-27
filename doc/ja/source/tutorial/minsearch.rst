@@ -128,6 +128,12 @@ Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference
     name = "minsearch"
     label_list = ["z1", "z2", "z3"]
 
+    [algorithm.param]
+    min_list = [0.0, 0.0, 0.0]
+    max_list = [10.0, 10.0, 10.0]
+    initial_list = [5.25, 4.25, 3.50]
+
+
 最初に ``[base]`` セクションについて説明します。
 
 - ``dimension`` は最適化したい変数の個数で、今の場合は ``template.txt`` で説明したように3つの変数の最適化を行うので、``3`` を指定します。
@@ -166,8 +172,12 @@ Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference
 
 - ``label_list`` は、``value_0x`` (x=1,2,3) を出力する際につけるラベル名のリストです。
 
-ここではデフォルト値を用いるため省略しましたが、
-Nelder-Mead法で探索するパラメータ空間の指定や収束判定のパラメータについては、``[algorithm]`` セクションで行うことが可能です。
+``[algorithm.param]`` セクションでは、探索するパラメータの範囲や初期値を指定します。
+
+- ``min_list`` と ``max_list`` はそれぞれ探索範囲の最小値と最大値を指定します。
+- ``initial_list`` は初期値を指定します。
+
+ここではデフォルト値を用いるため省略しましたが、その他のパラメータ、例えばNelder-Mead法で使用する収束判定などについては、``[algorithm]`` セクションで行うことが可能です。
 詳細については入力ファイルの章をご覧ください。
 
 計算実行
@@ -266,8 +276,8 @@ Nelder-Mead法で探索するパラメータ空間の指定や収束判定のパ
 
 .. code-block::
 
-    cp Log00000001/RockingCurve.txt RockingCurve_ini.txt
-    cp Log00000017/RockingCurve.txt RockingCurve_con.txt
+    cp 0/Log00000001/RockingCurve.txt RockingCurve_ini.txt
+    cp 0/Log00000017/RockingCurve.txt RockingCurve_con.txt
     cp ../../../script/draw_RC_double.py .
     python draw_RC_double.py
 

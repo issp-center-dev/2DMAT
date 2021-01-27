@@ -1,35 +1,23 @@
+from typing import List
 import os
 import shutil
 from pathlib import Path
 
 import numpy as np
 
-from . import solver_base
-from .. import exception
-
-# for type hints
-from typing import List
-from ..info import Info
-from ..message import Message
+import py2dmat
+from py2dmat import exception
 
 
-class Solver(solver_base.SolverBase):
+class Solver(py2dmat.solver.SolverBase):
     path_to_solver: Path
 
     dimension: int
 
-    def __init__(self, info: Info):
-        """
-        Initialize the solver.
-
-        Parameters
-        ----------
-        """
-
+    def __init__(self, info: py2dmat.Info):
         super().__init__(info)
 
         self._name = "surf"
-        self.info_solver = info["solver"]
 
         p2solver = "surf.exe"
         self.path_to_solver = self.root_dir / Path(p2solver).expanduser()
@@ -54,7 +42,7 @@ class Solver(solver_base.SolverBase):
         """
         return [str(self.path_to_solver)]
 
-    def prepare(self, message: Message) -> None:
+    def prepare(self, message: py2dmat.Message) -> None:
         fitted_x_list, subdir = self.input.prepare(message)
         self.work_dir = self.proc_dir / Path(subdir)
         self.output.prepare(fitted_x_list)
@@ -72,15 +60,11 @@ class Solver(solver_base.SolverBase):
         surface_template_file: Path
 
         def __init__(self, info):
-            self.base_info = info["base"]
-            self.log_info = info["log"]
-            self.calc_info = info["calc"]
+            self.dimension = info.base["dimension"]
+            self.root_dir = info.base["root_dir"]
+            self.output_dir = info.base["output_dir"]
 
-            self.dimension = info["base"]["dimension"]
-            self.root_dir = info["base"]["root_dir"]
-            self.output_dir = info["base"]["output_dir"]
-
-            info_s = info["solver"]
+            info_s = info.solver
 
             info_param = info_s.get("param", {})
             v = info_param.setdefault("string_list", ["value_01", "value_02"])
@@ -111,16 +95,7 @@ class Solver(solver_base.SolverBase):
                     f"ERROR: bulk_output_file ({self.bulk_output_file}) does not exist"
                 )
 
-        def prepare(self, message: Message):
-            """
-            Update information.
-
-            Parameters
-            ----------
-            update_info : dict
-                Atomic structure.
-
-            """
+        def prepare(self, message: py2dmat.Message):
             x_list = message.x
             step = message.step
             extra = message.set > 0
@@ -187,12 +162,8 @@ class Solver(solver_base.SolverBase):
         degree_list: List[float]
 
         def __init__(self, info):
-            self.dimension = info["base"]["dimension"]
-            info_s = info["solver"]
-
-            # maybe redundunt
-            self.base_info = info["base"]
-            self.calc_info = info["calc"]
+            self.dimension = info.base["dimension"]
+            info_s = info.solver
 
             # solver.config
             info_config = info_s.get("config", {})
@@ -326,7 +297,7 @@ class Solver(solver_base.SolverBase):
 
             print("R-factor =", Rfactor)
 
-            dimension = self.base_info["dimension"]
+            dimension = self.dimension
             string_list = self.string_list
 
             with open("RockingCurve.txt", "w") as file_RC:

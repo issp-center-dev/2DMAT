@@ -1,10 +1,9 @@
-from typing import Callable
-
 import numpy as np
 
-from . import solver_base
-from ..message import Message
-from ..info import Info
+import py2dmat
+import py2dmat.solver.function
+
+# type hints
 
 
 def quadratics(xs: np.ndarray) -> float:
@@ -23,11 +22,11 @@ def rosenbrock(xs: np.ndarray) -> float:
     return np.sum(100.0 * (xs[1:] - xs[:-1] ** 2) ** 2 + (1.0 - xs[:-1]) ** 2)
 
 
-class Solver(solver_base.SolverBase):
+class Solver(py2dmat.solver.function.Solver):
     x: np.ndarray
     fx: float
 
-    def __init__(self, info: Info) -> None:
+    def __init__(self, info: py2dmat.Info) -> None:
         """
         Initialize the solver.
 
@@ -35,37 +34,12 @@ class Solver(solver_base.SolverBase):
         ----------
         info: Info
         """
+        super().__init__(info)
         self._name = "analytical"
-        self.path_to_solver = ""
-        if "solver" in info:
-            function_name = info["solver"].get("function_name", "quadratics")
-        else:
-            function_name = "quadratics"
+        function_name = info.solver.get("function_name", "quadratics")
 
         try:
-            self._func = eval(function_name)
+            f = eval(function_name)
+            self.set_function(f)
         except NameError:
             raise RuntimeError(f"ERROR: Unknown function, {function_name}")
-
-    def default_run_scheme(self) -> str:
-        """
-        Return
-        -------
-        str
-            run_scheme.
-        """
-        return "function"
-
-    def function(self) -> Callable[[], None]:
-        """ return function to invoke the solver
-        """
-        return self._run
-
-    def _run(self) -> None:
-        self.fx = self._func(self.x)
-
-    def prepare(self, message: Message) -> None:
-        self.x = message.x
-
-    def get_results(self) -> float:
-        return self.fx

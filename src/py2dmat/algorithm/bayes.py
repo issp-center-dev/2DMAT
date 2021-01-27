@@ -1,18 +1,13 @@
 from typing import List
-
 import time
 
 import physbo
 import numpy as np
 
-from . import algorithm
-from ..message import Message
-
-# for type hints
-from ..info import Info
+import py2dmat
 
 
-class Algorithm(algorithm.AlgorithmBase):
+class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
     # inputs
     mesh_list: np.ndarray
@@ -32,21 +27,16 @@ class Algorithm(algorithm.AlgorithmBase):
     fx_list: List[float]
     param_list: List[np.ndarray]
 
-    def __init__(self, info: Info) -> None:
-        super().__init__(info=info)
+    def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
+        super().__init__(info=info, runner=runner)
 
-        info_alg = info["algorithm"]
-
-        # TODO: change default values
-        # TODO: error check
-
-        info_param = info_alg.get("param", {})
+        info_param = info.algorithm.get("param", {})
         # Check input files are correct or not
         self.random_max_num_probes = info_param.get("random_max_num_probes", 20)
         self.bayes_max_num_probes = info_param.get("bayes_max_num_probes", 40)
         self.score = info_param.get("score", "TS")
-        self.interval = info_alg.get("interval", 5)
-        self.num_rand_basis = info_alg.get("num_rand_basis", 5000)
+        self.interval = info.algorithm.get("interval", 5)
+        self.num_rand_basis = info.algorithm.get("num_rand_basis", 5000)
 
         print("# parameter")
         print(f"random_max_num_probes = {self.random_max_num_probes}")
@@ -56,27 +46,15 @@ class Algorithm(algorithm.AlgorithmBase):
         print(f"num_rand_basis = {self.num_rand_basis}")
 
         mesh_path = info_param.get("mesh_path", "MeshData.txt")
-        self.mesh_list = self._get_mesh_list_from_file(mesh_path)
+        self.mesh_list = np.loadtxt(mesh_path)
         X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
-        self.policy = physbo.search.discrete.policy(test_X=X_normalized)
-        seed = info_alg.get("seed", 1)
-        self.policy.set_seed(seed)
+        comm = self.mpicomm if self.mpisize > 1 else None
+        self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
+        if "seed" in info.algorithm:
+            seed = info.algorithm["seed"]
+            self.policy.set_seed(seed)
         self.param_list = []
         self.fx_list = []
-
-    def _get_mesh_list_from_file(self, filename="MeshData.txt") -> np.ndarray:
-        print("Read", filename)
-        mesh_list = []
-        with open(filename, "r") as file_MD:
-            for line in file_MD:
-                line = line.lstrip()
-                if line.startswith("#"):
-                    continue
-                mesh = []
-                for value in line.split():
-                    mesh.append(float(value))
-                mesh_list.append(mesh)
-        return np.array(mesh_list)
 
     def _run(self) -> None:
         runner = self.runner
@@ -85,12 +63,9 @@ class Algorithm(algorithm.AlgorithmBase):
         param_list = []
 
         class simulator:
-            def __init__(self):
-                pass
-
-            def __call__(self, action):
+            def __call__(self, action: np.ndarray) -> float:
                 a = int(action[0])
-                message = Message(mesh_list[a, 1:], a, 0)
+                message = py2dmat.Message(mesh_list[a, 1:], a, 0)
                 fx = runner.submit(message)
                 fx_list.append(fx)
                 param_list.append(mesh_list[a])
@@ -118,11 +93,11 @@ class Algorithm(algorithm.AlgorithmBase):
         self.fx_list = fx_list
         self.param_list = param_list
 
-    def _prepare(self):
-        self.proc_dir = self.output_dir
-        self.runner.set_solver_dir(self.proc_dir)
+    def _prepare(self) -> None:
+        # do nothing
+        pass
 
-    def _post(self):
+    def _post(self) -> None:
         label_list = self.label_list
         with open("BayesData.txt", "w") as file_BD:
             file_BD.write("#step")

@@ -1,24 +1,14 @@
-from typing import List, TYPE_CHECKING
-
+from typing import List
 from io import open
 import copy
-import os
 import time
-from pathlib import Path
 
 import numpy as np
-from numpy.random import default_rng
 
-from . import algorithm
-
-from ..info import Info
-from ..message import Message
-
-if TYPE_CHECKING:
-    from mpi4py.MPI import Comm
+import py2dmat
 
 
-class Algorithm(algorithm.AlgorithmBase):
+class Algorithm(py2dmat.algorithm.AlgorithmBase):
     """Replica Exchange Monte Carlo
 
     Attributes
@@ -52,8 +42,6 @@ class Algorithm(algorithm.AlgorithmBase):
     exchange_direction: bool
     """
 
-    proc_dir: Path
-
     x: np.ndarray
     xmin: np.ndarray
     xmax: np.ndarray
@@ -73,58 +61,37 @@ class Algorithm(algorithm.AlgorithmBase):
     Tindex: int
     T2rep: List[int]
 
-    rng: np.random.Generator
+    def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
+        super().__init__(info=info, runner=runner)
 
-    def __init__(self, info: Info):
-        super().__init__(info=info)
-
-        if self.comm is None:
+        if self.mpicomm is None:
             msg = "ERROR: algorithm.exchange requires mpi4py, but mpi4py cannot be imported"
             raise ImportError(msg)
 
-        info_alg = info["algorithm"]
-
-        info_exchange = info_alg["exchange"]
+        info_exchange = info.algorithm["exchange"]
         if info_exchange.get("Tlogspace", True):
             self.Ts = np.logspace(
                 start=np.log10(info_exchange.get("Tmin", 0.1)),
                 stop=np.log10(info_exchange.get("Tmax", 10.0)),
-                num=self.size,
+                num=self.mpisize,
             )
         else:
             self.Ts = np.linspace(
                 start=info_exchange.get("Tmin", 0.1),
                 stop=info_exchange.get("Tmax", 10.0),
-                num=self.size,
+                num=self.mpisize,
             )
-        self.Tindex = self.rank
-        self.T2rep = list(range(self.size))
-        self.nreplica = self.size
+        self.Tindex = self.mpirank
+        self.T2rep = list(range(self.mpisize))
+        self.nreplica = self.mpisize
 
-        seed = info_exchange.get("seed", None)
-        seed_delta = info_exchange.get("seed_delta", 314159)
-
-        if seed is None:
-            self.rng = default_rng()
-        else:
-            self.rng = default_rng(seed + self.rank * seed_delta)
-
-        info_param = info_alg["param"]
-        self.xmin = np.array(info_param["min_list"])
-        self.xmax = np.array(info_param["max_list"])
-        self.xunit = np.array(info_param.get("unit_list", [1.0] * self.dimension))
-
-        self.x = np.array(info_alg["param"].get("initial_list", []))
-        if self.x.size == 0:
-            self.x = self.xmin + (self.xmax - self.xmin) * self.rng.random(
-                size=self.dimension
-            )
+        self.x, self.xmin, self.xmax, self.xunit = self._read_param(info)
 
         self.numsteps = info_exchange["numsteps"]
         self.numsteps_exchange = info_exchange["numsteps_exchange"]
 
-    def _run(self):
-        rank = self.rank
+    def _run(self) -> None:
+        rank = self.mpirank
 
         x_old = np.zeros(self.dimension)
         mbeta = -1.0 / self.Ts[self.Tindex]
@@ -137,10 +104,10 @@ class Algorithm(algorithm.AlgorithmBase):
 
         file_trial = open("trial.txt", "w")
         file_result = open("result.txt", "w")
-        self.write_result_header(file_result)
-        self.write_result(file_result)
-        self.write_result_header(file_trial)
-        self.write_result(file_trial)
+        self._write_result_header(file_result)
+        self._write_result(file_result)
+        self._write_result_header(file_trial)
+        self._write_result(file_trial)
         self.istep += 1
 
         self.best_x = copy.copy(self.x)
@@ -152,7 +119,7 @@ class Algorithm(algorithm.AlgorithmBase):
             if self.istep % self.numsteps_exchange == 0:
                 time_sta = time.perf_counter()
                 self._exchange(exchange_direction)
-                if self.size > 1:
+                if self.mpisize > 1:
                     exchange_direction = not exchange_direction
                 time_end = time.perf_counter()
                 self.timer["run"]["exchange"] += time_end - time_sta
@@ -166,7 +133,7 @@ class Algorithm(algorithm.AlgorithmBase):
             # evaluate "Energy"
             fx_old = self.fx
             self._evaluate()
-            self.write_result(file_trial)
+            self._write_result(file_trial)
 
             if bound:
                 if self.fx < self.best_fx:
@@ -184,7 +151,7 @@ class Algorithm(algorithm.AlgorithmBase):
                 np.copyto(self.x, x_old)
                 self.fx = fx_old
 
-            self.write_result(file_result)
+            self._write_result(file_result)
             self.istep += 1
 
         file_result.close()
@@ -203,7 +170,7 @@ class Algorithm(algorithm.AlgorithmBase):
             Some parameters will be overwritten.
         """
 
-        message = Message(self.x, self.istep, 0)
+        message = py2dmat.Message(self.x, self.istep, 0)
 
         time_sta = time.perf_counter()
         self.fx = self.runner.submit(message)
@@ -213,7 +180,7 @@ class Algorithm(algorithm.AlgorithmBase):
 
     def _exchange(self, direction: bool) -> None:
         """try to exchange temperatures"""
-        self.comm.Barrier()
+        self.mpicomm.Barrier()
         if direction:
             if self.Tindex % 2 == 0:
                 other_index = self.Tindex + 1
@@ -235,35 +202,35 @@ class Algorithm(algorithm.AlgorithmBase):
         if 0 <= other_index < self.nreplica:
             other_rank = self.T2rep[other_index]
             if is_main:
-                self.comm.Recv(fbuf, source=other_rank, tag=1)
+                self.mpicomm.Recv(fbuf, source=other_rank, tag=1)
                 other_fx = fbuf[0]
                 beta = 1.0 / self.Ts[self.Tindex]
                 other_beta = 1.0 / self.Ts[self.Tindex + 1]
                 logp = (other_beta - beta) * (other_fx - self.fx)
                 if logp >= 0.0 or self.rng.random() < np.exp(logp):
                     ibuf[0] = self.Tindex
-                    self.comm.Send(ibuf, dest=other_rank, tag=2)
+                    self.mpicomm.Send(ibuf, dest=other_rank, tag=2)
                     self.Tindex += 1
                 else:
                     ibuf[0] = self.Tindex + 1
-                    self.comm.Send(ibuf, dest=other_rank, tag=2)
+                    self.mpicomm.Send(ibuf, dest=other_rank, tag=2)
             else:
                 fbuf[0] = self.fx
-                self.comm.Send(fbuf, dest=other_rank, tag=1)
-                self.comm.Recv(ibuf, source=other_rank, tag=2)
+                self.mpicomm.Send(fbuf, dest=other_rank, tag=1)
+                self.mpicomm.Recv(ibuf, source=other_rank, tag=2)
                 self.Tindex = ibuf[0]
 
-        self.comm.Barrier()
-        if self.rank == 0:
-            self.T2rep[self.Tindex] = self.rank
+        self.mpicomm.Barrier()
+        if self.mpirank == 0:
+            self.T2rep[self.Tindex] = self.mpirank
             for other_rank in range(1, self.nreplica):
-                self.comm.Recv(ibuf, source=other_rank, tag=0)
+                self.mpicomm.Recv(ibuf, source=other_rank, tag=0)
                 self.T2rep[ibuf[0]] = other_rank
         else:
             ibuf[0] = self.Tindex
-            self.comm.Send(ibuf, dest=0, tag=0)
+            self.mpicomm.Send(ibuf, dest=0, tag=0)
         new_T2rep = np.array(self.T2rep)
-        self.comm.Bcast(new_T2rep, root=0)
+        self.mpicomm.Bcast(new_T2rep, root=0)
         self.T2rep[:] = new_T2rep[:]
 
         self.T = self.Ts[self.Tindex]
@@ -271,15 +238,12 @@ class Algorithm(algorithm.AlgorithmBase):
     def _prepare(self) -> None:
         self.timer["run"]["submit"] = 0.0
         self.timer["run"]["exchange"] = 0.0
-        self.proc_dir = self.output_dir / str(self.rank)
-        self.proc_dir.mkdir(parents=True, exist_ok=True)
-        self.runner.set_solver_dir(self.proc_dir)
 
     def _post(self) -> None:
-        best_fx = self.comm.gather(self.best_fx, root=0)
-        best_x = self.comm.gather(self.best_x, root=0)
-        best_istep = self.comm.gather(self.best_istep, root=0)
-        if self.rank == 0:
+        best_fx = self.mpicomm.gather(self.best_fx, root=0)
+        best_x = self.mpicomm.gather(self.best_x, root=0)
+        best_istep = self.mpicomm.gather(self.best_istep, root=0)
+        if self.mpirank == 0:
             best_rank = np.argmin(best_fx)
             with open("best_result.txt", "w") as f:
                 f.write(f"nprocs = {self.nreplica}\n")
@@ -295,13 +259,13 @@ class Algorithm(algorithm.AlgorithmBase):
             for label, x in zip(self.label_list, best_x[best_rank]):
                 print(f"  {label} = {x}")
 
-    def write_result_header(self, fp) -> None:
+    def _write_result_header(self, fp) -> None:
         fp.write("# step T fx")
         for label in self.label_list:
             fp.write(f" {label}")
         fp.write("\n")
 
-    def write_result(self, fp) -> None:
+    def _write_result(self, fp) -> None:
         fp.write(f"{self.istep} ")
         fp.write(f"{self.Ts[self.Tindex]} ")
         fp.write(f"{self.fx} ")
