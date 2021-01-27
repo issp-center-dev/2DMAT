@@ -27,8 +27,8 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
     fx_list: List[float]
     param_list: List[np.ndarray]
 
-    def __init__(self, info: py2dmat.Info) -> None:
-        super().__init__(info=info)
+    def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
+        super().__init__(info=info, runner=runner)
 
         info_param = info.algorithm.get("param", {})
         # Check input files are correct or not

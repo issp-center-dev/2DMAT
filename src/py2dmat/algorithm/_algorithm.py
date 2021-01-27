@@ -45,11 +45,11 @@ class AlgorithmBase(metaclass=ABCMeta):
     status: AlgorithmStatus = AlgorithmStatus.INIT
 
     @abstractmethod
-    def __init__(self, info: py2dmat.Info) -> None:
+    def __init__(self, info: py2dmat.Info, runner: Optional[py2dmat.Runner] = None) -> None:
         self.mpicomm = mpi.comm()
         self.mpisize = mpi.size()
         self.mpirank = mpi.rank()
-        self.runner = None
+        self.runner = runner
         self.timer = {"prepare": {}, "run": {}, "post": {}}
         self.status = AlgorithmStatus.INIT
 

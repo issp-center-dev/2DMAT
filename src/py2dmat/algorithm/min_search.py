@@ -30,8 +30,8 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
     fx_for_simplex_list: List[float]
     callback_list: List[List[int]]
 
-    def __init__(self, info: py2dmat.Info) -> None:
-        super().__init__(info=info)
+    def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
+        super().__init__(info=info, runner=runner)
 
         (
             self.initial_list,

@@ -37,6 +37,5 @@ def main():
 
     solver = Solver(info)
     runner = py2dmat.Runner(solver)
-    alg = Algorithm(info)
-    alg.set_runner(runner)
+    alg = Algorithm(info, runner)
     alg.main()

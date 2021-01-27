@@ -10,8 +10,8 @@ import py2dmat
 class Algorithm(py2dmat.algorithm.AlgorithmBase):
     mesh_path: Path
 
-    def __init__(self, info: py2dmat.Info) -> None:
-        super().__init__(info=info)
+    def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
+        super().__init__(info=info, runner=runner)
         info_param = info.algorithm.get("param", {})
         self.mesh_path = self.root_dir / info_param.get("mesh_path", "MeshData.txt")
 

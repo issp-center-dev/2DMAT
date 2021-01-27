@@ -61,8 +61,8 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
     Tindex: int
     T2rep: List[int]
 
-    def __init__(self, info: py2dmat.Info) -> None:
-        super().__init__(info=info)
+    def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
+        super().__init__(info=info, runner=runner)
 
         if self.mpicomm is None:
             msg = "ERROR: algorithm.exchange requires mpi4py, but mpi4py cannot be imported"
