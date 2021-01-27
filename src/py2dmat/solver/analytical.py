@@ -34,6 +34,7 @@ class Solver(py2dmat.solver.function.Solver):
         ----------
         info: Info
         """
+        super().__init__(info)
         self._name = "analytical"
         function_name = info.solver.get("function_name", "quadratics")
 

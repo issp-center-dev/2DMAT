@@ -19,6 +19,7 @@ class Solver(py2dmat.solver.SolverBase):
         ----------
         info: Info
         """
+        super().__init__(info)
         self._name = "function"
         self._func = None
 
