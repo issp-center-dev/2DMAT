@@ -19,11 +19,11 @@
 
             - ``self.root_dir: pathlib.Path`` : ルートディレクトリ
 
-                - ``info.base["root_dir"]
+                - ``info.base["root_dir"]``
 
             - ``self.output_dir: pathlib.Path`` : 出力ファイルを書き出すディレクトリ
 
-                - ``info.base["output_dir"]
+                - ``info.base["output_dir"]``
 
             - ``self.proc_dir: pathlib.Path`` : プロセスごとの作業用ディレクトリ
 
