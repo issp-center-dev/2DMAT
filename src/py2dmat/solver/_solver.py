@@ -2,17 +2,18 @@
 from abc import ABCMeta, abstractmethod
 
 import py2dmat
+import py2dmat.mpi
 
 # type hints
 from pathlib import Path
-from typing import Optional, Dict
+from typing import Dict
 
 
 class SolverBase(object, metaclass=ABCMeta):
     root_dir: Path
     output_dir: Path
-    work_dir: Optional[Path]
-    proc_dir: Optional[Path]
+    proc_dir: Path
+    work_dir: Path
     _name: str
     timer: Dict[str, Dict]
 
@@ -20,8 +21,8 @@ class SolverBase(object, metaclass=ABCMeta):
     def __init__(self, info: py2dmat.Info) -> None:
         self.root_dir = info.base["root_dir"]
         self.output_dir = info.base["output_dir"]
-        self.work_dir = None
-        self.proc_dir = None
+        self.proc_dir = self.output_dir / str(py2dmat.mpi.rank())
+        self.work_dir = self.proc_dir
         self._name = ""
         self.timer = {"prepare": {}, "run": {}, "post": {}}
 
@@ -52,8 +53,3 @@ class SolverBase(object, metaclass=ABCMeta):
     @abstractmethod
     def get_results(self) -> float:
         pass
-
-    def get_working_directory(self) -> Path:
-        if self.work_dir is None:
-            raise RuntimeError("work_dir is not set")
-        return self.work_dir

@@ -74,15 +74,11 @@ class Runner(object):
     def submit(self, message: py2dmat.Message) -> float:
         self.solver.prepare(message)
         cwd = os.getcwd()
-        os.chdir(self.solver.get_working_directory())
+        os.chdir(self.solver.work_dir)
         self.run.submit(self.solver)
         os.chdir(cwd)
         results = self.solver.get_results()
         return results
-
-    def set_solver_dir(self, proc_dir: Path) -> None:
-        self.solver.proc_dir = proc_dir
-        self.solver.work_dir = proc_dir
 
 
 class run_mpispawn(Run):

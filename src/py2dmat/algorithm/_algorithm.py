@@ -40,7 +40,7 @@ class AlgorithmBase(metaclass=ABCMeta):
     output_dir: Path
     proc_dir: Path
 
-    timer: Dict[str, Dict] = {"prepare": {}, "run": {}, "post": {}}
+    timer: Dict[str, Dict]
 
     status: AlgorithmStatus = AlgorithmStatus.INIT
 
@@ -160,7 +160,6 @@ class AlgorithmBase(metaclass=ABCMeta):
         if self.runner is None:
             msg = "Runner is not assigned"
             raise RuntimeError(msg)
-        self.runner.set_solver_dir(self.proc_dir)
         self._prepare()
         self.status = AlgorithmStatus.PREPARE
 
@@ -200,16 +199,16 @@ class AlgorithmBase(metaclass=ABCMeta):
         self.prepare()
         time_end = time.perf_counter()
         self.timer["prepare"]["total"] = time_end - time_sta
-        if mpi.size() > 1:
-            mpi.comm().Barrier()
+        if self.mpisize > 1:
+            self.mpicomm.Barrier()
 
         time_sta = time.perf_counter()
         self.run()
         time_end = time.perf_counter()
         self.timer["run"]["total"] = time_end - time_sta
         print("end of run")
-        if mpi.size() > 1:
-            mpi.comm().Barrier()
+        if self.mpisize > 1:
+            self.mpicomm.Barrier()
 
         time_sta = time.perf_counter()
         self.post()

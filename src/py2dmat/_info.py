@@ -37,5 +37,7 @@ class Info:
 
     def _cleanup(self) -> None:
         self.base = {}
+        self.base["root_dir"] = Path(".").absolute()
+        self.base["output_dir"] = self.base["root_dir"]
         self.algorithm = {}
         self.solver = {}
