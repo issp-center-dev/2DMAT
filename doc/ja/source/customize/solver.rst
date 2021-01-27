@@ -17,8 +17,14 @@
         - ``super().__init__(info)``    
         - 基底クラスのコンストラクタでは次のインスタンス変数が設定されます
 
-            - ``self.root_dir: pathlib.Path`` : スクリプトを実行しているディレクトリ
+            - ``self.root_dir: pathlib.Path`` : ルートディレクトリ
+
+                - ``info.base["root_dir"]
+
             - ``self.output_dir: pathlib.Path`` : 出力ファイルを書き出すディレクトリ
+
+                - ``info.base["output_dir"]
+
             - ``self.proc_dir: pathlib.Path`` : プロセスごとの作業用ディレクトリ
 
                 - ``self.output_dir / str(self.mpirank)`` で初期化されます

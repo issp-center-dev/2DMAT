@@ -8,20 +8,41 @@
     class Algorithm(py2dmat.algorithm.AlgorithmBase):
         pass
 
+``AlgorithmBase``
+~~~~~~~~~~~~~~~~~~~
+
 ``AlgorithmBase`` クラスは次のメソッドを提供します。
 
 - ``__init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None)``
 
     - ``info`` から ``Algorithm`` 共通の入力パラメータを読み取り、次のインスタンス変数を設定します。
 
-        - ``self.mpicomm: Optional[MPI.Comm]`` : ``import mpi4py`` が成功する場合には ``MPI.COMM_WORLD`` が、そうでなければ ``None`` が保持されます
+        - ``self.mpicomm: Optional[MPI.Comm]`` : ``MPI.COMM_WORLD``
+
+            - ``mpi4py`` の import に失敗した場合、 ``None`` が設定されます
+
         - ``self.mpisize: int`` : MPIプロセス数
+
+            - ``mpi4py`` の import に失敗した場合、 ``1`` が設定されます
+
         - ``self.mpirank: int`` : MPIランク
+
+            - ``mpi4py`` の import に失敗した場合、 ``0`` が設定されます
+
         - ``self.rng: np.random.Generator`` : 擬似乱数生成器
+
+            - 擬似乱数の種について、詳細は ``exchange`` ソルバーの入力パラメータを参照してください
+
         - ``self.dimension: int`` : 探索パラメータ空間の次元
         - ``self.label_list: List[str]`` : 各パラメータの名前
-        - ``self.root_dir: pathlib.Path`` : スクリプトを実行しているディレクトリ
+        - ``self.root_dir: pathlib.Path`` : ルートディレクトリ
+
+            - ``info.base["root_dir"]``
+
         - ``self.output_dir: pathlib.Path`` : 出力ファイルを書き出すディレクトリ
+
+            - ``info.base["root_dir"]``
+
         - ``self.proc_dir: pathlib.Path`` : プロセスごとの作業用ディレクトリ
 
             - ``self.output_dir / str(self.mpirank)``
@@ -46,6 +67,7 @@
 
     - 最適化結果のファイル出力など、後処理を行います
     - ``self.output_dir`` に移動し、 ``self._post()`` を実行した後、元のディレクトリに戻ります
+    - ``self.run()`` のあとに実行する必要があります
 
 - ``main(self) -> None``
 
@@ -58,6 +80,9 @@
     - ``info.algorithm["param"]`` から探索パラメータの初期値や最小値、最大値、単位を取得します
     - 詳細は ``min_search`` の入力ファイルの ``initial_list``, ``min_list``, ``max_list``, ``unit_list`` を参照してください
 
+
+``Algorithm``
+~~~~~~~~~~~~~~~~
 
 ``Algorithm`` は少なくとも次のメソッドを定義しなければなりません。
 
