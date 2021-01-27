@@ -88,7 +88,8 @@ class AlgorithmBase(metaclass=ABCMeta):
         # especially when mkdir just after removing the old one
         while not self.proc_dir.is_dir():
             time.sleep(0.1)
-        self.mpicomm.Barrier()
+        if self.mpisize > 1:
+            self.mpicomm.Barrier()
 
     def __init_rng(self, info: py2dmat.Info) -> None:
         seed = info.algorithm.get("seed", None)
