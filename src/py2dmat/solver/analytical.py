@@ -35,11 +35,7 @@ class Solver(py2dmat.solver.function.Solver):
         info: Info
         """
         self._name = "analytical"
-        self.path_to_solver = ""
-        if "solver" in info:
-            function_name = info["solver"].get("function_name", "quadratics")
-        else:
-            function_name = "quadratics"
+        function_name = info.solver.get("function_name", "quadratics")
 
         try:
             f = eval(function_name)

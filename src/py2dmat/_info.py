@@ -5,7 +5,11 @@ from pathlib import Path
 from . import exception
 
 
-class Info(dict):
+class Info:
+    base: dict
+    algorithm: dict
+    solver: dict
+
     def __init__(self, d: Optional[MutableMapping] = None):
         if d is not None:
             self.from_dict(d)
@@ -19,26 +23,19 @@ class Info(dict):
                     f"ERROR: section {section} does not appear in input"
                 )
         self._cleanup()
-        self["base"] = d["base"]
-        self["algorithm"] = d["algorithm"]
-        self["solver"] = d["solver"]
+        self.base = d["base"]
+        self.algorithm = d["algorithm"]
+        self.solver = d["solver"]
 
-        self["base"]["root_dir"] = (
-            Path(self["base"].get("root_dir", ".")).expanduser().absolute()
+        self.base["root_dir"] = (
+            Path(self.base.get("root_dir", ".")).expanduser().absolute()
         )
-        self["base"]["output_dir"] = (
-            self["base"]["root_dir"]
-            / Path(self["base"].get("output_dir", ".")).expanduser()
+        self.base["output_dir"] = (
+            self.base["root_dir"]
+            / Path(self.base.get("output_dir", ".")).expanduser()
         )
 
     def _cleanup(self) -> None:
-        self["base"] = {}
-        self["algorithm"] = {}
-        self["solver"] = {}
-        self["calc"] = {}
-        self["log"] = {}
-        self["log"]["Log_number"] = 0
-        self["log"]["time"] = {}
-        self["log"]["time"]["prepare"] = {}
-        self["log"]["time"]["run"] = {}
-        self["log"]["time"]["post"] = {}
+        self.base = {}
+        self.algorithm = {}
+        self.solver = {}

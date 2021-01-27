@@ -68,9 +68,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             msg = "ERROR: algorithm.exchange requires mpi4py, but mpi4py cannot be imported"
             raise ImportError(msg)
 
-        info_alg = info["algorithm"]
-
-        info_exchange = info_alg["exchange"]
+        info_exchange = info.algorithm["exchange"]
         if info_exchange.get("Tlogspace", True):
             self.Ts = np.logspace(
                 start=np.log10(info_exchange.get("Tmin", 0.1)),

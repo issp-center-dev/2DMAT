@@ -40,7 +40,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             self.unit_list,
         ) = self._read_param(info)
 
-        info_minimize = info["algorithm"].get("minimize", {})
+        info_minimize = info.algorithm.get("minimize", {})
         self.initial_scale_list = info_minimize.get(
             "initial_scale_list", [0.25] * self.dimension
         )

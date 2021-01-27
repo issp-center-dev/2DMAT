@@ -12,8 +12,8 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
     def __init__(self, info: py2dmat.Info) -> None:
         super().__init__(info=info)
-        info_alg = info["algorithm"].get("param", {})
-        self.mesh_path = self.root_dir / info_alg.get("mesh_path", "MeshData.txt")
+        info_param = info.algorithm.get("param", {})
+        self.mesh_path = self.root_dir / info_param.get("mesh_path", "MeshData.txt")
 
     def _run(self) -> None:
         # Make ColorMap

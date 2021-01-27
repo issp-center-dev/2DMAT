@@ -15,7 +15,6 @@ from py2dmat import exception, mpi
 # for type hints
 from pathlib import Path
 from typing import List, Optional, TYPE_CHECKING, Dict, Tuple
-from py2dmat.runner import Runner
 
 
 if TYPE_CHECKING:
@@ -35,7 +34,7 @@ class AlgorithmBase(metaclass=ABCMeta):
     rng: np.random.Generator
     dimension: int
     label_list: List[str]
-    runner: Optional[Runner]
+    runner: Optional[py2dmat.Runner]
 
     root_dir: Path
     output_dir: Path
@@ -54,13 +53,12 @@ class AlgorithmBase(metaclass=ABCMeta):
         self.timer = {"prepare": {}, "run": {}, "post": {}}
         self.status = AlgorithmStatus.INIT
 
-        info_base = info["base"]
-        if "dimension" not in info_base:
+        if "dimension" not in info.base:
             raise exception.InputError(
                 "ERROR: base.dimension is not defined in the input"
             )
         try:
-            self.dimension = int(str(info_base["dimension"]))
+            self.dimension = int(str(info.base["dimension"]))
         except ValueError:
             raise exception.InputError(
                 "ERROR: base.dimension should be positive integer"
@@ -70,9 +68,8 @@ class AlgorithmBase(metaclass=ABCMeta):
                 "ERROR: base.dimension should be positive integer"
             )
 
-        info_alg = info["algorithm"]
-        if "label_list" in info_alg:
-            label = info_alg["label_list"]
+        if "label_list" in info.algorithm:
+            label = info.algorithm["label_list"]
             if len(label) != self.dimension:
                 raise exception.InputError(
                     f"ERROR: len(label_list) != dimension ({len(label)} != {self.dimension})"
@@ -83,8 +80,8 @@ class AlgorithmBase(metaclass=ABCMeta):
 
         self.__init_rng(info)
 
-        self.root_dir = info_base["root_dir"]
-        self.output_dir = info_base["output_dir"]
+        self.root_dir = info.base["root_dir"]
+        self.output_dir = info.base["output_dir"]
         self.proc_dir = self.output_dir / str(self.mpirank)
         self.proc_dir.mkdir(parents=True, exist_ok=True)
         # Some cache of the filesystem may delay making a dictionary
@@ -94,9 +91,8 @@ class AlgorithmBase(metaclass=ABCMeta):
         self.mpicomm.Barrier()
 
     def __init_rng(self, info: py2dmat.Info) -> None:
-        info_alg = info["algorithm"]
-        seed = info_alg.get("seed", None)
-        seed_delta = info_alg.get("seed_delta", 314159)
+        seed = info.algorithm.get("seed", None)
+        seed_delta = info.algorithm.get("seed_delta", 314159)
 
         if seed is None:
             self.rng = default_rng()
@@ -113,12 +109,11 @@ class AlgorithmBase(metaclass=ABCMeta):
         max_list
         unit_list
         """
-        info_algorithm = info["algorithm"]
-        if "param" not in info_algorithm:
+        if "param" not in info.algorithm:
             raise exception.InputError(
                 "ERROR: [algorithm.param] is not defined in the input"
             )
-        info_param = info_algorithm["param"]
+        info_param = info.algorithm["param"]
 
         if "min_list" not in info_param:
             raise exception.InputError(
@@ -157,7 +152,7 @@ class AlgorithmBase(metaclass=ABCMeta):
             )
         return initial_list, min_list, max_list, unit_list
 
-    def set_runner(self, runner: Runner) -> None:
+    def set_runner(self, runner: py2dmat.Runner) -> None:
         self.runner = runner
 
     def prepare(self) -> None:

@@ -18,9 +18,8 @@ class SolverBase(object, metaclass=ABCMeta):
 
     @abstractmethod
     def __init__(self, info: py2dmat.Info) -> None:
-        info_base = info["base"]
-        self.root_dir = info_base["root_dir"]
-        self.output_dir = info_base["output_dir"]
+        self.root_dir = info.base["root_dir"]
+        self.output_dir = info.base["output_dir"]
         self.work_dir = None
         self.proc_dir = None
         self._name = ""

@@ -9,7 +9,7 @@ import py2dmat
 # type hints
 from pathlib import Path
 from typing import List
-from .. import mpi
+from . import mpi
 
 
 class Run(metaclass=ABCMeta):

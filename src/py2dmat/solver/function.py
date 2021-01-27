@@ -20,7 +20,6 @@ class Solver(py2dmat.solver.SolverBase):
         info: Info
         """
         self._name = "function"
-        self.path_to_solver = ""
         self._func = None
 
     def default_run_scheme(self) -> str:

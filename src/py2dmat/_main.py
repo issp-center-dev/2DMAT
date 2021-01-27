@@ -2,7 +2,6 @@ from sys import exit, argv
 import toml
 
 import py2dmat
-import py2dmat.runner
 
 
 def main():
@@ -12,7 +11,7 @@ def main():
 
     file_name = argv[1]
     info = py2dmat.Info(toml.load(file_name))
-    algname = info["algorithm"]["name"]
+    algname = info.algorithm["name"]
 
     # Define algorithm
     if algname == "mapper":
@@ -27,7 +26,7 @@ def main():
         print(f"ERROR: Unknown algorithm ({algname})")
         exit(1)
 
-    solvername = info["solver"]["name"]
+    solvername = info.solver["name"]
     if solvername == "surface":
         from .solver.surface import Solver
     elif solvername == "analytical":
@@ -37,7 +36,7 @@ def main():
         exit(1)
 
     solver = Solver(info)
-    runner = py2dmat.runner.Runner(solver)
+    runner = py2dmat.Runner(solver)
     alg = Algorithm(info)
     alg.set_runner(runner)
     alg.main()

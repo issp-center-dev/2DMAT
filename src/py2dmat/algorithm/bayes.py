@@ -30,18 +30,13 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
     def __init__(self, info: py2dmat.Info) -> None:
         super().__init__(info=info)
 
-        info_alg = info["algorithm"]
-
-        # TODO: change default values
-        # TODO: error check
-
-        info_param = info_alg.get("param", {})
+        info_param = info.algorithm.get("param", {})
         # Check input files are correct or not
         self.random_max_num_probes = info_param.get("random_max_num_probes", 20)
         self.bayes_max_num_probes = info_param.get("bayes_max_num_probes", 40)
         self.score = info_param.get("score", "TS")
-        self.interval = info_alg.get("interval", 5)
-        self.num_rand_basis = info_alg.get("num_rand_basis", 5000)
+        self.interval = info.algorithm.get("interval", 5)
+        self.num_rand_basis = info.algorithm.get("num_rand_basis", 5000)
 
         print("# parameter")
         print(f"random_max_num_probes = {self.random_max_num_probes}")
@@ -55,8 +50,8 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
         comm = self.mpicomm if self.mpisize > 1 else None
         self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
-        if "seed" in info_alg:
-            seed = info_alg["seed"]
+        if "seed" in info.algorithm:
+            seed = info.algorithm["seed"]
             self.policy.set_seed(seed)
         self.param_list = []
         self.fx_list = []
