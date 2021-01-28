@@ -31,9 +31,9 @@ pprint.pprint(pseudopotentials)
 file_name = input_main["input_xyz_file"]
 wfile_name = input_main["output_file_head"]
 
-from ase.io.xyz import read_xyz, write_xyz
+from ase.io.extxyz import read_xyz, write_xyz
 
-atoms = read_xyz(open(file_name))
+atoms = read_xyz(open(file_name), index=0)
 atoms_info = Atoms()
 for atom in atoms:
     atoms_info += atom
