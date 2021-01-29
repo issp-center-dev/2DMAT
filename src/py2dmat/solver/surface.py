@@ -18,8 +18,7 @@ class Solver(py2dmat.solver.SolverBase):
         super().__init__(info)
 
         self._name = "surf"
-
-        p2solver = "surf.exe"
+        p2solver = info.solver["config"].get("surface_exec_file", "surf.exe")
         self.path_to_solver = self.root_dir / Path(p2solver).expanduser()
         if not self.path_to_solver.exists():
             raise exception.InputError(

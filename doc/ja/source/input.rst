@@ -33,7 +33,7 @@
 
   説明: ソルバーの名前。以下のソルバーが用意されています。
 
-    - ``surf`` : 反射高速(陽)電子回折(RHEED, TRHEPD)の強度計算をするためのソルバー
+    - ``surf`` : 反射高速(陽)電子回折(RHEED, TRHEPD)の強度計算をするためのソルバー ``sim-trhepd-rheed``
 
     - ``analytic`` : 解析解を与えるソルバー (主にテストに利用)
 
@@ -44,6 +44,12 @@
 
 [``config``] セクション
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- ``surface_exec_file``
+
+  形式: string型 (default: "surf.exe")
+
+  説明: ``sim-trhepd-rheed`` の表面反射ソルバー ``surf.exe`` へのパス
 
 - ``surface_input_file``
 
