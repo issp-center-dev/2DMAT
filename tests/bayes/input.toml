@@ -1,0 +1,16 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[solver]
+name = "analytical"
+function_name = "rosenbrock"
+
+[algorithm]
+name = "bayes"
+label_list = ["z1", "z2"]
+seed = 1
+
+[algorithm.param]
+random_max_num_probes = 5
+bayes_max_num_probes = 20
