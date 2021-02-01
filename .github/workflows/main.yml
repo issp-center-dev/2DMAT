@@ -32,11 +32,6 @@ jobs:
           python -m pip install numpy scipy toml mpi4py
           python -m pip install physbo
 
-      - name: TRHEPD
-        run: |
-          cd src/TRHEPD
-          make
-
       - name: ${{ matrix.algorithm }}
         run: |
           cd ${GITHUB_WORKSPACE}/tests/${{ matrix.sample }}
