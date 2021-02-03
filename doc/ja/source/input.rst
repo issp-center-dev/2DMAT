@@ -260,8 +260,7 @@ Nelder-Mead 法のハイパーパラメータを設定します。
   形式: 実数型のリスト。長さはdimensionの値と一致させます。
 
   説明: Nelder-Mead 法の初期 simplex を作るために、初期値からずらす差分。
-  ``initial_list`` と、 ``initial_list`` に ``initial_scale_list`` の成分ひとつを足してできるdimension 個の点を 合わせたものが ``initial_simplex`` として使われます。
-        定義しなかった場合、各次元に 0.25 が設定されます。
+  ``initial_list`` と、 ``initial_list`` に ``initial_scale_list`` の成分ひとつを足してできるdimension 個の点を 合わせたものが ``initial_simplex`` として使われます。定義しなかった場合、各次元に 0.25 が設定されます。
 
 - ``xatol``
 
@@ -329,7 +328,7 @@ Nelder-Mead 法のハイパーパラメータを設定します。
   形式: string型 (default: ``TS`` )
 
   説明: スコア関数を指定するパラメータ。
-  ``EI``, ``PI``, ``TS``より選択可能で、それぞれ　"expected improvement", "probability of improvement", "Thompson sampling" を行う。
+  ``EI``, ``PI``, ``TS`` より選択可能で、それぞれ　"expected improvement", "probability of improvement", "Thompson sampling" を行う。
 
 - interval
 
