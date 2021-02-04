@@ -8,8 +8,10 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description=("Data-analysis software of quantum beam "
-            "diffraction experiments for 2D material structure")
+        description=(
+            "Data-analysis software of quantum beam "
+            "diffraction experiments for 2D material structure"
+        )
     )
     parser.add_argument("inputfile", help="input file with TOML format")
     parser.add_argument("--version", action="version", version=py2dmat.__version__)
