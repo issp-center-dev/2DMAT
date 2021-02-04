@@ -37,8 +37,8 @@ TRHEPDでは原子座標を与えた場合に、回折データがシミュレ�
    :maxdepth: 1
 
    sim_trhepd_rheed
-   mpi
    minsearch
+   mpi
    bayes
    exchange
    
