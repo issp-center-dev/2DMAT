@@ -1,19 +1,6 @@
 # 2DMAT
 
-## sample
-version: 2021-01-19
-
-### make a forward TRHEPD solver
-
-- Prerequists
-  - Fortran compiler
-
-``` bash
-$ cd src/TRHEPD
-$ make
-```
-
-### py2dmat
+## py2dmat
 
 - Prerequists python packages
   - numpy >= 1.17
@@ -35,12 +22,12 @@ $ make
   - `python3 src/py2dmat_main.py input.toml` (use the raw script)
   - For details of the input file, see the document.
 
-### samples
+## samples
 
 `sample` directory has some sample scripts.
 
 ``` bash
-$ cd sample/py2dmat/mapper
+$ cd sample/py2dmat/exchange-rosenbrock
 
 # clean-up the previous result & make symbolic links
 $ sh ./prepare.sh

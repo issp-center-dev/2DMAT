@@ -193,8 +193,8 @@ Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference
 
 .. code-block::
 
-    cp ../../../src/TRHEPD/bulk.exe .
-    cp ../../../src/TRHEPD/surf.exe .
+    cp ../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
+    cp ../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
 
 最初に ``bulk.exe`` を実行し、``bulkP.b`` を作成します。
 
