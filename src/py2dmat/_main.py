@@ -5,11 +5,15 @@ import py2dmat
 
 
 def main():
-    if len(argv) != 2:
-        print(f"Usage: python3 {argv[0]} <toml_file_name>.")
-        exit(1)
+    import argparse
 
-    file_name = argv[1]
+    parser = argparse.ArgumentParser()
+    parser.add_argument("inputfile", help="input file with TOML format")
+    parser.add_argument("--version", action="version", version=py2dmat.__version__)
+
+    args = parser.parse_args()
+
+    file_name = args.inputfile
     info = py2dmat.Info(toml.load(file_name))
     algname = info.algorithm["name"]
 

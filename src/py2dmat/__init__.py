@@ -7,3 +7,5 @@ from . import solver
 from ._runner import Runner
 from . import algorithm
 from ._main import main
+
+__version__ = "0.1.0"
