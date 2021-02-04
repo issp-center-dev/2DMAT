@@ -19,6 +19,18 @@
 
 [6] `K. Hukushima and K. Nemoto, J. Phys. Soc. Japan, 65, 1604 (1996). <https://journals.jps.jp/doi/10.1143/JPSJ.65.1604>`_  `R. Swendsen and J. Wang, Phys. Rev. Lett. 57, 2607 (1986). <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.57.2607>`_ .
 
+[1] レビューとして， `Y．Fukaya, et al., J. Phys. D: Appl. Phys. 52, 013002 (2019) <https://iopscience.iop.org/article/10.1088/1361-6463/aadf14>`_;
+`兵頭俊夫，「全反射高速陽電子回折　(TRHEPD)による表面構造解析」，固体物理 53, 705 (2018) <https://www.agne.co.jp/kotaibutsuri/kota1053.htm>`_.
+
+[2] 順問題ルーチンは, 東北大学 花田貴によって開発されたコードに基づき作成しています. `T. Hanada, H. Daimon, and S. Ino, Phys. Rev. B 51, 13320 (1995). <https://journals.aps.org/prb/abstract/10.1103/PhysRevB.51.13320>`_
+
+[3] `K. Tanaka, T. Hoshi, I. Mochizuki, T. Hanada, A. Ichimiya, and T. Hyodo, Acta. Phys. Pol. A 137, 188 (2020) <http://przyrbwn.icm.edu.pl/APP/PDF/137/app137z2p25.pdf>`_.
+
+[4] `K. Tanaka, I. Mochizuki, T. Hanada, A. Ichimiya, T. Hyodo, and T. Hoshi, JJAP Conf. Series, in press, arXiv:2002.12165 <https://arxiv.org/abs/2002.12165>`_.
+
+[5] ベイズ最適化には, `PHYSBO <https://www.pasums.issp.u-tokyo.ac.jp/physbo>`_ を用いてます.
+
+[6] `K. Hukushima and K. Nemoto, J. Phys. Soc. Japan, 65, 1604 (1996) <https://journals.jps.jp/doi/10.1143/JPSJ.65.1604>`_,  `R. Swendsen and J. Wang, Phys. Rev. Lett. 57, 2607 (1986) <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.57.2607>`_.
 
 ライセンス
 ----------------------

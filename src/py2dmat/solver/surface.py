@@ -1,5 +1,7 @@
 from typing import List
+import itertools
 import os
+import os.path
 import shutil
 from pathlib import Path
 
@@ -18,13 +20,18 @@ class Solver(py2dmat.solver.SolverBase):
         super().__init__(info)
 
         self._name = "surf"
+        p2solver = info.solver["config"].get("surface_exec_file", "surf.exe")
+        if os.path.dirname(p2solver) != "":
+            # ignore ENV[PATH]
+            self.path_to_solver = self.root_dir / Path(p2solver).expanduser()
+        else:
+            for P in itertools.chain([self.root_dir], os.environ["PATH"].split(":")):
+                self.path_to_solver = Path(P) / p2solver
+                if os.access(self.path_to_solver, mode=os.X_OK):
+                    break
+        if not os.access(self.path_to_solver, mode=os.X_OK):
+            raise exception.InputError(f"ERROR: solver ({p2solver}) is not found")
 
-        p2solver = "surf.exe"
-        self.path_to_solver = self.root_dir / Path(p2solver).expanduser()
-        if not self.path_to_solver.exists():
-            raise exception.InputError(
-                f"ERROR: solver ({self.path_to_solver}) does not exist"
-            )
         self.input = Solver.Input(info)
         self.output = Solver.Output(info)
 
@@ -38,8 +45,7 @@ class Solver(py2dmat.solver.SolverBase):
         return "subprocess"
 
     def command(self) -> List[str]:
-        """ Command to invoke solver
-        """
+        """Command to invoke solver"""
         return [str(self.path_to_solver)]
 
     def prepare(self, message: py2dmat.Message) -> None:
