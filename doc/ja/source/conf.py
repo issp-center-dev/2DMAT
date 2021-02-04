@@ -18,11 +18,11 @@
 # -- Project information -----------------------------------------------------
 
 project = '2DMAT'
-copyright = '2020, 2DMAT developers'
+copyright = '2020-, 2DMAT developers'
 author = '2DMAT developers'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = '0.1.0'
 
 
 # -- General configuration ---------------------------------------------------
