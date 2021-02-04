@@ -283,7 +283,7 @@ Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference
 
 上記を実行することで、``RC_double_minsearch.png`` が出力されます。
 
-.. figure:: ../img/RC_double_minsearch.*
+.. figure:: ../../../common/img/RC_double_minsearch.*
 
     Nelder-Mead法を用いた解析。赤丸が実験値、青線が最初のステップ、緑線が最後のステップで得られたロッキングカーブを表す。
 
