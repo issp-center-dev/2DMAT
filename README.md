@@ -1,4 +1,5 @@
 # 2DMAT
+Data-analysis software of quantum beam diffraction experiments for 2D material structure
 
 ## sample
 version: 2021-01-19
