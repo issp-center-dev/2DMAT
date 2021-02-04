@@ -226,7 +226,7 @@ Py2DMat の実装では同一レプリカが様々な温度のサンプルを保
 ``R-factor`` の値が小さいことがわかります。
 
 
-.. figure:: ../img/exchange.*
+.. figure:: ../../../common/img/exchange.*
 
     サンプルされたパラメータと ``R-factor`` 。横軸は ``value_01`` , 縦軸は ``value_02`` を表す。
 

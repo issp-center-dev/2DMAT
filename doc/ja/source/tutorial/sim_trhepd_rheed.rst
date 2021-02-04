@@ -114,7 +114,7 @@ Gnuplot等のグラフソフトを用いる事も出来ますが、ここでは�
 
 以下のような ``plot_bulkP.png`` が作成されます。
 
-.. figure:: ../img/plot_bulkP.*
+.. figure:: ../../../common/img/plot_bulkP.*
 
    Si(001)-2x1面のロッキングカーブ。
 
