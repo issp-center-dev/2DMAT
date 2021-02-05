@@ -8,7 +8,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        python-version: [3.6]
+        python-version: [3.6, 3.9]
         sample: [mapper, minsearch, exchange, bayes]
       fail-fast: false
 

@@ -15,23 +15,23 @@
     - 必ず基底クラスのコンストラクタを呼び出してください
 
         - ``super().__init__(info)``    
-        - 基底クラスのコンストラクタでは次のインスタンス変数が設定されます
+    - 基底クラスのコンストラクタでは次のインスタンス変数が設定されます
 
-            - ``self.root_dir: pathlib.Path`` : ルートディレクトリ
+        - ``self.root_dir: pathlib.Path`` : ルートディレクトリ
 
-                - ``info.base["root_dir"]``
+            - ``info.base["root_dir"]``
 
-            - ``self.output_dir: pathlib.Path`` : 出力ファイルを書き出すディレクトリ
+        - ``self.output_dir: pathlib.Path`` : 出力ファイルを書き出すディレクトリ
 
-                - ``info.base["output_dir"]``
+            - ``info.base["output_dir"]``
 
-            - ``self.proc_dir: pathlib.Path`` : プロセスごとの作業用ディレクトリ
+        - ``self.proc_dir: pathlib.Path`` : プロセスごとの作業用ディレクトリ
 
-                - ``self.output_dir / str(self.mpirank)`` で初期化されます
+            - ``self.output_dir / str(self.mpirank)`` で初期化されます
 
-            - ``self.work_dir: pathlib.Path`` : ソルバーが実行されるディレクトリ
+        - ``self.work_dir: pathlib.Path`` : ソルバーが実行されるディレクトリ
 
-                - ``self.proc_dir`` で初期化されます
+            - ``self.proc_dir`` で初期化されます
 
     - 入力パラメータである ``info`` から必要な設定を読み取り、保存してください
 
