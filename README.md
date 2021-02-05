@@ -1,6 +1,10 @@
 # 2DMAT
 Data-analysis software of quantum beam diffraction experiments for 2D material structure
 
+| Branch | Build status | Documentation |
+| :-: | :-: | :-: |
+| master | [![master](https://github.com/issp-center-dev/2DMAT/workflows/Test/badge.svg?branch=master)](https://github.com/issp-center-dev/2DMAT/actions?query=branch%3Amaster) | [![doc_ja](https://img.shields.io/badge/doc-Japanese-blue.svg)](https://issp-center-dev.github.io/2DMAT/manual/master/ja/index.html) |
+
 ## py2dmat
 
 - Prerequists python packages
