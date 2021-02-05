@@ -157,10 +157,10 @@
 
 .. code-block::
 
-    cp ../../../src/TRHEPD/bulk.exe .
-    cp ../../../src/TRHEPD/surf.exe .
+    cp ../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
+    cp ../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
 
-最初に ``bulk.exe`` を実行し、``bulkP.b`` を作成します。
+最初に ``bulk.exe`` を実行し、 ``bulkP.b`` を作成します。
 
 .. code-block::
 
