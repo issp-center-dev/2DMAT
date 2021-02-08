@@ -16,9 +16,10 @@ Data-analysis software of quantum beam diffraction experiments for 2D material s
 
 ## py2dmat
 
-### Prerequists python packages
+### Prerequists
 
 - Required
+  - python >= 3.6
   - numpy >= 1.17
   - toml
 - Optional
