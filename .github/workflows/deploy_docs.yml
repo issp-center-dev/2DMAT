@@ -73,7 +73,8 @@ jobs:
             mkdir -p "gh-pages/manual/${TARGET_NAME}"
             cp -r "main/doc/${lang}/build/html" "gh-pages/manual/${TARGET_NAME}/${lang}"
             if [ $is_tag = "YES" ]; then
-              cp "main/doc/${lang}/build/latex/userguid_2dmat_{lang}.pdf" "gh-pages/manual/${TARGET_NAME}/${lang}/2DMAT.pdf"
+              # cp "main/doc/${lang}/build/latex/userguid_2dmat_${lang}.pdf" "gh-pages/manual/${TARGET_NAME}/${lang}/2DMAT.pdf"
+              :
             fi
           done
           cd gh-pages
