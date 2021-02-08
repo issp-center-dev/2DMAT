@@ -1,20 +1,17 @@
-# 2DMAT
+# 2DMAT -- Data-analysis software of quantum beam diffraction experiments for 2D material structure
 
-Data-analysis software of quantum beam diffraction experiments for 2D material structure
-
-2DMATは，順問題ソルバーに対して探索アルゴリズムを適用して最適解を探すためのフレームワークです.
-順問題ソルバーはユーザー自身で定義することが可能です.
-標準的な順問題ソルバーとしては2次元物質構造解析向け実験データ解析ソフトウェアが用意されています.
-順問題ソルバーでは原子位置などをパラメータとし得られたデータと実験データとのずれを損失関数として与えます.
-探索アルゴリズムを組み合わせ, この損失関数を最小化することで, 最適なパラメータを推定します.
-現バージョンでは, 順問題ソルバーとして量子ビーム回折実験の全反射高速陽電子回折実験（Total-reflection high-energy positron diffraction ,TRHEPD，トレプト）に対応しており, 探索アルゴリズムはNelder-Mead法, グリッド型探索法, ベイズ最適化, レプリカ交換モンテカルロ法が実装されています.
-今後は, 本フレームワークをもとにより多くの順問題ソルバーおよび探索アルゴリズムを実装していく予定です.
+2DMAT is a framework for applying a search algorithm to a direct problem solver to find the optimal solution. As the standard direct problem solver, the experimental data analysis software for two-dimensional material structure analysis is prepared. The direct problem solver gives the deviation between the experimental data and the calculated data obtained under the given parameters such as atomic positions as a loss function used in the inverse problem. The optimal parameters are estimated by minimizing the loss function using a search algorithm. For further use, the original direct problem solver or the search algorithm can be defined by users.
+In the current version, for solving a direct problem, 2DMAT offers the wrapper of the solver for the total-reflection high-energy positron diffraction (TRHEPD) experiment. As algorithms, it offers the Nelder-Mead method, the grid search method, the Bayesian optimization method, and the replica exchange Monte Carlo method. In the future, we plan to add other direct problem solvers and search algorithms in 2DMAT.
 
 | Branch | Build status | Documentation |
 | :-: | :-: | :-: |
 | master | [![master](https://github.com/issp-center-dev/2DMAT/workflows/Test/badge.svg?branch=master)](https://github.com/issp-center-dev/2DMAT/actions?query=branch%3Amaster) | [![doc_ja](https://img.shields.io/badge/doc-Japanese-blue.svg)](https://issp-center-dev.github.io/2DMAT/manual/master/ja/index.html) |
 
 ## py2dmat
+
+`py2dmat` is a python framework library for solving inverse problems.
+It also offers a driver script to solve the problem with predefined algorithms
+and solvers (`py2dmat` also means this script).
 
 ### Prerequists
 
