@@ -388,13 +388,13 @@ Nelder-Mead 法のハイパーパラメータを設定します。
 [``exchange``] セクション
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- ``numstep``
+- ``numsteps``
 
   形式: 整数値。
 
   説明: モンテカルロ更新を行う回数。
 
-- ``numstep_exchange``
+- ``numsteps_exchange``
 
   形式: 整数値。
 
