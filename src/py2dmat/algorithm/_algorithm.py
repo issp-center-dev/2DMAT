@@ -5,6 +5,7 @@ from abc import ABCMeta, abstractmethod
 from enum import IntEnum
 import time
 import os
+import pathlib
 
 import numpy as np
 from numpy.random import default_rng
@@ -45,7 +46,9 @@ class AlgorithmBase(metaclass=ABCMeta):
     status: AlgorithmStatus = AlgorithmStatus.INIT
 
     @abstractmethod
-    def __init__(self, info: py2dmat.Info, runner: Optional[py2dmat.Runner] = None) -> None:
+    def __init__(
+        self, info: py2dmat.Info, runner: Optional[py2dmat.Runner] = None
+    ) -> None:
         self.mpicomm = mpi.comm()
         self.mpisize = mpi.size()
         self.mpirank = mpi.rank()
@@ -100,8 +103,10 @@ class AlgorithmBase(metaclass=ABCMeta):
         else:
             self.rng = default_rng(seed + self.mpirank * seed_delta)
 
-    def _read_param(self, info: py2dmat.Info) -> Tuple[np.array, np.array, np.array, np.array]:
-        """
+    def _read_param(
+        self, info: py2dmat.Info
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """Generate continuous data from info
 
         Returns
         =======
@@ -152,6 +157,89 @@ class AlgorithmBase(metaclass=ABCMeta):
                 f"ERROR: len(initial_list) != dimension ({initial_list.size} != {self.dimension})"
             )
         return initial_list, min_list, max_list, unit_list
+
+    def _meshgrid(
+        self, info: py2dmat.Info, split: bool = False
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """Generate discrete data from info
+
+        Arguments
+        ==========
+        info:
+        split:
+            if True, splits data into mpisize parts and returns mpirank-th one
+            (default: False)
+
+        Returns
+        =======
+        grid:
+            Ncandidate x dimension
+        id_list:
+        """
+
+        if "param" not in info.algorithm:
+            raise exception.InputError(
+                "ERROR: [algorithm.param] is not defined in the input"
+            )
+        info_param = info.algorithm["param"]
+
+        if "mesh_path" in info_param:
+            mesh_path = (
+                self.root_dir / pathlib.Path(info_param["mesh_path"]).expanduser()
+            )
+            comments = info_param.get("comments", "#")
+            delimiter = info_param.get("delimiter", None)
+            skiprows = info_param.get("skiprows", 0)
+            max_rows = info_param.get("max_rows", None)
+
+            data = np.loadtxt(
+                mesh_path,
+                comments=comments,
+                delimiter=delimiter,
+                skiprows=skiprows,
+                max_rows=max_rows,
+            )
+            grid = data
+        else:
+            min_list = np.array(info_param["min_list"], dtype=float)
+            if len(min_list) != self.dimension:
+                raise exception.InputError(
+                    f"ERROR: len(min_list) != dimension ({len(min_list)} != {self.dimension})"
+                )
+
+            if "max_list" not in info_param:
+                raise exception.InputError(
+                    "ERROR: algorithm.param.max_list is not defined in the input"
+                )
+            max_list = np.array(info_param["max_list"], dtype=float)
+            if len(max_list) != self.dimension:
+                raise exception.InputError(
+                    f"ERROR: len(max_list) != dimension ({len(max_list)} != {self.dimension})"
+                )
+
+            if "num_list" not in info_param:
+                raise exception.InputError(
+                    "ERROR: algorithm.param.num_list is not defined in the input"
+                )
+            num_list = np.array(info_param["num_list"], dtype=int)
+            if len(num_list) != self.dimension:
+                raise exception.InputError(
+                    f"ERROR: len(num_list) != dimension ({len(num_list)} != {self.dimension})"
+                )
+
+            xs = [
+                np.linspace(mn, mx, num=nm)
+                for mn, mx, nm in zip(min_list, max_list, num_list)
+            ]
+            data = np.array([g.flatten() for g in np.meshgrid(*xs)]).transpose()
+            grid = np.array([np.hstack([i, d]) for i, d in enumerate(data)])
+        ncandidates = grid.shape[0]
+        ns_total = np.arange(ncandidates)
+        if split:
+            id_list = np.array_split(ns_total, self.mpisize)[self.mpirank]
+            return grid[id_list, :], id_list
+        else:
+            return grid, ns_total
 
     def set_runner(self, runner: py2dmat.Runner) -> None:
         self.runner = runner
@@ -217,6 +305,7 @@ class AlgorithmBase(metaclass=ABCMeta):
 
         with open(self.proc_dir / "time.log", "w") as fw:
             fw.write("#in units of seconds")
+
             def output_file(type):
                 tmp_dict = self.timer[type]
                 fw.write("#{}\n total = {}\n".format(type, tmp_dict["total"]))

@@ -45,8 +45,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         print(f"interval = {self.interval}")
         print(f"num_rand_basis = {self.num_rand_basis}")
 
-        mesh_path = info_param.get("mesh_path", "MeshData.txt")
-        self.mesh_list = np.loadtxt(mesh_path)
+        self.mesh_list, actions = self._meshgrid(info, split=False)
         X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
         comm = self.mpicomm if self.mpisize > 1 else None
         self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
@@ -99,26 +98,26 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
     def _post(self) -> None:
         label_list = self.label_list
-        with open("BayesData.txt", "w") as file_BD:
-            file_BD.write("#step")
-            for label in label_list:
-                file_BD.write(f" {label}")
-            file_BD.write(" fx")
-            for label in label_list:
-                file_BD.write(f" {label}_action")
-            file_BD.write(" fx_action\n")
+        if self.mpirank == 0:
+            with open("BayesData.txt", "w") as file_BD:
+                file_BD.write("#step")
+                for label in label_list:
+                    file_BD.write(f" {label}")
+                file_BD.write(" fx")
+                for label in label_list:
+                    file_BD.write(f" {label}_action")
+                file_BD.write(" fx_action\n")
 
-            for step, fx in enumerate(self.fx_list):
-                file_BD.write(str(step))
-                best_idx = int(self.best_action[step])
-                for v in self.mesh_list[best_idx][1:]:
-                    file_BD.write(f" {v}")
-                file_BD.write(f" {-self.best_fx[step]}")
+                for step, fx in enumerate(self.fx_list):
+                    file_BD.write(str(step))
+                    best_idx = int(self.best_action[step])
+                    for v in self.mesh_list[best_idx][1:]:
+                        file_BD.write(f" {v}")
+                    file_BD.write(f" {-self.best_fx[step]}")
 
-                for v in self.param_list[step][1:]:
-                    file_BD.write(f" {v}")
-                file_BD.write(f" {fx}\n")
-
-        print("Best Solution:")
-        for x, y in zip(label_list, self.xopt):
-            print(x, "=", y)
+                    for v in self.param_list[step][1:]:
+                        file_BD.write(f" {v}")
+                    file_BD.write(f" {fx}\n")
+            print("Best Solution:")
+            for x, y in zip(label_list, self.xopt):
+                print(x, "=", y)
