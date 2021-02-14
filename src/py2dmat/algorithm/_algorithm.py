@@ -201,6 +201,10 @@ class AlgorithmBase(metaclass=ABCMeta):
             )
             grid = data
         else:
+            if "min_list" not in info_param:
+                raise exception.InputError(
+                    "ERROR: algorithm.param.min_list is not defined in the input"
+                )
             min_list = np.array(info_param["min_list"], dtype=float)
             if len(min_list) != self.dimension:
                 raise exception.InputError(
