@@ -8,12 +8,11 @@ import py2dmat
 
 
 class Algorithm(py2dmat.algorithm.AlgorithmBase):
-    mesh_path: Path
+    mesh_list: np.ndarray
 
     def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
         super().__init__(info=info, runner=runner)
-        info_param = info.algorithm.get("param", {})
-        self.mesh_path = self.root_dir / info_param.get("mesh_path", "MeshData.txt")
+        self.mesh_list, actions = self._meshgrid(info, split=True)
 
     def _run(self) -> None:
         # Make ColorMap
@@ -26,17 +25,16 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             time_sta = time.perf_counter()
             file_CM.write("#")
             for label in label_list:
-                file_CM.write("{} ".format(label))
-            file_CM.write("R-factor\n")
+                file_CM.write(f"{label} ")
+            file_CM.write("fval\n")
             time_end = time.perf_counter()
 
             self.timer["run"]["file_CM"] = time_end - time_sta
             self.timer["run"]["submit"] = 0.0
 
             message = py2dmat.Message([], 0, 0)
-            mesh_list = np.loadtxt("MeshData.txt")
-            iterations = len(mesh_list)
-            for iteration_count, mesh in enumerate(mesh_list):
+            iterations = len(self.mesh_list)
+            for iteration_count, mesh in enumerate(self.mesh_list):
                 print("Iteration : {}/{}".format(iteration_count + 1, iterations))
                 print("mesh before:", mesh)
 
@@ -66,9 +64,9 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             fx_order = np.argsort(fx_list)
             minimum_point = []
             print("mesh_list[fx_order[0]]:")
-            print(mesh_list[fx_order[0]])
+            print(self.mesh_list[fx_order[0]])
             for index in range(1, dimension + 1):
-                minimum_point.append(mesh_list[fx_order[0]][index])
+                minimum_point.append(self.mesh_list[fx_order[0]][index])
 
             time_sta = time.perf_counter()
             file_CM.write("#Minimum point :")
@@ -76,7 +74,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                 file_CM.write(" {:8f}".format(value))
             file_CM.write("\n")
             file_CM.write("#R-factor : {:8f}\n".format(fx_list[fx_order[0]]))
-            file_CM.write("#see Log{}\n".format(round(mesh_list[fx_order[0]][0])))
+            file_CM.write("#see Log{}\n".format(round(self.mesh_list[fx_order[0]][0])))
             time_end = time.perf_counter()
             self.timer["run"]["file_CM"] += time_end - time_sta
 
@@ -87,20 +85,8 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         )
 
     def _prepare(self) -> None:
-        # scatter MeshData
-        if self.mpirank == 0:
-            lines = []
-            with open(self.mesh_path, "r") as file_input:
-                for line in file_input:
-                    if not line.lstrip().startswith("#"):
-                        lines.append(line)
-            mesh_total = np.array(lines)
-            mesh_divided = np.array_split(mesh_total, self.mpisize)
-            for index, mesh in enumerate(mesh_divided):
-                wdir = self.output_dir / str(index)
-                with open(wdir / "MeshData.txt", "w") as file_output:
-                    for data in mesh:
-                        file_output.write(data)
+        # do nothing
+        pass
 
     def _post(self) -> None:
         if self.mpirank == 0:
