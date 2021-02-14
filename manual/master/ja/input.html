@@ -47,7 +47,7 @@
 <h2>[<code class="docutils literal notranslate"><span class="pre">base</span></code>] セクション<a class="headerlink" href="#base" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">dimension</span></code></p>
-<p>形式: 整数型 (default: 2)</p>
+<p>形式: 整数型</p>
 <p>説明: 探索空間の次元（探索するパラメータの数）</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">output_dir</span></code></p>
@@ -247,11 +247,11 @@
 </dl>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。(default: [-10.0, -10.0])</p>
+<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータが取りうる最小値。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。(default: [10.0, 10.0])</p>
+<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータが取りうる最大値。</p>
 </li>
 </ul>
@@ -290,22 +290,58 @@
 <h3><code class="docutils literal notranslate"><span class="pre">mapper_mpi</span></code> で定義されているパラメータ<a class="headerlink" href="#mapper-mpi" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <div class="section" id="id3">
 <h4>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] セクション<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<p>探索パラメータ空間を定義します。</p>
+<p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> が定義されている場合はメッシュファイルから読み込みます。
+メッシュファイルは1行がパラメータ空間中の1点を意味しており、
+1列目がデータ番号で、2列目以降が各次元の座標です。</p>
+<p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> が定義されていない場合は、 <code class="docutils literal notranslate"><span class="pre">min_list</span></code>, <code class="docutils literal notranslate"><span class="pre">max_list</span></code>, <code class="docutils literal notranslate"><span class="pre">num_list</span></code> を用いて、
+各パラメータについて等間隔なグリッドを作成します。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code></p>
-<p>形式: string型 (default: <code class="docutils literal notranslate"><span class="pre">MeshData.txt</span></code> )</p>
+<p>形式: string型</p>
 <p>説明: メッシュデータの情報が記載された参照用ファイルへのパス。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
+<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>説明: パラメータが取りうる最小値。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
+<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>説明: パラメータが取りうる最大値。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_list</span></code></p>
+<p>形式: 整数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>説明: パラメータが取りうる数。</p>
 </li>
 </ul>
 </div>
 </div>
-<div class="section" id="bayse">
-<h3><code class="docutils literal notranslate"><span class="pre">bayse</span></code> で定義されているパラメータ<a class="headerlink" href="#bayse" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<div class="section" id="bayes">
+<h3><code class="docutils literal notranslate"><span class="pre">bayes</span></code> で定義されているパラメータ<a class="headerlink" href="#bayes" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <div class="section" id="id4">
 <h4>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] セクション<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<p>探索パラメータ空間を定義します。</p>
+<p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> が定義されている場合はメッシュファイルから読み込みます。
+メッシュファイルは1行がパラメータ空間中の1点を意味しており、
+1列目がデータ番号で、2列目以降が各次元の座標です。</p>
+<p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> が定義されていない場合は、 <code class="docutils literal notranslate"><span class="pre">min_list</span></code>, <code class="docutils literal notranslate"><span class="pre">max_list</span></code>, <code class="docutils literal notranslate"><span class="pre">num_list</span></code> を用いて、
+各パラメータについて等間隔なグリッドを作成します。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code></p>
-<p>形式: string型 (default: <code class="docutils literal notranslate"><span class="pre">MeshData.txt</span></code> )</p>
+<p>形式: string型</p>
 <p>説明: メッシュデータの情報が記載された参照用ファイルへのパス。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
+<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>説明: パラメータが取りうる最小値。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
+<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>説明: パラメータが取りうる最大値。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_list</span></code></p>
+<p>形式: 整数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>説明: パラメータが取りうる数。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">random_max_num_probes</span></code></p>
 <p>形式： int型 (default: 20)</p>
@@ -320,12 +356,12 @@
 <p>説明: スコア関数を指定するパラメータ。
 <code class="docutils literal notranslate"><span class="pre">EI</span></code>, <code class="docutils literal notranslate"><span class="pre">PI</span></code>, <code class="docutils literal notranslate"><span class="pre">TS</span></code> より選択可能で、それぞれ &quot;expected improvement&quot;, &quot;probability of improvement&quot;, &quot;Thompson sampling&quot; を行う。</p>
 </li>
-<li><p>interval</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">interval</span></code></p>
 <p>形式： int型 (default: 5)</p>
 <p>説明: 指定したインターバルごとに、ハイパーパラメータを学習します。負の値を指定すると、ハイパーパラメータの学習は行われません。
-0を指定すると、ハイパーパラメータの学習は最初のステップでのみ行われます。。</p>
+0を指定すると、ハイパーパラメータの学習は最初のステップでのみ行われます。</p>
 </li>
-<li><p>num_rand_basis</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_rand_basis</span></code></p>
 <p>形式： int型 (default: 5000)</p>
 <p>説明： 基底関数の数。0を指定した場合、Bayesian linear modelを利用しない通常のガウシアンプロセスが行われます。</p>
 </li>
@@ -351,11 +387,11 @@
 </dl>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。(default: [-10.0, -10.0])</p>
+<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータが取りうる最小値。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。(default: [10.0, 10.0])</p>
+<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータが取りうる最大値。</p>
 </li>
 </ul>
