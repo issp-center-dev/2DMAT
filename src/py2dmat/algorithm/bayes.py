@@ -35,7 +35,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         self.random_max_num_probes = info_param.get("random_max_num_probes", 20)
         self.bayes_max_num_probes = info_param.get("bayes_max_num_probes", 40)
         self.score = info_param.get("score", "TS")
-        self.interval = info.algorithm.get("interval", 5)
+        self.interval = info_param.get("interval", 5)
         self.num_rand_basis = info.algorithm.get("num_rand_basis", 5000)
 
         print("# parameter")
