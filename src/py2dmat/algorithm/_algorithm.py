@@ -52,7 +52,6 @@ class AlgorithmBase(metaclass=ABCMeta):
         self.mpicomm = mpi.comm()
         self.mpisize = mpi.size()
         self.mpirank = mpi.rank()
-        self.runner = runner
         self.timer = {"prepare": {}, "run": {}, "post": {}}
         self.status = AlgorithmStatus.INIT
 
@@ -93,6 +92,8 @@ class AlgorithmBase(metaclass=ABCMeta):
             time.sleep(0.1)
         if self.mpisize > 1:
             self.mpicomm.Barrier()
+        if runner is not None:
+            self.set_runner(runner)
 
     def __init_rng(self, info: py2dmat.Info) -> None:
         seed = info.algorithm.get("seed", None)
@@ -247,6 +248,7 @@ class AlgorithmBase(metaclass=ABCMeta):
 
     def set_runner(self, runner: py2dmat.Runner) -> None:
         self.runner = runner
+        self.runner.prepare(self.proc_dir)
 
     def prepare(self) -> None:
         if self.runner is None:

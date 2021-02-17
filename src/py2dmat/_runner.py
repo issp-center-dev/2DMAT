@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import subprocess
+import time
 from abc import ABCMeta, abstractmethod
 
 import py2dmat
@@ -36,6 +37,10 @@ class Run(metaclass=ABCMeta):
 class Runner(object):
     solver: "py2dmat.solver.SolverBase"
     run: Run
+    num_calls: int
+    time_previous: float
+    log_buffer: List[str]
+    proc_dir: Path
 
     def __init__(self, solver: py2dmat.solver.SolverBase, nprocs: int = 1, nthreads: int = 1):
         """
@@ -70,14 +75,37 @@ class Runner(object):
         else:
             msg = f"Unknown scheme: {run_scheme}"
             raise ValueError(msg)
+        self.num_calls = 0
+        self.time_previous = time.perf_counter()
+
+    def prepare(self, proc_dir: Path):
+        self.proc_dir = proc_dir
+        self.time_start = time.perf_counter()
+        self.time_previous = self.time_start
+        self.num_calls = 0
+        self.log_buffer = []
+        elfile = self.proc_dir / "elapsed_time.dat"
+        if elfile.exists():
+            elfile.unlink()
 
     def submit(self, message: py2dmat.Message) -> float:
+        t = time.perf_counter()
         self.solver.prepare(message)
         cwd = os.getcwd()
         os.chdir(self.solver.work_dir)
         self.run.submit(self.solver)
         os.chdir(cwd)
         results = self.solver.get_results()
+
+        self.log_buffer.append(f"{self.num_calls} {t - self.time_previous} {t - self.time_start}\n")
+        self.time_previous = t
+
+        self.num_calls += 1
+        if self.num_calls % 20 == 0:
+            with open(self.proc_dir / "elapsed_time.dat", "a") as f:
+                for line in self.log_buffer:
+                    f.write(line)
+            self.log_buffer = []
         return results
 
 
