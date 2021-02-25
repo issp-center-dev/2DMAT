@@ -19,7 +19,7 @@ class Solver(py2dmat.solver.SolverBase):
     def __init__(self, info: py2dmat.Info):
         super().__init__(info)
 
-        self._name = "surf"
+        self._name = "sim_trhepd_rheed"
         p2solver = info.solver["config"].get("surface_exec_file", "surf.exe")
         if os.path.dirname(p2solver) != "":
             # ignore ENV[PATH]
