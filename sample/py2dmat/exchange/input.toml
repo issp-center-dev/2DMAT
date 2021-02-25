@@ -18,7 +18,7 @@ Tmax = 0.05
 Tlogspace = true
 
 [solver]
-name = "surface"
+name = "sim-trhepd-rheed"
 
 [solver.config]
 calculated_first_line = 5

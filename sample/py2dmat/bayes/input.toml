@@ -2,7 +2,7 @@
 dimension = 2
 
 [solver]
-name = "surface"
+name = "sim-trhepd-rheed"
 
 [solver.config]
 calculated_first_line = 5
@@ -26,3 +26,4 @@ seed = 1
 [algorithm.param]
 random_max_num_probes = 5
 bayes_max_num_probes = 20
+mesh_path = "./MeshData.txt"

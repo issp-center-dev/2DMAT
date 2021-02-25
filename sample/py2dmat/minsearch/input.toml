@@ -2,7 +2,7 @@
 dimension = 3
 
 [solver]
-name = "surface"
+name = "sim-trhepd-rheed"
 
 [solver.config]
 calculated_first_line = 5
