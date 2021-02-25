@@ -108,7 +108,7 @@ Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference
     dimension = 3
 
     [solver]
-    name = "surface"
+    name = "sim-trhepd-rheed"
 
     [solver.config]
     calculated_first_line = 5
@@ -140,7 +140,7 @@ Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference
 
 ``[solver]`` セクションではメインプログラムの内部で使用するソルバーとその設定を指定します。
 
-- ``name`` は使用したいソルバーの名前で、このチュートリアルでは、``surf.exe`` を用いた解析を行うので、 ``surface`` を指定します。
+- ``name`` は使用したいソルバーの名前で、このチュートリアルでは、 ``sim-trhepd-rheed`` を用いた解析を行うので、 ``sim-trhepd-rheed`` を指定します。
 
 ソルバーの設定は、サブセクションの ``[solver.config]``, ``[solver.param]``, ``[solver.reference]`` で行います。
 

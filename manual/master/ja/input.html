@@ -65,15 +65,15 @@
 <p>説明: ソルバーの名前。以下のソルバーが用意されています。</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">surf</span></code> : 反射高速(陽)電子回折(RHEED, TRHEPD)の強度計算をするためのソルバー <code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code> : 反射高速(陽)電子回折(RHEED, TRHEPD)の強度計算をするためのソルバー <code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">analytic</span></code> : 解析解を与えるソルバー (主にテストに利用)</p></li>
 </ul>
 </div></blockquote>
 </li>
 </ul>
 <p>以下、ソルバーごとに定義されているパラメータを記載します。</p>
-<div class="section" id="surf">
-<h3><code class="docutils literal notranslate"><span class="pre">surf</span></code> で定義されているパラメータ<a class="headerlink" href="#surf" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<div class="section" id="sim-trhepd-rheed">
+<h3><code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code> で定義されているパラメータ<a class="headerlink" href="#sim-trhepd-rheed" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <div class="section" id="config">
 <h4>[<code class="docutils literal notranslate"><span class="pre">config</span></code>] セクション<a class="headerlink" href="#config" title="このヘッドラインへのパーマリンク">¶</a></h4>
 <ul>
@@ -432,10 +432,10 @@
 <p>ソルバー、アルゴリズムごとに参照するファイルについて記載します。</p>
 <div class="section" id="id8">
 <h2>ソルバーで参照するファイル<a class="headerlink" href="#id8" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="surf">
+<h3><code class="docutils literal notranslate"><span class="pre">surf</span></code> で参照するファイル<a class="headerlink" href="#surf" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <div class="section" id="id9">
-<h3><code class="docutils literal notranslate"><span class="pre">surf</span></code> で参照するファイル<a class="headerlink" href="#id9" title="このヘッドラインへのパーマリンク">¶</a></h3>
-<div class="section" id="id10">
-<h4>テンプレートを定義するファイル<a class="headerlink" href="#id10" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<h4>テンプレートを定義するファイル<a class="headerlink" href="#id9" title="このヘッドラインへのパーマリンク">¶</a></h4>
 <p>テンプレートを定義するファイル <code class="docutils literal notranslate"><span class="pre">template.txt</span></code> は <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> の入力ファイルをもとに作成するファイルです。
 動かすパラメータ（求めたい原子座標などの値）を「 <code class="docutils literal notranslate"><span class="pre">value_*</span></code> 」などの適当な文字列に置き換えます。
 使用する文字列は入力ファイルの <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> - <code class="docutils literal notranslate"><span class="pre">[param]</span></code> セクションにある、
@@ -461,8 +461,8 @@
 </div>
 <p>この場合、 <code class="docutils literal notranslate"><span class="pre">value_01</span></code>, <code class="docutils literal notranslate"><span class="pre">value_02</span></code>, <code class="docutils literal notranslate"><span class="pre">value_03</span></code> が動かすパラメータとなります。</p>
 </div>
-<div class="section" id="id11">
-<h4>ターゲットを定義するファイル<a class="headerlink" href="#id11" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<div class="section" id="id10">
+<h4>ターゲットを定義するファイル<a class="headerlink" href="#id10" title="このヘッドラインへのパーマリンク">¶</a></h4>
 <p>ターゲットにするデータが格納されたファイル <code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code> を指定します。
 第一列に角度、第二列に反射強度に重みをかけて計算した値が入ってます。
 以下、ファイルの例を指定します。</p>
@@ -482,12 +482,12 @@
 </div>
 </div>
 </div>
-<div class="section" id="id12">
-<h2>アルゴリズムで参照するファイル<a class="headerlink" href="#id12" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="id11">
+<h2>アルゴリズムで参照するファイル<a class="headerlink" href="#id11" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <div class="section" id="mapper">
 <h3><code class="docutils literal notranslate"><span class="pre">mapper</span></code> で参照するファイル<a class="headerlink" href="#mapper" title="このヘッドラインへのパーマリンク">¶</a></h3>
-<div class="section" id="id13">
-<h4>メッシュを定義するファイル<a class="headerlink" href="#id13" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<div class="section" id="id12">
+<h4>メッシュを定義するファイル<a class="headerlink" href="#id12" title="このヘッドラインへのパーマリンク">¶</a></h4>
 <p>本ファイルで探索するグリッド空間を定義します。
 1列目にメッシュのインデックス、
 2列目以降は``[solver]`` - <code class="docutils literal notranslate"><span class="pre">[param]</span></code> セクションにある、
