@@ -43,7 +43,14 @@ def main():
 
     solvername = info.solver["name"]
     if solvername == "surface":
-        from .solver.surface import Solver
+        if py2dmat.mpi.rank() == 0:
+            print(
+                'WARNING: solver name "surface" is deprecated and will be unavailable in future.'
+                ' Use "sim-trhepd-rheed" instead.'
+            )
+        from .solver.sim_trhepd_rheed import Solver
+    elif solvername == "sim-trhepd-rheed":
+        from .solver.sim_trhepd_rheed import Solver
     elif solvername == "analytical":
         from .solver.analytical import Solver
     else:

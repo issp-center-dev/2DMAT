@@ -34,13 +34,13 @@
 
   説明: ソルバーの名前。以下のソルバーが用意されています。
 
-    - ``surf`` : 反射高速(陽)電子回折(RHEED, TRHEPD)の強度計算をするためのソルバー ``sim-trhepd-rheed``
+    - ``sim-trhepd-rheed`` : 反射高速(陽)電子回折(RHEED, TRHEPD)の強度計算をするためのソルバー ``sim-trhepd-rheed``
 
     - ``analytic`` : 解析解を与えるソルバー (主にテストに利用)
 
 以下、ソルバーごとに定義されているパラメータを記載します。
 
-``surf`` で定義されているパラメータ
+``sim-trhepd-rheed`` で定義されているパラメータ
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 [``config``] セクション
@@ -184,6 +184,16 @@
       f(\vec{x}) = 20 + e - 20\exp\left[-0.2\sqrt{\frac{1}{N}\sum_{i=1}^N x_i^2}\right] - \exp\left[\frac{1}{N}\cos\left(2\pi x_i\right)\right]
 
     - 最適値は :math:`f(\vec{x}^*) = 0 \quad (\forall_i x_i^* = 0)`
+
+  - ``himmerblau``
+
+    - `Himmerblau 関数 <https://en.wikipedia.org/wiki/Himmelblau%27s_function>`_
+
+    .. math::
+      
+      f(x,y) = (x^2+y-11)^2 + (x+y^2-7)^2
+
+    - 最適値は :math:`f(3,2) = f(-2.805118, 3.131312) = f(-3.779310, -3.283186) = f(3.584428, -1.848126) = 0`
 
 [``algorithm``] セクション
 *******************************
