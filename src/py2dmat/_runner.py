@@ -88,6 +88,7 @@ class Logger:
     def count(self, message: py2dmat.Message, result: float) -> None:
         if self.disabled():
             return
+        self.num_calls += 1
         t = time.perf_counter()
         fields = [self.num_calls, t-self.time_previous, t-self.time_start]
         if self.to_write_result:
@@ -100,7 +101,6 @@ class Logger:
             self.buffer_index
         ] = " ".join(map(str, fields))
         self.time_previous = t
-        self.num_calls += 1
         self.buffer_index += 1
         if self.buffer_index == self.buffer_size:
             self.write()
