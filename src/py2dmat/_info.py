@@ -9,6 +9,7 @@ class Info:
     base: dict
     algorithm: dict
     solver: dict
+    runner: dict
 
     def __init__(self, d: Optional[MutableMapping] = None):
         if d is not None:
@@ -26,6 +27,7 @@ class Info:
         self.base = d["base"]
         self.algorithm = d["algorithm"]
         self.solver = d["solver"]
+        self.runner = d.get("runner", {})
 
         self.base["root_dir"] = (
             Path(self.base.get("root_dir", ".")).expanduser().absolute()
@@ -41,3 +43,4 @@ class Info:
         self.base["output_dir"] = self.base["root_dir"]
         self.algorithm = {}
         self.solver = {}
+        self.runner = {}

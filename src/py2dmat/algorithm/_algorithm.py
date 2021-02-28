@@ -268,6 +268,7 @@ class AlgorithmBase(metaclass=ABCMeta):
         original_dir = os.getcwd()
         os.chdir(self.proc_dir)
         self._run()
+        self.runner.post()
         os.chdir(original_dir)
         self.status = AlgorithmStatus.RUN
 

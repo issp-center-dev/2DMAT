@@ -58,6 +58,6 @@ def main():
         exit(1)
 
     solver = Solver(info)
-    runner = py2dmat.Runner(solver)
+    runner = py2dmat.Runner(solver, info)
     alg = Algorithm(info, runner)
     alg.main()
