@@ -185,6 +185,16 @@
 
     - 最適値は :math:`f(\vec{x}^*) = 0 \quad (\forall_i x_i^* = 0)`
 
+  - ``himmerblau``
+
+    - `Himmerblau 関数 <https://en.wikipedia.org/wiki/Himmelblau%27s_function>`_
+
+    .. math::
+      
+      f(x,y) = (x^2+y-11)^2 + (x+y^2-7)^2
+
+    - 最適値は :math:`f(3,2) = f(-2.805118, 3.131312) = f(-3.779310, -3.283186) = f(3.584428, -1.848126) = 0`
+
 [``algorithm``] セクション
 *******************************
 
