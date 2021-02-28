@@ -64,8 +64,18 @@ class Solver(py2dmat.solver.function.Solver):
         self._name = "analytical"
         function_name = info.solver.get("function_name", "quadratics")
 
-        try:
-            f = eval(function_name)
-            self.set_function(f)
-        except NameError:
+        if function_name == "quadratics":
+            self.set_function(quadratics)
+        elif function_name == "ackley":
+            self.set_function(ackley)
+        elif function_name == "rosenbrock":
+            self.set_function(rosenbrock)
+        elif function_name == "himmelblau":
+            dimension = info.base["dimension"]
+            if int(dimension) != 2:
+                raise RuntimeError(
+                    f"ERROR: himmelblau works only with dimension=2 but input is dimension={dimension}"
+                )
+            self.set_function(himmelblau)
+        else:
             raise RuntimeError(f"ERROR: Unknown function, {function_name}")
