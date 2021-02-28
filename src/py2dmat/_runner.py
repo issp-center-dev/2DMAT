@@ -53,7 +53,7 @@ class Logger:
         self.buffer_size = info_log.get("buffer_size", 0)
         if self.buffer_size <= 0:
             return
-        self.filename = info_log.get("filename", "time_call_solver.log")
+        self.filename = info_log.get("filename", "runner.log")
         self.time_start = time.perf_counter()
         self.time_previous = self.time_start
         self.num_calls = 0
@@ -73,7 +73,7 @@ class Logger:
             self.logfile.unlink()
         with open(self.logfile, "w") as f:
             f.write("# $1: num_calls\n")
-            f.write("# $2: elapsed_time_from_before_call\n")
+            f.write("# $2: elapsed_time_from_last_call\n")
             f.write("# $3: elapsed_time_from_start\n")
             if self.to_write_result:
                 f.write("# $4: result\n")

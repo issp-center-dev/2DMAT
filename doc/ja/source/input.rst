@@ -493,7 +493,7 @@ solver 呼び出しのlogging に関する設定です。
 
 - ``filename``
 
-  形式: 文字列 (default: "time_call_solver.log")
+  形式: 文字列 (default: "runner.log")
 
   説明: ログファイルの名前。
 
