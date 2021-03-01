@@ -6,6 +6,7 @@ on:
       - master
       - develop
       - ghactions
+      - '*-autodoc'
       - '!gh-pages'
     tags: ['*']
 
@@ -67,6 +68,7 @@ jobs:
       run: |
           cd ${GITHUB_WORKSPACE}
           is_tag=NO
+          TARGET_NAME="${TARGET_NAME%-autodoc}"
           test "_$(echo ${GITHUB_REF:-'//'} | cut -d/ -f2)" = "_tags" && is_tag=YES
           for lang in ja; do
             rm -rf "gh-pages/manual/${TARGET_NAME}/${lang}"
