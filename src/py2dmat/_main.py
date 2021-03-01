@@ -1,4 +1,5 @@
 from sys import exit, argv
+
 import toml
 
 import py2dmat
@@ -20,10 +21,14 @@ def main():
     args = parser.parse_args()
 
     file_name = args.inputfile
-    info = py2dmat.Info(toml.load(file_name))
-    algname = info.algorithm["name"]
+    inp = {}
+    if py2dmat.mpi.rank() == 0:
+        inp = toml.load(file_name)
+    if py2dmat.mpi.size() > 1:
+        inp = py2dmat.mpi.comm().bcast(inp, root=0)
+    info = py2dmat.Info(inp)
 
-    # Define algorithm
+    algname = info.algorithm["name"]
     if algname == "mapper":
         from .algorithm.mapper_mpi import Algorithm
     elif algname == "minsearch":
@@ -53,6 +58,6 @@ def main():
         exit(1)
 
     solver = Solver(info)
-    runner = py2dmat.Runner(solver)
+    runner = py2dmat.Runner(solver, info)
     alg = Algorithm(info, runner)
     alg.main()
