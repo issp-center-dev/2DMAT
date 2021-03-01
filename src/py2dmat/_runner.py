@@ -50,7 +50,7 @@ class Logger:
             self.buffer_size = 0
             return
         info_log = info.runner.get("log", {})
-        self.buffer_size = info_log.get("output_numcalls", 0)
+        self.buffer_size = info_log.get("interval", 0)
         if self.buffer_size <= 0:
             return
         self.filename = info_log.get("filename", "runner.log")

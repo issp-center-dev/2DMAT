@@ -497,11 +497,11 @@ solver 呼び出しのlogging に関する設定です。
 
   説明: ログファイルの名前。
 
-- ``output_numcalls``
+- ``interval``
 
   形式: 整数 (default: 0)
 
-  説明: solver を output_numcalls 回呼ぶ毎にログが書き出されます。0以下の場合、ログ書き出しは行われません。
+  説明: solver を interval 回呼ぶ毎にログが書き出されます。0以下の場合、ログ書き出しは行われません。
 
 - ``write_result``
 
