@@ -15,6 +15,8 @@ Welcome to 2DMAT's documentation!
    tutorial/index
    input
    output
+   algorithm/index
+   solver/index
    tool
    customize/index
    theory
