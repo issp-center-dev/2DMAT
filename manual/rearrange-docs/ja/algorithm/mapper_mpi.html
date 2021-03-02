@@ -13,6 +13,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/translations.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
     <link rel="next" title="交換モンテカルロ法 exchange" href="exchange.html" />
@@ -38,8 +39,8 @@
         
   <div class="section" id="mapper">
 <h1>自明並列探索 <code class="docutils literal notranslate"><span class="pre">mapper</span></code><a class="headerlink" href="#mapper" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">mapper</span></code> はグリッドサーチを用いてパラメータ探索を行う <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> です。</p>
-<p>MPI による自明並列（探索点の分割）が実装されています。</p>
+<p><code class="docutils literal notranslate"><span class="pre">mapper_mpi</span></code> はパラメータ空間中の候補点をあらかじめ用意しておいて、そのすべてで <span class="math notranslate nohighlight">\(f(x)\)</span> を計算することで最小値を探索するアルゴリズムです。
+MPI 実行した場合、候補点の集合を等分割して各プロセスに自動的に割り振ることで自明並列計算を行います。</p>
 <div class="section" id="id1">
 <h2>前準備<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>MPI 並列を行う場合は、 <a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> をインストールしておく必要があります。:</p>

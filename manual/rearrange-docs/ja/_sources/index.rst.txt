@@ -19,6 +19,5 @@ Welcome to 2DMAT's documentation!
    solver/index
    tool
    customize/index
-   theory
    acknowledgement
    contact
