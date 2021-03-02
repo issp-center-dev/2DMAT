@@ -3,9 +3,14 @@ Nelder-Mead 法 ``minsearch``
 
 .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/optimize.minimize-neldermead.html
 
-``minsearch`` は Nelder-Mead 法を用いてパラメータ探索を行う ``Algorithm`` です。
+``minsearch`` は `Nelder-Mead 法 <https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method>`_ (a.k.a. downhill simplex 法) によって最適化を行います。
+Nelder-Mead 法では、 パラメータ空間の次元を :math:`D` として、 :math:`D+1` 個の座標点の組を、各点での目的関数の値に応じて系統的に動かすことで最適解を探索します。
 
-実装には `scipy.optimize.minimize`_ を利用しています。
+重要なハイパーパラメータとして、座標の初期値があります。
+単純な最急降下法よりは安定ですが、局所最適解にトラップされるという問題は残っているので、初期値を変えた計算を何回か繰り返して結果を確認することをおすすめします。
+
+2DMATは、SciPy の ``scipy.optimize.minimize(method="Nelder-Mead")`` 関数を用いています。
+詳しくは `公式ドキュメント <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize>`_ をご参照ください。
 
 
 前準備
@@ -127,4 +132,16 @@ Nelder-Mead 法のハイパーパラメータを設定します。
     z1 = 5.230524973874179
     z2 = 4.370622919269477
     z3 = 3.5961444501081647
+
+
+``minsearch``
+****************
+``minsearch`` は `Nelder-Mead 法 <https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method>`_ (a.k.a. downhill simplex 法) によって最適化を行います。
+Nelder-Mead 法では、 パラメータ空間の次元を :math:`D` として、 :math:`D+1` 個の座標点の組を、各点での目的関数の値に応じて系統的に動かすことで最適解を探索します。
+
+重要なハイパーパラメータとして、座標の初期値があります。
+単純な最急降下法よりは安定ですが、局所最適解にトラップされるという問題は残っているので、初期値を変えた計算を何回か繰り返して結果を確認することをおすすめします。
+
+2DMATは、SciPy の ``scipy.optimize.minimize(method="Nelder-Mead")`` 関数を用いています。
+詳しくは `公式ドキュメント <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize>`_ をご参照ください。
 
