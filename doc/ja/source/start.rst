@@ -30,12 +30,17 @@ py2dmat のインストール
 
         - ``py2dmat[all]`` とすると Optional なパッケージも同時にインストールします
 
-- ソースコードからのインストール（開発者むけ）
+- ソースコードからのインストール
 
     #. ``git clone https://github.com/issp-center-dev/2DMAT``
     #. ``python3 -m pip install ./2DMAT``
 
         - ``pip`` のバージョンは 19 以上が必要です (``python3 -m pip install -U pip`` で更新可能)
+
+- サンプルファイルのダウンロード
+
+    - サンプルファイルはソースコードに同梱されています。
+    - ``git clone https://github.com/issp-center-dev/2DMAT``
 
 実行方法
 ~~~~~~~~~~~~~
@@ -43,7 +48,8 @@ py2dmat のインストール
     
     $ py2dmat input.toml
 
-定義済みの ``Algorithm``/``Solver`` および入力ファイル ``input.toml`` の仕様については :doc:`input` を参照してください。
+定義済みの ``Algorithm`` については :doc:`algorithm/index` を、
+``Solver`` については :doc:`solver/input` を参照してください。
 
 ``Algorithm`` や ``Solver`` をユーザーが準備する場合は、 ``py2dmat`` パッケージを利用します。
 詳しくは :doc:`customize/index` を参照してください。

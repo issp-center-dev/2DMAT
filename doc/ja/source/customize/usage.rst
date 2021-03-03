@@ -40,7 +40,7 @@
 
     # (3)
     solver = Solver(info)
-    runner = py2dmat.Runner(solver)
+    runner = py2dmat.Runner(solver, info)
     algorithm = Algorithm(info, runner)
 
     # (4)
