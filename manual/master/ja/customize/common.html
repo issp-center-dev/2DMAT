@@ -42,7 +42,7 @@
 <div class="section" id="py2dmat-info">
 <h2><code class="docutils literal notranslate"><span class="pre">py2dmat.Info</span></code><a class="headerlink" href="#py2dmat-info" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>入力パラメータを扱うためのクラスです。
-インスタンス変数として次の3つの <code class="docutils literal notranslate"><span class="pre">dict</span></code> を持ちます。</p>
+インスタンス変数として次の4つの <code class="docutils literal notranslate"><span class="pre">dict</span></code> を持ちます。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">base</span></code></p>
 <blockquote>
@@ -65,8 +65,15 @@
 </ul>
 </div></blockquote>
 </li>
+<li><p><code class="docutils literal notranslate"><span class="pre">runner</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Runner</span></code> が用いる入力パラメータ</p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">Info</span></code> は <code class="docutils literal notranslate"><span class="pre">&quot;base&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;solver&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;algorithm&quot;</span></code> の3つのキーを持つような <code class="docutils literal notranslate"><span class="pre">dict</span></code> を渡して初期化出来ます。</p>
+</div></blockquote>
+</li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">Info</span></code> は <code class="docutils literal notranslate"><span class="pre">&quot;base&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;solver&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;algorithm&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">runner</span></code> の4つのキーを持つような <code class="docutils literal notranslate"><span class="pre">dict</span></code> を渡して初期化出来ます。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">base</span></code> について</p>
 <blockquote>
@@ -142,7 +149,7 @@
 <div class="section" id="py2dmat-runner">
 <h2><code class="docutils literal notranslate"><span class="pre">py2dmat.Runner</span></code><a class="headerlink" href="#py2dmat-runner" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> と <code class="docutils literal notranslate"><span class="pre">Solver</span></code> とをつなげるためのクラスです。
-コンストラクタ引数として <code class="docutils literal notranslate"><span class="pre">Solver</span></code> のインスタンスを取ります。</p>
+コンストラクタ引数として <code class="docutils literal notranslate"><span class="pre">Solver</span></code> のインスタンスと <code class="docutils literal notranslate"><span class="pre">Info</span></code> のインスタンスを取ります。</p>
 <p><code class="docutils literal notranslate"><span class="pre">submit(self,</span> <span class="pre">message:</span> <span class="pre">py2dmat.Message)</span> <span class="pre">-&gt;</span> <span class="pre">float</span></code> メソッドでソルバーを実行し、結果を返します。
 探索パラメータを <code class="docutils literal notranslate"><span class="pre">x</span></code> として、 目的関数 <code class="docutils literal notranslate"><span class="pre">fx</span> <span class="pre">=</span> <span class="pre">f(x)</span></code> を得たい場合は以下のようにします</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">message</span> <span class="o">=</span> <span class="n">py2dmat</span><span class="o">.</span><span class="n">Message</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="nb">set</span><span class="p">)</span>
