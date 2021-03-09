@@ -17,5 +17,6 @@ Welcome to 2DMAT's documentation!
    solver/index
    algorithm/index
    tool
+   customize/index
    acknowledgement
    contact
