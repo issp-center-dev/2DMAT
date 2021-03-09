@@ -15,6 +15,7 @@ Welcome to 2DMAT's documentation!
    input
    output
    solver/index
+   algorithm/index
    tool
    acknowledgement
    contact

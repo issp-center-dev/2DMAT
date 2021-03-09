@@ -7,7 +7,7 @@ Nelder-Mead 法 ``minsearch``
 Nelder-Mead 法では、 パラメータ空間の次元を :math:`D` として、 :math:`D+1` 個の座標点の組を、各点での目的関数の値に応じて系統的に動かすことで最適解を探索します。
 
 重要なハイパーパラメータとして、座標の初期値があります。
-単純な最急降下法よりは安定ですが、局所最適解にトラップされるという問題は残っているので、初期値を変えた計算を何回か繰り返して結果を確認することをおすすめします。
+局所最適解にトラップされるという問題があるので、初期値を変えた計算を何回か繰り返して結果を確認することをおすすめします。
 
 2DMATは、SciPy の ``scipy.optimize.minimize(method="Nelder-Mead")`` 関数を用いています。
 詳しくは `公式ドキュメント <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize>`_ をご参照ください。
@@ -16,7 +16,7 @@ Nelder-Mead 法では、 パラメータ空間の次元を :math:`D` として�
 前準備
 ~~~~~~
 
-あらかじめ `scipy <https://docs.scipy.org/doc/scipy/reference`_ をインストールしておく必要があります。::
+あらかじめ `scipy <https://docs.scipy.org/doc/scipy/reference>`_ をインストールしておく必要があります。 ::
 
   python3 -m pip install scipy
 
