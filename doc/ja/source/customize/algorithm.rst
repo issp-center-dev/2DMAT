@@ -31,7 +31,7 @@
 
         - ``self.rng: np.random.Generator`` : 擬似乱数生成器
 
-            - 擬似乱数の種について、詳細は ``exchange`` ソルバーの入力パラメータを参照してください
+            - 擬似乱数の種について、詳細は :ref:`入力パラメータの [algorithm] セクション <input_algorithm>` を参照してください
 
         - ``self.dimension: int`` : 探索パラメータ空間の次元
         - ``self.label_list: List[str]`` : 各パラメータの名前
@@ -77,8 +77,20 @@
 
 - ``_read_param(self, info: py2dmat.Info) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]``
 
+    - 連続なパラメータ空間を定義するためのヘルパーメソッドです
     - ``info.algorithm["param"]`` から探索パラメータの初期値や最小値、最大値、単位を取得します
-    - 詳細は ``min_search`` の入力ファイルの ``initial_list``, ``min_list``, ``max_list``, ``unit_list`` を参照してください
+    - 詳細は :ref:`min_search の入力ファイル <minsearch_input_param>` を参照してください
+
+- ``_mesh_grid(self, info: py2dmat.Info, split: bool = False) -> Tuple[np.ndarray, np.ndarray]``
+
+    - 離散的なパラメータ空間を定義するためのヘルパーメソッドです
+    - ``info.algorithm["param"]`` を読み取り次を返します:
+
+        - ``D`` 次元の候補点 ``N`` 個からなる集合 (``NxD`` 次元の行列として)
+        - ``N`` 個の候補点のID(index)
+
+    - ``split`` が ``True`` の場合、候補点集合は分割され各MPI ランクに配られます
+    - 詳細は :ref:`mapper の入力ファイル <mapper_input_param>` を参照してください
 
 
 ``Algorithm``
