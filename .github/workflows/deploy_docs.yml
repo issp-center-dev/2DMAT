@@ -71,7 +71,7 @@ jobs:
           is_tag=NO
           TARGET_NAME="${TARGET_NAME%-autodoc}"
           test "_$(echo ${GITHUB_REF:-'//'} | cut -d/ -f2)" = "_tags" && is_tag=YES
-          for lang in ja; do
+          for lang in ja en; do
             rm -rf "gh-pages/manual/${TARGET_NAME}/${lang}"
             mkdir -p "gh-pages/manual/${TARGET_NAME}"
             cp -r "main/doc/${lang}/build/html" "gh-pages/manual/${TARGET_NAME}/${lang}"
