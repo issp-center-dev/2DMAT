@@ -14,6 +14,8 @@ For MPI parallelism, you need to install `mpi4py <https://mpi4py.readthedocs.io/
 Input parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. _mapper_input_param:
+
 [``param``] section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

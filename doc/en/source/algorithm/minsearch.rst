@@ -15,7 +15,7 @@ For details, see `the official document <https://docs.scipy.org/doc/scipy/refere
 Preparation
 ~~~~~~~~~~~
 
-You will need to install `scipy <https://docs.scipy.org/doc/scipy/reference`_ .::
+You will need to install `scipy <https://docs.scipy.org/doc/scipy/reference>`_ .::
 
   python3 -m pip install scipy
 
@@ -23,6 +23,8 @@ Input parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 It has subsections ``param`` and ``minimize``.
+
+.. _minsearch_input_param:
 
 [``param``] section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

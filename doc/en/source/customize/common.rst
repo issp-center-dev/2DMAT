@@ -39,12 +39,7 @@ Each value will be set to the corresponding field of ``Info``.
             p = pathlib.Path(base.get("root_dir", "."))
             base["root_dir"] = p.expanduser().absolute()
 
-    - 出力ディレクトリ ``output_dir``
-
-        - 先頭の ``~`` はホームディレクトリに展開されます
-        - 絶対パスが設定されていた場合はそのまま設定されます
-        - 相対パスが設定されていた場合、 ``root_dir`` を起点とした相対パスとして解釈されます
-        - デフォルトは ``"."`` 、つまり ``root_dir`` と同一ディレクトリです
+    - Output directory ``output_dir``
 
         - The default value is ``"."``, that is, the same to ``root_dir``
         - The leading ``~`` will be expanded to the user's home directory.

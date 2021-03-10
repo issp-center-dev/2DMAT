@@ -54,6 +54,8 @@ The ``name`` determines the type of solver. Each parameter is defined for each s
 
 See :doc:`solver/index` for details of the various solvers and their input/output files.
 
+.. _input_parameter_algorithm:
+
 [``algorithm``] section
 *******************************
 

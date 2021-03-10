@@ -54,6 +54,8 @@ py2dmat は入力ファイルの形式に `TOML <https://toml.io/ja/>`_ を採�
 
 各種ソルバーの詳細および入出力ファイルは :doc:`solver/index` を参照してください。
 
+.. _input_algorithm:
+
 [``algorithm``] セクション
 *******************************
 

@@ -1,7 +1,7 @@
 Bayse optimization ``bayes``
 *******************************
 
-.. _PHYSBO: https://pasums.issp.u-tokyo.ac.jp/physbo
+.. _PHYSBO: https://pasums.issp.u-tokyo.ac.jp/PHYSBO/en
 
 ``bayes`` is an ``Algorithm`` that uses Bayesian optimization to perform parameter search.
 The implementation is based on `PHYSBO`_.
@@ -132,10 +132,10 @@ and the searched parameters at that step.
 Algorithm Description
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Bayesian optimization (BO) <https://en.wikipedia.org/wiki/Bayesian_optimization>`_ is an optimization algorithm that uses machine learning as an aid, and is particularly powerful when it takes a long time to evaluate the objective function. 
+`Bayesian optimization (BO) <https://en.wikipedia.org/wiki/Bayesian_optimization>`_ is an optimization algorithm that uses machine learning as an aid, and is particularly powerful when it takes a long time to evaluate the objective function. 
 
 In BO, the objective function :math:`f(\vec{x})` is approximated by a model function (often a Gaussian process) :math:`g(\vec{x})` that is quick to evaluate and easy to optimize.
-The :math:`g` is trained to reproduce well the value of the objective function :math:`\{\vec{x}_i\}_{i=1}^N` at some suitably predetermined points (training data set) :math:`\{f(\vec{x}_i)}\}_{i=1}^N`.
+The :math:`g` is trained to reproduce well the value of the objective function :math:`\{\vec{x}_i\}_{i=1}^N` at some suitably predetermined points (training data set) :math:`\{f(\vec{x}_i)\}_{i=1}^N`.
 
 At each point in the parameter space, we propose the following candidate points for computation :math:`\vec{x}_{N+1}`, where the expected value of the trained :math:`g(\vec{x})` value and the "score" (acquition function) obtained from the error are optimal.
 The training is done by evaluating :math:`f(\vec{x}_{N+1})`, adding it to the training dataset, and retraining :math:`g`.
@@ -148,7 +148,7 @@ but it is a place with little information and is considered to be beneficial for
 Selecting the former is called "utilization," while selecting the latter is called "exploration," and it is important to balance both.
 The definition of "score" defines how to choose between them.
 
-In 2DMAT, we use `PHYSBO <https://github.com/issp-center-dev/PHYSBO>`_ as a library for Bayesian optimization.
+In 2DMAT, we use `PHYSBO`_ as a library for Bayesian optimization.
 PHYSBO, like ``mapper_mpi``, computes a "score" for a predetermined set of candidate points, and proposes an optimal solution.
 MPI parallel execution is possible by dividing the set of candidate points.
 In addition, we use a kernel that allows us to evaluate the model function and thus calculate the "score" with a linear amount of computation with respect to the number of training data points :math:`N`.
