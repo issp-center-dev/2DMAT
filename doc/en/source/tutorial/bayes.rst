@@ -1,5 +1,5 @@
-Bayesian Optimization
-=====================================
+Optimization by Bayesian Optimization
+========================================
 
 This tutorial subscribes how to estimate atomic positions from the experimental diffraction data by using Bayesian optimization (BO).
 2DMAT uses `PHYSBO <https://www.pasums.issp.u-tokyo.ac.jp/physbo/en>`_ for BO.

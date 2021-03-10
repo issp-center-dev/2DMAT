@@ -39,7 +39,7 @@ The following files are stored in the folder.
 
 - ``input.toml``
 
-　Input file of the main program.
+  Input file of the main program.
 
 - ``prepare.sh`` , ``do.sh``
 
@@ -83,7 +83,8 @@ In the sample folder, there is a reference file ``ref.txt`` to know if the atomi
   z2 = 4.370622919269477
   z3 = 3.5961444501081647
 
- ``value_0x`` corresponds to ``z_x`` (x=1, 2, 3).
+
+``value_0x`` corresponds to ``z_x`` (x=1, 2, 3).
 ``fx`` is the optimal value of the objective function.
 The ``experiment.txt`` is a file that is used as a reference in the main program, and is equivalent to ``convolution.txt``, which is calculated by putting the parameters in ``ref.txt`` into ``template.txt`` and following the same procedure as in the tutorial on direct problems. (Note that the input files for ``bulk.exe`` and ``suft.exe`` are different from those in the sequential problem tutorial.)
 
