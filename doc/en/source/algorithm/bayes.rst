@@ -14,6 +14,8 @@ You will need to install `PHYSBO`_ beforehand.::
 
 If `mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_ is installed, MPI parallel computing is possible.
 
+.. _bayes_input:
+
 Input parameters
 ~~~~~~~~~~~~~~~~~~~~~
 
