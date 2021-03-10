@@ -114,7 +114,11 @@
 <span class="p">[</span><span class="n">algorithm</span><span class="p">]</span>
 <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;bayes&quot;</span>
 <span class="n">label_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;z1&quot;</span><span class="p">,</span> <span class="s2">&quot;z2&quot;</span><span class="p">]</span>
+
 <span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">param</span><span class="p">]</span>
+<span class="n">mesh_path</span> <span class="o">=</span> <span class="s2">&quot;MeshData.txt&quot;</span>
+
+<span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">bayes</span><span class="p">]</span>
 <span class="n">random_max_num_probes</span> <span class="o">=</span> <span class="mi">5</span>
 <span class="n">bayes_max_num_probes</span> <span class="o">=</span> <span class="mi">20</span>
 </pre></div>
@@ -151,7 +155,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> は使用したいアルゴリズムの名前で、このチュートリアルでは、ベイズ最適化による解析を行うので、 <code class="docutils literal notranslate"><span class="pre">bayes</span></code> を指定します。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">label_list</span></code> は、<code class="docutils literal notranslate"><span class="pre">value_0x</span></code> (x=1,2) を出力する際につけるラベル名のリストです。</p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> セクションでは、ベイズ最適化でのパラメータを設定します。</p>
+<p><code class="docutils literal notranslate"><span class="pre">[algorithm.bayes]</span></code> セクションでは、ベイズ最適化のハイパーパラメータを設定します。</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">random_max_num_probes</span></code> は、ベイズ最適化を行う前のランダム探索する回数を指定します。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bayes_max_num_probes</span></code> は、ベイズ探索を行う回数を指定します。</p></li>
