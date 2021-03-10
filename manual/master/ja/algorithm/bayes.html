@@ -52,8 +52,8 @@ MPI 並列計算が可能です。</p>
 </div>
 <div class="section" id="id2">
 <h2>入力パラメータ<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<div class="section" id="param">
-<h3>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] セクション<a class="headerlink" href="#param" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<div class="section" id="algorithmparam">
+<h3>[<code class="docutils literal notranslate"><span class="pre">algorithmparam</span></code>] セクション<a class="headerlink" href="#algorithmparam" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>探索パラメータ空間を定義します。</p>
 <p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> が定義されている場合はメッシュファイルから読み込みます。
 メッシュファイルは1行がパラメータ空間中の1点を意味しており、
@@ -77,6 +77,12 @@ MPI 並列計算が可能です。</p>
 <p>形式: 整数型のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータが取りうる数。</p>
 </li>
+</ul>
+</div>
+<div class="section" id="algorithm-bayes">
+<h3>[<code class="docutils literal notranslate"><span class="pre">algorithm.bayes</span></code>] セクション<a class="headerlink" href="#algorithm-bayes" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>手法のハイパーパラメータを定義します。</p>
+<ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">random_max_num_probes</span></code></p>
 <p>形式： int型 (default: 20)</p>
 <p>説明: ベイズ最適化を行う前に行うランダムサンプリングの回数(パラメータとスコアが初めに無い場合にはランダムサンプリングは必須)。</p>
