@@ -13,5 +13,7 @@ seed = 1
 
 [algorithm.param]
 mesh_path = "MeshData.txt"
+
+[algorithm.bayes]
 random_max_num_probes = 5
 bayes_max_num_probes = 20

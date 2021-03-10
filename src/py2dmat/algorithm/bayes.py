@@ -31,12 +31,18 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         super().__init__(info=info, runner=runner)
 
         info_param = info.algorithm.get("param", {})
-        # Check input files are correct or not
-        self.random_max_num_probes = info_param.get("random_max_num_probes", 20)
-        self.bayes_max_num_probes = info_param.get("bayes_max_num_probes", 40)
-        self.score = info_param.get("score", "TS")
-        self.interval = info_param.get("interval", 5)
-        self.num_rand_basis = info_param.get("num_rand_basis", 5000)
+        info_bayes = info.algorithm.get("bayes", {})
+
+        for key in ("random_max_num_probes", "bayes_max_num_probes", "score", "interval", "num_rand_basis"):
+            if key in info_param and key not in info_bayes:
+                print(f"WARNING: algorithm.param.{key} is deprecated. Use algorithm.bayes.{key} .")
+                info_bayes[key] = info_param[key]
+
+        self.random_max_num_probes = info_bayes.get("random_max_num_probes", 20)
+        self.bayes_max_num_probes = info_bayes.get("bayes_max_num_probes", 40)
+        self.score = info_bayes.get("score", "TS")
+        self.interval = info_bayes.get("interval", 5)
+        self.num_rand_basis = info_bayes.get("num_rand_basis", 5000)
 
         print("# parameter")
         print(f"random_max_num_probes = {self.random_max_num_probes}")
