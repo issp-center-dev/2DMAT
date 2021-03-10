@@ -67,7 +67,7 @@ The ``name`` determines the type of algorithm. Each parameter is defined for eac
 
   Description: Algorithm name. The following algorithms are available.
 
-    - ``minsearch`` :　Minimum value search using Nelder-Mead method
+    - ``minsearch`` : Minimum value search using Nelder-Mead method
 
     - ``mapper`` : Grid search
 

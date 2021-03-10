@@ -91,13 +91,13 @@ This section contains settings related to the parameters required for hydrogen t
   
   Format: string
 
-  Description：Name of the xyz file to input
+  Description: Name of the xyz file to input
 
 - ``output_file_head``
 
   Format: string
 
-  Description：Header for output files (xyz and cif files)
+  Description: Header for output files (xyz and cif files)
 
 ``Main.Param`` section
 -----------------------------
