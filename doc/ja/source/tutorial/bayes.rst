@@ -90,7 +90,11 @@
     [algorithm]
     name = "bayes"
     label_list = ["z1", "z2"]
+
     [algorithm.param]
+    mesh_path = "MeshData.txt"
+
+    [algorithm.bayes]
     random_max_num_probes = 5
     bayes_max_num_probes = 20
 
@@ -136,7 +140,7 @@
 
 - ``label_list`` は、``value_0x`` (x=1,2) を出力する際につけるラベル名のリストです。
 
-``[algorithm.param]`` セクションでは、ベイズ最適化でのパラメータを設定します。
+``[algorithm.bayes]`` セクションでは、ベイズ最適化のハイパーパラメータを設定します。
 
 - ``random_max_num_probes`` は、ベイズ最適化を行う前のランダム探索する回数を指定します。
 
