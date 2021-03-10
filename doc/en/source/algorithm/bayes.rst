@@ -1,7 +1,7 @@
 Bayse optimization ``bayes``
 *******************************
 
-.. _PHYSBO: https://pasums.issp.u-tokyo.ac.jp/PHYSBO/en
+.. _PHYSBO: https://www.pasums.issp.u-tokyo.ac.jp/physbo/en
 
 ``bayes`` is an ``Algorithm`` that uses Bayesian optimization to perform parameter search.
 The implementation is based on `PHYSBO`_.
