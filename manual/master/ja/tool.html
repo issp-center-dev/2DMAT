@@ -13,6 +13,7 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/translations.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
     <link rel="next" title="(開発者向け)ユーザー定義アルゴリズム・ソルバー" href="customize/index.html" />
@@ -56,7 +57,7 @@
 </div>
 <div class="section" id="id3">
 <h3>スクリプトの概要<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h3>
-<p>XYZ形式と2次元的な周期構造を表すための格子ベクトルの情報などが記載された入力ファイルを読み込み、得られた座標データから、最下層と、その次の層にあたる原子の座標を抽出します。
+<p>XYZ形式で記載された構造ファイルのファイル名および、2次元的な周期構造を表すための格子ベクトルの情報などが記載された入力ファイルを読み込み、得られた座標データから、最下層と、その次の層にあたる原子の座標を抽出します。
 最下層の原子は取り除き、対応する位置に H 原子を置いて次層の原子との距離を四面体構造となる距離(例えば、Siの場合はシラン分子となる距離)に調整したモデルを作成します。
 水素終端を行ったモデルはXYZ形式で保存され、cifファイルとQuantum Espresso (QE)の入力ファイルも作成します。
 なお、QEをインストールしている場合には、そのまま計算実行することもできます。</p>
@@ -64,7 +65,7 @@
 <div class="section" id="id4">
 <h3>チュートリアル<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <ol class="arabic simple">
-<li><p>実行時の引数として元となるXYZファイルを渡します。</p></li>
+<li><p>参照用のXYZファイルを作成します。</p></li>
 </ol>
 <p>以下では、 <code class="docutils literal notranslate"><span class="pre">tool/todft/sample/111</span></code> フォルダにある <code class="docutils literal notranslate"><span class="pre">surf_bulk_new111.xyz</span></code> を用います。ファイルの中身は以下の通りです。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">12</span>
@@ -142,7 +143,7 @@
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">r_SiH</span></code></p>
 <p>形式： float型</p>
-<p>説明： 四面体構造の頂点(例えばSi)とH間の距離を与えます(単位はオームストロング)。</p>
+<p>説明： 四面体構造の頂点(例えばSi)とH間の距離を与えます(単位は <span class="math notranslate nohighlight">\(\mathrm{\mathring{A}}\)</span> )。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">theta</span></code></p>
 <p>形式： float型</p>
@@ -165,14 +166,14 @@
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">solver_name</span></code></p>
 <p>形式： string型</p>
-<p>説明： ソルバーの名前を与える。現状では <code class="docutils literal notranslate"><span class="pre">qe</span></code> のみ。</p>
+<p>説明： ソルバーの名前を与えます。現状では <code class="docutils literal notranslate"><span class="pre">qe</span></code> のみ。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">kpts</span></code></p>
 <p>形式： list型</p>
 <p>説明： サンプリングするkポイントを指定します(Monkhorst-Pack grid)。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">command</span></code></p>
-<p>形式： str型</p>
+<p>形式： string型</p>
 <p>説明： ソルバーを実行するときのコマンドを記載します。</p>
 </li>
 </ul>

@@ -14,6 +14,8 @@ MPI 並列を行う場合は、 `mpi4py <https://mpi4py.readthedocs.io/en/stable
 入力パラメータ
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. _mapper_input_param:
+
 [``param``] セクション
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

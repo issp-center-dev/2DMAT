@@ -79,7 +79,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">self.rng:</span> <span class="pre">np.random.Generator</span></code> : 擬似乱数生成器</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>擬似乱数の種について、詳細は <code class="docutils literal notranslate"><span class="pre">exchange</span></code> ソルバーの入力パラメータを参照してください</p></li>
+<li><p>擬似乱数の種について、詳細は <a class="reference internal" href="../input.html#input-algorithm"><span class="std std-ref">入力パラメータの [algorithm] セクション</span></a> を参照してください</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -157,8 +157,26 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">_read_param(self,</span> <span class="pre">info:</span> <span class="pre">py2dmat.Info)</span> <span class="pre">-&gt;</span> <span class="pre">Tuple[np.ndarray,</span> <span class="pre">np.ndarray,</span> <span class="pre">np.ndarray,</span> <span class="pre">np.ndarray]</span></code></p>
 <blockquote>
 <div><ul class="simple">
+<li><p>連続なパラメータ空間を定義するためのヘルパーメソッドです</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">info.algorithm[&quot;param&quot;]</span></code> から探索パラメータの初期値や最小値、最大値、単位を取得します</p></li>
-<li><p>詳細は <code class="docutils literal notranslate"><span class="pre">min_search</span></code> の入力ファイルの <code class="docutils literal notranslate"><span class="pre">initial_list</span></code>, <code class="docutils literal notranslate"><span class="pre">min_list</span></code>, <code class="docutils literal notranslate"><span class="pre">max_list</span></code>, <code class="docutils literal notranslate"><span class="pre">unit_list</span></code> を参照してください</p></li>
+<li><p>詳細は <a class="reference internal" href="../algorithm/minsearch.html#minsearch-input-param"><span class="std std-ref">min_search の入力ファイル</span></a> を参照してください</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_mesh_grid(self,</span> <span class="pre">info:</span> <span class="pre">py2dmat.Info,</span> <span class="pre">split:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False)</span> <span class="pre">-&gt;</span> <span class="pre">Tuple[np.ndarray,</span> <span class="pre">np.ndarray]</span></code></p>
+<blockquote>
+<div><ul>
+<li><p>離散的なパラメータ空間を定義するためのヘルパーメソッドです</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">info.algorithm[&quot;param&quot;]</span></code> を読み取り次を返します:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">D</span></code> 次元の候補点 <code class="docutils literal notranslate"><span class="pre">N</span></code> 個からなる集合 (<code class="docutils literal notranslate"><span class="pre">NxD</span></code> 次元の行列として)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">N</span></code> 個の候補点のID(index)</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">split</span></code> が <code class="docutils literal notranslate"><span class="pre">True</span></code> の場合、候補点集合は分割され各MPI ランクに配られます</p></li>
+<li><p>詳細は <a class="reference internal" href="../algorithm/mapper_mpi.html#mapper-input-param"><span class="std std-ref">mapper の入力ファイル</span></a> を参照してください</p></li>
 </ul>
 </div></blockquote>
 </li>
