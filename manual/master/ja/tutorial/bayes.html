@@ -125,7 +125,7 @@
 </div>
 <p>最初に <code class="docutils literal notranslate"><span class="pre">[base]</span></code> セクションについて説明します。</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">dimension</span></code> は最適化したい変数の個数で、今の場合は <code class="docutils literal notranslate"><span class="pre">template.txt</span></code> で説明したように2つの変数の最適化を行うので、<code class="docutils literal notranslate"><span class="pre">2</span></code> を指定します。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dimension</span></code> は最適化したい変数の個数で、今の場合は <code class="docutils literal notranslate"><span class="pre">template.txt</span></code> で説明したように2つの変数の最適化を行うので、 <code class="docutils literal notranslate"><span class="pre">2</span></code> を指定します。</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">[solver]</span></code> セクションではメインプログラムの内部で使用するソルバーとその設定を指定します。</p>
 <ul class="simple">
@@ -141,7 +141,7 @@
 <p><code class="docutils literal notranslate"><span class="pre">[solver.param]</span></code> セクションではメインプログラム内部で呼び出す <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> により得られた出力ファイルを読み込む際のオプションを指定します。</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">string_list</span></code> は、 <code class="docutils literal notranslate"><span class="pre">template.txt</span></code> で読み込む、動かしたい変数の名前のリストです。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">label_list</span></code> は、<code class="docutils literal notranslate"><span class="pre">value_0x</span></code> (x=1,2) を出力する際につけるラベル名のリストです。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">label_list</span></code> は、 <code class="docutils literal notranslate"><span class="pre">value_0x</span></code> (x=1,2) を出力する際につけるラベル名のリストです。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">degree_max</span></code> は、最大角度（度単位）の指定をします。</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">[solver.reference]</span></code> セクションでは、実験データの置いてある場所と読みこむ範囲を指定します。</p>
@@ -154,6 +154,10 @@
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> は使用したいアルゴリズムの名前で、このチュートリアルでは、ベイズ最適化による解析を行うので、 <code class="docutils literal notranslate"><span class="pre">bayes</span></code> を指定します。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">label_list</span></code> は、<code class="docutils literal notranslate"><span class="pre">value_0x</span></code> (x=1,2) を出力する際につけるラベル名のリストです。</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> セクションで、探索パラメータを設定します。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> はメッシュファイルへのパスを設定します。</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">[algorithm.bayes]</span></code> セクションでは、ベイズ最適化のハイパーパラメータを設定します。</p>
 <ul class="simple">
@@ -168,7 +172,7 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">sample</span><span class="o">/</span><span class="n">py2dmat</span><span class="o">/</span><span class="n">bayes</span>
 </pre></div>
 </div>
-<p>順問題の時と同様に、<code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> と <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> をコピーします。</p>
+<p>順問題の時と同様に、 <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> と <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> をコピーします。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="o">../../../../</span><span class="n">sim</span><span class="o">-</span><span class="n">trhepd</span><span class="o">-</span><span class="n">rheed</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">TRHEPD</span><span class="o">/</span><span class="n">bulk</span><span class="o">.</span><span class="n">exe</span> <span class="o">.</span>
 <span class="n">cp</span> <span class="o">../../../../</span><span class="n">sim</span><span class="o">-</span><span class="n">trhepd</span><span class="o">-</span><span class="n">rheed</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">TRHEPD</span><span class="o">/</span><span class="n">surf</span><span class="o">.</span><span class="n">exe</span> <span class="o">.</span>
 </pre></div>
