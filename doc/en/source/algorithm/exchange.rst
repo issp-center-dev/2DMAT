@@ -220,6 +220,8 @@ This is why this algorithm suits for the massively parallel calculation.
 
 It is recommended that users perform ``minsearch`` optimization starting from the result of ``exchange``, because the RXMC result has uncertainty due to temperature.
 
-.. rubric:: footnote
+.. only:: html
+
+  .. rubric:: footnote
 
 .. [#mcmc_condition] To be precisely, the non-periodicality and the ergodicity are necessary for convergence.
