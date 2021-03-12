@@ -27,10 +27,16 @@
 Copyright (c) <2020-> The University of Tokyo. All rights reserved.
 
 本ソフトウェアは2020年度 東京大学物性研究所 ソフトウェア高度化プロジェクトの支援を受け開発されました。
+2DMATを引用する際には以下の文献を引用してください。
+
+`Kazuyuki Tanaka, Takeo Hoshi, Izumi Mochizuki, Takashi Hanada, Ayahiko Ichimiya, Toshio Hyodo, Acta. Phys. Pol. A 137(3) 188 - 192 2020 <https://doi.org/10.12693/APhysPolA.137.188>`_
+
+
 
 バージョン履歴
 ----------------------
 
+- v1.0.0 : 2021-03-12
 - v0.1.0 : 2021-02-08
 
 
@@ -38,7 +44,7 @@ Copyright (c) <2020-> The University of Tokyo. All rights reserved.
 ----------------------
 2DMATは以下のメンバーで開発しています.
 
-- v0.1.0
+- v0.1.0 - 
 
   - 本山 裕一 (東京大学 物性研究所)
   - 吉見 一慶 (東京大学 物性研究所)
