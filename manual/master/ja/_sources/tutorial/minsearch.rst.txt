@@ -37,7 +37,7 @@ Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference
 
 - ``ref.txt``
 
-  本チュートリアルで求めたい回答が可能されたファイル
+  本チュートリアルで求めたい回答が記載されたファイル
 
 - ``input.toml``
 

@@ -26,20 +26,22 @@ License
 Copyright (c) <2020-> The University of Tokyo. All rights reserved.
 
 This software was developed with the support of "Project for advancement of software usability in materials science" of The Institute for Solid State Physics, The University of Tokyo.
+We hope that you cite the following reference when you publish the results using 2DMAT:
 
+`Kazuyuki Tanaka, Takeo Hoshi, Izumi Mochizuki, Takashi Hanada, Ayahiko Ichimiya, Toshio Hyodo, Acta. Phys. Pol. A 137(3) 188 - 192 2020 <https://doi.org/10.12693/APhysPolA.137.188>`_
 
 Version Information
 ----------------------
 
-- v1.0: 2021-03-11 
-- v0.1: 2021-02-08
+- v1.0.0: 2021-03-12 
+- v0.1.0: 2021-02-08
 
 
 Main developers
 ----------------------
 2DMAT has been developed by following members.
 
-- v1.0, v0.1
+- v0.1.0 - 
 
   - Y. Motoyama (The Institute for Solid State Physics, The University of Tokyo)
   - K. Yoshimi (The Institute for Solid State Physics, The University of Tokyo)
