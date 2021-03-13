@@ -22,5 +22,6 @@ jobs:
         pip install poetry
 
     - name: Publish
-      working-directory: ${{ runner.workspace }}
-      run: poetry publish --build -u yomichi -p "${{ secrets.PYPI_TOKEN }}"
+      run: |
+          cd ${GITHUB_WORKSPACE}
+          poetry publish --build -u yomichi -p "${{ secrets.PYPI_TOKEN }}"
