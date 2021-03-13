@@ -8,4 +8,4 @@ from ._runner import Runner
 from . import algorithm
 from ._main import main
 
-__version__ = "0.2-dev"
+__version__ = "1.0.0"

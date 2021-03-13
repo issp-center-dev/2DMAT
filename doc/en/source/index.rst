@@ -12,11 +12,11 @@ Welcome to 2DMAT's documentation!
 
    introduction
    start
+   tutorial/index
    input
    output
-   solver/index
    algorithm/index
-   tutorial/index
+   solver/index
    tool
    customize/index
    acknowledgement
