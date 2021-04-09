@@ -281,7 +281,7 @@ Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference
     cp ../../../script/draw_RC_double.py .
     python draw_RC_double.py
 
-上記を実行することで、``RC_double_minsearch.png`` が出力されます。
+上記を実行することで、``RC_double.png`` が出力されます。
 
 .. figure:: ../../../common/img/RC_double_minsearch.*
 
