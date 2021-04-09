@@ -4,7 +4,8 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
     <title>Nelder-Mead法による最適化 &#8212; 2DMAT 1.0.0 ドキュメント</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
@@ -36,7 +37,7 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="nelder-mead">
+  <section id="nelder-mead">
 <h1>Nelder-Mead法による最適化<a class="headerlink" href="#nelder-mead" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p>ここでは、Nelder-Mead法を用いて回折データから原子座標を解析する逆問題の計算を行う方法について説明します。
 具体的な計算手順は以下の通りです。</p>
@@ -55,7 +56,7 @@
 Nelder-Mead法 (<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.fmin.html">scipy.optimize.fmin</a> を使用)を用いて、
 ソルバー(今回は <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> )を用いて得られた強度と、
 参照ファイル(<code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code>)に記載された強度のずれ(R値)を最小化するパラメータを探索します。</p>
-<div class="section" id="id1">
+<section id="id1">
 <h2>サンプルファイルの場所<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>サンプルファイルは <code class="docutils literal notranslate"><span class="pre">sample/py2dmat/minsearch</span></code> にあります。
 フォルダには以下のファイルが格納されています。</p>
@@ -77,8 +78,8 @@ Nelder-Mead法 (<a class="reference external" href="https://docs.scipy.org/doc/s
 </li>
 </ul>
 <p>以下、これらのファイルについて説明したあと、実際の計算結果を紹介します。</p>
-</div>
-<div class="section" id="id2">
+</section>
+<section id="id2">
 <h2>参照ファイルの説明<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">template.txt</span></code> は <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> の入力ファイルとほぼ同じ形式のファイルです。
 動かすパラメータ（求めたい原子座標などの値）を「 <code class="docutils literal notranslate"><span class="pre">value_*</span></code> 」などの適当な文字列に書き換えられています。
@@ -116,8 +117,8 @@ Nelder-Mead法 (<a class="reference external" href="https://docs.scipy.org/doc/s
 <code class="docutils literal notranslate"><span class="pre">template.txt</span></code> に <code class="docutils literal notranslate"><span class="pre">ref.txt</span></code> の入っているパラメータをいれ、
 順問題のチュートリアルと同様な手順で計算して得られる <code class="docutils literal notranslate"><span class="pre">convolution.txt</span></code> に相当しています
 (順問題のチュートリアルとは <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> , <code class="docutils literal notranslate"><span class="pre">suft.exe</span></code> の入力ファイルが異なるのでご注意ください)。</p>
-</div>
-<div class="section" id="id3">
+</section>
+<section id="id3">
 <h2>入力ファイルの説明<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>ここでは、メインプログラム用の入力ファイル <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> の準備をします。
 <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> の詳細については入力ファイルに記載されています。
@@ -190,8 +191,8 @@ Nelder-Mead法 (<a class="reference external" href="https://docs.scipy.org/doc/s
 </ul>
 <p>ここではデフォルト値を用いるため省略しましたが、その他のパラメータ、例えばNelder-Mead法で使用する収束判定などについては、<code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> セクションで行うことが可能です。
 詳細については入力ファイルの章をご覧ください。</p>
-</div>
-<div class="section" id="id4">
+</section>
+<section id="id4">
 <h2>計算実行<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>最初にサンプルファイルが置いてあるフォルダへ移動します(以下、本ソフトウェアをダウンロードしたディレクトリ直下にいることを仮定します).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">sample</span><span class="o">/</span><span class="n">py2dmat</span><span class="o">/</span><span class="n">minsearch</span>
@@ -263,8 +264,8 @@ else
 fi
 </pre></div>
 </div>
-</div>
-<div class="section" id="id5">
+</section>
+<section id="id5">
 <h2>計算結果の可視化<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>それぞれのステップでのロッキングカーブのデータは、<code class="docutils literal notranslate"><span class="pre">Logxxxxx</span></code> (xxxxはステップ数)に <code class="docutils literal notranslate"><span class="pre">RockingCurve.txt</span></code> として保存されています。
 このデータを可視化するツール <code class="docutils literal notranslate"><span class="pre">draw_RC_double.py</span></code> が準備されています。
@@ -275,14 +276,16 @@ fi
 <span class="n">python</span> <span class="n">draw_RC_double</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
-<p>上記を実行することで、<code class="docutils literal notranslate"><span class="pre">RC_double_minsearch.png</span></code> が出力されます。</p>
-<div class="figure align-default" id="id6">
+<p>上記を実行することで、<code class="docutils literal notranslate"><span class="pre">RC_double.png</span></code> が出力されます。</p>
+<figure class="align-default" id="id6">
 <img alt="../_images/RC_double_minsearch.png" src="../_images/RC_double_minsearch.png" />
-<p class="caption"><span class="caption-text">Nelder-Mead法を用いた解析。赤丸が実験値、青線が最初のステップ、緑線が最後のステップで得られたロッキングカーブを表す。</span><a class="headerlink" href="#id6" title="この画像へのパーマリンク">¶</a></p>
-</div>
+<figcaption>
+<p><span class="caption-text">Nelder-Mead法を用いた解析。赤丸が実験値、青線が最初のステップ、緑線が最後のステップで得られたロッキングカーブを表す。</span><a class="headerlink" href="#id6" title="この画像へのパーマリンク">¶</a></p>
+</figcaption>
+</figure>
 <p>図から最後のステップでは実験値と一致していることがわかります。</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>
@@ -300,7 +303,7 @@ fi
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.3.
     </div>
   </body>
 </html>

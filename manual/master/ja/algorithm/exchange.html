@@ -4,7 +4,8 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
     <title>交換モンテカルロ法 exchange &#8212; 2DMAT 1.0.0 ドキュメント</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
@@ -37,20 +38,20 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="exchange">
+  <section id="exchange">
 <h1>交換モンテカルロ法 <code class="docutils literal notranslate"><span class="pre">exchange</span></code><a class="headerlink" href="#exchange" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">exchange</span></code> はレプリカ交換モンテカルロ法を用いてパラメータ探索を行う <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> です。</p>
-<div class="section" id="id1">
+<section id="id1">
 <h2>前準備<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>あらかじめ <a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> をインストールしておく必要があります。:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">mpi4py</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="id2">
+</section>
+<section id="id2">
 <h2>入力パラメータ<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>サブセクション <code class="docutils literal notranslate"><span class="pre">param</span></code> と <code class="docutils literal notranslate"><span class="pre">exchange</span></code> を持ちます。</p>
-<div class="section" id="param">
+<section id="param">
 <h3>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] セクション<a class="headerlink" href="#param" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">initial_list</span></code></p>
@@ -75,8 +76,8 @@
 <p>説明: パラメータが取りうる最大値。</p>
 </li>
 </ul>
-</div>
-<div class="section" id="id3">
+</section>
+<section id="id3">
 <h3>[<code class="docutils literal notranslate"><span class="pre">exchange</span></code>] セクション<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">numsteps</span></code></p>
@@ -103,11 +104,11 @@
 </dl>
 </li>
 </ul>
-</div>
-</div>
-<div class="section" id="id4">
+</section>
+</section>
+<section id="id4">
 <h2>出力ファイル<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<div class="section" id="rank-trial-txt">
+<section id="rank-trial-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">RANK/trial.txt</span></code><a class="headerlink" href="#rank-trial-txt" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>各レプリカについて、モンテカルロサンプリングで提案されたパラメータと、対応する目的関数の値です。
 1列目にステップ数、2列目にレプリカの温度、3列目に目的変数の値、4列目以降にパラメータが記載されます。</p>
@@ -118,8 +119,8 @@
 <span class="mi">3</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.06273922648753057</span> <span class="mf">4.330900869594549</span> <span class="mf">4.311333132184154</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="rank-result-txt">
+</section>
+<section id="rank-result-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">RANK/result.txt</span></code><a class="headerlink" href="#rank-result-txt" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>各レプリカについて、モンテカルロサンプリングで生成されたパラメータと、対応する目的関数の値です。
 <code class="docutils literal notranslate"><span class="pre">trial.txt</span></code> と同一の書式です。</p>
@@ -130,8 +131,8 @@
 <span class="mi">3</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.06273922648753057</span> <span class="mf">4.330900869594549</span> <span class="mf">4.311333132184154</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="best-result-txt">
+</section>
+<section id="best-result-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">best_result.txt</span></code><a class="headerlink" href="#best-result-txt" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>サンプリングされた全データのうち、目的関数の値が最小となったパラメータと、対応する目的関数の値です。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nprocs</span> <span class="o">=</span> <span class="mi">4</span>
@@ -142,12 +143,12 @@
 <span class="n">z2</span> <span class="o">=</span> <span class="mf">5.139591716517661</span>
 </pre></div>
 </div>
-<div class="section" id="id5">
+<section id="id5">
 <h4>アルゴリズム解説<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h4>
-</div>
-</div>
-</div>
-<div class="section" id="id6">
+</section>
+</section>
+</section>
+<section id="id6">
 <h2>マルコフ連鎖モンテカルロ法<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>モンテカルロ法（モンテカルロサンプリング）では、パラメータ空間中を動き回る walker <span class="math notranslate nohighlight">\(\vec{x}\)</span> を重み <span class="math notranslate nohighlight">\(W(\vec{x})\)</span> に従って確率的に動かすことで目的関数の最適化を行います。
 重み <span class="math notranslate nohighlight">\(W(\vec{x})\)</span> として、「温度」 <span class="math notranslate nohighlight">\(T &gt; 0\)</span> を導入して <span class="math notranslate nohighlight">\(W(\vec{x}) = e^{-f(\vec{x})/T}\)</span> とすることが一般的です（ボルツマン重み）。
@@ -193,8 +194,8 @@ MH 法によるMCMC は次のようになります。</p>
 </ol>
 <p>得られた時系列のうち、目的関数の値が一番小さいものを最適解とします。
 3 番のプロセスのおかげで、 <span class="math notranslate nohighlight">\(\Delta f \sim T\)</span> ぐらいの山を乗り越えられるので、局所最適解にトラップされた場合にも脱出可能です。</p>
-</div>
-<div class="section" id="id8">
+</section>
+<section id="id8">
 <h2>レプリカ交換モンテカルロ法<a class="headerlink" href="#id8" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>モンテカルロ法による最適化では、温度 <span class="math notranslate nohighlight">\(T\)</span> は非常に重要なハイパーパラメータとなっています。
 モンテカルロ法では、温度 <span class="math notranslate nohighlight">\(T\)</span> 程度の山を乗り越えられますが、逆にそれ以上の深さの谷からは容易に脱出できません。
@@ -217,8 +218,8 @@ MH 法によるMCMC は次のようになります。</p>
 <dd><p>正確には、収束のためには非周期性とエルゴード性も必要です。</p>
 </dd>
 </dl>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>
@@ -236,7 +237,7 @@ MH 法によるMCMC は次のようになります。</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.3.
     </div>
   </body>
 </html>

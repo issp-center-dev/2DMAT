@@ -4,7 +4,8 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
     <title>Related Tools &#8212; 2DMAT 1.0 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
@@ -36,12 +37,12 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="related-tools">
+  <section id="related-tools">
 <h1>Related Tools<a class="headerlink" href="#related-tools" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="to-dft-py">
+<section id="to-dft-py">
 <h2><code class="docutils literal notranslate"><span class="pre">to_dft.py</span></code><a class="headerlink" href="#to-dft-py" title="Permalink to this headline">¶</a></h2>
 <p>This tool generates input data for <a class="reference external" href="https://www.quantum-espresso.org/">Quantum Espresso (QE)</a> , a first-principles electronic structure calculation software, from the atomic structures of (001) and (111) surface models of systems with Si isotetrahedral bond networks. This is used to validate the obtained structure and to obtain microscopic information such as the electronic state. In order to eliminate the influence of dangling bond-derived electrons from the opposite surface of interest, we use a technique called hydrogen termination, in which a hydrogen atom is placed at the position of the lowest dangling bond.</p>
-<div class="section" id="prerequisites">
+<section id="prerequisites">
 <h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Python3 &gt;= 3.6</p></li>
@@ -53,15 +54,15 @@
 <li><p>Scipy</p></li>
 <li><p>Matplotlib</p></li>
 </ul>
-</div>
-<div class="section" id="overview-of-this-tool">
+</section>
+<section id="overview-of-this-tool">
 <h3>Overview of this tool<a class="headerlink" href="#overview-of-this-tool" title="Permalink to this headline">¶</a></h3>
 <p>The input file including the information such as the name of the structure file (XYZ format) and the lattice vector information to represent the two-dimensional periodic structure is read in, and the coordinates of the lowest layer and the next layer of atoms are extracted from the obtained coordinate data.
 The bottom layer atoms are removed, and H atoms are placed at the corresponding positions to create a model with the distance to the next layer atoms adjusted to a tetrahedral structure (for example, the distance to a silane molecule in the case of Si).
 The hydrogen-terminated model is saved in XYZ format, and a cif file and an input file for Quantum Espresso (QE) are also created.
 If you have QE installed, you can also run the calculation as is.</p>
-</div>
-<div class="section" id="tutorial">
+</section>
+<section id="tutorial">
 <h3>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
 <li><p>Prepare an XYZ file for reference.</p></li>
@@ -115,7 +116,7 @@ If you have QE installed, you can also run the calculation as is.</p>
 </div>
 <p>The input file consists of three sections: <code class="docutils literal notranslate"><span class="pre">Main</span></code>, <code class="docutils literal notranslate"><span class="pre">ASE</span></code>, and <code class="docutils literal notranslate"><span class="pre">Solver</span></code>.
 Below is a brief description of the variables for each section.</p>
-<div class="section" id="main-section">
+<section id="main-section">
 <h4><code class="docutils literal notranslate"><span class="pre">Main</span></code> section<a class="headerlink" href="#main-section" title="Permalink to this headline">¶</a></h4>
 <p>This section contains settings related to the parameters required for hydrogen termination.</p>
 <ul>
@@ -128,8 +129,8 @@ Below is a brief description of the variables for each section.</p>
 <p>Description: Header for output files (xyz and cif files)</p>
 </li>
 </ul>
-</div>
-<div class="section" id="main-param-section">
+</section>
+<section id="main-param-section">
 <h4><code class="docutils literal notranslate"><span class="pre">Main.Param</span></code> section<a class="headerlink" href="#main-param-section" title="Permalink to this headline">¶</a></h4>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">z_margin</span></code></p>
@@ -149,8 +150,8 @@ Below is a brief description of the variables for each section.</p>
 <p>Description: The angle between the vertex and H of the tetrahedral structure (e.g. Si-H-Si).</p>
 </li>
 </ul>
-</div>
-<div class="section" id="main-lattice-section">
+</section>
+<section id="main-lattice-section">
 <h4><code class="docutils literal notranslate"><span class="pre">Main.lattice</span></code> section<a class="headerlink" href="#main-lattice-section" title="Permalink to this headline">¶</a></h4>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">unit_vec</span></code></p>
@@ -158,8 +159,8 @@ Below is a brief description of the variables for each section.</p>
 <p>Description: Specify a unit vector that forms a 2D plane (ex. <code class="docutils literal notranslate"><span class="pre">unit_vec</span> <span class="pre">=</span> <span class="pre">[[7.67932,</span> <span class="pre">0.00000,</span> <span class="pre">0.00000],</span> <span class="pre">[0.00000,</span> <span class="pre">3.83966,</span> <span class="pre">0.00000]]</span></code>).</p>
 </li>
 </ul>
-</div>
-<div class="section" id="ase-section">
+</section>
+<section id="ase-section">
 <h4><code class="docutils literal notranslate"><span class="pre">ASE</span></code> section<a class="headerlink" href="#ase-section" title="Permalink to this headline">¶</a></h4>
 <p>This section specifies parameters related to <code class="docutils literal notranslate"><span class="pre">ASE</span></code>.</p>
 <ul>
@@ -176,8 +177,8 @@ Below is a brief description of the variables for each section.</p>
 <p>Description: Set the command used to run the solver.</p>
 </li>
 </ul>
-</div>
-<div class="section" id="solver-section">
+</section>
+<section id="solver-section">
 <h4><code class="docutils literal notranslate"><span class="pre">Solver</span></code> section<a class="headerlink" href="#solver-section" title="Permalink to this headline">¶</a></h4>
 <p>In this section, parameters related to <code class="docutils literal notranslate"><span class="pre">Solver</span></code> are specified.
 You will need to specify this if you want to perform first-principles calculations directly using ASE.
@@ -222,10 +223,10 @@ The actual output is as follows.</p>
 </div>
 <p>This file can be read by appropriate visualization software as ordinary XYZFormat coordinate data, but the lattice vector information of the periodic structure is written in the place where comments are usually written. You can also copy the data of “element name + 3D coordinate” from the third line of the output file to the input file of QE.</p>
 <p><code class="docutils literal notranslate"><span class="pre">espresso.pwi</span></code> is the input file for QE’s scf calculation, and structural optimization and band calculation can be done by modifying this file accordingly. For details, please refer to the <a class="reference external" href="https://www.quantum-espresso.org/Doc/INPUT_PW.html">QE online manual</a> .</p>
-</div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
+</section>
 
 
       </div>
@@ -243,7 +244,7 @@ The actual output is as follows.</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.3.
     </div>
   </body>
 </html>
