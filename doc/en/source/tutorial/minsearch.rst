@@ -277,7 +277,7 @@ In this section, we will use this tool to visualize the results.
     cp ../../../script/draw_RC_double.py .
     python draw_RC_double.py
 
-Running the above will output ``RC_double_minsearch.png``.
+Running the above will output ``RC_double.png``.
 
 .. figure:: ../../../common/img/RC_double_minsearch.*
 
