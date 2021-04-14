@@ -4,8 +4,7 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>関連ツール &#8212; 2DMAT 1.0.0 ドキュメント</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
@@ -38,12 +37,12 @@
       <div class="content" role="main">
         
         
-  <section id="id1">
+  <div class="section" id="id1">
 <h1>関連ツール<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<section id="to-dft-py">
+<div class="section" id="to-dft-py">
 <h2><code class="docutils literal notranslate"><span class="pre">to_dft.py</span></code><a class="headerlink" href="#to-dft-py" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>本ツールでは、Si等四面体構造のボンドネットワークを有する系の(001)および(111)表面系モデルについて、その原子構造から第一原理電子状態計算ソフトウェア <a class="reference external" href="https://www.quantum-espresso.org/">Quantum Espresso (QE)</a> 用の入力データを作成します。これにより、得られた構造の妥当性検証や、電子状態等の微視的な情報を取得します。なお、注目する表面と反対の表面から生じるダングリングボンド由来の電子の影響を排除するため、最下層のダングリングボンドの位置に水素原子を置く水素終端というテクニックを用いています。</p>
-<section id="id2">
+<div class="section" id="id2">
 <h3>必要な環境<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <ul class="simple">
 <li><p>Python3 &gt;= 3.6</p></li>
@@ -55,15 +54,15 @@
 <li><p>Scipy</p></li>
 <li><p>Matplotlib</p></li>
 </ul>
-</section>
-<section id="id3">
+</div>
+<div class="section" id="id3">
 <h3>スクリプトの概要<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>XYZ形式で記載された構造ファイルのファイル名および、2次元的な周期構造を表すための格子ベクトルの情報などが記載された入力ファイルを読み込み、得られた座標データから、最下層と、その次の層にあたる原子の座標を抽出します。
 最下層の原子は取り除き、対応する位置に H 原子を置いて次層の原子との距離を四面体構造となる距離(例えば、Siの場合はシラン分子となる距離)に調整したモデルを作成します。
 水素終端を行ったモデルはXYZ形式で保存され、cifファイルとQuantum Espresso (QE)の入力ファイルも作成します。
 なお、QEをインストールしている場合には、そのまま計算実行することもできます。</p>
-</section>
-<section id="id4">
+</div>
+<div class="section" id="id4">
 <h3>チュートリアル<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <ol class="arabic simple">
 <li><p>参照用のXYZファイルを作成します。</p></li>
@@ -117,7 +116,7 @@
 </div>
 <p>入力ファイルは、 <code class="docutils literal notranslate"><span class="pre">Main</span></code> , <code class="docutils literal notranslate"><span class="pre">ASE</span></code> , <code class="docutils literal notranslate"><span class="pre">Solver</span></code> の3セクションから構成されます。
 以下、各セクション毎に変数の説明を簡単に記載します。</p>
-<section id="main">
+<div class="section" id="main">
 <h4><code class="docutils literal notranslate"><span class="pre">Main</span></code> セクション<a class="headerlink" href="#main" title="このヘッドラインへのパーマリンク">¶</a></h4>
 <p>このセクションでは、水素終端を行う際に必要なパラメータに関する設定を行います。</p>
 <ul>
@@ -130,8 +129,8 @@
 <p>説明：出力ファイル(xyzファイルおよびcifファイル)につくヘッダ</p>
 </li>
 </ul>
-</section>
-<section id="main-param">
+</div>
+<div class="section" id="main-param">
 <h4><code class="docutils literal notranslate"><span class="pre">Main.Param</span></code> セクション<a class="headerlink" href="#main-param" title="このヘッドラインへのパーマリンク">¶</a></h4>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">z_margin</span></code></p>
@@ -151,8 +150,8 @@
 <p>説明： 四面体構造の頂点とH間の角度(例えばSi-H-Siの間の角)を与えます。</p>
 </li>
 </ul>
-</section>
-<section id="main-lattice">
+</div>
+<div class="section" id="main-lattice">
 <h4><code class="docutils literal notranslate"><span class="pre">Main.lattice</span></code> セクション<a class="headerlink" href="#main-lattice" title="このヘッドラインへのパーマリンク">¶</a></h4>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">unit_vec</span></code></p>
@@ -160,8 +159,8 @@
 <p>説明： 2次元平面を形成するユニットベクトル を指定します (ex. <code class="docutils literal notranslate"><span class="pre">unit_vec</span> <span class="pre">=</span> <span class="pre">[[7.67932,</span> <span class="pre">0.00000,</span> <span class="pre">0.00000],</span> <span class="pre">[0.00000,</span> <span class="pre">3.83966,</span> <span class="pre">0.00000]]</span></code>)。</p>
 </li>
 </ul>
-</section>
-<section id="ase">
+</div>
+<div class="section" id="ase">
 <h4><code class="docutils literal notranslate"><span class="pre">ASE</span></code> セクション<a class="headerlink" href="#ase" title="このヘッドラインへのパーマリンク">¶</a></h4>
 <p>このセクションでは、 <code class="docutils literal notranslate"><span class="pre">ASE</span></code> に関連したパラメータを設定します。</p>
 <ul>
@@ -178,8 +177,8 @@
 <p>説明： ソルバーを実行するときのコマンドを記載します。</p>
 </li>
 </ul>
-</section>
-<section id="solver">
+</div>
+<div class="section" id="solver">
 <h4><code class="docutils literal notranslate"><span class="pre">Solver</span></code> セクション<a class="headerlink" href="#solver" title="このヘッドラインへのパーマリンク">¶</a></h4>
 <p>このセクションでは、 <code class="docutils literal notranslate"><span class="pre">Solver</span></code> に関連したパラメータを設定します。
 ASEの機能を用いてそのまま第一原理計算を実行する場合に指定が必要となります。
@@ -225,10 +224,10 @@ QEの <code class="docutils literal notranslate"><span class="pre">control</span
 </div>
 <p>このファイルは通常のXYZ形式の座標データとして適当な可視化ソフト等に読ませることができますが、通常コメントを書く場所に周期構造の格子ベクトルの情報が書き込まれています。出力されたファイルの3行目以降の「元素名+3次元座標」のデータをそのままQEの入力ファイルにコピーして使用する事もできます。</p>
 <p><code class="docutils literal notranslate"><span class="pre">espresso.pwi</span></code> はQEのscf計算用の入力ファイルで、構造最適化やバンド計算は本ファイルを適宜修正することで行うことができます。 各種設定については <a class="reference external" href="https://www.quantum-espresso.org/Doc/INPUT_PW.html">QEのオンラインマニュアル</a> を参考にしてください。</p>
-</section>
-</section>
-</section>
-</section>
+</div>
+</div>
+</div>
+</div>
 
 
       </div>
@@ -246,7 +245,7 @@ QEの <code class="docutils literal notranslate"><span class="pre">control</span
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
     </div>
   </body>
 </html>

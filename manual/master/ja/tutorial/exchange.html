@@ -4,8 +4,7 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>レプリカ交換モンテカルロ法による探索 &#8212; 2DMAT 1.0.0 ドキュメント</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
@@ -37,11 +36,11 @@
       <div class="content" role="main">
         
         
-  <section id="id1">
+  <div class="section" id="id1">
 <h1>レプリカ交換モンテカルロ法による探索<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p>ここでは、レプリカ交換モンテカルロ法によって、回折データから原子座標を解析する方法について説明します。
 具体的な計算手順は <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> の時と同様です。</p>
-<section id="id2">
+<div class="section" id="id2">
 <h2>サンプルファイルの場所<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>サンプルファイルは <code class="docutils literal notranslate"><span class="pre">sample/py2dmat/exchange</span></code> にあります。
 フォルダには以下のファイルが格納されています。</p>
@@ -63,13 +62,13 @@
 </li>
 </ul>
 <p>以下、これらのファイルについて説明したあと、実際の計算結果を紹介します。</p>
-</section>
-<section id="id3">
+</div>
+<div class="section" id="id3">
 <h2>参照ファイルの説明<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">template.txt</span></code> , <code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code> については、
 前のチュートリアル(Nealder-Mead法による最適化)と同じものを使用します。</p>
-</section>
-<section id="id4">
+</div>
+<div class="section" id="id4">
 <h2>入力ファイルの説明<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>ここでは、メインプログラム用の入力ファイル <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> について説明します。
 <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> の詳細については入力ファイルに記載されています。
@@ -130,8 +129,8 @@
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">[solver]</span></code> セクションではメインプログラムの内部で使用するソルバーを指定します。
 <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> のチュートリアルを参照してください。</p>
-</section>
-<section id="id5">
+</div>
+<div class="section" id="id5">
 <h2>計算実行<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>最初にサンプルファイルが置いてあるフォルダへ移動します(以下、本ソフトウェアをダウンロードしたディレクトリ直下にいることを仮定します).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">sample</span><span class="o">/</span><span class="n">py2dmat</span><span class="o">/</span><span class="n">exchange</span>
@@ -196,8 +195,8 @@ else
 fi
 </pre></div>
 </div>
-</section>
-<section id="id6">
+</div>
+<div class="section" id="id6">
 <h2>後処理<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>各ランクフォルダにある <code class="docutils literal notranslate"><span class="pre">result.txt</span></code> には、各レプリカでサンプリングされたデータが記録されていますが、
 Py2DMat の実装では同一レプリカが様々な温度のサンプルを保持しています。
@@ -214,8 +213,8 @@ Py2DMat の実装では同一レプリカが様々な温度のサンプルを保
 <span class="mi">2</span> <span class="mi">0</span> <span class="mf">0.07830821484593968</span> <span class="mf">3.682008067401509</span> <span class="mf">3.9502750191292586</span>
 </pre></div>
 </div>
-</section>
-<section id="id7">
+</div>
+<div class="section" id="id7">
 <h2>計算結果の可視化<a class="headerlink" href="#id7" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">result_T%.txt</span></code> を図示することで、 <code class="docutils literal notranslate"><span class="pre">R-factor</span></code> の小さいパラメータがどこにあるかを推定することができます。
 今回の場合は、以下のコマンドをうつことで2次元パラメータ空間の図 <code class="docutils literal notranslate"><span class="pre">result.png</span></code> が作成されます。</p>
@@ -224,16 +223,14 @@ Py2DMat の実装では同一レプリカが様々な温度のサンプルを保
 </div>
 <p>作成された図を見ると、(5.25, 4.25) と (4.25, 5.25) 付近にサンプルが集中していることと、
 <code class="docutils literal notranslate"><span class="pre">R-factor</span></code> の値が小さいことがわかります。</p>
-<figure class="align-default" id="id8">
+<div class="figure align-default" id="id8">
 <img alt="../_images/exchange.png" src="../_images/exchange.png" />
-<figcaption>
-<p><span class="caption-text">サンプルされたパラメータと <code class="docutils literal notranslate"><span class="pre">R-factor</span></code> 。横軸は <code class="docutils literal notranslate"><span class="pre">value_01</span></code> , 縦軸は <code class="docutils literal notranslate"><span class="pre">value_02</span></code> を表す。</span><a class="headerlink" href="#id8" title="この画像へのパーマリンク">¶</a></p>
-</figcaption>
-</figure>
+<p class="caption"><span class="caption-text">サンプルされたパラメータと <code class="docutils literal notranslate"><span class="pre">R-factor</span></code> 。横軸は <code class="docutils literal notranslate"><span class="pre">value_01</span></code> , 縦軸は <code class="docutils literal notranslate"><span class="pre">value_02</span></code> を表す。</span><a class="headerlink" href="#id8" title="この画像へのパーマリンク">¶</a></p>
+</div>
 <p>また、 <code class="docutils literal notranslate"><span class="pre">RockingCurve.txt</span></code> が各サブフォルダに格納されています。
 これを用いることで、前チュートリアルの手順に従い、実験値との比較も行うことが可能です。</p>
-</section>
-</section>
+</div>
+</div>
 
 
       </div>
@@ -251,7 +248,7 @@ Py2DMat の実装では同一レプリカが様々な温度のサンプルを保
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
     </div>
   </body>
 </html>

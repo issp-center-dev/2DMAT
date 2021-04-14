@@ -4,8 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nelder-Mead method minsearch &#8212; 2DMAT 1.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
@@ -37,24 +36,24 @@
       <div class="content" role="main">
         
         
-  <section id="nelder-mead-method-minsearch">
+  <div class="section" id="nelder-mead-method-minsearch">
 <h1>Nelder-Mead method <code class="docutils literal notranslate"><span class="pre">minsearch</span></code><a class="headerlink" href="#nelder-mead-method-minsearch" title="Permalink to this headline">¶</a></h1>
 <p>When <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> is selcted, the optimization by the <a class="reference external" href="https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method">Nelder-Mead method</a> (a.k.a. downhill simplex method) will be done. In the Nelder-Mead method, the dimension of the parameter space is <span class="math notranslate nohighlight">\(D\)</span>, and the optimal solution is searched by systematically moving pairs of <span class="math notranslate nohighlight">\(D+1\)</span> coordinate points according to the value of the objective function at each point.</p>
 <p>An important hyperparameter is the initial value of the coordinates.
 Although it is more stable than the simple steepest descent method, it still has the problem of being trapped in the local optimum solution, so it is recommended to repeat the calculation with different initial values several times to check the results.</p>
 <p>In 2DMAT, the Scipy’s function <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize(method=&quot;Nelder-Mead&quot;)</span></code> is used.
 For details, see <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize">the official document</a> .</p>
-<section id="preparation">
+<div class="section" id="preparation">
 <h2>Preparation<a class="headerlink" href="#preparation" title="Permalink to this headline">¶</a></h2>
 <p>You will need to install <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference">scipy</a> .:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">scipy</span>
 </pre></div>
 </div>
-</section>
-<section id="input-parameters">
+</div>
+<div class="section" id="input-parameters">
 <h2>Input parameters<a class="headerlink" href="#input-parameters" title="Permalink to this headline">¶</a></h2>
 <p>It has subsections <code class="docutils literal notranslate"><span class="pre">param</span></code> and <code class="docutils literal notranslate"><span class="pre">minimize</span></code>.</p>
-<section id="param-section">
+<div class="section" id="param-section">
 <span id="minsearch-input-param"></span><h3>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] section<a class="headerlink" href="#param-section" title="Permalink to this headline">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">initial_list</span></code></p>
@@ -78,8 +77,8 @@ If not defined, the value is 1.0 for all dimensions.</p>
 <p>Description: The maximum value the parameter can take.</p>
 </li>
 </ul>
-</section>
-<section id="minimize-section">
+</div>
+<div class="section" id="minimize-section">
 <h3>[<code class="docutils literal notranslate"><span class="pre">minimize</span></code>] section<a class="headerlink" href="#minimize-section" title="Permalink to this headline">¶</a></h3>
 <p>Set the hyperparameters for the Nelder-Mead method.
 See the documentation of <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/optimize.minimize-neldermead.html">scipy.optimize.minimize</a> for details.</p>
@@ -107,11 +106,11 @@ If not defined, scales at each dimension are set to 0.25.</p>
 <p>Description: Maximum number of times to evaluate the objective function.</p>
 </li>
 </ul>
-</section>
-</section>
-<section id="output-files">
+</div>
+</div>
+<div class="section" id="output-files">
 <h2>Output files<a class="headerlink" href="#output-files" title="Permalink to this headline">¶</a></h2>
-<section id="simplexdata-txt">
+<div class="section" id="simplexdata-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">SimplexData.txt</span></code><a class="headerlink" href="#simplexdata-txt" title="Permalink to this headline">¶</a></h3>
 <p>Outputs information about the process of finding the minimum value.
 The first line is a header, the second and subsequent lines are step,
@@ -127,8 +126,8 @@ and finally the value of the function.</p>
 <span class="mi">5</span> <span class="mf">5.179976851851851</span> <span class="mf">4.348958333333334</span> <span class="mf">3.5943287037037033</span> <span class="mf">0.006001660077530159</span>
 </pre></div>
 </div>
-</section>
-<section id="res-txt">
+</div>
+<div class="section" id="res-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">res.txt</span></code><a class="headerlink" href="#res-txt" title="Permalink to this headline">¶</a></h3>
 <p>The value of the final objective function and the value of the parameters at that time are described.
 The objective function is listed first, followed by the values of the variables defined in <code class="docutils literal notranslate"><span class="pre">string_list</span></code> in the <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> - <code class="docutils literal notranslate"><span class="pre">[param]</span></code> sections of the input file, in that order.</p>
@@ -139,9 +138,9 @@ The objective function is listed first, followed by the values of the variables 
 <span class="n">z3</span> <span class="o">=</span> <span class="mf">3.5961444501081647</span>
 </pre></div>
 </div>
-</section>
-</section>
-</section>
+</div>
+</div>
+</div>
 
 
       </div>
@@ -159,7 +158,7 @@ The objective function is listed first, followed by the values of the variables 
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
     </div>
   </body>
 </html>
