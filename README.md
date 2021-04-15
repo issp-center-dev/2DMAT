@@ -10,7 +10,7 @@ As algorithms, it offers the Nelder-Mead method, the grid search method, the Bay
 | Branch | Build status | Documentation |
 | :-: | :-: | :-: |
 | master | [![master](https://github.com/issp-center-dev/2DMAT/workflows/Test/badge.svg?branch=master)](https://github.com/issp-center-dev/2DMAT/actions?query=branch%3Amaster) | [![doc_en](https://img.shields.io/badge/doc-English-blue.svg)](https://issp-center-dev.github.io/2DMAT/manual/master/en/index.html)  [![doc_ja](https://img.shields.io/badge/doc-Japanese-blue.svg)](https://issp-center-dev.github.io/2DMAT/manual/master/ja/index.html) |
-| v1.0.0 | -- | [![doc_en](https://img.shields.io/badge/doc-English-blue.svg)](https://issp-center-dev.github.io/2DMAT/manual/v1.0.0/en/index.html)  [![doc_ja](https://img.shields.io/badge/doc-Japanese-blue.svg)](https://issp-center-dev.github.io/2DMAT/manual/v1.0.0/ja/index.html) |
+| v1.0.1 | -- | [![doc_en](https://img.shields.io/badge/doc-English-blue.svg)](https://issp-center-dev.github.io/2DMAT/manual/v1.0.1/en/index.html)  [![doc_ja](https://img.shields.io/badge/doc-Japanese-blue.svg)](https://issp-center-dev.github.io/2DMAT/manual/v1.0.1/ja/index.html) |
 
 ## py2dmat
 
