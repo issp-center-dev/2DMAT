@@ -33,6 +33,7 @@ We hope that you cite the following reference when you publish the results using
 Version Information
 ----------------------
 
+- v1.0.1: 2021-04-15 
 - v1.0.0: 2021-03-12 
 - v0.1.0: 2021-02-08
 

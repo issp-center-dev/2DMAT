@@ -36,6 +36,7 @@ Copyright (c) <2020-> The University of Tokyo. All rights reserved.
 バージョン履歴
 ----------------------
 
+- v1.0.1 : 2021-04-15
 - v1.0.0 : 2021-03-12
 - v0.1.0 : 2021-02-08
 
