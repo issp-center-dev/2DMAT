@@ -30,6 +30,12 @@ The input file consists of the following four sections.
 
   Description: Dimension of the search space (number of parameters to search)
 
+- ``root_dir``
+
+  Format: string (default: The directory where the program was executed)
+
+  Description: Name of the root directory. The origin of the relative paths to input files.
+
 - ``output_dir``
 
   Format: string (default: The directory where the program was executed)

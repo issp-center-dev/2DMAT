@@ -179,7 +179,7 @@ The MH method splits the transition process into the suggestion process and the 
 <p>The whole transision probability is the product of these two ones, <span class="math notranslate nohighlight">\(p(\vec{x} | \vec{x_t}) = P(\vec{x} | \vec{x}_t) Q(\vec{x} | \vec{x}_t)\)</span>.
 The acceptance probability <span class="math notranslate nohighlight">\(Q(\vec{x} | \vec{x}_t)\)</span> is defined as</p>
 <div class="math notranslate nohighlight">
-\[Q(\vec{x} | \vec{x}_t) = \min\left[1, \frac{W(\vec{x})P(\vec{x}_t | \vec{x}) }{W(\vec{x}_t) P(\vec{x}_t | \vec{x})} \right].\]</div>
+\[Q(\vec{x} | \vec{x}_t) = \min\left[1, \frac{W(\vec{x})P(\vec{x}_t | \vec{x}) }{W(\vec{x}_t) P(\vec{x} | \vec{x}_t)} \right].\]</div>
 <p>It is easy to verify that the detailed balance condition is satisfied by substituting it into the detailed balance condition equation.</p>
 <p>When adopting the Boltzmann factor for the weight and a symmetry distribution
 <span class="math notranslate nohighlight">\(P(\vec{x} | \vec{x}_t) = P(\vec{x}_t | \vec{x})\)</span> for the suggestion probability,

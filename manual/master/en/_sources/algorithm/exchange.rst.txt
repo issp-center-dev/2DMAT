@@ -172,7 +172,7 @@ The acceptance probability :math:`Q(\vec{x} | \vec{x}_t)` is defined as
 
 .. math::
 
-  Q(\vec{x} | \vec{x}_t) = \min\left[1, \frac{W(\vec{x})P(\vec{x}_t | \vec{x}) }{W(\vec{x}_t) P(\vec{x}_t | \vec{x})} \right].
+  Q(\vec{x} | \vec{x}_t) = \min\left[1, \frac{W(\vec{x})P(\vec{x}_t | \vec{x}) }{W(\vec{x}_t) P(\vec{x} | \vec{x}_t)} \right].
 
 It is easy to verify that the detailed balance condition is satisfied by substituting it into the detailed balance condition equation.
 
