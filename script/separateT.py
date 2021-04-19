@@ -17,7 +17,7 @@ def load_best(filename: Path) -> Dict[str, str]:
     return res
 
 
-output_dir = Path("." if len(argv) == 0 else argv[1])
+output_dir = Path("." if len(argv) == 1 else argv[1])
 nprocs: int = int(load_best(output_dir / "best_result.txt")["nprocs"])
 
 Ts: List[float] = []

@@ -16,7 +16,7 @@ for line in lines:
         f.append(float(data[2]))
 
 plt.scatter(x, y, c=f, s=100, vmin=0.00, vmax=0.10, cmap='RdYlBu', linewidth=2, alpha=1.0)
-plt.xlabel("x1")
-plt.ylabel("x2")
+plt.xlabel("z1")
+plt.ylabel("z2")
 plt.colorbar()
 plt.savefig('result.pdf')

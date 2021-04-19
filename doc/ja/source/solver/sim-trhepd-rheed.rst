@@ -1,15 +1,15 @@
 ``sim-trhepd-rheed`` ソルバー
 ***********************************************
 
-.. sim-trhepd-rheed: https://github.com/sim-trhepd-rheed/sim-trhepd-rheed
+.. _sim-trhepd-rheed: https://github.com/sim-trhepd-rheed/sim-trhepd-rheed
 
-``sim-trhepd-rheed`` は `sim-trhepd-rheed`_ を用いて原子位置 :math:`x` から回折 rocking curve を計算し、
+``sim-trhepd-rheed`` は sim-trhepd-rheed_ を用いて原子位置 :math:`x` から回折 rocking curve を計算し、
 実験で得られた rocking curve からの誤差を :math:`f(x)` として返す ``Solver`` です。
 
 前準備
 ~~~~~~~~~~~~
 
-あらかじめ `sim-trhepd-rheed`_ をインストールしておく必要があります。
+あらかじめ sim-trhepd-rheed_ をインストールしておく必要があります。
 
 1. sim-trhepd-rheed の公式サイトからソースコードをダウンロード
 2. ``sim-trhepd-rheed/src`` に移動し、 ``make`` で ``bulk.exe`` と ``surf.exe`` を作成
