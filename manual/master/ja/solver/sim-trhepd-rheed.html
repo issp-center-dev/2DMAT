@@ -39,11 +39,11 @@
         
   <div class="section" id="sim-trhepd-rheed">
 <h1><code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code> ソルバー<a class="headerlink" href="#sim-trhepd-rheed" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code> は <a href="#id7"><span class="problematic" id="id8">`sim-trhepd-rheed`_</span></a> を用いて原子位置 <span class="math notranslate nohighlight">\(x\)</span> から回折 rocking curve を計算し、
+<p><code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code> は <a class="reference external" href="https://github.com/sim-trhepd-rheed/sim-trhepd-rheed">sim-trhepd-rheed</a> を用いて原子位置 <span class="math notranslate nohighlight">\(x\)</span> から回折 rocking curve を計算し、
 実験で得られた rocking curve からの誤差を <span class="math notranslate nohighlight">\(f(x)\)</span> として返す <code class="docutils literal notranslate"><span class="pre">Solver</span></code> です。</p>
-<div class="section" id="id1">
-<h2>前準備<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>あらかじめ <a href="#id9"><span class="problematic" id="id10">`sim-trhepd-rheed`_</span></a> をインストールしておく必要があります。</p>
+<div class="section" id="id2">
+<h2>前準備<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>あらかじめ <a class="reference external" href="https://github.com/sim-trhepd-rheed/sim-trhepd-rheed">sim-trhepd-rheed</a> をインストールしておく必要があります。</p>
 <ol class="arabic simple">
 <li><p>sim-trhepd-rheed の公式サイトからソースコードをダウンロード</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed/src</span></code> に移動し、 <code class="docutils literal notranslate"><span class="pre">make</span></code> で <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> と <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> を作成</p></li>
@@ -51,8 +51,8 @@
 <p><code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> を実行する前にあらかじめ <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> を実行してバルクデータを作成しておきます。
 <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> は <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> から呼び出されます。</p>
 </div>
-<div class="section" id="id2">
-<h2>入力パラメータ<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="id3">
+<h2>入力パラメータ<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">solver</span></code> セクション中のサブセクション
 <code class="docutils literal notranslate"><span class="pre">config</span></code>, <code class="docutils literal notranslate"><span class="pre">post</span></code>, <code class="docutils literal notranslate"><span class="pre">param</span></code>, <code class="docutils literal notranslate"><span class="pre">reference</span></code> を利用します。</p>
 <div class="section" id="config">
@@ -136,10 +136,10 @@
 </ul>
 </div>
 </div>
-<div class="section" id="id3">
-<h2>ソルバー用補助ファイル<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <div class="section" id="id4">
-<h3>入力テンプレートファイル<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h2>ソルバー用補助ファイル<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="id5">
+<h3>入力テンプレートファイル<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>入力テンプレートファイル <code class="docutils literal notranslate"><span class="pre">template.txt</span></code> は <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> の入力ファイルを作成するためのテンプレートです。
 動かすパラメータ（求めたい原子座標などの値）を「 <code class="docutils literal notranslate"><span class="pre">value_*</span></code> 」などの適当な文字列に置き換えます。
 使用する文字列は入力ファイルの <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> - <code class="docutils literal notranslate"><span class="pre">[param]</span></code> セクションにある、
@@ -165,8 +165,8 @@
 </div>
 <p>この場合、 <code class="docutils literal notranslate"><span class="pre">value_01</span></code>, <code class="docutils literal notranslate"><span class="pre">value_02</span></code>, <code class="docutils literal notranslate"><span class="pre">value_03</span></code> が動かすパラメータとなります。</p>
 </div>
-<div class="section" id="id5">
-<h3>ターゲット参照ファイル<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<div class="section" id="id6">
+<h3>ターゲット参照ファイル<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>ターゲットにするデータが格納されたファイル <code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code> を指定します。
 第一列に角度、第二列に反射強度に重みをかけて計算した値が入ってます。
 以下、ファイルの例を指定します。</p>
@@ -185,8 +185,8 @@
 </div>
 </div>
 </div>
-<div class="section" id="id6">
-<h2>出力ファイル<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="id7">
+<h2>出力ファイル<a class="headerlink" href="#id7" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code> では、 <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> で出力されるファイルが、
 ランクの番号が記載されたフォルダ下にある <code class="docutils literal notranslate"><span class="pre">Log%%%%%</span></code> フォルダに一式出力されます。
 ここでは、 <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> で独自に出力するファイルについて説明します。</p>

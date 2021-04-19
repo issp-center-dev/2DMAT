@@ -72,16 +72,17 @@
 2次元のグリッド探索を行うように変更してあります。
 実際に探索するグリッドは <code class="docutils literal notranslate"><span class="pre">MeshData.txt</span></code> で与えます。
 サンプルでは <code class="docutils literal notranslate"><span class="pre">MeshData.txt</span></code> の中身は以下のようになっています。</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span> <span class="mf">6.000000</span> <span class="mf">6.000000</span>
-<span class="mi">2</span> <span class="mf">6.000000</span> <span class="mf">5.750000</span>
-<span class="mi">3</span> <span class="mf">6.000000</span> <span class="mf">5.500000</span>
-<span class="mi">4</span> <span class="mf">6.000000</span> <span class="mf">5.250000</span>
-<span class="mi">5</span> <span class="mf">6.000000</span> <span class="mf">5.000000</span>
-<span class="mi">6</span> <span class="mf">6.000000</span> <span class="mf">4.750000</span>
-<span class="mi">7</span> <span class="mf">6.000000</span> <span class="mf">4.500000</span>
-<span class="mi">8</span> <span class="mf">6.000000</span> <span class="mf">4.250000</span>
-<span class="mi">9</span> <span class="mf">6.000000</span> <span class="mf">4.000000</span>
-<span class="o">...</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span> <span class="mf">3.5</span> <span class="mf">3.5</span>
+<span class="mi">2</span> <span class="mf">3.6</span> <span class="mf">3.5</span>
+<span class="mi">3</span> <span class="mf">3.6</span> <span class="mf">3.6</span>
+<span class="mi">4</span> <span class="mf">3.7</span> <span class="mf">3.5</span>
+<span class="mi">5</span> <span class="mf">3.7</span> <span class="mf">3.6</span>
+<span class="mi">6</span> <span class="mf">3.7</span> <span class="mf">3.7</span>
+<span class="mi">7</span> <span class="mf">3.8</span> <span class="mf">3.5</span>
+<span class="mi">8</span> <span class="mf">3.8</span> <span class="mf">3.6</span>
+<span class="mi">9</span> <span class="mf">3.8</span> <span class="mf">3.7</span>
+<span class="mi">10</span> <span class="mf">3.8</span> <span class="mf">3.8</span>
+  <span class="o">...</span>
 </pre></div>
 </div>
 <p>1列目が通し番号、2列目以降は <code class="docutils literal notranslate"><span class="pre">template.txt</span></code> に入る <code class="docutils literal notranslate"><span class="pre">value_0</span></code> , <code class="docutils literal notranslate"><span class="pre">value_1</span></code> の値が順に指定されています。</p>
@@ -119,7 +120,7 @@
 <span class="n">mesh_path</span> <span class="o">=</span> <span class="s2">&quot;MeshData.txt&quot;</span>
 
 <span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">bayes</span><span class="p">]</span>
-<span class="n">random_max_num_probes</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">random_max_num_probes</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="n">bayes_max_num_probes</span> <span class="o">=</span> <span class="mi">20</span>
 </pre></div>
 </div>
@@ -187,24 +188,22 @@
 </div>
 <p>実行すると、各ランクのフォルダが作成されます。
 以下の様な標準出力がされます。</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#parameter</span>
- <span class="n">random_max_num_probes</span> <span class="o">=</span> <span class="mi">5</span>
- <span class="n">bayes_max_num_probes</span> <span class="o">=</span> <span class="mi">20</span>
- <span class="n">score</span> <span class="o">=</span> <span class="n">TS</span>
- <span class="n">interval</span> <span class="o">=</span> <span class="mi">5</span>
- <span class="n">num_rand_basis</span> <span class="o">=</span> <span class="mi">5000</span>
- <span class="n">Read</span> <span class="n">MeshData</span><span class="o">.</span><span class="n">txt</span>
- <span class="n">value_01</span> <span class="o">=</span>  <span class="mf">4.75000</span>
- <span class="n">value_02</span> <span class="o">=</span>  <span class="mf">4.50000</span>
- <span class="n">WARNING</span> <span class="p">:</span> <span class="n">degree</span> <span class="ow">in</span> <span class="n">lastline</span> <span class="o">=</span> <span class="mf">7.0</span><span class="p">,</span> <span class="n">but</span> <span class="mf">6.0</span> <span class="n">expected</span>
- <span class="n">PASS</span> <span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">calculated_list</span><span class="p">)</span> <span class="mi">70</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">convolution_I_calculated_list</span><span class="p">)</span><span class="mi">70</span>
- <span class="n">R</span><span class="o">-</span><span class="n">factor</span> <span class="o">=</span> <span class="mf">0.05141906746102885</span>
- <span class="mi">0001</span><span class="o">-</span><span class="n">th</span> <span class="n">step</span><span class="p">:</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.051419</span> <span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="mi">46</span><span class="p">)</span>
-    <span class="n">current</span> <span class="n">best</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.051419</span> <span class="p">(</span><span class="n">best</span> <span class="n">action</span><span class="o">=</span><span class="mi">46</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># parameter</span>
+<span class="n">random_max_num_probes</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">bayes_max_num_probes</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">score</span> <span class="o">=</span> <span class="n">TS</span>
+<span class="n">interval</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">num_rand_basis</span> <span class="o">=</span> <span class="mi">5000</span>
+<span class="n">value_01</span> <span class="o">=</span>  <span class="mf">5.10000</span>
+<span class="n">value_02</span> <span class="o">=</span>  <span class="mf">4.90000</span>
+<span class="n">R</span><span class="o">-</span><span class="n">factor</span> <span class="o">=</span> <span class="mf">0.037237314010261195</span>
+<span class="mi">0001</span><span class="o">-</span><span class="n">th</span> <span class="n">step</span><span class="p">:</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.037237</span> <span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+   <span class="n">current</span> <span class="n">best</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.037237</span> <span class="p">(</span><span class="n">best</span> <span class="n">action</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
 
- <span class="n">value_01</span> <span class="o">=</span>  <span class="mf">6.00000</span>
- <span class="n">value_02</span> <span class="o">=</span>  <span class="mf">4.75000</span>
- <span class="o">...</span>
+<span class="n">value_01</span> <span class="o">=</span>  <span class="mf">4.30000</span>
+<span class="n">value_02</span> <span class="o">=</span>  <span class="mf">3.50000</span>
+
+  <span class="o">...</span>
 </pre></div>
 </div>
 <p>最初に設定したパラメータのリスト、そのあとに各ステップでの候補パラメータと、
@@ -214,29 +213,37 @@
 (<code class="docutils literal notranslate"><span class="pre">MeshData.txt</span></code> に付けられた番号がグリッドのidとして割り振られます)。
 最終的に推定されたパラメータは、<code class="docutils literal notranslate"><span class="pre">BayesData.txt</span></code> に出力されます。</p>
 <p>今回の場合は</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#step z1 z2 R-factor z1_action z2_action R-factor_action</span>
-<span class="mi">0</span> <span class="mf">4.75</span> <span class="mf">4.5</span> <span class="mf">0.05141906746102885</span> <span class="mf">4.75</span> <span class="mf">4.5</span> <span class="mf">0.05141906746102885</span>
-<span class="mi">1</span> <span class="mf">4.75</span> <span class="mf">4.5</span> <span class="mf">0.05141906746102885</span> <span class="mf">6.0</span> <span class="mf">4.75</span> <span class="mf">0.06591878368102033</span>
-<span class="mi">2</span> <span class="mf">5.5</span> <span class="mf">4.25</span> <span class="mf">0.04380131351780189</span> <span class="mf">5.5</span> <span class="mf">4.25</span> <span class="mf">0.04380131351780189</span>
-<span class="mi">3</span> <span class="mf">5.0</span> <span class="mf">4.25</span> <span class="mf">0.02312528177606794</span> <span class="mf">5.0</span> <span class="mf">4.25</span> <span class="mf">0.02312528177606794</span>
-<span class="mi">4</span> <span class="mf">5.0</span> <span class="mf">4.25</span> <span class="mf">0.02312528177606794</span> <span class="mf">6.0</span> <span class="mf">5.75</span> <span class="mf">0.05501069117756031</span>
-<span class="mi">5</span> <span class="mf">5.0</span> <span class="mf">4.25</span> <span class="mf">0.02312528177606794</span> <span class="mf">5.0</span> <span class="mf">4.75</span> <span class="mf">0.037158316568603085</span>
-<span class="mi">6</span> <span class="mf">5.0</span> <span class="mf">4.25</span> <span class="mf">0.02312528177606794</span> <span class="mf">5.75</span> <span class="mf">4.75</span> <span class="mf">0.06061194437867895</span>
-<span class="mi">7</span> <span class="mf">5.0</span> <span class="mf">4.25</span> <span class="mf">0.02312528177606794</span> <span class="mf">4.25</span> <span class="mf">3.5</span> <span class="mf">0.062098618649988294</span>
-<span class="mi">8</span> <span class="mf">5.0</span> <span class="mf">4.25</span> <span class="mf">0.02312528177606794</span> <span class="mf">6.0</span> <span class="mf">6.0</span> <span class="mf">0.04785241875354398</span>
-<span class="mi">9</span> <span class="mf">5.0</span> <span class="mf">4.25</span> <span class="mf">0.02312528177606794</span> <span class="mf">4.5</span> <span class="mf">4.0</span> <span class="mf">0.05912332368374844</span>
-<span class="mi">10</span> <span class="mf">5.0</span> <span class="mf">4.25</span> <span class="mf">0.02312528177606794</span> <span class="mf">4.75</span> <span class="mf">4.25</span> <span class="mf">0.04646333628698967</span>
-<span class="mi">11</span> <span class="mf">5.0</span> <span class="mf">4.25</span> <span class="mf">0.02312528177606794</span> <span class="mf">5.5</span> <span class="mf">4.5</span> <span class="mf">0.0466682914488051</span>
-<span class="mi">12</span> <span class="mf">5.0</span> <span class="mf">4.25</span> <span class="mf">0.02312528177606794</span> <span class="mf">5.0</span> <span class="mf">4.5</span> <span class="mf">0.033464998538380517</span>
-<span class="mi">13</span> <span class="mf">5.25</span> <span class="mf">4.25</span> <span class="mf">0.015199251773721183</span> <span class="mf">5.25</span> <span class="mf">4.25</span> <span class="mf">0.015199251773721183</span>
-<span class="mi">14</span> <span class="mf">5.25</span> <span class="mf">4.25</span> <span class="mf">0.015199251773721183</span> <span class="mf">5.25</span> <span class="mf">4.0</span> <span class="mf">0.0475246576904707</span>
-<span class="o">...</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#step z1 z2 fx z1_action z2_action fx_action</span>
+<span class="mi">0</span> <span class="mf">5.1</span> <span class="mf">4.9</span> <span class="mf">0.037237314010261195</span> <span class="mf">5.1</span> <span class="mf">4.9</span> <span class="mf">0.037237314010261195</span>
+<span class="mi">1</span> <span class="mf">5.1</span> <span class="mf">4.9</span> <span class="mf">0.037237314010261195</span> <span class="mf">4.3</span> <span class="mf">3.5</span> <span class="mf">0.06050786306685965</span>
+<span class="mi">2</span> <span class="mf">5.1</span> <span class="mf">4.9</span> <span class="mf">0.037237314010261195</span> <span class="mf">5.3</span> <span class="mf">3.9</span> <span class="mf">0.06215778000834068</span>
+<span class="mi">3</span> <span class="mf">5.1</span> <span class="mf">4.9</span> <span class="mf">0.037237314010261195</span> <span class="mf">4.7</span> <span class="mf">4.2</span> <span class="mf">0.049210767760634364</span>
+<span class="mi">4</span> <span class="mf">5.1</span> <span class="mf">4.9</span> <span class="mf">0.037237314010261195</span> <span class="mf">5.7</span> <span class="mf">3.7</span> <span class="mf">0.08394457854191653</span>
+<span class="mi">5</span> <span class="mf">5.1</span> <span class="mf">4.9</span> <span class="mf">0.037237314010261195</span> <span class="mf">5.2</span> <span class="mf">5.2</span> <span class="mf">0.05556857782716691</span>
+<span class="mi">6</span> <span class="mf">5.1</span> <span class="mf">4.9</span> <span class="mf">0.037237314010261195</span> <span class="mf">5.7</span> <span class="mf">4.0</span> <span class="mf">0.0754639895013157</span>
+<span class="mi">7</span> <span class="mf">5.1</span> <span class="mf">4.9</span> <span class="mf">0.037237314010261195</span> <span class="mf">6.0</span> <span class="mf">4.4</span> <span class="mf">0.054757310814479355</span>
+<span class="mi">8</span> <span class="mf">5.1</span> <span class="mf">4.9</span> <span class="mf">0.037237314010261195</span> <span class="mf">6.0</span> <span class="mf">4.2</span> <span class="mf">0.06339787375966344</span>
+<span class="mi">9</span> <span class="mf">5.1</span> <span class="mf">4.9</span> <span class="mf">0.037237314010261195</span> <span class="mf">5.7</span> <span class="mf">5.2</span> <span class="mf">0.05348404677676544</span>
+<span class="mi">10</span> <span class="mf">5.1</span> <span class="mf">4.7</span> <span class="mf">0.03002813055356341</span> <span class="mf">5.1</span> <span class="mf">4.7</span> <span class="mf">0.03002813055356341</span>
+<span class="mi">11</span> <span class="mf">5.1</span> <span class="mf">4.7</span> <span class="mf">0.03002813055356341</span> <span class="mf">5.0</span> <span class="mf">4.4</span> <span class="mf">0.03019977423448576</span>
+<span class="mi">12</span> <span class="mf">5.3</span> <span class="mf">4.5</span> <span class="mf">0.02887504880071686</span> <span class="mf">5.3</span> <span class="mf">4.5</span> <span class="mf">0.02887504880071686</span>
+<span class="mi">13</span> <span class="mf">5.1</span> <span class="mf">4.5</span> <span class="mf">0.025865346123665988</span> <span class="mf">5.1</span> <span class="mf">4.5</span> <span class="mf">0.025865346123665988</span>
+<span class="mi">14</span> <span class="mf">5.2</span> <span class="mf">4.4</span> <span class="mf">0.02031077875240244</span> <span class="mf">5.2</span> <span class="mf">4.4</span> <span class="mf">0.02031077875240244</span>
+<span class="mi">15</span> <span class="mf">5.2</span> <span class="mf">4.4</span> <span class="mf">0.02031077875240244</span> <span class="mf">5.2</span> <span class="mf">4.6</span> <span class="mf">0.023291891689059388</span>
+<span class="mi">16</span> <span class="mf">5.2</span> <span class="mf">4.4</span> <span class="mf">0.02031077875240244</span> <span class="mf">5.2</span> <span class="mf">4.5</span> <span class="mf">0.02345999725278686</span>
+<span class="mi">17</span> <span class="mf">5.2</span> <span class="mf">4.4</span> <span class="mf">0.02031077875240244</span> <span class="mf">5.1</span> <span class="mf">4.4</span> <span class="mf">0.022561543431398066</span>
+<span class="mi">18</span> <span class="mf">5.2</span> <span class="mf">4.4</span> <span class="mf">0.02031077875240244</span> <span class="mf">5.3</span> <span class="mf">4.4</span> <span class="mf">0.02544527153306051</span>
+<span class="mi">19</span> <span class="mf">5.2</span> <span class="mf">4.4</span> <span class="mf">0.02031077875240244</span> <span class="mf">5.1</span> <span class="mf">4.6</span> <span class="mf">0.02778877135528466</span>
+<span class="mi">20</span> <span class="mf">5.2</span> <span class="mf">4.3</span> <span class="mf">0.012576357659158034</span> <span class="mf">5.2</span> <span class="mf">4.3</span> <span class="mf">0.012576357659158034</span>
+<span class="mi">21</span> <span class="mf">5.1</span> <span class="mf">4.2</span> <span class="mf">0.010217361468113488</span> <span class="mf">5.1</span> <span class="mf">4.2</span> <span class="mf">0.010217361468113488</span>
+<span class="mi">22</span> <span class="mf">5.1</span> <span class="mf">4.2</span> <span class="mf">0.010217361468113488</span> <span class="mf">5.2</span> <span class="mf">4.2</span> <span class="mf">0.013178053637167673</span>
+  <span class="o">...</span>
 </pre></div>
 </div>
 <p>のように得られます。1列目にステップ数、2列目、3列目、4列目にその時点での最高スコアを与える
 <code class="docutils literal notranslate"><span class="pre">value_01</span></code>, <code class="docutils literal notranslate"><span class="pre">value_02</span></code> と <code class="docutils literal notranslate"><span class="pre">R-factor</span></code> が記載されます。
 続けて、そのステップで候補となった <code class="docutils literal notranslate"><span class="pre">value_01</span></code>, <code class="docutils literal notranslate"><span class="pre">value_02</span></code> と <code class="docutils literal notranslate"><span class="pre">R-factor</span></code> が記載されます。
-今回の場合は13ステップ目で正しい解が得られていることがわかります。</p>
+今回の場合は21ステップ目で正しい解が得られていることがわかります。</p>
 <p>なお、一括計算するスクリプトとして <code class="docutils literal notranslate"><span class="pre">do.sh</span></code> を用意しています。
 <code class="docutils literal notranslate"><span class="pre">do.sh</span></code> では <code class="docutils literal notranslate"><span class="pre">BayesData.dat</span></code> と <code class="docutils literal notranslate"><span class="pre">ref_BayesData.dat</span></code> の差分も比較しています。
 以下、説明は割愛しますが、その中身を掲載します。</p>

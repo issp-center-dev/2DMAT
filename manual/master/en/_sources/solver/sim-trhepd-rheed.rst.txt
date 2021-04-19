@@ -1,14 +1,14 @@
 ``sim-trhepd-rheed`` solver
 ***********************************************
 
-.. sim-trhepd-rheed: https://github.com/sim-trhepd-rheed/sim-trhepd-rheed
+.. _sim-trhepd-rheed: https://github.com/sim-trhepd-rheed/sim-trhepd-rheed
 
-``sim-trhepd-rheed`` is a ``Solver`` that uses `sim-trhepd-rheed`_ to calculate the diffraction rocking curve from the atomic position :math:`x` and returns the deviation from the experimental rocking curve as :math:`f(x)`. 
+``sim-trhepd-rheed`` is a ``Solver`` that uses sim-trhepd-rheed_ to calculate the diffraction rocking curve from the atomic position :math:`x` and returns the deviation from the experimental rocking curve as :math:`f(x)`. 
 
 Preparation
 ~~~~~~~~~~~~
 
-You will need to install `sim-trhepd-rheed`_ beforehand.
+You will need to install sim-trhepd-rheed_ beforehand.
 
 1. Download the source code from the official ``sim-trhepd-rheed`` website. 
 2. Move to ``sim-trhepd-rheed/src`` folder and make ``bulk.exe`` and ``surf.exe`` by using ``make``.
