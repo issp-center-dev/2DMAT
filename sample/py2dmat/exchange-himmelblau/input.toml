@@ -1,0 +1,22 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[algorithm]
+name = "exchange"
+seed = 12345
+
+[algorithm.param]
+max_list = [6.0, 6.0]
+min_list = [-6.0, -6.0]
+initial_list = [0.0, 0.0]
+
+[algorithm.exchange]
+T_min = 0.1
+T_max = 10.0
+numsteps = 10000
+numsteps_exchange = 100
+
+[solver]
+name = "analytical"
+function_name = "himmelblau"
