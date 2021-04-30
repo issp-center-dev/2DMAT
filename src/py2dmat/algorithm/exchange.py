@@ -69,12 +69,22 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             raise ImportError(msg)
 
         info_exchange = info.algorithm["exchange"]
-        if info_exchange.get("Tlogspace", True):
+
+        if info_exchange.get("Tinvspace", False):
+            T_inverse = np.linspace(
+                start = (1/info_exchange.get("Tmin",0.1)),
+                stop = (1/info_exchange.get("Tmax",10)),
+                num = self.mpisize
+            )
+            self.Ts = 1/T_inverse
+            
+        elif info_exchange.get("Tlogspace", True):
             self.Ts = np.logspace(
                 start=np.log10(info_exchange.get("Tmin", 0.1)),
                 stop=np.log10(info_exchange.get("Tmax", 10.0)),
                 num=self.mpisize,
             )
+
         else:
             self.Ts = np.linspace(
                 start=info_exchange.get("Tmin", 0.1),
