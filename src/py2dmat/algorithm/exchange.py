@@ -69,7 +69,25 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             raise ImportError(msg)
 
         info_exchange = info.algorithm["exchange"]
-        if info_exchange.get("Tlogspace", True):
+
+        bTinv = info_exchange.get("Tinvspace", False)
+        bTlog = info_exchange.get("Tlogspace", True)
+        bTlogdefined = "Tlogspace" in info_exchange
+
+        if bTinv and bTlog:
+            msg = "ERROR: Both Tinvspace and Tlogspace are enabled."
+            if not bTlogdefined:
+                msg += "\nNote: The default value of Tlogspace is true."
+            raise RuntimeError(msg)
+
+        if bTinv:
+            T_inverse = np.linspace(
+                start=(1 / info_exchange.get("Tmin", 0.1)),
+                stop=(1 / info_exchange.get("Tmax", 10)),
+                num=self.mpisize,
+            )
+            self.Ts = 1 / T_inverse
+        elif bTlog:
             self.Ts = np.logspace(
                 start=np.log10(info_exchange.get("Tmin", 0.1)),
                 stop=np.log10(info_exchange.get("Tmax", 10.0)),
