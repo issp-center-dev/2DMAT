@@ -12,8 +12,8 @@ min_list = [-6.0, -6.0]
 initial_list = [0.0, 0.0]
 
 [algorithm.exchange]
-T_min = 0.1
-T_max = 10.0
+Tmin = 0.1
+Tmax = 10.0
 numsteps = 10000
 numsteps_exchange = 100
 
