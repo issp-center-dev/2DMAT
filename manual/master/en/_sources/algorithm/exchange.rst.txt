@@ -78,6 +78,13 @@ This has two subsections ``algorithm.param`` and ``algorithm.exchange`` .
 
   Description: Whether to assign "temperature" to replicas equally spaced in the logarithmic space or not.
 
+- ``Tinvspace``
+
+  Format: Boolean (default: false)
+
+  Description: Whether to assign "temperature" to replicas equally spaced in the inverse space or not (1/T).
+               When both ``Tlogspace`` and ``Tinvspace`` are activated, py2dmat will stop with an error.
+
 
 Output files
 ~~~~~~~~~~~~~~~~~~~~~
