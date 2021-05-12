@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, TextIO
 from io import open
 import copy
 import time
@@ -111,8 +111,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
     def _run(self) -> None:
         rank = self.mpirank
 
-        x_old = np.zeros(self.dimension)
-        mbeta = -1.0 / self.Ts[self.Tindex]
+        beta = 1.0 / self.Ts[self.Tindex]
         exchange_direction = True
 
         self.istep = 0
@@ -141,35 +140,9 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                     exchange_direction = not exchange_direction
                 time_end = time.perf_counter()
                 self.timer["run"]["exchange"] += time_end - time_sta
-                mbeta = -1.0 / self.Ts[self.Tindex]
+                beta = 1.0 / self.Ts[self.Tindex]
 
-            # make candidate
-            np.copyto(x_old, self.x)
-            self.x += self.rng.normal(size=self.dimension) * self.xunit
-            bound = (self.xmin <= self.x).all() and (self.x <= self.xmax).all()
-
-            # evaluate "Energy"
-            fx_old = self.fx
-            self._evaluate()
-            self._write_result(file_trial)
-
-            if bound:
-                if self.fx < self.best_fx:
-                    np.copyto(self.best_x, self.x)
-                    self.best_fx = self.fx
-                    self.best_istep = self.istep
-
-                fdiff = self.fx - fx_old
-                if fdiff <= 0.0 or self.rng.rand() < np.exp(mbeta * fdiff):
-                    pass
-                else:
-                    np.copyto(self.x, x_old)
-                    self.fx = fx_old
-            else:
-                np.copyto(self.x, x_old)
-                self.fx = fx_old
-
-            self._write_result(file_result)
+            self.local_update(beta, file_trial, file_result)
             self.istep += 1
 
         file_result.close()
@@ -195,6 +168,62 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         time_end = time.perf_counter()
         self.timer["run"]["submit"] += time_end - time_sta
         return self.fx
+
+    def propose(self, current_x) -> np.ndarray:
+        """propose next candidate
+
+        Parameters
+        ==========
+        current_x: np.ndarray
+            current position
+
+        Returns
+        =======
+        next_x: np.ndarray
+            proposal
+        """
+        dx = self.rng.normal(size=self.dimension) * self.xunit
+        next_x = current_x + dx
+        return next_x
+
+    def local_update(self, beta: float, file_trial: TextIO, file_result: TextIO):
+        """one step of Monte Carlo
+
+        Parameters
+        ==========
+        beta: float
+            inverse temperature
+        file_trial: TextIO
+            log file for all trial points
+        file_result: TextIO
+            log file for all generated samples
+        """
+        # make candidate
+        x_old = copy.copy(self.x)
+        self.x = self.propose(x_old)
+        bound = (self.xmin <= self.x).all() and (self.x <= self.xmax).all()
+
+        # evaluate "Energy"
+        fx_old = self.fx
+        self._evaluate()
+        self._write_result(file_trial)
+
+        if bound:
+            if self.fx < self.best_fx:
+                np.copyto(self.best_x, self.x)
+                self.best_fx = self.fx
+                self.best_istep = self.istep
+
+            fdiff = self.fx - fx_old
+            if fdiff <= 0.0 or self.rng.random() < np.exp(-beta * fdiff):
+                pass
+            else:
+                np.copyto(self.x, x_old)
+                self.fx = fx_old
+        else:
+            np.copyto(self.x, x_old)
+            self.fx = fx_old
+        self._write_result(file_result)
 
     def _exchange(self, direction: bool) -> None:
         """try to exchange temperatures"""
