@@ -6,9 +6,10 @@ import time
 import numpy as np
 
 import py2dmat
+import py2dmat.algorithm.montecarlo
 
 
-class Algorithm(py2dmat.algorithm.AlgorithmBase):
+class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     """Replica Exchange Monte Carlo
 
     Attributes
@@ -70,40 +71,10 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
         info_exchange = info.algorithm["exchange"]
 
-        bTinv = info_exchange.get("Tinvspace", False)
-        bTlog = info_exchange.get("Tlogspace", True)
-        bTlogdefined = "Tlogspace" in info_exchange
-
-        if bTinv and bTlog:
-            msg = "ERROR: Both Tinvspace and Tlogspace are enabled."
-            if not bTlogdefined:
-                msg += "\nNote: The default value of Tlogspace is true."
-            raise RuntimeError(msg)
-
-        if bTinv:
-            T_inverse = np.linspace(
-                start=(1 / info_exchange.get("Tmin", 0.1)),
-                stop=(1 / info_exchange.get("Tmax", 10)),
-                num=self.mpisize,
-            )
-            self.Ts = 1 / T_inverse
-        elif bTlog:
-            self.Ts = np.logspace(
-                start=np.log10(info_exchange.get("Tmin", 0.1)),
-                stop=np.log10(info_exchange.get("Tmax", 10.0)),
-                num=self.mpisize,
-            )
-        else:
-            self.Ts = np.linspace(
-                start=info_exchange.get("Tmin", 0.1),
-                stop=info_exchange.get("Tmax", 10.0),
-                num=self.mpisize,
-            )
+        self.Ts = self.read_Ts(info_exchange)
         self.Tindex = self.mpirank
         self.T2rep = list(range(self.mpisize))
         self.nreplica = self.mpisize
-
-        self.x, self.xmin, self.xmax, self.xunit = self._read_param(info)
 
         self.numsteps = info_exchange["numsteps"]
         self.numsteps_exchange = info_exchange["numsteps_exchange"]
@@ -148,82 +119,6 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         file_result.close()
         file_trial.close()
         print("complete main process : rank {:08d}/{:08d}".format(rank, self.nreplica))
-
-    def _evaluate(self) -> float:
-        """evaluate current "Energy"
-
-        ``self.fx`` will be overwritten with the result
-
-        Parameters
-        ==========
-        run_info: dict
-            Parameter set.
-            Some parameters will be overwritten.
-        """
-
-        message = py2dmat.Message(self.x, self.istep, 0)
-
-        time_sta = time.perf_counter()
-        self.fx = self.runner.submit(message)
-        time_end = time.perf_counter()
-        self.timer["run"]["submit"] += time_end - time_sta
-        return self.fx
-
-    def propose(self, current_x) -> np.ndarray:
-        """propose next candidate
-
-        Parameters
-        ==========
-        current_x: np.ndarray
-            current position
-
-        Returns
-        =======
-        next_x: np.ndarray
-            proposal
-        """
-        dx = self.rng.normal(size=self.dimension) * self.xunit
-        next_x = current_x + dx
-        return next_x
-
-    def local_update(self, beta: float, file_trial: TextIO, file_result: TextIO):
-        """one step of Monte Carlo
-
-        Parameters
-        ==========
-        beta: float
-            inverse temperature
-        file_trial: TextIO
-            log file for all trial points
-        file_result: TextIO
-            log file for all generated samples
-        """
-        # make candidate
-        x_old = copy.copy(self.x)
-        self.x = self.propose(x_old)
-        bound = (self.xmin <= self.x).all() and (self.x <= self.xmax).all()
-
-        # evaluate "Energy"
-        fx_old = self.fx
-        self._evaluate()
-        self._write_result(file_trial)
-
-        if bound:
-            if self.fx < self.best_fx:
-                np.copyto(self.best_x, self.x)
-                self.best_fx = self.fx
-                self.best_istep = self.istep
-
-            fdiff = self.fx - fx_old
-            if fdiff <= 0.0 or self.rng.random() < np.exp(-beta * fdiff):
-                pass
-            else:
-                np.copyto(self.x, x_old)
-                self.fx = fx_old
-        else:
-            np.copyto(self.x, x_old)
-            self.fx = fx_old
-        self._write_result(file_result)
 
     def _exchange(self, direction: bool) -> None:
         """try to exchange temperatures"""
@@ -305,18 +200,3 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             print(f"  fx = {best_fx[best_rank]}")
             for label, x in zip(self.label_list, best_x[best_rank]):
                 print(f"  {label} = {x}")
-
-    def _write_result_header(self, fp) -> None:
-        fp.write("# step T fx")
-        for label in self.label_list:
-            fp.write(f" {label}")
-        fp.write("\n")
-
-    def _write_result(self, fp) -> None:
-        fp.write(f"{self.istep} ")
-        fp.write(f"{self.Ts[self.Tindex]} ")
-        fp.write(f"{self.fx} ")
-        for x in self.x:
-            fp.write(f"{x} ")
-        fp.write("\n")
-        fp.flush()
