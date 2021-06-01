@@ -7,7 +7,7 @@ Prerequisites
 
     - The following Python packages are required.
         - toml
-        - numpy
+        - numpy >= 1.14
 
     - Optional packages
 
