@@ -4,15 +4,16 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>sim-trhepd-rheed solver &#8212; 2DMAT 1.0.1 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Related Tools" href="../tool.html" />
@@ -36,10 +37,10 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="sim-trhepd-rheed-solver">
+  <section id="sim-trhepd-rheed-solver">
 <h1><code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code> solver<a class="headerlink" href="#sim-trhepd-rheed-solver" title="Permalink to this headline">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code> is a <code class="docutils literal notranslate"><span class="pre">Solver</span></code> that uses <a class="reference external" href="https://github.com/sim-trhepd-rheed/sim-trhepd-rheed">sim-trhepd-rheed</a> to calculate the diffraction rocking curve from the atomic position <span class="math notranslate nohighlight">\(x\)</span> and returns the deviation from the experimental rocking curve as <span class="math notranslate nohighlight">\(f(x)\)</span>.</p>
-<div class="section" id="preparation">
+<section id="preparation">
 <h2>Preparation<a class="headerlink" href="#preparation" title="Permalink to this headline">¶</a></h2>
 <p>You will need to install <a class="reference external" href="https://github.com/sim-trhepd-rheed/sim-trhepd-rheed">sim-trhepd-rheed</a> beforehand.</p>
 <ol class="arabic simple">
@@ -48,11 +49,11 @@
 </ol>
 <p>Before running <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code>, run <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> to create the bulk data.
 The <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> is called from <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code>.</p>
-</div>
-<div class="section" id="input-parameters">
+</section>
+<section id="input-parameters">
 <h2>Input parameters<a class="headerlink" href="#input-parameters" title="Permalink to this headline">¶</a></h2>
 <p>Input parameters can be specified in subcsections <code class="docutils literal notranslate"><span class="pre">config</span></code>, <code class="docutils literal notranslate"><span class="pre">post</span></code>, <code class="docutils literal notranslate"><span class="pre">param</span></code>, <code class="docutils literal notranslate"><span class="pre">reference</span></code> in <code class="docutils literal notranslate"><span class="pre">solver</span></code> section.</p>
-<div class="section" id="config-section">
+<section id="config-section">
 <h3>[<code class="docutils literal notranslate"><span class="pre">config</span></code>] section<a class="headerlink" href="#config-section" title="Permalink to this headline">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">surface_exec_file</span></code></p>
@@ -84,8 +85,8 @@ The <code class="docutils literal notranslate"><span class="pre">surf.exe</span>
 <p>Description: One of the parameters that specifies the range of output files to be read, calculated by the solver. This parameter specifies the column to be read.</p>
 </li>
 </ul>
-</div>
-<div class="section" id="post-section">
+</section>
+<section id="post-section">
 <h3>[<code class="docutils literal notranslate"><span class="pre">post</span></code>] section<a class="headerlink" href="#post-section" title="Permalink to this headline">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">normalization</span></code></p>
@@ -101,8 +102,8 @@ The <code class="docutils literal notranslate"><span class="pre">surf.exe</span>
 <p>Description: This parameter specifies the half-width of convolution.</p>
 </li>
 </ul>
-</div>
-<div class="section" id="param-section">
+</section>
+<section id="param-section">
 <h3>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] section<a class="headerlink" href="#param-section" title="Permalink to this headline">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">string_list</span></code></p>
@@ -114,8 +115,8 @@ The <code class="docutils literal notranslate"><span class="pre">surf.exe</span>
 <p>Description:  Maximum angle (in degrees)</p>
 </li>
 </ul>
-</div>
-<div class="section" id="reference-section">
+</section>
+<section id="reference-section">
 <h3>[<code class="docutils literal notranslate"><span class="pre">reference</span></code>] section<a class="headerlink" href="#reference-section" title="Permalink to this headline">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">path</span></code></p>
@@ -131,11 +132,11 @@ The <code class="docutils literal notranslate"><span class="pre">surf.exe</span>
 <p>Description: One of the parameters that specify the range of experimental data files to be read. This parameter specifies the last line of the experimental file to be read.</p>
 </li>
 </ul>
-</div>
-</div>
-<div class="section" id="reference-file">
+</section>
+</section>
+<section id="reference-file">
 <h2>Reference file<a class="headerlink" href="#reference-file" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="input-template-file">
+<section id="input-template-file">
 <h3>Input template file<a class="headerlink" href="#input-template-file" title="Permalink to this headline">¶</a></h3>
 <p>The input template file <code class="docutils literal notranslate"><span class="pre">template.txt</span></code> is a template for creating an input file for <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code>.
 The parameters to be moved in <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> (such as the atomic coordinates you want to find) should be replaced with the appropriate string, such as <code class="docutils literal notranslate"><span class="pre">value_*</span></code>.
@@ -160,8 +161,8 @@ An example template is shown below.</p>
 </pre></div>
 </div>
 <p>In this case, <code class="docutils literal notranslate"><span class="pre">value_01</span></code>, <code class="docutils literal notranslate"><span class="pre">value_02</span></code>, and <code class="docutils literal notranslate"><span class="pre">value_03</span></code> are the parameters to be moved in <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code>.</p>
-</div>
-<div class="section" id="target-file">
+</section>
+<section id="target-file">
 <h3>Target file<a class="headerlink" href="#target-file" title="Permalink to this headline">¶</a></h3>
 <p>This file (<code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code>) contains the data to be targeted.
 The first column contains the angle, and the second column contains the calculated value of the reflection intensity multiplied by the weight.
@@ -179,13 +180,13 @@ An example of the file is shown below.</p>
 <span class="o">...</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="output-file">
+</section>
+</section>
+<section id="output-file">
 <h2>Output file<a class="headerlink" href="#output-file" title="Permalink to this headline">¶</a></h2>
 <p>For <code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code>, the files output by <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> will be output in the <code class="docutils literal notranslate"><span class="pre">Log%%%%%</span></code> folder under the folder with the rank number.
 This section describes the own files that are output by this solver.</p>
-<div class="section" id="stdout">
+<section id="stdout">
 <h3><code class="docutils literal notranslate"><span class="pre">stdout</span></code><a class="headerlink" href="#stdout" title="Permalink to this headline">¶</a></h3>
 <p>It contains the standard output of <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code>.
 An example is shown below.</p>
@@ -197,8 +198,8 @@ output-filename :
 surf-bulkP.s
 </pre></div>
 </div>
-</div>
-<div class="section" id="rockingcurve-txt">
+</section>
+<section id="rockingcurve-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">RockingCurve.txt</span></code><a class="headerlink" href="#rockingcurve-txt" title="Permalink to this headline">¶</a></h3>
 <p>This file is located in the <code class="docutils literal notranslate"><span class="pre">Log%%%%%</span></code> folder.
 The first line is the header, and the second and subsequent lines are the angle, convoluted calculated/experimental values, normalized calculated/experimental values, and raw calculated values in that order.
@@ -214,9 +215,9 @@ An example is shown below.</p>
 <span class="o">...</span>
 </pre></div>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
       </div>
@@ -234,7 +235,7 @@ An example is shown below.</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
     </div>
   </body>
 </html>

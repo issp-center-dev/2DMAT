@@ -4,11 +4,12 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Input file &#8212; 2DMAT 1.0.1 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -35,7 +36,7 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="input-file">
+  <section id="input-file">
 <h1>Input file<a class="headerlink" href="#input-file" title="Permalink to this headline">¶</a></h1>
 <p>As the input file format, <a class="reference external" href="https://toml.io/ja/">TOML</a> format is used.
 The input file consists of the following four sections.</p>
@@ -61,7 +62,7 @@ The input file consists of the following four sections.</p>
 </ul>
 </li>
 </ul>
-<div class="section" id="base-section">
+<section id="base-section">
 <h2>[<code class="docutils literal notranslate"><span class="pre">base</span></code>] section<a class="headerlink" href="#base-section" title="Permalink to this headline">¶</a></h2>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">dimension</span></code></p>
@@ -77,8 +78,8 @@ The input file consists of the following four sections.</p>
 <p>Description: Name of the directory to output the results.</p>
 </li>
 </ul>
-</div>
-<div class="section" id="solver-section">
+</section>
+<section id="solver-section">
 <h2>[<code class="docutils literal notranslate"><span class="pre">solver</span></code>] section<a class="headerlink" href="#solver-section" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">name</span></code> determines the type of solver. Each parameter is defined for each solver.</p>
 <ul>
@@ -94,8 +95,8 @@ The input file consists of the following four sections.</p>
 </li>
 </ul>
 <p>See <a class="reference internal" href="solver/index.html"><span class="doc">Direct Problem Solver</span></a> for details of the various solvers and their input/output files.</p>
-</div>
-<div class="section" id="algorithm-section">
+</section>
+<section id="algorithm-section">
 <span id="input-parameter-algorithm"></span><h2>[<code class="docutils literal notranslate"><span class="pre">algorithm</span></code>] section<a class="headerlink" href="#algorithm-section" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">name</span></code> determines the type of algorithm. Each parameter is defined for each algorithm.</p>
 <ul>
@@ -128,12 +129,12 @@ If omitted, the initialization is done by  <a class="reference external" href="h
 </li>
 </ul>
 <p>See <a class="reference internal" href="algorithm/index.html"><span class="doc">Search algorithms</span></a> for details of the various algorithms and their input/output files.</p>
-</div>
-<div class="section" id="runner-section">
+</section>
+<section id="runner-section">
 <h2>[<code class="docutils literal notranslate"><span class="pre">runner</span></code>] section<a class="headerlink" href="#runner-section" title="Permalink to this headline">¶</a></h2>
 <p>This section sets the configuration of <code class="docutils literal notranslate"><span class="pre">Runner</span></code>, which bridges <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> and <code class="docutils literal notranslate"><span class="pre">Solver</span></code>.
 It has a subsection <code class="docutils literal notranslate"><span class="pre">log</span></code></p>
-<div class="section" id="log-section">
+<section id="log-section">
 <h3>[<code class="docutils literal notranslate"><span class="pre">log</span></code>] section<a class="headerlink" href="#log-section" title="Permalink to this headline">¶</a></h3>
 <p>Settings related to logging of solver calls.</p>
 <ul>
@@ -157,9 +158,9 @@ It has a subsection <code class="docutils literal notranslate"><span class="pre"
 <p>Description: Whether to record the input to solver.</p>
 </li>
 </ul>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
       </div>
@@ -177,7 +178,7 @@ It has a subsection <code class="docutils literal notranslate"><span class="pre"
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
     </div>
   </body>
 </html>

@@ -4,11 +4,12 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Optimization by Nelder-Mead method &#8212; 2DMAT 1.0.1 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
@@ -35,7 +36,7 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="optimization-by-nelder-mead-method">
+  <section id="optimization-by-nelder-mead-method">
 <h1>Optimization by Nelder-Mead method<a class="headerlink" href="#optimization-by-nelder-mead-method" title="Permalink to this headline">¶</a></h1>
 <p>In this section, we will explain how to calculate the inverse problem of analyzing atomic coordinates from diffraction data using the Nelder-Mead method.
 The specific calculation procedure is as follows.</p>
@@ -51,7 +52,7 @@ The specific calculation procedure is as follows.</p>
 </li>
 </ol>
 <p>In the main program, the Nelder-Mead method (using <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.fmin.html">scipy.optimize.fmin</a>) is used. ) to find the parameter that minimizes the deviation (R-value) between the intensity obtained using the solver (in this case <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code>) and the intensity listed in the reference file (<code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code>).</p>
-<div class="section" id="location-of-the-sample-files">
+<section id="location-of-the-sample-files">
 <h2>Location of the sample files<a class="headerlink" href="#location-of-the-sample-files" title="Permalink to this headline">¶</a></h2>
 <p>The sample files are located in <code class="docutils literal notranslate"><span class="pre">sample/py2dmat/minsearch</span></code>.
 The following files are stored in the folder.</p>
@@ -75,8 +76,8 @@ The following files are stored in the folder.</p>
 </li>
 </ul>
 <p>The following sections describe these files and then show the actual calculation results.</p>
-</div>
-<div class="section" id="the-reference-file">
+</section>
+<section id="the-reference-file">
 <h2>The reference file<a class="headerlink" href="#the-reference-file" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">template.txt</span></code> file is almost the same format as the input file for <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code>.
 The parameters to be run (such as the atomic coordinates you want to find) are rewritten as <code class="docutils literal notranslate"><span class="pre">value_*</span></code> or some other appropriate string.
@@ -110,8 +111,8 @@ In the sample folder, there is a reference file <code class="docutils literal no
 <p><code class="docutils literal notranslate"><span class="pre">value_0x</span></code> corresponds to <code class="docutils literal notranslate"><span class="pre">z_x</span></code> (x=1, 2, 3).
 <code class="docutils literal notranslate"><span class="pre">fx</span></code> is the optimal value of the objective function.
 The <code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code> is a file that is used as a reference in the main program, and is equivalent to <code class="docutils literal notranslate"><span class="pre">convolution.txt</span></code>, which is calculated by putting the parameters in <code class="docutils literal notranslate"><span class="pre">ref.txt</span></code> into <code class="docutils literal notranslate"><span class="pre">template.txt</span></code> and following the same procedure as in the tutorial on direct problems. (Note that the input files for <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> and <code class="docutils literal notranslate"><span class="pre">suft.exe</span></code> are different from those in the sequential problem tutorial.)</p>
-</div>
-<div class="section" id="input-file">
+</section>
+<section id="input-file">
 <h2>Input file<a class="headerlink" href="#input-file" title="Permalink to this headline">¶</a></h2>
 <p>In this section, we will prepare the input file <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> for the main program.
 The details of <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> can be found in the input file.
@@ -184,8 +185,8 @@ This section describes the contents of <code class="docutils literal notranslate
 </ul>
 <p>Other parameters, such as convergence judgments used in the Nelder-Mead method, can be done in the <code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> section, although they are omitted here because the default values are used.
 See the input file chapter for details.</p>
-</div>
-<div class="section" id="calculation-execution">
+</section>
+<section id="calculation-execution">
 <h2>Calculation execution<a class="headerlink" href="#calculation-execution" title="Permalink to this headline">¶</a></h2>
 <p>First, move to the folder where the sample files are located (we will assume that you are directly under the directory where you downloaded this software).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">sample</span><span class="o">/</span><span class="n">py2dmat</span><span class="o">/</span><span class="n">minsearch</span>
@@ -258,8 +259,8 @@ else
 fi
 </pre></div>
 </div>
-</div>
-<div class="section" id="visualization-of-calculation-results">
+</section>
+<section id="visualization-of-calculation-results">
 <h2>Visualization of calculation results<a class="headerlink" href="#visualization-of-calculation-results" title="Permalink to this headline">¶</a></h2>
 <p>The data of the rocking curve at each step is stored in <code class="docutils literal notranslate"><span class="pre">Extra_Logxxxxx</span></code> (where xxxx is the number of steps) as <code class="docutils literal notranslate"><span class="pre">RockingCurve.txt</span></code>.
 A tool <code class="docutils literal notranslate"><span class="pre">draw_RC_double.py</span></code> is provided to visualize this data.
@@ -271,13 +272,15 @@ In this section, we will use this tool to visualize the results.</p>
 </pre></div>
 </div>
 <p>Running the above will output <code class="docutils literal notranslate"><span class="pre">RC_double.png</span></code>.</p>
-<div class="figure align-default" id="id1">
+<figure class="align-default" id="id1">
 <img alt="../_images/RC_double_minsearch.png" src="../_images/RC_double_minsearch.png" />
-<p class="caption"><span class="caption-number">Fig. 2 </span><span class="caption-text">Analysis using the Nelder-Mead method. The red circle represents the experimental value, the blue line represents the first step, and the green line represents the rocking curve obtained at the last step.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
-</div>
+<figcaption>
+<p><span class="caption-number">Fig. 2 </span><span class="caption-text">Analysis using the Nelder-Mead method. The red circle represents the experimental value, the blue line represents the first step, and the green line represents the rocking curve obtained at the last step.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 <p>From the figure, we can see that the last step agrees with the experimental one.</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>
@@ -295,7 +298,7 @@ In this section, we will use this tool to visualize the results.</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
     </div>
   </body>
 </html>

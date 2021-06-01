@@ -4,11 +4,12 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>TRHEPD Direct Problem Solver &#8212; 2DMAT 1.0.1 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
@@ -35,11 +36,11 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="trhepd-direct-problem-solver">
+  <section id="trhepd-direct-problem-solver">
 <h1>TRHEPD Direct Problem Solver<a class="headerlink" href="#trhepd-direct-problem-solver" title="Permalink to this headline">¶</a></h1>
 <p>As one of the forward problem solvers, 2DMAT provides a wrapper for the program <a class="reference external" href="https://github.com/sim-trhepd-rheed/sim-trhepd-rheed/">sim-trhepd-rheed</a> , which calculates the intensity of reflection fast (positron) electron diffraction (RHEED, TRHEPD) (A. Ichimiya, Jpn. J. Appl. Phys. 22, 176 (1983); 24, 1365 (1985)).
 In this tutorial, we will install and test sim-trhepd-rheed (for details, see the official web page for <a class="reference external" href="https://github.com/sim-trhepd-rheed/sim-trhepd-rheed/">sim-trhepd-rheed</a>).</p>
-<div class="section" id="download-and-install">
+<section id="download-and-install">
 <h2>Download and Install<a class="headerlink" href="#download-and-install" title="Permalink to this headline">¶</a></h2>
 <p>First, in the tutorial, we assume that you are at the location where the <code class="docutils literal notranslate"><span class="pre">2DMAT</span></code> folder is located.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ls -d 2DMAT
@@ -53,8 +54,8 @@ In this tutorial, we will install and test sim-trhepd-rheed (for details, see th
 </pre></div>
 </div>
 <p>If make is successful, <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> and <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> will be created.</p>
-</div>
-<div class="section" id="calculation-execution">
+</section>
+<section id="calculation-execution">
 <h2>Calculation execution<a class="headerlink" href="#calculation-execution" title="Permalink to this headline">¶</a></h2>
 <p>In sim-trhepd-rheed, the bulk part of the surface structure is first calculated with <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code>.
 Then, using the results of the <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> calculation (the <code class="docutils literal notranslate"><span class="pre">bulkP.b</span></code> file),
@@ -101,8 +102,8 @@ surf-bulkP.s
 </div>
 <p>After execution, the files <code class="docutils literal notranslate"><span class="pre">surf-bulkP.md</span></code>, <code class="docutils literal notranslate"><span class="pre">surf-bulkP.s</span></code> and <code class="docutils literal notranslate"><span class="pre">SURFYYYYMMDD-HHMMSSlog.txt</span></code> will be generated.
 (YYYYMMDD and HHMMSS are numbers corresponding to the execution date and time).</p>
-</div>
-<div class="section" id="visualization-of-calculation-result">
+</section>
+<section id="visualization-of-calculation-result">
 <h2>Visualization of calculation result<a class="headerlink" href="#visualization-of-calculation-result" title="Permalink to this headline">¶</a></h2>
 <p>The contents of <code class="docutils literal notranslate"><span class="pre">surf-bulkP.s</span></code> are shown as follow:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#azimuths,g-angles,beams</span>
@@ -125,10 +126,12 @@ Run it as follows.</p>
 </pre></div>
 </div>
 <p>The following <code class="docutils literal notranslate"><span class="pre">plot_bulkP.png</span></code> will be created.</p>
-<div class="figure align-default" id="id2">
+<figure class="align-default" id="id2">
 <img alt="../_images/plot_bulkP.png" src="../_images/plot_bulkP.png" />
-<p class="caption"><span class="caption-number">Fig. 1 </span><span class="caption-text">Rocking curve of Si(001)-2x1 surface.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
-</div>
+<figcaption>
+<p><span class="caption-number">Fig. 1 </span><span class="caption-text">Rocking curve of Si(001)-2x1 surface.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 <p>We will convolute and normalize the diffraction intensity data of the 00 peaks.
 Prepare <code class="docutils literal notranslate"><span class="pre">surf-bulkP.s</span></code> and run <code class="docutils literal notranslate"><span class="pre">make_convolution.py</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">../</span><span class="mi">2</span><span class="n">DMAT</span><span class="o">/</span><span class="n">script</span><span class="o">/</span><span class="n">make_convolution</span><span class="o">.</span><span class="n">py</span>
@@ -150,8 +153,8 @@ Prepare <code class="docutils literal notranslate"><span class="pre">surf-bulkP.
 </div>
 <p>The first column is the viewing angle, and the second column is the normalized 00-peak diffraction intensity data
 written in <code class="docutils literal notranslate"><span class="pre">surf-bulkP.s</span></code> with a convolution of half-width 0.5.</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>
@@ -169,7 +172,7 @@ written in <code class="docutils literal notranslate"><span class="pre">surf-bul
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
     </div>
   </body>
 </html>

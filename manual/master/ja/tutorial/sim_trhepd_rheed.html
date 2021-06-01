@@ -4,11 +4,12 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>TRHEPD 順問題ソルバー &#8212; 2DMAT 1.0.1 ドキュメント</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
@@ -36,12 +37,12 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="trhepd">
+  <section id="trhepd">
 <h1>TRHEPD 順問題ソルバー<a class="headerlink" href="#trhepd" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p>2DMAT は順問題ソルバーのひとつとして、 反射高速(陽)電子回折(RHEED, TRHEPD)の強度計算 (A. Ichimiya, Jpn. J. Appl. Phys. 22, 176 (1983); 24, 1365 (1985))
 を行うプログラム <a class="reference external" href="https://github.com/sim-trhepd-rheed/sim-trhepd-rheed/">sim-trhepd-rheed</a> のラッパーを提供しています。
 本チュートリアルでは sim-trhepd-rheed のインストールおよびテストを行います。</p>
-<div class="section" id="id1">
+<section id="id1">
 <h2>ダウンロード・インストール<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>まずチュートリアルの前提として、 <code class="docutils literal notranslate"><span class="pre">2DMAT</span></code> フォルダがある場所にいることを仮定します。:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ls -d 2DMAT
@@ -55,8 +56,8 @@
 </pre></div>
 </div>
 <p>makeが成功すると、 <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> 及び  <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> が作成されます。</p>
-</div>
-<div class="section" id="id2">
+</section>
+<section id="id2">
 <h2>計算実行<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>sim-trhepd-rheed では、最初に <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> で表面構造のバルク部分に関する計算をします。
 その後、 <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> の計算結果 (<code class="docutils literal notranslate"><span class="pre">bulkP.b</span></code> ファイル) を用いて、 <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> 表面構造の表面部分を計算します。</p>
@@ -103,8 +104,8 @@ surf-bulkP.s
 <p>実行後に、ファイル <code class="docutils literal notranslate"><span class="pre">surf-bulkP.md</span></code> 、 <code class="docutils literal notranslate"><span class="pre">surf-bulkP.s</span></code>
 及び <code class="docutils literal notranslate"><span class="pre">SURFYYYYMMDD-HHMMSSlog.txt</span></code> が生成されます。
 (YYYYMMDD、 HHMMSS には実行日時に対応した数字が入ります)</p>
-</div>
-<div class="section" id="id3">
+</section>
+<section id="id3">
 <h2>計算結果の可視化<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">surf-bulkP.s</span></code> は以下の通りです。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#azimuths,g-angles,beams</span>
@@ -128,10 +129,12 @@ Gnuplot等のグラフソフトを用いる事も出来ますが、ここでは�
 </pre></div>
 </div>
 <p>以下のような <code class="docutils literal notranslate"><span class="pre">plot_bulkP.png</span></code> が作成されます。</p>
-<div class="figure align-default" id="id4">
+<figure class="align-default" id="id4">
 <img alt="../_images/plot_bulkP.png" src="../_images/plot_bulkP.png" />
-<p class="caption"><span class="caption-text">Si(001)-2x1面のロッキングカーブ。</span><a class="headerlink" href="#id4" title="この画像へのパーマリンク">¶</a></p>
-</div>
+<figcaption>
+<p><span class="caption-text">Si(001)-2x1面のロッキングカーブ。</span><a class="headerlink" href="#id4" title="この画像へのパーマリンク">¶</a></p>
+</figcaption>
+</figure>
 <p>この00ピークの回折強度のデータに対し、コンボリューションを掛けたうえで規格化します。
 <code class="docutils literal notranslate"><span class="pre">surf-bulkP.s</span></code> を準備して、 <code class="docutils literal notranslate"><span class="pre">make_convolution.py</span></code> を実行してください。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">../</span><span class="mi">2</span><span class="n">DMAT</span><span class="o">/</span><span class="n">script</span><span class="o">/</span><span class="n">make_convolution</span><span class="o">.</span><span class="n">py</span>
@@ -153,8 +156,8 @@ Gnuplot等のグラフソフトを用いる事も出来ますが、ここでは�
 </div>
 <p>1列目が視射角、2列目が <code class="docutils literal notranslate"><span class="pre">surf-bulkP.s</span></code> に書かれた00ピーク回折強度のデータに
 半値幅0.5のコンボリューションを付加して規格化したものです。</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>
@@ -172,7 +175,7 @@ Gnuplot等のグラフソフトを用いる事も出来ますが、ここでは�
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
     </div>
   </body>
 </html>

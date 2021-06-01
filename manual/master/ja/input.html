@@ -4,11 +4,12 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>入力ファイル &#8212; 2DMAT 1.0.1 ドキュメント</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -36,7 +37,7 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="id1">
+  <section id="id1">
 <h1>入力ファイル<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p>py2dmat は入力ファイルの形式に <a class="reference external" href="https://toml.io/ja/">TOML</a> を採用しています。
 入力ファイルは次の4つのセクションから構成されます。</p>
@@ -62,7 +63,7 @@
 </ul>
 </li>
 </ul>
-<div class="section" id="base">
+<section id="base">
 <h2>[<code class="docutils literal notranslate"><span class="pre">base</span></code>] セクション<a class="headerlink" href="#base" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">dimension</span></code></p>
@@ -81,8 +82,8 @@
 <p>説明: プログラムの実行結果を出力するディレクトリ名</p>
 </li>
 </ul>
-</div>
-<div class="section" id="solver">
+</section>
+<section id="solver">
 <h2>[<code class="docutils literal notranslate"><span class="pre">solver</span></code>] セクション<a class="headerlink" href="#solver" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">name</span></code> でソルバーの種類を決定します。各パラメータはソルバーごとに定義されています。</p>
 <ul>
@@ -98,8 +99,8 @@
 </li>
 </ul>
 <p>各種ソルバーの詳細および入出力ファイルは <a class="reference internal" href="solver/index.html"><span class="doc">順問題ソルバー</span></a> を参照してください。</p>
-</div>
-<div class="section" id="algorithm">
+</section>
+<section id="algorithm">
 <span id="input-algorithm"></span><h2>[<code class="docutils literal notranslate"><span class="pre">algorithm</span></code>] セクション<a class="headerlink" href="#algorithm" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">name</span></code> でアルゴリズムの種類を決定します。各パラメータはアルゴリズムごとに定義されています。</p>
 <ul>
@@ -132,12 +133,12 @@
 </li>
 </ul>
 <p>各種アルゴリズムの詳細および入出力ファイルは <a class="reference internal" href="algorithm/index.html"><span class="doc">探索アルゴリズム</span></a> を参照してください。</p>
-</div>
-<div class="section" id="runner">
+</section>
+<section id="runner">
 <h2>[<code class="docutils literal notranslate"><span class="pre">runner</span></code>] セクション<a class="headerlink" href="#runner" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> と <code class="docutils literal notranslate"><span class="pre">Solver</span></code> を橋渡しする要素である <code class="docutils literal notranslate"><span class="pre">Runner</span></code> の設定を記述します。
 サブセクションとして <code class="docutils literal notranslate"><span class="pre">log</span></code> を持ちます。</p>
-<div class="section" id="log">
+<section id="log">
 <h3>[<code class="docutils literal notranslate"><span class="pre">log</span></code>] セクション<a class="headerlink" href="#log" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>solver 呼び出しのlogging に関する設定です。</p>
 <ul>
@@ -158,9 +159,9 @@
 <p>説明: solver への入力を記録するかどうか。</p>
 </li>
 </ul>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
       </div>
@@ -178,7 +179,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
     </div>
   </body>
 </html>

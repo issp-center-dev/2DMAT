@@ -4,11 +4,12 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>はじめに &#8212; 2DMAT 1.0.1 ドキュメント</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -36,9 +37,9 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="id1">
+  <section id="id1">
 <h1>はじめに<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<div class="section" id="dmat">
+<section id="dmat">
 <h2>2DMATとは<a class="headerlink" href="#dmat" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>2DMATは，順問題ソルバーに対して探索アルゴリズムを適用して最適解を探すためのフレームワークです.  順問題ソルバーはユーザー自身で定義することが可能です. 標準的な順問題ソルバーとしては2次元物質構造解析向け実験データ解析ソフトウェアが用意されています. 順問題ソルバーでは原子位置などをパラメータとし得られたデータと実験データとのずれを損失関数として与えます.  探索アルゴリズムを組み合わせ, この損失関数を最小化することで, 最適なパラメータを推定します. 現バージョンでは, 順問題ソルバーとして量子ビーム回折実験の全反射高速陽電子回折実験（Total-reflection high-energy positron diffraction ,TRHEPD，トレプト）[1, 2]に対応しており,   探索アルゴリズムはNelder-Mead法[3], グリッド型探索法[4], ベイズ最適化[5], レプリカ交換モンテカルロ法[6]が実装されています. 今後は, 本フレームワークをもとにより多くの順問題ソルバーおよび探索アルゴリズムを実装していく予定です.</p>
 <p>[1] レビューとして， <a class="reference external" href="https://iopscience.iop.org/article/10.1088/1361-6463/aadf14">Y．Fukaya, et al., J. Phys. D: Appl. Phys. 52, 013002 (2019)</a>;
@@ -48,8 +49,8 @@
 <p>[4] <a class="reference external" href="https://arxiv.org/abs/2002.12165">K. Tanaka, I. Mochizuki, T. Hanada, A. Ichimiya, T. Hyodo, and T. Hoshi, JJAP Conf. Series, in press, arXiv:2002.12165</a>.</p>
 <p>[5] ベイズ最適化には, <a class="reference external" href="https://www.pasums.issp.u-tokyo.ac.jp/physbo">PHYSBO</a> を用いてます.</p>
 <p>[6] <a class="reference external" href="https://journals.jps.jp/doi/10.1143/JPSJ.65.1604">K. Hukushima and K. Nemoto, J. Phys. Soc. Japan, 65, 1604 (1996)</a>,  <a class="reference external" href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.57.2607">R. Swendsen and J. Wang, Phys. Rev. Lett. 57, 2607 (1986)</a>.</p>
-</div>
-<div class="section" id="id2">
+</section>
+<section id="id2">
 <h2>ライセンス<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <div class="line-block">
 <div class="line">本ソフトウェアのプログラムパッケージおよびソースコード一式はGNU
@@ -59,16 +60,16 @@ General Public License version 3（GPL v3）に準じて配布されています
 <p>本ソフトウェアは2020年度 東京大学物性研究所 ソフトウェア高度化プロジェクトの支援を受け開発されました。
 2DMATを引用する際には以下の文献を引用してください。</p>
 <p><a class="reference external" href="https://doi.org/10.12693/APhysPolA.137.188">Kazuyuki Tanaka, Takeo Hoshi, Izumi Mochizuki, Takashi Hanada, Ayahiko Ichimiya, Toshio Hyodo, Acta. Phys. Pol. A 137(3) 188 - 192 2020</a></p>
-</div>
-<div class="section" id="id3">
+</section>
+<section id="id3">
 <h2>バージョン履歴<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <ul class="simple">
 <li><p>v1.0.1 : 2021-04-15</p></li>
 <li><p>v1.0.0 : 2021-03-12</p></li>
 <li><p>v0.1.0 : 2021-02-08</p></li>
 </ul>
-</div>
-<div class="section" id="id4">
+</section>
+<section id="id4">
 <h2>主な開発者<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>2DMATは以下のメンバーで開発しています.</p>
 <ul class="simple">
@@ -80,8 +81,8 @@ General Public License version 3（GPL v3）に準じて配布されています
 </ul>
 </li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>
@@ -99,7 +100,7 @@ General Public License version 3（GPL v3）に準じて配布されています
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
     </div>
   </body>
 </html>

@@ -4,11 +4,12 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Optimization by replica exchange Monte Carlo &#8212; 2DMAT 1.0.1 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
@@ -35,10 +36,10 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="optimization-by-replica-exchange-monte-carlo">
+  <section id="optimization-by-replica-exchange-monte-carlo">
 <h1>Optimization by replica exchange Monte Carlo<a class="headerlink" href="#optimization-by-replica-exchange-monte-carlo" title="Permalink to this headline">¶</a></h1>
 <p>This tutorial subscribes how to estimate atomic positions from the experimental diffraction data by using the replica exchange Monte Carlo method (RXMC).</p>
-<div class="section" id="sample-files">
+<section id="sample-files">
 <h2>Sample files<a class="headerlink" href="#sample-files" title="Permalink to this headline">¶</a></h2>
 <p>Sample files are available from <code class="docutils literal notranslate"><span class="pre">sample/py2dmat/bayes</span></code> .
 This directory includes the following files:</p>
@@ -60,13 +61,13 @@ This directory includes the following files:</p>
 </li>
 </ul>
 <p>In the following, we will subscribe these files and then show the result.</p>
-</div>
-<div class="section" id="reference-files">
+</section>
+<section id="reference-files">
 <h2>Reference files<a class="headerlink" href="#reference-files" title="Permalink to this headline">¶</a></h2>
 <p>This tutorial uses reference files, <code class="docutils literal notranslate"><span class="pre">template.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code>,
 which are the same as the previous tutorial (<a class="reference internal" href="minsearch.html"><span class="doc">Optimization by Nelder-Mead method</span></a>) uses.</p>
-</div>
-<div class="section" id="input-files">
+</section>
+<section id="input-files">
 <h2>Input files<a class="headerlink" href="#input-files" title="Permalink to this headline">¶</a></h2>
 <p>This subsection describes the input file.
 For details, see <a class="reference internal" href="../algorithm/bayes.html#bayes-input"><span class="std std-ref">the manual of bayes</span></a>.
@@ -159,8 +160,8 @@ For details, see the manual of <a class="reference internal" href="../algorithm/
 </div></blockquote>
 </li>
 </ul>
-</div>
-<div class="section" id="calculation">
+</section>
+<section id="calculation">
 <h2>Calculation<a class="headerlink" href="#calculation" title="Permalink to this headline">¶</a></h2>
 <p>First, move to the folder where the sample file is located (hereinafter, it is assumed that you are the root directory of 2DMAT).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">sample</span><span class="o">/</span><span class="n">py2dmat</span><span class="o">/</span><span class="n">bayes</span>
@@ -221,8 +222,8 @@ else
 fi
 </pre></div>
 </div>
-</div>
-<div class="section" id="post-process">
+</section>
+<section id="post-process">
 <h2>Post process<a class="headerlink" href="#post-process" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">result.txt</span></code> in each rank folder records the data sampled by each replica, but the same replica holds samples at different temperatures because of the temperature exchanges.
 2DMat provides a script, <code class="docutils literal notranslate"><span class="pre">script/separateT.py</span></code>, that rearranges the results of all replicas into samples by temperature.</p>
@@ -239,8 +240,8 @@ The first column is the step, the second column is the rank, the third column is
 <span class="mi">2</span> <span class="mi">0</span> <span class="mf">0.07830821484593968</span> <span class="mf">3.682008067401509</span> <span class="mf">3.9502750191292586</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="visualization">
+</section>
+<section id="visualization">
 <h2>Visualization<a class="headerlink" href="#visualization" title="Permalink to this headline">¶</a></h2>
 <p>By illustrating <code class="docutils literal notranslate"><span class="pre">result_T.txt</span></code>, you can estimate regions where the parameters with small R-factor are.
 In this case, the figure <code class="docutils literal notranslate"><span class="pre">result.png</span></code> of the 2D parameter space is created by using the following command.</p>
@@ -248,14 +249,16 @@ In this case, the figure <code class="docutils literal notranslate"><span class=
 </pre></div>
 </div>
 <p>Looking at the resulting diagram, we can see that the samples are concentrated near (5.25, 4.25) and (4.25, 5.25), and that the <code class="docutils literal notranslate"><span class="pre">R-factor</span></code> value is small there.</p>
-<div class="figure align-default" id="id1">
+<figure class="align-default" id="id1">
 <img alt="../_images/exchange.png" src="../_images/exchange.png" />
-<p class="caption"><span class="caption-number">Fig. 4 </span><span class="caption-text">Sampled parameters and <code class="docutils literal notranslate"><span class="pre">R-factor</span></code>. The horizontal axes is <code class="docutils literal notranslate"><span class="pre">value_01</span></code>  and the vertical axes is <code class="docutils literal notranslate"><span class="pre">value_02</span></code> .</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
-</div>
+<figcaption>
+<p><span class="caption-number">Fig. 4 </span><span class="caption-text">Sampled parameters and <code class="docutils literal notranslate"><span class="pre">R-factor</span></code>. The horizontal axes is <code class="docutils literal notranslate"><span class="pre">value_01</span></code>  and the vertical axes is <code class="docutils literal notranslate"><span class="pre">value_02</span></code> .</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 <p>Also, <code class="docutils literal notranslate"><span class="pre">RockingCurve.txt</span></code> is stored in each subfolder.
 By using this, it is possible to compare with the experimental value according to the procedure of the previous tutorial.</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>
@@ -273,7 +276,7 @@ By using this, it is possible to compare with the experimental value according t
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
     </div>
   </body>
 </html>

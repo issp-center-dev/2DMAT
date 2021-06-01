@@ -4,11 +4,12 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Grid search &#8212; 2DMAT 1.0.1 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
@@ -35,12 +36,12 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="grid-search">
+  <section id="grid-search">
 <h1>Grid search<a class="headerlink" href="#grid-search" title="Permalink to this headline">¶</a></h1>
 <p>In this section, we will explain how to perform a grid-type search and analyze atomic coordinates from diffraction data.
 The grid type search is compatible with MPI. The specific calculation procedure is the same as for <code class="docutils literal notranslate"><span class="pre">minsearch</span></code>.
 However, it is necessary to prepare the data <code class="docutils literal notranslate"><span class="pre">MeshData.txt</span></code> to give the search grid in advance.</p>
-<div class="section" id="location-of-the-sample-files">
+<section id="location-of-the-sample-files">
 <h2>Location of the sample files<a class="headerlink" href="#location-of-the-sample-files" title="Permalink to this headline">¶</a></h2>
 <p>The sample files are located in <code class="docutils literal notranslate"><span class="pre">sample/py2dmat/mapper</span></code>.
 The following files are stored in the folder</p>
@@ -62,8 +63,8 @@ The following files are stored in the folder</p>
 </li>
 </ul>
 <p>Below, we will describe these files and then show the actual calculation results.</p>
-</div>
-<div class="section" id="reference-file">
+</section>
+<section id="reference-file">
 <h2>Reference file<a class="headerlink" href="#reference-file" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">template.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code> are the same as in the previous tutorial (Nealder-Mead optimization).
 However, to reduce the computation time, the value is fixed to <code class="docutils literal notranslate"><span class="pre">3.5</span></code> instead of <code class="docutils literal notranslate"><span class="pre">value_03</span></code>, and the grid is searched in 2D.
@@ -82,8 +83,8 @@ In the sample, the contents of <code class="docutils literal notranslate"><span 
 </pre></div>
 </div>
 <p>The first column is the serial number, and the second and subsequent columns are the values of <code class="docutils literal notranslate"><span class="pre">value_0</span></code> , <code class="docutils literal notranslate"><span class="pre">value_1</span></code> that go into <code class="docutils literal notranslate"><span class="pre">template.txt</span></code>, in that order.</p>
-</div>
-<div class="section" id="input-file">
+</section>
+<section id="input-file">
 <h2>Input file<a class="headerlink" href="#input-file" title="Permalink to this headline">¶</a></h2>
 <p>This section describes the input file for the main program, <code class="docutils literal notranslate"><span class="pre">input.toml</span></code>.
 The details of <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> can be found in the input file.
@@ -145,8 +146,8 @@ The following is the content of <code class="docutils literal notranslate"><span
 <li><p>The <code class="docutils literal notranslate"><span class="pre">label_list</span></code> is a list of label names to be attached to the output <code class="docutils literal notranslate"><span class="pre">value_0x</span></code> (x=1,2).</p></li>
 </ul>
 <p>For details on other parameters that can be specified in the input file, please see the Input File chapter.</p>
-</div>
-<div class="section" id="calculation-execution">
+</section>
+<section id="calculation-execution">
 <h2>Calculation execution<a class="headerlink" href="#calculation-execution" title="Permalink to this headline">¶</a></h2>
 <p>First, move to the folder where the sample files are located (we will assume that you are directly under the directory where you downloaded this software).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">sample</span><span class="o">/</span><span class="n">py2dmat</span><span class="o">/</span><span class="n">minsearch</span>
@@ -220,8 +221,8 @@ else
 fi
 </pre></div>
 </div>
-</div>
-<div class="section" id="visualization-of-calculation-results">
+</section>
+<section id="visualization-of-calculation-results">
 <h2>Visualization of calculation results<a class="headerlink" href="#visualization-of-calculation-results" title="Permalink to this headline">¶</a></h2>
 <p>By seeing <code class="docutils literal notranslate"><span class="pre">ColorMap.txt</span></code>, we can estimate the region where the small parameters of <code class="docutils literal notranslate"><span class="pre">R-factor</span></code> are located.
 In this case, the following command will create a two-dimensional parameter space diagram <code class="docutils literal notranslate"><span class="pre">ColorMapFig.png</span></code>.</p>
@@ -229,14 +230,16 @@ In this case, the following command will create a two-dimensional parameter spac
 </pre></div>
 </div>
 <p>Looking at the generated figure, we can see that it has a minimum value around (5.25, 4.25).</p>
-<div class="figure align-default" id="id1">
+<figure class="align-default" id="id1">
 <img alt="../_images/mapper.png" src="../_images/mapper.png" />
-<p class="caption"><span class="caption-number">Fig. 3 </span><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">R-factor</span></code> on a two-dimensional parameter space.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
-</div>
+<figcaption>
+<p><span class="caption-number">Fig. 3 </span><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">R-factor</span></code> on a two-dimensional parameter space.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 <p><code class="docutils literal notranslate"><span class="pre">RockingCurve.txt</span></code> is stored in each subfolder.
 By using it, you can compare the results with the experimental values following the procedure in the previous tutorial.</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>
@@ -254,7 +257,7 @@ By using it, you can compare the results with the experimental values following 
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
     </div>
   </body>
 </html>

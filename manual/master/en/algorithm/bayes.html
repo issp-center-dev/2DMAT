@@ -4,15 +4,16 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Bayse optimization bayes &#8212; 2DMAT 1.0.1 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Direct Problem Solver" href="../solver/index.html" />
@@ -36,21 +37,21 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="bayse-optimization-bayes">
+  <section id="bayse-optimization-bayes">
 <h1>Bayse optimization <code class="docutils literal notranslate"><span class="pre">bayes</span></code><a class="headerlink" href="#bayse-optimization-bayes" title="Permalink to this headline">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">bayes</span></code> is an <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> that uses Bayesian optimization to perform parameter search.
 The implementation is based on <a class="reference external" href="https://www.pasums.issp.u-tokyo.ac.jp/physbo/en">PHYSBO</a>.</p>
-<div class="section" id="preparation">
+<section id="preparation">
 <h2>Preparation<a class="headerlink" href="#preparation" title="Permalink to this headline">¶</a></h2>
 <p>You will need to install <a class="reference external" href="https://www.pasums.issp.u-tokyo.ac.jp/physbo/en">PHYSBO</a> beforehand.:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">physbo</span>
 </pre></div>
 </div>
 <p>If <a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> is installed, MPI parallel computing is possible.</p>
-</div>
-<div class="section" id="input-parameters">
+</section>
+<section id="input-parameters">
 <span id="bayes-input"></span><h2>Input parameters<a class="headerlink" href="#input-parameters" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="algorithm-param-section">
+<section id="algorithm-param-section">
 <h3>[<code class="docutils literal notranslate"><span class="pre">algorithm.param</span></code>] section<a class="headerlink" href="#algorithm-param-section" title="Permalink to this headline">¶</a></h3>
 <p>In this section, the search parameter space is defined.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> is defined, it will be read from a mesh file.
@@ -75,8 +76,8 @@ the first column is the data number, and the second and subsequent columns are t
 <p>Description:  The number of grids the parametar can take at each dimension.</p>
 </li>
 </ul>
-</div>
-<div class="section" id="algorithm-bayes-section">
+</section>
+<section id="algorithm-bayes-section">
 <h3>[<code class="docutils literal notranslate"><span class="pre">algorithm.bayes</span></code>] section<a class="headerlink" href="#algorithm-bayes-section" title="Permalink to this headline">¶</a></h3>
 <p>The hyper parameters are defined.</p>
 <ul>
@@ -103,11 +104,11 @@ If a value of 0 is specified, hyperparameter learning will be performed only in 
 <p>Description: Number of basis functions; if 0 is specified, the normal Gaussian process is performed without using the Bayesian linear model.</p>
 </li>
 </ul>
-</div>
-</div>
-<div class="section" id="reference-file">
+</section>
+</section>
+<section id="reference-file">
 <h2>Reference file<a class="headerlink" href="#reference-file" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="mesh-definition-file">
+<section id="mesh-definition-file">
 <h3>Mesh definition file<a class="headerlink" href="#mesh-definition-file" title="Permalink to this headline">¶</a></h3>
 <p>Define the grid space to be explored in this file.
 The first column is the index of the mesh, and the second and subsequent columns are the values of variables defined in <code class="docutils literal notranslate"><span class="pre">string_list</span></code> in the <code class="docutils literal notranslate"><span class="pre">[solver.param]</span></code> section.</p>
@@ -124,11 +125,11 @@ The first column is the index of the mesh, and the second and subsequent columns
 <span class="o">...</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="output-files">
+</section>
+</section>
+<section id="output-files">
 <h2>Output files<a class="headerlink" href="#output-files" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="bayesdata-txt">
+<section id="bayesdata-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">BayesData.txt</span></code><a class="headerlink" href="#bayesdata-txt" title="Permalink to this headline">¶</a></h3>
 <p>At each step of the optimization process,
 the values of the parameters and the corresponding objective functions are listed in the order of the optimal parameters so far
@@ -141,9 +142,9 @@ and the searched parameters at that step.</p>
 <span class="o">...</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="algorithm-description">
+</section>
+</section>
+<section id="algorithm-description">
 <h2>Algorithm Description<a class="headerlink" href="#algorithm-description" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="https://en.wikipedia.org/wiki/Bayesian_optimization">Bayesian optimization (BO)</a> is an optimization algorithm that uses machine learning as an aid, and is particularly powerful when it takes a long time to evaluate the objective function.</p>
 <p>In BO, the objective function <span class="math notranslate nohighlight">\(f(\vec{x})\)</span> is approximated by a model function (often a Gaussian process) <span class="math notranslate nohighlight">\(g(\vec{x})\)</span> that is quick to evaluate and easy to optimize.
@@ -162,8 +163,8 @@ PHYSBO, like <code class="docutils literal notranslate"><span class="pre">mapper
 MPI parallel execution is possible by dividing the set of candidate points.
 In addition, we use a kernel that allows us to evaluate the model function and thus calculate the “score” with a linear amount of computation with respect to the number of training data points <span class="math notranslate nohighlight">\(N\)</span>.
 In PHYSBO, “expected improvement (EI)”, “probability of improvement (PI)”, and “Thompson sampling (TS)” are available as “score” functions.</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>
@@ -181,7 +182,7 @@ In PHYSBO, “expected improvement (EI)”, “probability of improvement (PI)�
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
     </div>
   </body>
 </html>

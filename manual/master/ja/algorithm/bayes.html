@@ -4,16 +4,17 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>ベイズ最適化 bayes &#8212; 2DMAT 1.0.1 ドキュメント</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/translations.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
     <link rel="next" title="順問題ソルバー" href="../solver/index.html" />
@@ -37,11 +38,11 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="bayes">
+  <section id="bayes">
 <h1>ベイズ最適化 <code class="docutils literal notranslate"><span class="pre">bayes</span></code><a class="headerlink" href="#bayes" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">bayes</span></code> はベイズ最適化を用いてパラメータ探索を行う <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> です。</p>
 <p>実装には <a href="#id8"><span class="problematic" id="id9">`PHYSBO`_</span></a> を用いています。</p>
-<div class="section" id="id1">
+<section id="id1">
 <h2>前準備<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>あらかじめ <a href="#id10"><span class="problematic" id="id11">`PHYSBO`_</span></a> をインストールしておく必要があります。:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">physbo</span>
@@ -49,10 +50,10 @@
 </div>
 <p><a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> がインストールされている場合、
 MPI 並列計算が可能です。</p>
-</div>
-<div class="section" id="id2">
+</section>
+<section id="id2">
 <h2>入力パラメータ<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<div class="section" id="algorithmparam">
+<section id="algorithmparam">
 <h3>[<code class="docutils literal notranslate"><span class="pre">algorithmparam</span></code>] セクション<a class="headerlink" href="#algorithmparam" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>探索パラメータ空間を定義します。</p>
 <p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> が定義されている場合はメッシュファイルから読み込みます。
@@ -78,8 +79,8 @@ MPI 並列計算が可能です。</p>
 <p>説明: パラメータが取りうる数。</p>
 </li>
 </ul>
-</div>
-<div class="section" id="algorithm-bayes">
+</section>
+<section id="algorithm-bayes">
 <h3>[<code class="docutils literal notranslate"><span class="pre">algorithm.bayes</span></code>] セクション<a class="headerlink" href="#algorithm-bayes" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>手法のハイパーパラメータを定義します。</p>
 <ul>
@@ -106,11 +107,11 @@ MPI 並列計算が可能です。</p>
 <p>説明： 基底関数の数。0を指定した場合、Bayesian linear modelを利用しない通常のガウシアンプロセスが行われます。</p>
 </li>
 </ul>
-</div>
-</div>
-<div class="section" id="id3">
+</section>
+</section>
+<section id="id3">
 <h2>アルゴリズム補助ファイル<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<div class="section" id="id4">
+<section id="id4">
 <h3>メッシュ定義ファイル<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>本ファイルで探索するグリッド空間を定義します。
 1列目にメッシュのインデックス、
@@ -129,11 +130,11 @@ MPI 並列計算が可能です。</p>
 <span class="o">...</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="id5">
+</section>
+</section>
+<section id="id5">
 <h2>出力ファイル<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<div class="section" id="bayesdata-txt">
+<section id="bayesdata-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">BayesData.txt</span></code><a class="headerlink" href="#bayesdata-txt" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>最適化過程の各ステップにおいて、
 パラメータと対応する目的関数の値が、
@@ -146,9 +147,9 @@ MPI 並列計算が可能です。</p>
 <span class="o">...</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="id6">
+</section>
+</section>
+<section id="id6">
 <h2>アルゴリズム解説<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><a class="reference external" href="https://en.wikipedia.org/wiki/Bayesian_optimization">ベイズ最適化 (Bayesian optimization, BO)</a> は、機械学習を援用した最適化アルゴリズムであり、特に目的関数の評価に時間がかかるときに強力な手法です。</p>
 <p>BO では目的関数 <span class="math notranslate nohighlight">\(f(\vec{x})\)</span> を、評価が早く最適化のしやすいモデル関数（多くの場合ガウス過程） <span class="math notranslate nohighlight">\(g(\vec{x})\)</span> で近似します。
@@ -165,8 +166,8 @@ PHYSBO は <code class="docutils literal notranslate"><span class="pre">mapper_m
 候補点の集合を分割することでMPI 並列実行が可能です。
 また、 訓練データの点数 <span class="math notranslate nohighlight">\(N\)</span> に対して線形の計算量でモデル関数の評価、ひいては「スコア」の計算が可能となるようなカーネルを用いています。
 PHYSBO では「スコア」関数として &quot;expected improvement (EI)&quot;, &quot;probability of improvement (PI)&quot;, &quot;Thompson sampling (TS)&quot; が利用できます。</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>
@@ -184,7 +185,7 @@ PHYSBO では「スコア」関数として &quot;expected improvement (EI)&quot
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
     </div>
   </body>
 </html>
