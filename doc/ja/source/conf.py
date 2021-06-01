@@ -87,6 +87,8 @@ language = 'ja'
 
 # -- Options for LaTeX output ---------------------------------------------
 
+latex_engine = 'uplatex'
+
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
@@ -113,7 +115,7 @@ latex_documents = [
      u'University of Tokyo', 'manual', 'True'),
 ]
 
-latex_docclass =  {'manual': 'jsbook'}
+# latex_docclass =  {'manual': 'jsbook'}
 
 # -- Options for Texinfo output -------------------------------------------
 
