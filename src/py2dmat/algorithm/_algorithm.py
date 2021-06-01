@@ -8,7 +8,6 @@ import os
 import pathlib
 
 import numpy as np
-from numpy.random import default_rng
 
 import py2dmat
 from py2dmat import exception, mpi
@@ -32,7 +31,7 @@ class AlgorithmBase(metaclass=ABCMeta):
     mpicomm: Optional["MPI.Comm"]
     mpisize: int
     mpirank: int
-    rng: np.random.Generator
+    rng: np.random.RandomState
     dimension: int
     label_list: List[str]
     runner: Optional[py2dmat.Runner]
@@ -100,9 +99,9 @@ class AlgorithmBase(metaclass=ABCMeta):
         seed_delta = info.algorithm.get("seed_delta", 314159)
 
         if seed is None:
-            self.rng = default_rng()
+            self.rng = np.random.RandomState()
         else:
-            self.rng = default_rng(seed + self.mpirank * seed_delta)
+            self.rng = np.random.RandomState(seed + self.mpirank * seed_delta)
 
     def _read_param(
         self, info: py2dmat.Info
@@ -150,8 +149,8 @@ class AlgorithmBase(metaclass=ABCMeta):
 
         initial_list = np.array(info_param.get("initial_list", []))
         if initial_list.size == 0:
-            initial_list = min_list + (max_list - min_list) * self.rng.random(
-                size=self.dimension
+            initial_list = min_list + (max_list - min_list) * self.rng.rand(
+                self.dimension
             )
         if initial_list.size != self.dimension:
             raise exception.InputError(

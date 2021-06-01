@@ -8,14 +8,13 @@ py2dmat のインストール
     - 必要なpythonパッケージ
 
         - toml
-        - numpy
+        - numpy (>= 1.14)
 
     - Optional なパッケージ
 
         - mpi4py (グリッド探索利用時)
         - scipy (Nelder-Mead法利用時)
         - physbo (ベイズ最適化利用時, ver. 0.3以上)
-
 
 ダウンロード・インストール
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

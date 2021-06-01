@@ -22,7 +22,7 @@ and solvers (`py2dmat` also means this script).
 
 - Required
   - python >= 3.6
-  - numpy >= 1.17
+  - numpy >= 1.14
   - toml
 - Optional
   - scipy

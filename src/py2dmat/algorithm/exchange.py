@@ -160,7 +160,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                     self.best_istep = self.istep
 
                 fdiff = self.fx - fx_old
-                if fdiff <= 0.0 or self.rng.random() < np.exp(mbeta * fdiff):
+                if fdiff <= 0.0 or self.rng.rand() < np.exp(mbeta * fdiff):
                     pass
                 else:
                     np.copyto(self.x, x_old)
@@ -225,7 +225,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                 beta = 1.0 / self.Ts[self.Tindex]
                 other_beta = 1.0 / self.Ts[self.Tindex + 1]
                 logp = (other_beta - beta) * (other_fx - self.fx)
-                if logp >= 0.0 or self.rng.random() < np.exp(logp):
+                if logp >= 0.0 or self.rng.rand() < np.exp(logp):
                     ibuf[0] = self.Tindex
                     self.mpicomm.Send(ibuf, dest=other_rank, tag=2)
                     self.Tindex += 1
