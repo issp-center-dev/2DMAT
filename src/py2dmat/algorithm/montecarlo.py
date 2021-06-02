@@ -181,8 +181,7 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         self._write_result(file_result)
 
     def _write_result_header(self, fp) -> None:
-        fp.write("# step T fx")
-        # fp.write("# step walker T fx")
+        fp.write("# step walker T fx")
         for label in self.label_list:
             fp.write(f" {label}")
         fp.write("\n")
@@ -190,7 +189,7 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
     def _write_result(self, fp) -> None:
         for iwalker in range(self.nwalkers):
             fp.write(f"{self.istep} ")
-            # fp.write(f"{iwalker} ")
+            fp.write(f"{iwalker} ")
             fp.write(f"{self.Ts[self.Tindex]} ")
             fp.write(f"{self.fx[iwalker]} ")
             for x in self.x[iwalker, :]:
