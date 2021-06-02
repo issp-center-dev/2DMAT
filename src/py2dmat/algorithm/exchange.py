@@ -1,4 +1,4 @@
-from typing import List, TextIO
+from typing import List
 from io import open
 import copy
 import time
@@ -51,7 +51,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     numsteps: int
     numsteps_exchange: int
 
-    fx: float
+    fx: np.ndarray
     istep: int
     best_x: np.ndarray
     best_fx: float
@@ -98,8 +98,9 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self._write_result(file_trial)
         self.istep += 1
 
-        self.best_x = copy.copy(self.x)
-        self.best_fx = self.fx
+        minidx = np.argmin(self.fx)
+        self.best_x = copy.copy(self.x[minidx, :])
+        self.best_fx = np.min(self.fx[minidx])
         self.best_istep = 0
 
         while self.istep < self.numsteps:
@@ -138,8 +139,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
                 other_index = self.Tindex + 1
                 is_main = True
 
-        ibuf = np.zeros(1, dtype=np.int)
-        fbuf = np.zeros(1, dtype=np.float)
+        ibuf = np.zeros(1, dtype=np.int64)
+        fbuf = np.zeros(1, dtype=np.float64)
 
         if 0 <= other_index < self.nreplica:
             other_rank = self.T2rep[other_index]
@@ -148,7 +149,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
                 other_fx = fbuf[0]
                 beta = 1.0 / self.Ts[self.Tindex]
                 other_beta = 1.0 / self.Ts[self.Tindex + 1]
-                logp = (other_beta - beta) * (other_fx - self.fx)
+                logp = (other_beta - beta) * (other_fx - self.fx[0])
                 if logp >= 0.0 or self.rng.rand() < np.exp(logp):
                     ibuf[0] = self.Tindex
                     self.mpicomm.Send(ibuf, dest=other_rank, tag=2)
@@ -157,7 +158,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
                     ibuf[0] = self.Tindex + 1
                     self.mpicomm.Send(ibuf, dest=other_rank, tag=2)
             else:
-                fbuf[0] = self.fx
+                fbuf[0] = self.fx[0]
                 self.mpicomm.Send(fbuf, dest=other_rank, tag=1)
                 self.mpicomm.Recv(ibuf, source=other_rank, tag=2)
                 self.Tindex = ibuf[0]

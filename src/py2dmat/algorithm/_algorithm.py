@@ -104,13 +104,14 @@ class AlgorithmBase(metaclass=ABCMeta):
             self.rng = np.random.RandomState(seed + self.mpirank * seed_delta)
 
     def _read_param(
-        self, info: py2dmat.Info
+        self, info: py2dmat.Info, num_walkers: int = 1
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Generate continuous data from info
 
         Returns
         =======
-        initial_list
+        initial_list: np.ndarray
+            num_walkers \\times dimension array
         min_list
         max_list
         unit_list
@@ -148,13 +149,19 @@ class AlgorithmBase(metaclass=ABCMeta):
             )
 
         initial_list = np.array(info_param.get("initial_list", []))
+        if initial_list.ndim == 1:
+            initial_list = initial_list.reshape(1, -1)
         if initial_list.size == 0:
             initial_list = min_list + (max_list - min_list) * self.rng.rand(
-                self.dimension
+                num_walkers, self.dimension
             )
-        if initial_list.size != self.dimension:
+        if initial_list.shape[0] != num_walkers:
             raise exception.InputError(
-                f"ERROR: len(initial_list) != dimension ({initial_list.size} != {self.dimension})"
+                f"ERROR: initial_list.shape[0] != num_walkers ({initial_list.shape[0]} != {num_walkers})"
+            )
+        if initial_list.shape[1] != self.dimension:
+            raise exception.InputError(
+                f"ERROR: initial_list.shape[1] != dimension ({initial_list.shape[1]} != {self.dimension})"
             )
         return initial_list, min_list, max_list, unit_list
 
