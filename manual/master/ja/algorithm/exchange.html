@@ -119,12 +119,12 @@
 <section id="rank-trial-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">RANK/trial.txt</span></code><a class="headerlink" href="#rank-trial-txt" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>各レプリカについて、モンテカルロサンプリングで提案されたパラメータと、対応する目的関数の値です。
-1列目にステップ数、2列目にレプリカの温度、3列目に目的変数の値、4列目以降にパラメータが記載されます。</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># step T fx z1 z2</span>
-<span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.07830821484593968</span> <span class="mf">3.682008067401509</span> <span class="mf">3.9502750191292586</span>
-<span class="mi">1</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.0758494287185766</span> <span class="mf">2.811346329442423</span> <span class="mf">3.691101784194861</span>
-<span class="mi">2</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.08566823949124412</span> <span class="mf">3.606664760390988</span> <span class="mf">3.2093903670436497</span>
-<span class="mi">3</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.06273922648753057</span> <span class="mf">4.330900869594549</span> <span class="mf">4.311333132184154</span>
+1列目にステップ数、2列目にプロセス内のwalker 番号、3列目にレプリカの温度、4列目に目的変数の値、5列目以降にパラメータが記載されます。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># step walker T fx z1 z2</span>
+<span class="mi">0</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.07830821484593968</span> <span class="mf">3.682008067401509</span> <span class="mf">3.9502750191292586</span>
+<span class="mi">1</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.0758494287185766</span> <span class="mf">2.811346329442423</span> <span class="mf">3.691101784194861</span>
+<span class="mi">2</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.08566823949124412</span> <span class="mf">3.606664760390988</span> <span class="mf">3.2093903670436497</span>
+<span class="mi">3</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.06273922648753057</span> <span class="mf">4.330900869594549</span> <span class="mf">4.311333132184154</span>
 </pre></div>
 </div>
 </section>
@@ -132,11 +132,11 @@
 <h3><code class="docutils literal notranslate"><span class="pre">RANK/result.txt</span></code><a class="headerlink" href="#rank-result-txt" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>各レプリカについて、モンテカルロサンプリングで生成されたパラメータと、対応する目的関数の値です。
 <code class="docutils literal notranslate"><span class="pre">trial.txt</span></code> と同一の書式です。</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># step T fx z1 z2</span>
-<span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.07830821484593968</span> <span class="mf">3.682008067401509</span> <span class="mf">3.9502750191292586</span>
-<span class="mi">1</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.07830821484593968</span> <span class="mf">3.682008067401509</span> <span class="mf">3.9502750191292586</span>
-<span class="mi">2</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.07830821484593968</span> <span class="mf">3.682008067401509</span> <span class="mf">3.9502750191292586</span>
-<span class="mi">3</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.06273922648753057</span> <span class="mf">4.330900869594549</span> <span class="mf">4.311333132184154</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># step walker T fx z1 z2</span>
+<span class="mi">0</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.07830821484593968</span> <span class="mf">3.682008067401509</span> <span class="mf">3.9502750191292586</span>
+<span class="mi">1</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.07830821484593968</span> <span class="mf">3.682008067401509</span> <span class="mf">3.9502750191292586</span>
+<span class="mi">2</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.07830821484593968</span> <span class="mf">3.682008067401509</span> <span class="mf">3.9502750191292586</span>
+<span class="mi">3</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.06273922648753057</span> <span class="mf">4.330900869594549</span> <span class="mf">4.311333132184154</span>
 </pre></div>
 </div>
 </section>
