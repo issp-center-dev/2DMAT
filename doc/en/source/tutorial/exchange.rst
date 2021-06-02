@@ -153,15 +153,15 @@ Here, the calculation is performed using MPI parallel with 4 processes.
 
 When executed, a folder for each rank will be created, and a ``trial.txt`` file containing the parameters evaluated in each Monte Carlo step and the value of the objective function, and a ``result.txt`` file containing the parameters actually adopted will be created.
 
-These files have the same format: the first column is the number of steps, the second is the temperature, the third column is the value of the objective function, and the fourth and subsequent columns are the parameters.
+These files have the same format: the first two columns are time (step) and the index of walker in the process, the third is the temperature, the fourth column is the value of the objective function, and the fifth and subsequent columns are the parameters.
 
 .. code-block::
 
-  # step T fx x1 x2
-  0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586
-  1 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586
-  2 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586
-  3 0.004999999999999999 0.06273922648753057 4.330900869594549 4.311333132184154
+  # step walker T fx x1 x2
+  0 0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586
+  1 0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586
+  2 0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586
+  3 0 0.004999999999999999 0.06273922648753057 4.330900869594549 4.311333132184154
 
 
 In the case of the sim-trhepd-rheed solver, a subfolder ``Log%%%%%`` (``%%%%%`` is the number of MC steps) is created under each working folder, and locking curve information etc. are recorded.

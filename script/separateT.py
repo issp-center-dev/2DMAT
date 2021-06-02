@@ -32,10 +32,10 @@ for rank in range(nprocs):
 
         line = f.readline()
         words = line.split()
-        T = float(words[1])
+        T = float(words[2])
         Ts.append(T)
         results[T] = []
-        dim = len(words) - 3
+        dim = len(words) - 4
 
 for rank in range(nprocs):
     with open(output_dir / str(rank) / "result.txt") as f:
@@ -43,9 +43,9 @@ for rank in range(nprocs):
         for line in f:
             words = line.split()
             step = int(words[0])
-            T = float(words[1])
-            fx = float(words[2])
-            res = [float(words[i + 3]) for i in range(dim)]
+            T = float(words[2])
+            fx = float(words[3])
+            res = [float(words[i + 4]) for i in range(dim)]
             results[T].append(Entry(rank=rank, step=step, fx=fx, xs=res))
 
 for T in Ts:

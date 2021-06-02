@@ -6,9 +6,10 @@ import time
 import numpy as np
 
 import py2dmat
+import py2dmat.algorithm.montecarlo
 
 
-class Algorithm(py2dmat.algorithm.AlgorithmBase):
+class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     """Replica Exchange Monte Carlo
 
     Attributes
@@ -50,7 +51,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
     numsteps: int
     numsteps_exchange: int
 
-    fx: float
+    fx: np.ndarray
     istep: int
     best_x: np.ndarray
     best_fx: float
@@ -70,40 +71,10 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
         info_exchange = info.algorithm["exchange"]
 
-        bTinv = info_exchange.get("Tinvspace", False)
-        bTlog = info_exchange.get("Tlogspace", True)
-        bTlogdefined = "Tlogspace" in info_exchange
-
-        if bTinv and bTlog:
-            msg = "ERROR: Both Tinvspace and Tlogspace are enabled."
-            if not bTlogdefined:
-                msg += "\nNote: The default value of Tlogspace is true."
-            raise RuntimeError(msg)
-
-        if bTinv:
-            T_inverse = np.linspace(
-                start=(1 / info_exchange.get("Tmin", 0.1)),
-                stop=(1 / info_exchange.get("Tmax", 10)),
-                num=self.mpisize,
-            )
-            self.Ts = 1 / T_inverse
-        elif bTlog:
-            self.Ts = np.logspace(
-                start=np.log10(info_exchange.get("Tmin", 0.1)),
-                stop=np.log10(info_exchange.get("Tmax", 10.0)),
-                num=self.mpisize,
-            )
-        else:
-            self.Ts = np.linspace(
-                start=info_exchange.get("Tmin", 0.1),
-                stop=info_exchange.get("Tmax", 10.0),
-                num=self.mpisize,
-            )
+        self.Ts = self.read_Ts(info_exchange)
         self.Tindex = self.mpirank
         self.T2rep = list(range(self.mpisize))
         self.nreplica = self.mpisize
-
-        self.x, self.xmin, self.xmax, self.xunit = self._read_param(info)
 
         self.numsteps = info_exchange["numsteps"]
         self.numsteps_exchange = info_exchange["numsteps_exchange"]
@@ -111,8 +82,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
     def _run(self) -> None:
         rank = self.mpirank
 
-        x_old = np.zeros(self.dimension)
-        mbeta = -1.0 / self.Ts[self.Tindex]
+        beta = 1.0 / self.Ts[self.Tindex]
         exchange_direction = True
 
         self.istep = 0
@@ -128,8 +98,9 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         self._write_result(file_trial)
         self.istep += 1
 
-        self.best_x = copy.copy(self.x)
-        self.best_fx = self.fx
+        minidx = np.argmin(self.fx)
+        self.best_x = copy.copy(self.x[minidx, :])
+        self.best_fx = np.min(self.fx[minidx])
         self.best_istep = 0
 
         while self.istep < self.numsteps:
@@ -141,60 +112,14 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                     exchange_direction = not exchange_direction
                 time_end = time.perf_counter()
                 self.timer["run"]["exchange"] += time_end - time_sta
-                mbeta = -1.0 / self.Ts[self.Tindex]
+                beta = 1.0 / self.Ts[self.Tindex]
 
-            # make candidate
-            np.copyto(x_old, self.x)
-            self.x += self.rng.normal(size=self.dimension) * self.xunit
-            bound = (self.xmin <= self.x).all() and (self.x <= self.xmax).all()
-
-            # evaluate "Energy"
-            fx_old = self.fx
-            self._evaluate()
-            self._write_result(file_trial)
-
-            if bound:
-                if self.fx < self.best_fx:
-                    np.copyto(self.best_x, self.x)
-                    self.best_fx = self.fx
-                    self.best_istep = self.istep
-
-                fdiff = self.fx - fx_old
-                if fdiff <= 0.0 or self.rng.rand() < np.exp(mbeta * fdiff):
-                    pass
-                else:
-                    np.copyto(self.x, x_old)
-                    self.fx = fx_old
-            else:
-                np.copyto(self.x, x_old)
-                self.fx = fx_old
-
-            self._write_result(file_result)
+            self.local_update(beta, file_trial, file_result)
             self.istep += 1
 
         file_result.close()
         file_trial.close()
         print("complete main process : rank {:08d}/{:08d}".format(rank, self.nreplica))
-
-    def _evaluate(self) -> float:
-        """evaluate current "Energy"
-
-        ``self.fx`` will be overwritten with the result
-
-        Parameters
-        ==========
-        run_info: dict
-            Parameter set.
-            Some parameters will be overwritten.
-        """
-
-        message = py2dmat.Message(self.x, self.istep, 0)
-
-        time_sta = time.perf_counter()
-        self.fx = self.runner.submit(message)
-        time_end = time.perf_counter()
-        self.timer["run"]["submit"] += time_end - time_sta
-        return self.fx
 
     def _exchange(self, direction: bool) -> None:
         """try to exchange temperatures"""
@@ -214,8 +139,8 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                 other_index = self.Tindex + 1
                 is_main = True
 
-        ibuf = np.zeros(1, dtype=np.int)
-        fbuf = np.zeros(1, dtype=np.float)
+        ibuf = np.zeros(1, dtype=np.int64)
+        fbuf = np.zeros(1, dtype=np.float64)
 
         if 0 <= other_index < self.nreplica:
             other_rank = self.T2rep[other_index]
@@ -224,7 +149,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                 other_fx = fbuf[0]
                 beta = 1.0 / self.Ts[self.Tindex]
                 other_beta = 1.0 / self.Ts[self.Tindex + 1]
-                logp = (other_beta - beta) * (other_fx - self.fx)
+                logp = (other_beta - beta) * (other_fx - self.fx[0])
                 if logp >= 0.0 or self.rng.rand() < np.exp(logp):
                     ibuf[0] = self.Tindex
                     self.mpicomm.Send(ibuf, dest=other_rank, tag=2)
@@ -233,7 +158,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                     ibuf[0] = self.Tindex + 1
                     self.mpicomm.Send(ibuf, dest=other_rank, tag=2)
             else:
-                fbuf[0] = self.fx
+                fbuf[0] = self.fx[0]
                 self.mpicomm.Send(fbuf, dest=other_rank, tag=1)
                 self.mpicomm.Recv(ibuf, source=other_rank, tag=2)
                 self.Tindex = ibuf[0]
@@ -276,18 +201,3 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             print(f"  fx = {best_fx[best_rank]}")
             for label, x in zip(self.label_list, best_x[best_rank]):
                 print(f"  {label} = {x}")
-
-    def _write_result_header(self, fp) -> None:
-        fp.write("# step T fx")
-        for label in self.label_list:
-            fp.write(f" {label}")
-        fp.write("\n")
-
-    def _write_result(self, fp) -> None:
-        fp.write(f"{self.istep} ")
-        fp.write(f"{self.Ts[self.Tindex]} ")
-        fp.write(f"{self.fx} ")
-        for x in self.x:
-            fp.write(f"{x} ")
-        fp.write("\n")
-        fp.flush()

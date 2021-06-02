@@ -10,11 +10,11 @@ import py2dmat
 class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
     # inputs
-    label_list: List[str]
-    initial_list: List[float]
-    min_list: List[float]
-    max_list: List[float]
-    unit_list: List[float]
+    label_list: np.ndarray
+    initial_list: np.ndarray
+    min_list: np.ndarray
+    max_list: np.ndarray
+    unit_list: np.ndarray
 
     # hyperparameters of Nelder-Mead
     initial_simplex_list: List[List[float]]
@@ -39,6 +39,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             self.max_list,
             self.unit_list,
         ) = self._read_param(info)
+        self.initial_list = self.initial_list.flatten()
 
         info_minimize = info.algorithm.get("minimize", {})
         self.initial_scale_list = info_minimize.get(
