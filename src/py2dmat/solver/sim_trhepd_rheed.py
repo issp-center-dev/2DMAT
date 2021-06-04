@@ -14,8 +14,6 @@ from py2dmat import exception
 class Solver(py2dmat.solver.SolverBase):
     path_to_solver: Path
 
-    dimension: int
-
     def __init__(self, info: py2dmat.Info):
         super().__init__(info)
 
@@ -66,9 +64,13 @@ class Solver(py2dmat.solver.SolverBase):
         surface_template_file: Path
 
         def __init__(self, info):
-            self.dimension = info.base["dimension"]
             self.root_dir = info.base["root_dir"]
             self.output_dir = info.base["output_dir"]
+
+            if "dimension" in info.solver:
+                self.dimension = info.solver["dimension"]
+            else:
+                self.dimension = info.base["dimension"]
 
             info_s = info.solver
 
@@ -168,7 +170,11 @@ class Solver(py2dmat.solver.SolverBase):
         degree_list: List[float]
 
         def __init__(self, info):
-            self.dimension = info.base["dimension"]
+            if "dimension" in info.solver:
+                self.dimension = info.solver["dimension"]
+            else:
+                self.dimension = info.base["dimension"]
+
             info_s = info.solver
 
             # solver.config

@@ -1,0 +1,27 @@
+[base]
+dimension = 1
+output_dir = "output_transform"
+
+[algorithm]
+name = "mapper"
+seed = 137
+
+[algorithm.param]
+max_list = [2.0]
+min_list = [-1.0]
+initial_list = [0.25]
+num_list = [301]
+
+[solver]
+name = "analytical"
+function_name = "rosenbrock"
+dimension = 2
+
+[runner]
+[runner.log]
+interval = 20
+[runner.mapping]
+A = """
+1
+1
+"""

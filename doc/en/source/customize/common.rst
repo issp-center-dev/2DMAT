@@ -24,7 +24,7 @@ This has the following four instance variables.
     - Parameters for ``Runner``
 
 
-An instance of ``Info`` is initialized by passing a ``dict`` which has the following four sub dictionaries, ``"base"``, ``"solver"``, ``"algorithm"``, and ``"runner"``.
+An instance of ``Info`` is initialized by passing a ``dict`` which has the following four sub dictionaries, ``base``, ``solver``, ``algorithm``, and ``"runner"``.
 Each value will be set to the corresponding field of ``Info``.
 
 - About ``base``
@@ -76,10 +76,15 @@ This has the following three instance variables.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``Runner`` connects ``Algorithm`` and ``Solver``.
-The constructor of ``Runner`` takes ``Solver`` and ``Info``.
+The constructor of ``Runner`` takes ``solver: Solver``, ``info: Info``, and ``mapping: Callable[[np.ndarray], np.ndarray]``.
 
 ``submit(self, message: py2dmat.Message) -> float`` method invokes the solver and returns the result.
 To evaluate ``fx = f(x)``, use the following code snippet::
 
     message = py2dmat.Message(x, step, set)
     fx = runner.submit(message)
+
+``submit`` internally uses ``mapping`` for generating a parameter used in ``Solver``, :math:`y`, from a parameter searched by ``Algorithm``, :math:`x`, as ``y = mapping(x)``.
+When ``mapping`` is omitted in the constructor (or ``None`` is passed), an affine mapping (``py2dmat.util.mapping.Affine(A,b)``) :math:`y=Ax+b` is used as ``mapping``.
+The elements of ``A`` and ``b`` are defined in ``info``.
+See :doc:`../input` for details how/which components of ``info`` ``Runner`` uses.

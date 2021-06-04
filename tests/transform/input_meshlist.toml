@@ -1,0 +1,19 @@
+[base]
+dimension = 1
+output_dir = "output_meshlist"
+
+[algorithm]
+name = "mapper"
+seed = 137
+
+[algorithm.param]
+mesh_path = "./MeshData.txt"
+
+[solver]
+name = "analytical"
+function_name = "rosenbrock"
+dimension = 2
+
+[runner]
+[runner.log]
+interval = 20

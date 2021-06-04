@@ -103,7 +103,50 @@ See :doc:`algorithm/index` for details of the various algorithms and their input
 ************************
 
 This section sets the configuration of ``Runner``, which bridges ``Algorithm`` and ``Solver``.
-It has a subsection ``log``
+It has two subsections, ``mapping`` and ``log`` .
+
+[``mapping``] section
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This section defines the mapping from a parameter searched by ``Algorithm``, :math:`x`, to a parameter used in ``Solver``, :math:`y` .
+In the current version, the affine mapping :math:`y = Ax+b` is available.
+
+- ``A``
+
+  Format: List of list of float, or a string (default: ``[]``)
+
+  Description: Matrix :math:`A`. An empty list ``[]`` is a shorthand of an identity matrix.
+               If you want to set it by a string, arrange the elements of the matrix separated with spaces and newlines (see the example).
+
+
+- ``b``
+
+  Format: List of float, or a string (default: ``[]``)
+
+  Description: Vector :math:`b`. An empty list ``[]`` is a shorthand of a zero vector.
+               If you want to set it by a string, arrange the elements of the vector separated with spaces.
+
+For example, both ::
+
+  A = [[1,1], [0,1]]
+
+and ::
+
+  A = """
+  1 1
+  0 1
+  """
+
+mean
+
+.. math::
+
+  A = \left(
+  \begin{matrix}
+  1 & 1 \\
+  0 & 1
+  \end{matrix}
+  \right).
 
 [``log``] section
 ^^^^^^^^^^^^^^^^^^^^^^^^
