@@ -20,7 +20,7 @@ dimension = 2
 [runner]
 [runner.log]
 interval = 20
-[runner.transform]
+[runner.mapping]
 A = """
 1
 1
