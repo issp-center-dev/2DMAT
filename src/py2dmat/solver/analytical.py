@@ -71,7 +71,7 @@ class Solver(py2dmat.solver.function.Solver):
         elif function_name == "rosenbrock":
             self.set_function(rosenbrock)
         elif function_name == "himmelblau":
-            dimension = info.base["dimension"]
+            dimension = self.dimension
             if int(dimension) != 2:
                 raise RuntimeError(
                     f"ERROR: himmelblau works only with dimension=2 but input is dimension={dimension}"
