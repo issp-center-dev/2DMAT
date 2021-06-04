@@ -14,6 +14,7 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/translations.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
     <link rel="next" title="出力ファイル" href="output.html" />
@@ -97,6 +98,10 @@
 </ul>
 </div></blockquote>
 </li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dimension</span></code></p>
+<p>形式: 整数型 (default: <code class="docutils literal notranslate"><span class="pre">base.dimension</span></code>)</p>
+<p>説明: ソルバーが受け取る入力パラメータの数</p>
+</li>
 </ul>
 <p>各種ソルバーの詳細および入出力ファイルは <a class="reference internal" href="solver/index.html"><span class="doc">順問題ソルバー</span></a> を参照してください。</p>
 </section>
@@ -120,7 +125,7 @@
 <p>形式: 整数値。</p>
 <dl class="simple">
 <dt>説明: 初期値のランダム生成やモンテカルロ更新などで用いる擬似乱数生成器の種を指定します。</dt><dd><p>各MPIプロセスに対して、 <code class="docutils literal notranslate"><span class="pre">seed</span> <span class="pre">+</span> <span class="pre">mpi_rank</span> <span class="pre">*</span> <span class="pre">seed_delta</span></code> の値が実際の種として用いられます。
-省略した場合は <a class="reference external" href="https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.default_rng">Numpy の規定の方法</a> で初期化されます。</p>
+省略した場合は <a class="reference external" href="https://numpy.org/doc/stable/reference/random/legacy.html#numpy.random.RandomState">Numpy の規定の方法</a> で初期化されます。</p>
 </dd>
 </dl>
 </li>
@@ -137,7 +142,48 @@
 <section id="runner">
 <h2>[<code class="docutils literal notranslate"><span class="pre">runner</span></code>] セクション<a class="headerlink" href="#runner" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> と <code class="docutils literal notranslate"><span class="pre">Solver</span></code> を橋渡しする要素である <code class="docutils literal notranslate"><span class="pre">Runner</span></code> の設定を記述します。
-サブセクションとして <code class="docutils literal notranslate"><span class="pre">log</span></code> を持ちます。</p>
+サブセクションとして <code class="docutils literal notranslate"><span class="pre">mapping</span></code> と <code class="docutils literal notranslate"><span class="pre">log</span></code> を持ちます。</p>
+<section id="mapping">
+<h3>[<code class="docutils literal notranslate"><span class="pre">mapping</span></code>] セクション<a class="headerlink" href="#mapping" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> で探索しているパラメータ <span class="math notranslate nohighlight">\(x\)</span> から <code class="docutils literal notranslate"><span class="pre">Solver</span></code> で使うパラメータ <span class="math notranslate nohighlight">\(y\)</span> への写像を定義します。
+現在はアフィン写像 <span class="math notranslate nohighlight">\(y = Ax+b\)</span> が利用可能です。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">A</span></code></p>
+<p>形式: リストのリスト、あるいは文字列 (default: [])</p>
+<dl class="simple">
+<dt>説明: 変換行列 <span class="math notranslate nohighlight">\(A\)</span> 。空のリストを渡した場合、単位行列とみなされます。</dt><dd><p>文字列として与える場合はそのまま行列の要素を空白および改行で区切って並べてください。</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b</span></code></p>
+<p>形式: リスト、あるいは文字列 (default: [])</p>
+<dl class="simple">
+<dt>説明: 並進移動ベクトル <span class="math notranslate nohighlight">\(b\)</span> 。空のリストを渡した場合、ゼロベクトルとみなされます。</dt><dd><p>文字列として与える場合はそのままベクトルの要素を空白区切りで並べてください。</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>行列の指定方法について、例えば、</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">A</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>と</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">A</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">1 1</span>
+<span class="s2">0 1</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>はともに</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}A = \left(
+\begin{matrix}
+1 &amp; 1 \\
+0 &amp; 1
+\end{matrix}
+\right)\end{split}\]</div>
+<p>を表します。</p>
+</section>
 <section id="log">
 <h3>[<code class="docutils literal notranslate"><span class="pre">log</span></code>] セクション<a class="headerlink" href="#log" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>solver 呼び出しのlogging に関する設定です。</p>

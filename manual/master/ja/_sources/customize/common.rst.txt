@@ -25,11 +25,11 @@
     - ``Runner`` が用いる入力パラメータ
 
 
-``Info`` は ``"base"``, ``"solver"``, ``"algorithm"``, ``runner`` の4つのキーを持つような ``dict`` を渡して初期化出来ます。
+``Info`` は ``base``, ``solver``, ``algorithm``, ``runner`` の4つのキーを持つような ``dict`` を渡して初期化出来ます。
 
 - ``base`` について
 
-    - 要素として計算のルートディレクトリ ``"root_dir"`` と出力のルートディレクトリ ``"output_dir"`` が自動で設定されます
+    - 要素として計算のルートディレクトリ ``root_dir`` と出力のルートディレクトリ ``output_dir`` が自動で設定されます
 
     - ルートディレクトリ ``root_dir``
 
@@ -76,10 +76,14 @@
 ``py2dmat.Runner``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 ``Algorithm`` と ``Solver`` とをつなげるためのクラスです。
-コンストラクタ引数として ``Solver`` のインスタンスと ``Info`` のインスタンスを取ります。
+コンストラクタ引数として ``Solver`` のインスタンスと ``Info`` のインスタンス、パラメータの変換ルーチン ``mapping : Callable[[np.ndarray], np.ndarray]`` を取ります。
 
 ``submit(self, message: py2dmat.Message) -> float`` メソッドでソルバーを実行し、結果を返します。
 探索パラメータを ``x`` として、 目的関数 ``fx = f(x)`` を得たい場合は以下のようにします ::
 
     message = py2dmat.Message(x, step, set)
     fx = runner.submit(message)
+
+``submit`` メソッドは ``mapping`` を用いて、探索アルゴリズムのパラメータ ``x`` から実際にソルバーが使う入力 ``y = mapping(x)`` を得ます。
+``mapping`` を省略した場合 (``None`` を渡した場合)、変換ルーチンとしてアフィン写像 :math:`y=Ax+b` が用いられます (``py2dmat.util.mapping.Affine(A,b)``)。
+``A, b`` の要素は ``info`` で与えられます。 その他、 ``Runner`` で使われる ``info`` の詳細は :doc:`../input` を参照してください。

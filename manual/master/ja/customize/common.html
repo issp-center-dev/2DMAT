@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/translations.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
     <link rel="next" title="Solver の定義" href="solver.html" />
@@ -74,12 +75,12 @@
 </div></blockquote>
 </li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">Info</span></code> は <code class="docutils literal notranslate"><span class="pre">&quot;base&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;solver&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;algorithm&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">runner</span></code> の4つのキーを持つような <code class="docutils literal notranslate"><span class="pre">dict</span></code> を渡して初期化出来ます。</p>
+<p><code class="docutils literal notranslate"><span class="pre">Info</span></code> は <code class="docutils literal notranslate"><span class="pre">base</span></code>, <code class="docutils literal notranslate"><span class="pre">solver</span></code>, <code class="docutils literal notranslate"><span class="pre">algorithm</span></code>, <code class="docutils literal notranslate"><span class="pre">runner</span></code> の4つのキーを持つような <code class="docutils literal notranslate"><span class="pre">dict</span></code> を渡して初期化出来ます。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">base</span></code> について</p>
 <blockquote>
 <div><ul>
-<li><p>要素として計算のルートディレクトリ <code class="docutils literal notranslate"><span class="pre">&quot;root_dir&quot;</span></code> と出力のルートディレクトリ <code class="docutils literal notranslate"><span class="pre">&quot;output_dir&quot;</span></code> が自動で設定されます</p></li>
+<li><p>要素として計算のルートディレクトリ <code class="docutils literal notranslate"><span class="pre">root_dir</span></code> と出力のルートディレクトリ <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> が自動で設定されます</p></li>
 <li><p>ルートディレクトリ <code class="docutils literal notranslate"><span class="pre">root_dir</span></code></p>
 <blockquote>
 <div><ul>
@@ -150,13 +151,16 @@
 <section id="py2dmat-runner">
 <h2><code class="docutils literal notranslate"><span class="pre">py2dmat.Runner</span></code><a class="headerlink" href="#py2dmat-runner" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> と <code class="docutils literal notranslate"><span class="pre">Solver</span></code> とをつなげるためのクラスです。
-コンストラクタ引数として <code class="docutils literal notranslate"><span class="pre">Solver</span></code> のインスタンスと <code class="docutils literal notranslate"><span class="pre">Info</span></code> のインスタンスを取ります。</p>
+コンストラクタ引数として <code class="docutils literal notranslate"><span class="pre">Solver</span></code> のインスタンスと <code class="docutils literal notranslate"><span class="pre">Info</span></code> のインスタンス、パラメータの変換ルーチン <code class="docutils literal notranslate"><span class="pre">mapping</span> <span class="pre">:</span> <span class="pre">Callable[[np.ndarray],</span> <span class="pre">np.ndarray]</span></code> を取ります。</p>
 <p><code class="docutils literal notranslate"><span class="pre">submit(self,</span> <span class="pre">message:</span> <span class="pre">py2dmat.Message)</span> <span class="pre">-&gt;</span> <span class="pre">float</span></code> メソッドでソルバーを実行し、結果を返します。
 探索パラメータを <code class="docutils literal notranslate"><span class="pre">x</span></code> として、 目的関数 <code class="docutils literal notranslate"><span class="pre">fx</span> <span class="pre">=</span> <span class="pre">f(x)</span></code> を得たい場合は以下のようにします</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">message</span> <span class="o">=</span> <span class="n">py2dmat</span><span class="o">.</span><span class="n">Message</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="nb">set</span><span class="p">)</span>
 <span class="n">fx</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">submit</span></code> メソッドは <code class="docutils literal notranslate"><span class="pre">mapping</span></code> を用いて、探索アルゴリズムのパラメータ <code class="docutils literal notranslate"><span class="pre">x</span></code> から実際にソルバーが使う入力 <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">=</span> <span class="pre">mapping(x)</span></code> を得ます。
+<code class="docutils literal notranslate"><span class="pre">mapping</span></code> を省略した場合 (<code class="docutils literal notranslate"><span class="pre">None</span></code> を渡した場合)、変換ルーチンとしてアフィン写像 <span class="math notranslate nohighlight">\(y=Ax+b\)</span> が用いられます (<code class="docutils literal notranslate"><span class="pre">py2dmat.util.mapping.Affine(A,b)</span></code>)。
+<code class="docutils literal notranslate"><span class="pre">A,</span> <span class="pre">b</span></code> の要素は <code class="docutils literal notranslate"><span class="pre">info</span></code> で与えられます。 その他、 <code class="docutils literal notranslate"><span class="pre">Runner</span></code> で使われる <code class="docutils literal notranslate"><span class="pre">info</span></code> の詳細は <a class="reference internal" href="../input.html"><span class="doc">入力ファイル</span></a> を参照してください。</p>
 </section>
 </section>
 
