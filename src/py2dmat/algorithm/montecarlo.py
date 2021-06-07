@@ -1,4 +1,4 @@
-from typing import TextIO
+from typing import TextIO, Union
 import copy
 import time
 
@@ -136,13 +136,13 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         next_x = current_x + dx
         return next_x
 
-    def local_update(self, beta: float, file_trial: TextIO, file_result: TextIO):
+    def local_update(self, beta: Union[float, np.ndarray], file_trial: TextIO, file_result: TextIO):
         """one step of Monte Carlo
 
         Parameters
         ==========
-        beta: float
-            inverse temperature
+        beta: np.ndarray
+            inverse temperature for each walker
         file_trial: TextIO
             log file for all trial points
         file_result: TextIO
@@ -158,14 +158,19 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         self._write_result(file_trial)
 
         fdiff = self.fx - fx_old
+
+        # Ignore an overflow warning when evaluating np.exp(x) for x >~ 710.
+        old_setting = np.seterr(over="ignore")
         probs = np.exp(-beta * fdiff)
+        np.seterr(**old_setting)
+
         in_range = ((self.xmin <= self.x) & (self.x <= self.xmax)).all(axis=1)
         tocheck = in_range & (fdiff > 0.0)
         num_check = np.count_nonzero(tocheck)
 
         accepted = np.ones(self.nwalkers, dtype=bool)
         accepted[~in_range] = False
-        accepted[tocheck] = self.rng.random(num_check) < probs[tocheck]
+        accepted[tocheck] = self.rng.rand(num_check) < probs[tocheck]
 
         # revert rejected steps
         rejected = ~accepted
