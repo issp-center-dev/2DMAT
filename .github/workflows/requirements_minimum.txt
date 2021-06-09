@@ -1,7 +1,6 @@
---no-binary :all:
-Cython==0.29
-numpy==1.14.0
-physbo==0.3.0
-scipy==1.0.0
-toml==0.10.0
-mpi4py==3.0.3
+--no-binary=Cython Cython==0.29
+--no-binary=numpy numpy==1.14.0
+--no-binary=scipy scipy==1.0.0
+--no-binary=physbo physbo==0.3.0
+--no-binary=mpi4py mpi4py==3.0.3
+--no-binary=toml toml==0.10.0
