@@ -3,4 +3,4 @@ numpy==1.14.0
 physbo==0.3.0
 scipy==1.0.0
 toml==0.10.0
-mpi4py==0.3.0
+mpi4py==3.0.0
