@@ -9,7 +9,6 @@ jobs:
     strategy:
       matrix:
         python-version: [3.6, 3.9]
-        sample: [mapper, minsearch, exchange, bayes, transform]
         python-packages: [minimum, latest]
       fail-fast: false
 
@@ -32,7 +31,19 @@ jobs:
           python -m pip install -U pip
           python -m pip install -r ${GITHUB_WORKSPACE}/.github/workflows/requirements_${{ matrix.python-packages }}.txt
 
-      - name: ${{ matrix.algorithm }}
+      - name: test
         run: |
-          cd ${GITHUB_WORKSPACE}/tests/${{ matrix.sample }}
-          sh ./do.sh
+          declare -a FAILED_TEST=()
+          for testname in mapper minsearch exchange bayes transform; do
+            cd ${GITHUB_WORKSPACE}/tests/${testname}
+            sh ./do.sh || FAILED_TEST=(${FAILED_TEST[@]} ${testname})
+          done
+          if [ ${#FAILED_TEST[@]} -gt 0 ]; then
+            echo "The following test(s) failed:"
+            for FAILED in ${FAILED_TEST[@]}; do
+              echo ${FAILED}
+            done
+            false
+          else
+            true
+          fi
