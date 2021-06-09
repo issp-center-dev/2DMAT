@@ -1,0 +1,6 @@
+Cython
+numpy
+physbo
+scipy
+toml
+mpi4py
