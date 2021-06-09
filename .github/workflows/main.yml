@@ -30,7 +30,7 @@ jobs:
       - name: pip
         run: |
           python -m pip install -U pip
-          python -m pip install -r ${GITHUB_WORKSPACE}/.github/workflow/requirements-${{ matrix.python-packages }}.txt
+          python -m pip install -r ${GITHUB_WORKSPACE}/.github/workflow/requirements_${{ matrix.python-packages }}.txt
 
       - name: ${{ matrix.algorithm }}
         run: |
