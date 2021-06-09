@@ -197,14 +197,12 @@ class AlgorithmBase(metaclass=ABCMeta):
             comments = info_param.get("comments", "#")
             delimiter = info_param.get("delimiter", None)
             skiprows = info_param.get("skiprows", 0)
-            max_rows = info_param.get("max_rows", None)
 
             data = np.loadtxt(
                 mesh_path,
                 comments=comments,
                 delimiter=delimiter,
                 skiprows=skiprows,
-                max_rows=max_rows,
             )
             grid = data
         else:
