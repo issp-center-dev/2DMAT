@@ -1,6 +1,6 @@
---no-binary=Cython Cython==0.29
---no-binary=numpy numpy==1.14.0
---no-binary=scipy scipy==1.0.0
---no-binary=physbo physbo==0.3.0
---no-binary=mpi4py mpi4py==3.0.3
---no-binary=toml toml==0.10.0
+Cython==0.29 --no-binary=Cython
+numpy==1.14.0 --no-binary=numpy
+scipy==1.0.0 --no-binary=scipy
+physbo==0.3.0 --no-binary=physbo
+mpi4py==3.0.3 --no-binary=mpi4py
+toml==0.10.0 --no-binary=toml
