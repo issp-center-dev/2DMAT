@@ -63,6 +63,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     T2rep: List[int]
 
     def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
+        time_sta = time.perf_counter()
         super().__init__(info=info, runner=runner)
 
         if self.mpicomm is None:
@@ -78,6 +79,9 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
         self.numsteps = info_exchange["numsteps"]
         self.numsteps_exchange = info_exchange["numsteps_exchange"]
+        time_end = time.perf_counter()
+        self.timer["init"]["total"] = time_end - time_sta
+
 
     def _run(self) -> None:
         rank = self.mpirank

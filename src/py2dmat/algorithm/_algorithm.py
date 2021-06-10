@@ -51,7 +51,8 @@ class AlgorithmBase(metaclass=ABCMeta):
         self.mpicomm = mpi.comm()
         self.mpisize = mpi.size()
         self.mpirank = mpi.rank()
-        self.timer = {"prepare": {}, "run": {}, "post": {}}
+        self.timer = {"init": {}, "prepare": {}, "run": {}, "post": {}}
+        self.timer["init"]["total"] = 0.0
         self.status = AlgorithmStatus.INIT
 
         if "dimension" not in info.base:
@@ -199,10 +200,7 @@ class AlgorithmBase(metaclass=ABCMeta):
             skiprows = info_param.get("skiprows", 0)
 
             data = np.loadtxt(
-                mesh_path,
-                comments=comments,
-                delimiter=delimiter,
-                skiprows=skiprows,
+                mesh_path, comments=comments, delimiter=delimiter, skiprows=skiprows,
             )
             grid = data
         else:
@@ -315,7 +313,7 @@ class AlgorithmBase(metaclass=ABCMeta):
         self.timer["post"]["total"] = time_end - time_sta
 
         with open(self.proc_dir / "time.log", "w") as fw:
-            fw.write("#in units of seconds")
+            fw.write("#in units of seconds\n")
 
             def output_file(type):
                 tmp_dict = self.timer[type]
@@ -325,6 +323,7 @@ class AlgorithmBase(metaclass=ABCMeta):
                         continue
                     fw.write(" - {} = {}\n".format(key, t))
 
+            output_file("init")
             output_file("prepare")
             output_file("run")
             output_file("post")

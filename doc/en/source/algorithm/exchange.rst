@@ -18,32 +18,52 @@ This has two subsections ``algorithm.param`` and ``algorithm.exchange`` .
 [``algorithm.param``]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- ``initial_list``
+This defines a space to be explored.
+When ``mesh_path`` key is defined the discrete space is used.
+Otherwise, continuous space is used.
 
-  Format: List of float. Length should be equal to ``dimension``.
+- Continuous space
 
-  Description: Initial value of parameters.
-  If not defined, these will be initialize randomly.
+  - ``initial_list``
 
-- ``unit_list``
+    Format: List of float. Length should be equal to ``dimension``.
 
-  Format: List of float. Length should be equal to ``dimension``.
+    Description: Initial value of parameters.
+    If not defined, these will be initialize randomly.
 
-  Description: Unit length of each parameter.
-  ``Algorithm`` makes parameters dimensionless and normalized by dividing these by ``unit_list``.
-  If not defined, each component will be 1.0.
+  - ``unit_list``
 
-- ``min_list``
+    Format: List of float. Length should be equal to ``dimension``.
 
-  Format: List of float. Length should be equal to ``dimension``.
+    Description: Unit length of each parameter.
+    ``Algorithm`` makes parameters dimensionless and normalized by dividing these by ``unit_list``.
+    If not defined, each component will be 1.0.
 
-  Description: Minimum value of each parameter.
+  - ``min_list``
 
-- ``max_list``
+    Format: List of float. Length should be equal to ``dimension``.
 
-  Format: List of float. Length should be equal to ``dimension``.
+    Description: Minimum value of each parameter.
 
-  Description: Maximum value of each parameter.
+  - ``max_list``
+
+    Format: List of float. Length should be equal to ``dimension``.
+
+    Description: Maximum value of each parameter.
+
+- Discrete space
+
+  - ``mesh_path``
+
+    Format: string
+
+    Description: Path to the mesh definition file.
+
+  - ``neighborlist_path``
+
+    Format: string
+
+    Description: Path to the neighborhood-list file.
 
 [``algorithm.exchange``]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -85,6 +105,53 @@ This has two subsections ``algorithm.param`` and ``algorithm.exchange`` .
   Description: Whether to assign "temperature" to replicas equally spaced in the inverse space or not (1/T).
                When both ``Tlogspace`` and ``Tinvspace`` are activated, py2dmat will stop with an error.
 
+
+Refernce file
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Mesh definition file
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Define the grid space to be explored in this file.
+The first column is the index of the mesh, and the second and subsequent columns are the values of variables.
+Note that the index of the mesh will be ignored for this "algorithm".
+
+Below, a sample file is shown.
+
+.. code-block::
+
+    1 6.000000 6.000000
+    2 6.000000 5.750000
+    3 6.000000 5.500000
+    4 6.000000 5.250000
+    5 6.000000 5.000000
+    6 6.000000 4.750000
+    7 6.000000 4.500000
+    8 6.000000 4.250000
+    9 6.000000 4.000000
+    ...
+
+
+Neighborhood-list file
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Before searching in the discrete space by Markov Chain Monte Carlo method,
+we should define "neighborhoods" for each point :math:`i`, which are points that a walker can move from :math:`i`
+A neighborhood-list file defines the list of neighborhoods.
+In this file, the index of an initial point :math:`i` is specified by the first column,
+and the indices of final points :math:`j` are specified by the second and successive columns.
+
+An utility tool, ``py2dmat_neighborlist`` is available for generating a neighborhood-list file from a mesh file. For details, please see :doc:`../tool`.
+
+.. code-block::
+
+    0 1 2 3
+    1 0 2 3 4
+    2 0 1 3 4 5
+    3 0 1 2 4 5 6 7
+    4 1 2 3 5 6 7 8
+    5 2 3 4 7 8 9
+    ...
 
 Output files
 ~~~~~~~~~~~~~~~~~~~~~

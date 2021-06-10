@@ -30,6 +30,7 @@ all = ["scipy", "mpi4py", "physbo"]
 
 [tool.poetry.scripts]
 py2dmat = "py2dmat:main"
+py2dmat_neighborlist = "py2dmat.util.neighborlist:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
