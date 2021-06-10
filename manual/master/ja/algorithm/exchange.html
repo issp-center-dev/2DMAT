@@ -53,6 +53,10 @@
 <p>サブセクション <code class="docutils literal notranslate"><span class="pre">param</span></code> と <code class="docutils literal notranslate"><span class="pre">exchange</span></code> を持ちます。</p>
 <section id="param">
 <h3>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] セクション<a class="headerlink" href="#param" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>探索空間を定義します。
+<code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> キーが存在する場合は離散空間を、そうでない場合は連続空間を探索します。</p>
+<ul>
+<li><p>連続空間</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">initial_list</span></code></p>
 <p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
@@ -74,6 +78,20 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
 <p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータが取りうる最大値。</p>
+</li>
+</ul>
+</li>
+<li><p>離散空間</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code></p>
+<p>形式: ファイルパス</p>
+<p>説明: メッシュ定義ファイル。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">neighborlist_path</span></code></p>
+<p>形式: ファイルパス</p>
+<p>説明: 近傍リスト定義ファイル。</p>
+</li>
+</ul>
 </li>
 </ul>
 </section>
@@ -115,7 +133,47 @@
 </section>
 </section>
 <section id="id4">
-<h2>出力ファイル<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2>アルゴリズム補助ファイル<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<section id="id5">
+<h3>メッシュ定義ファイル<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>本ファイルで探索するグリッド空間を定義します。
+1列目にメッシュのインデックス（実際には使用されません）、
+2列目以降は探索空間の座標を指定します。</p>
+<p>以下、サンプルを記載します。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span> <span class="mf">6.000000</span> <span class="mf">6.000000</span>
+<span class="mi">2</span> <span class="mf">6.000000</span> <span class="mf">5.750000</span>
+<span class="mi">3</span> <span class="mf">6.000000</span> <span class="mf">5.500000</span>
+<span class="mi">4</span> <span class="mf">6.000000</span> <span class="mf">5.250000</span>
+<span class="mi">5</span> <span class="mf">6.000000</span> <span class="mf">5.000000</span>
+<span class="mi">6</span> <span class="mf">6.000000</span> <span class="mf">4.750000</span>
+<span class="mi">7</span> <span class="mf">6.000000</span> <span class="mf">4.500000</span>
+<span class="mi">8</span> <span class="mf">6.000000</span> <span class="mf">4.250000</span>
+<span class="mi">9</span> <span class="mf">6.000000</span> <span class="mf">4.000000</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h3>近傍リスト定義ファイル<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>離散空間をモンテカルロ法で探索する場合、各点 <span class="math notranslate nohighlight">\(i\)</span> ごとに次に移動できる点 <span class="math notranslate nohighlight">\(j\)</span> を定めておく必要があります。
+そのために必要なのが近傍リスト定義ファイルです。</p>
+<p>1列目に始点の番号 <span class="math notranslate nohighlight">\(i\)</span> を記載し、
+2列目以降に <span class="math notranslate nohighlight">\(i\)</span> から移動できる終点 <span class="math notranslate nohighlight">\(j\)</span> を列挙します。</p>
+<p>近傍リスト定義ファイルをメッシュ定義ファイルから生成するツール <code class="docutils literal notranslate"><span class="pre">py2dmat_neighborlist</span></code> が提供されています。
+詳細は <a class="reference internal" href="../tool.html"><span class="doc">関連ツール</span></a> を参照してください。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span>
+<span class="mi">1</span> <span class="mi">0</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span>
+<span class="mi">2</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span>
+<span class="mi">3</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">4</span> <span class="mi">5</span> <span class="mi">6</span> <span class="mi">7</span>
+<span class="mi">4</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">5</span> <span class="mi">6</span> <span class="mi">7</span> <span class="mi">8</span>
+<span class="mi">5</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">7</span> <span class="mi">8</span> <span class="mi">9</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id7">
+<h2>出力ファイル<a class="headerlink" href="#id7" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <section id="rank-trial-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">RANK/trial.txt</span></code><a class="headerlink" href="#rank-trial-txt" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>各レプリカについて、モンテカルロサンプリングで提案されたパラメータと、対応する目的関数の値です。
@@ -151,20 +209,20 @@
 <span class="n">z2</span> <span class="o">=</span> <span class="mf">5.139591716517661</span>
 </pre></div>
 </div>
-<section id="id5">
-<h4>アルゴリズム解説<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<section id="id8">
+<h4>アルゴリズム解説<a class="headerlink" href="#id8" title="このヘッドラインへのパーマリンク">¶</a></h4>
 </section>
 </section>
 </section>
-<section id="id6">
-<h2>マルコフ連鎖モンテカルロ法<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<section id="id9">
+<h2>マルコフ連鎖モンテカルロ法<a class="headerlink" href="#id9" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>モンテカルロ法（モンテカルロサンプリング）では、パラメータ空間中を動き回る walker <span class="math notranslate nohighlight">\(\vec{x}\)</span> を重み <span class="math notranslate nohighlight">\(W(\vec{x})\)</span> に従って確率的に動かすことで目的関数の最適化を行います。
 重み <span class="math notranslate nohighlight">\(W(\vec{x})\)</span> として、「温度」 <span class="math notranslate nohighlight">\(T &gt; 0\)</span> を導入して <span class="math notranslate nohighlight">\(W(\vec{x}) = e^{-f(\vec{x})/T}\)</span> とすることが一般的です（ボルツマン重み）。
 ほとんどの場合において、 <span class="math notranslate nohighlight">\(W\)</span> に基づいて直接サンプリングする (walker を生成する) のは不可能なので、 walker を確率的に少しずつ動かすことで、頻度分布が <span class="math notranslate nohighlight">\(W\)</span> に従うように時系列 <span class="math notranslate nohighlight">\(\{\vec{x}_t\}\)</span> を生成します (マルコフ連鎖モンテカルロ法, MCMC)。
 <span class="math notranslate nohighlight">\(\vec{x}\)</span> から <span class="math notranslate nohighlight">\(\vec{x}'\)</span> へ遷移する確率を <span class="math notranslate nohighlight">\(p(\vec{x}' | \vec{x})\)</span> とすると、</p>
 <div class="math notranslate nohighlight">
 \[W(\vec{x}') = \sum_{\vec{x}} p(\vec{x}' | \vec{x}) W(\vec{x})\]</div>
-<p>となるように <span class="math notranslate nohighlight">\(p\)</span> を定めれば時系列 <span class="math notranslate nohighlight">\(\{\vec{x}_t\}\)</span> の頻度分布が <span class="math notranslate nohighlight">\(W(\vec{x})\)</span> に収束することが示されます（釣り合い条件） <a class="footnote-reference brackets" href="#mcmc-condition" id="id7">1</a> 。
+<p>となるように <span class="math notranslate nohighlight">\(p\)</span> を定めれば時系列 <span class="math notranslate nohighlight">\(\{\vec{x}_t\}\)</span> の頻度分布が <span class="math notranslate nohighlight">\(W(\vec{x})\)</span> に収束することが示されます（釣り合い条件） <a class="footnote-reference brackets" href="#mcmc-condition" id="id10">1</a> 。
 実際の計算では、より強い制約である詳細釣り合い条件</p>
 <div class="math notranslate nohighlight">
 \[p(\vec{x} | \vec{x}') W(\vec{x}') =  W(\vec{x})p(\vec{x}' | \vec{x})\]</div>
@@ -203,8 +261,8 @@ MH 法によるMCMC は次のようになります。</p>
 <p>得られた時系列のうち、目的関数の値が一番小さいものを最適解とします。
 3 番のプロセスのおかげで、 <span class="math notranslate nohighlight">\(\Delta f \sim T\)</span> ぐらいの山を乗り越えられるので、局所最適解にトラップされた場合にも脱出可能です。</p>
 </section>
-<section id="id8">
-<h2>レプリカ交換モンテカルロ法<a class="headerlink" href="#id8" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<section id="id11">
+<h2>レプリカ交換モンテカルロ法<a class="headerlink" href="#id11" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>モンテカルロ法による最適化では、温度 <span class="math notranslate nohighlight">\(T\)</span> は非常に重要なハイパーパラメータとなっています。
 モンテカルロ法では、温度 <span class="math notranslate nohighlight">\(T\)</span> 程度の山を乗り越えられますが、逆にそれ以上の深さの谷からは容易に脱出できません。
 そのため、局所解へのトラップを防ぐためには温度を上げる必要があります。
@@ -222,7 +280,7 @@ MH 法によるMCMC は次のようになります。</p>
 有限温度由来の「ぼやけ」がどうしても生まれるので、モンテカルロ法の結果を初期値として <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> をするのがおすすめです。</p>
 <p class="rubric">脚注</p>
 <dl class="footnote brackets">
-<dt class="label" id="mcmc-condition"><span class="brackets"><a class="fn-backref" href="#id7">1</a></span></dt>
+<dt class="label" id="mcmc-condition"><span class="brackets"><a class="fn-backref" href="#id10">1</a></span></dt>
 <dd><p>正確には、収束のためには非周期性とエルゴード性も必要です。</p>
 </dd>
 </dl>

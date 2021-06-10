@@ -1,7 +1,62 @@
 Related Tools
 =====================
 
-``to_dft.py``
+``py2dmat_neighborlist``
+*****************************
+
+This tool generates a neighborhood-list file from the mesh file.
+
+When you install py2dmat via ``pip`` command, ``py2dmat_neighborlist`` is also installed under the ``bin``.
+A python script ``src/py2dmat_neighborlist.py`` is also available.
+
+Usage
+~~~~~~~~~~~~~~~~
+
+Pass a path to the mesh file as an argument.
+The filename of the generated neighborhood-list file is specified by ``-o`` option.
+
+.. code-block:: bash
+
+  $ py2dmat_neighborlist -o neighborlist.txt MeshData.txt
+
+  Or
+
+  $ python3 src/py2dmat_neighborlist.py -o MeshData.txt
+
+
+The following command-line options are available.
+
+- ``-o output``
+
+  - The filename of output (default: ``neighborlist.txt``)
+
+- ``-u "unit1 unit2..."``
+
+  - Length scale for each dimension of coordinate (default: 1.0 for all dims)
+
+    - Put values splitted by whitespaces and quote the whole
+
+      - e.g.) ``-u "1.0 0.5"``
+
+  - Each dimension of coordinate is divided by the corresponding ``unit``.
+
+- ``-r radius``
+
+  - A pair of nodes where the Euclidean distance is less than ``radius`` is considered a neighborhood (default: 1.0)
+  - Distances are calculated in the space after coordinates are divided by ``-u``
+
+- ``-q``
+
+  - Do not show a progress bar
+  - Showing a progress bar requires ``tqdm`` python package
+
+- ``--check-allpairs``
+
+  - Calculate distances of all pairs
+  - This is for debug
+
+
+``tool/to_dft/to_dft.py``
 ******************************
 
 This tool generates input data for `Quantum Espresso (QE) <https://www.quantum-espresso.org/>`_ , a first-principles electronic structure calculation software, from the atomic structures of (001) and (111) surface models of systems with Si isotetrahedral bond networks. This is used to validate the obtained structure and to obtain microscopic information such as the electronic state. In order to eliminate the influence of dangling bond-derived electrons from the opposite surface of interest, we use a technique called hydrogen termination, in which a hydrogen atom is placed at the position of the lowest dangling bond.

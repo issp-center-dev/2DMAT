@@ -40,11 +40,66 @@
         
   <section id="id1">
 <h1>関連ツール<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<section id="to-dft-py">
-<h2><code class="docutils literal notranslate"><span class="pre">to_dft.py</span></code><a class="headerlink" href="#to-dft-py" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>本ツールでは、Si等四面体構造のボンドネットワークを有する系の(001)および(111)表面系モデルについて、その原子構造から第一原理電子状態計算ソフトウェア <a class="reference external" href="https://www.quantum-espresso.org/">Quantum Espresso (QE)</a> 用の入力データを作成します。これにより、得られた構造の妥当性検証や、電子状態等の微視的な情報を取得します。なお、注目する表面と反対の表面から生じるダングリングボンド由来の電子の影響を排除するため、最下層のダングリングボンドの位置に水素原子を置く水素終端というテクニックを用いています。</p>
+<section id="py2dmat-neighborlist">
+<h2><code class="docutils literal notranslate"><span class="pre">py2dmat_neighborlist</span></code><a class="headerlink" href="#py2dmat-neighborlist" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>離散空間をモンテカルロ探索する場合に使用する近傍リスト定義ファイルを
+メッシュ定義ファイルから生成するツールです。</p>
+<p><code class="docutils literal notranslate"><span class="pre">pip</span></code> でインストールした場合は <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> と同様に <code class="docutils literal notranslate"><span class="pre">bin</span></code> 以下に <code class="docutils literal notranslate"><span class="pre">py2dmat_neighborlist</span></code> という名前でインストールされます。
+もしくは、ディレクトリ中の <code class="docutils literal notranslate"><span class="pre">src/py2dmat_neighborlist.py</span></code> を直接実行することも可能です。</p>
 <section id="id2">
-<h3>必要な環境<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h3>使い方<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>引数としてメッシュ定義ファイルを渡します。
+生成される近傍リスト定義ファイルの名前は <code class="docutils literal notranslate"><span class="pre">-o</span></code> オプションで指定可能です。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ py2dmat_neighborlist -o neighborlist.txt MeshData.txt
+
+もしくは
+
+$ python3 src/py2dmat_neighborlist.py -o MeshData.txt
+</pre></div>
+</div>
+<p>次のようなオプションが利用できます。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">output</span></code></p>
+<ul>
+<li><p>出力ファイル名 (default: <code class="docutils literal notranslate"><span class="pre">neighborlist.txt</span></code>)</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-u</span> <span class="pre">&quot;unit1</span> <span class="pre">unit2...&quot;</span></code></p>
+<ul>
+<li><p>各次元の長さスケール (default: すべて 1.0)</p>
+<ul>
+<li><p>空間次元の数だけ値を空白区切りで並べ、全体を引用符でくくってください</p></li>
+</ul>
+</li>
+<li><p>各座標はあらかじめこれらの長さスケールで除算されます</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">radius</span></code></p>
+<ul>
+<li><p>近傍とみなされるユークリッド距離 (default: 1.0)</p></li>
+<li><p>距離は <code class="docutils literal notranslate"><span class="pre">-u</span></code> で除されたあとの座標に対して計算されます</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-q</span></code></p>
+<ul>
+<li><p>進捗バーを表示しません</p></li>
+<li><p>なお、進捗バーの表示には <code class="docutils literal notranslate"><span class="pre">tqdm</span></code> python パッケージが必要です</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--check-allpairs</span></code></p>
+<ul>
+<li><p>すべての点対に対して距離を計算します</p></li>
+<li><p>デバッグ用のオプションです</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="tool-to-dft-to-dft-py">
+<h2><code class="docutils literal notranslate"><span class="pre">tool/to_dft/to_dft.py</span></code><a class="headerlink" href="#tool-to-dft-to-dft-py" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>本ツールでは、Si等四面体構造のボンドネットワークを有する系の(001)および(111)表面系モデルについて、その原子構造から第一原理電子状態計算ソフトウェア <a class="reference external" href="https://www.quantum-espresso.org/">Quantum Espresso (QE)</a> 用の入力データを作成します。これにより、得られた構造の妥当性検証や、電子状態等の微視的な情報を取得します。なお、注目する表面と反対の表面から生じるダングリングボンド由来の電子の影響を排除するため、最下層のダングリングボンドの位置に水素原子を置く水素終端というテクニックを用いています。</p>
+<section id="id3">
+<h3>必要な環境<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <ul class="simple">
 <li><p>Python3 &gt;= 3.6</p></li>
 </ul>
@@ -56,15 +111,15 @@
 <li><p>Matplotlib</p></li>
 </ul>
 </section>
-<section id="id3">
-<h3>スクリプトの概要<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<section id="id4">
+<h3>スクリプトの概要<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>XYZ形式で記載された構造ファイルのファイル名および、2次元的な周期構造を表すための格子ベクトルの情報などが記載された入力ファイルを読み込み、得られた座標データから、最下層と、その次の層にあたる原子の座標を抽出します。
 最下層の原子は取り除き、対応する位置に H 原子を置いて次層の原子との距離を四面体構造となる距離(例えば、Siの場合はシラン分子となる距離)に調整したモデルを作成します。
 水素終端を行ったモデルはXYZ形式で保存され、cifファイルとQuantum Espresso (QE)の入力ファイルも作成します。
 なお、QEをインストールしている場合には、そのまま計算実行することもできます。</p>
 </section>
-<section id="id4">
-<h3>チュートリアル<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<section id="id5">
+<h3>チュートリアル<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <ol class="arabic simple">
 <li><p>参照用のXYZファイルを作成します。</p></li>
 </ol>
