@@ -24,7 +24,6 @@
 
   $ python3 src/py2dmat_neighborlist.py -o MeshData.txt
 
-
 次のようなオプションが利用できます。
 
 - ``-o output``
@@ -55,6 +54,7 @@
   - デバッグ用のオプションです
 
 
+なお、 MPI を用いて計算を高速化できます。
 
 ``tool/to_dft/to_dft.py``
 ******************************

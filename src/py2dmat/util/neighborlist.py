@@ -7,6 +7,8 @@ import itertools
 
 import numpy as np
 
+from py2dmat import mpi
+
 try:
     from tqdm import tqdm
 
@@ -78,61 +80,83 @@ class Cells:
 
 
 def make_neighbor_list_cell(
-    X: np.ndarray, radius: float, show_progress: bool
+    X: np.ndarray, radius: float, show_progress: bool, comm: mpi.Comm = None
 ) -> List[List[int]]:
+    if comm is None:
+        mpisize = 1
+        mpirank = 0
+    else:
+        mpisize = comm.size
+        mpirank = comm.rank
+
     mins = typing.cast(np.ndarray, X.min(axis=0))
     maxs = typing.cast(np.ndarray, X.max(axis=0))
     cells = Cells(mins, maxs, radius * 1.001)
     npoints = X.shape[0]
-    nnlist: List[List[int]] = [[] for _ in range(npoints)]
     for n in range(npoints):
         xs = X[n, :]
         index = cells.coord2cellindex(xs)
         cells.cells[index].add(n)
-    if show_progress:
+
+    points = np.array_split(range(npoints), mpisize)[mpirank]
+    npoints_local = len(points)
+    nnlist: List[List[int]] = [[] for _ in range(npoints_local)]
+    if show_progress and mpirank == 0:
         if has_tqdm:
-            ns = tqdm(range(npoints))
+            desc = "rank 0" if mpisize > 1 else None
+            ns = tqdm(points, desc=desc)
         else:
             print("WARNING: cannot show progress because tqdm package is not available")
-            ns = range(npoints)
+            ns = points
     else:
-        ns = range(npoints)
+        ns = points
     for n in ns:
         xs = X[n, :]
         cellindex = cells.coord2cellindex(xs)
         for neighborcell in cells.neighborcells(cellindex):
             for other in cells.cells[neighborcell]:
-                if other <= n:
-                    continue
                 ys = X[other, :]
                 r = np.linalg.norm(xs - ys)
                 if r <= radius:
-                    nnlist[n].append(other)
-                    nnlist[other].append(n)
+                    nnlist[n-points[0]].append(other)
+    if mpisize > 1:
+        nnlist = list(itertools.chain.from_iterable(comm.allgather(nnlist)))
     return nnlist
 
 
 def make_neighbor_list_naive(
-    X: np.ndarray, radius: float, show_progress: bool
+        X: np.ndarray, radius: float, show_progress: bool, comm: mpi.Comm = None
 ) -> List[List[int]]:
+    if comm is None:
+        mpisize = 1
+        mpirank = 0
+    else:
+        mpisize = comm.size
+        mpirank = comm.rank
+
     npoints = X.shape[0]
-    nnlist: List[List[int]] = [[] for _ in range(npoints)]
-    if show_progress:
+    points = np.array_split(range(npoints), mpisize)[mpirank]
+    npoints_local = len(points)
+    nnlist: List[List[int]] = [[] for _ in range(npoints_local)]
+    if show_progress and mpirank == 0:
         if has_tqdm:
-            ns = tqdm(range(npoints))
+            desc = "rank 0" if mpisize > 1 else None
+            ns = tqdm(points, desc=desc)
         else:
             print("WARNING: cannot show progress because tqdm package is not available")
-            ns = range(npoints)
+            ns = points
     else:
-        ns = range(npoints)
+        ns = points
     for n in ns:
         xs = X[n, :]
-        for m in range(n + 1, npoints):
+        for m in range(npoints):
+            if n == m: continue
             ys = X[m, :]
             r = np.linalg.norm(xs - ys)
             if r <= radius:
-                nnlist[n].append(m)
-                nnlist[m].append(n)
+                nnlist[n-points[0]].append(m)
+    if mpisize > 1:
+        nnlist = list(itertools.chain.from_iterable(comm.allgather(nnlist)))
     return nnlist
 
 
@@ -141,11 +165,12 @@ def make_neighbor_list(
     radius: float,
     check_allpairs: bool = False,
     show_progress: bool = False,
+    comm: mpi.Comm = None
 ) -> List[List[int]]:
     if check_allpairs:
-        return make_neighbor_list_naive(X, radius, show_progress=show_progress)
+        return make_neighbor_list_naive(X, radius, show_progress=show_progress, comm=comm)
     else:
-        return make_neighbor_list_cell(X, radius, show_progress=show_progress)
+        return make_neighbor_list_cell(X, radius, show_progress=show_progress, comm=comm)
 
 
 def load_neighbor_list(filename: PathLike, nnodes: int = None) -> List[List[int]]:
@@ -218,13 +243,13 @@ Note:
         "-u",
         "--unit",
         default=None,
-        help='length unit for each coordinate (see Note)',
+        help="length unit for each coordinate (see Note)",
     )
     parser.add_argument(
         "-q", "--quiet", action="store_true", help="Do not show progress bar"
     )
     parser.add_argument(
-        "--check_allpairs",
+        "--check-allpairs",
         action="store_true",
         help="check all pairs (bruteforce algorithm)",
     )
@@ -235,7 +260,17 @@ Note:
     outputfile = args.output
     radius = args.radius
 
-    X = np.loadtxt(inputfile)
+    X = np.zeros((0, 0))
+
+    if mpi.rank() == 0:
+        X = np.loadtxt(inputfile)
+
+    if mpi.size() > 1:
+        sh = mpi.comm().bcast(X.shape, root=0)
+        if mpi.rank() != 0:
+            X = np.zeros(sh)
+        mpi.comm().Bcast(X, root=0)
+
     D = X.shape[1] - 1
 
     if args.unit is None:
@@ -248,10 +283,7 @@ Note:
     X = X[:, 1:] / unit
 
     nnlist = make_neighbor_list(
-        X, radius, check_allpairs=args.check_allpairs, show_progress=(not args.quiet)
+        X, radius, check_allpairs=args.check_allpairs, show_progress=(not args.quiet), comm=mpi.comm()
     )
+
     write_neighbor_list(outputfile, nnlist, radius=radius, unit=unit)
-
-
-if __name__ == "__main__":
-    main()

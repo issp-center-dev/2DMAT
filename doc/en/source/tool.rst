@@ -56,6 +56,8 @@ The following command-line options are available.
   - This is for debug
 
 
+MPI parallelization is available.
+
 ``tool/to_dft/to_dft.py``
 ******************************
 
