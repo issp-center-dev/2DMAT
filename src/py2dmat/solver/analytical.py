@@ -94,8 +94,11 @@ class Solver(py2dmat.solver.function.Solver):
                 )
             self.set_function(himmelblau)
         elif function_name == "regression":
+            dimension = self.dimension
+            if int(dimension) != 3:
+                raise RuntimeError(
+                    f"ERROR: regression works only with dimension=2 but input is dimension={dimension}"
+                )
             self.set_function(regression)
-        elif function_name == "regression_easy":
-            self.set_function(regression_easy)
         else:
             raise RuntimeError(f"ERROR: Unknown function, {function_name}")
