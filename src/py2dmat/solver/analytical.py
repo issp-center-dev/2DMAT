@@ -45,6 +45,11 @@ def himmelblau(xs: np.ndarray) -> float:
     return (xs[0] ** 2 + xs[1] - 11.0) ** 2 + (xs[0] + xs[1] ** 2 - 7.0) ** 2
 
 def regression(xs: np.ndarray) -> float:
+    """
+    2d liner regression
+    It has a global minimum f(xs) = 1.005071.. at
+    xs = [0.628571..., 0.8, -0.664976...].    
+    """
     if xs.shape[0] != 3:
         raise RuntimeError(
             f"ERROR: regression expects d=3 input, but receives d={xs.shape[0]} one"
