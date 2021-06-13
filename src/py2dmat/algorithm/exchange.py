@@ -1,6 +1,7 @@
 from io import open
 import copy
 import time
+import itertools
 
 import numpy as np
 
@@ -187,44 +188,46 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.mpicomm.Bcast(self.T2rep, root=0)
 
     def __exchange_multi_walker(self, direction: bool) -> None:
-        """
-        Note
-        ====
-
-        For simplicity, the root process performs all operations
-        """
         comm = self.mpicomm
         if self.mpisize > 1:
-            comm.Barrier()
-            fx_all = comm.gather(self.fx, root=0)
+            fx_all = comm.allgather(self.fx)
             fx_all = np.array(fx_all).flatten()
         else:
             fx_all = self.fx
-        rep2T = copy.copy(self.rep2T)
-        T2rep = copy.copy(self.T2rep)
-        if self.mpirank == 0:
-            for irep in range(self.nreplica):
-                iT = self.rep2T[irep]
-                if iT % 2 != 0:
-                    continue
-                jT = iT + 1 if direction else iT - 1
-                if jT < 0 or jT == self.nreplica:
-                    continue
-                jrep = self.T2rep[jT]
-                fdiff = fx_all[jrep] - fx_all[irep]
-                bdiff = 1.0 / self.Ts[jT] - 1.0 / self.Ts[iT]
-                logp = fdiff * bdiff
-                if logp >= 0.0 or self.rng.rand() < np.exp(logp):
-                    rep2T[irep] = jT
-                    rep2T[jrep] = iT
-                    T2rep[iT] = jrep
-                    T2rep[jT] = irep
+
+        rep2T_diff = []
+        T2rep_diff = []
+
+        for irep in range(
+            self.mpirank * self.nwalkers, (self.mpirank + 1) * self.nwalkers
+        ):
+            iT = self.rep2T[irep]
+            if iT % 2 != 0:
+                continue
+            jT = iT + 1 if direction else iT - 1
+            if jT < 0 or jT == self.nreplica:
+                continue
+            jrep = self.T2rep[jT]
+            fdiff = fx_all[jrep] - fx_all[irep]
+            bdiff = 1.0 / self.Ts[jT] - 1.0 / self.Ts[iT]
+            logp = fdiff * bdiff
+            if logp >= 0.0 or self.rng.rand() < np.exp(logp):
+                rep2T_diff.append((irep, jT))  # this means self.rep2T[irep] = jT
+                rep2T_diff.append((jrep, iT))
+                T2rep_diff.append((iT, jrep))
+                T2rep_diff.append((jT, irep))
+
         if self.mpisize > 1:
-            comm.Bcast(rep2T, root=0)
-            comm.Bcast(T2rep, root=0)
-        self.rep2T = rep2T
-        self.T2rep = T2rep
-        self.Tindex = rep2T[
+            rep2T_diff = comm.allgather(rep2T_diff)
+            rep2T_diff = list(itertools.chain.from_iterable(rep2T_diff))  # flatten
+            T2rep_diff = comm.allgather(T2rep_diff)
+            T2rep_diff = list(itertools.chain.from_iterable(T2rep_diff))  # flatten
+
+        for diff in rep2T_diff:
+            self.rep2T[diff[0]] = diff[1]
+        for diff in T2rep_diff:
+            self.T2rep[diff[0]] = diff[1]
+        self.Tindex = self.rep2T[
             self.mpirank * self.nwalkers : (self.mpirank + 1) * self.nwalkers
         ]
 
