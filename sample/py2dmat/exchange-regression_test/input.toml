@@ -7,8 +7,8 @@ name = "exchange"
 seed = 12345
 
 [algorithm.param]
-min_list = [-5, -5, -5]
-max_list = [5, 5, 5]
+min_list = [-5, -5, 0]
+max_list = [5, 5, 10]
 unit_list = [0.01, 0.01, 0.01]
 
 [algorithm.exchange]
