@@ -1,3 +1,4 @@
+import typing
 from typing import TextIO, Union, List
 import copy
 import time
@@ -22,8 +23,6 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         (NxD array, N is the number of walkers and D is the dimension)
     fx: np.ndarray
         current "Energy"s
-    T: float
-        current "Temperature"
     istep: int
         current step (or, the number of calculated energies)
     best_x: np.ndarray
@@ -31,14 +30,16 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
     best_fx: float
         best "Energy"
     best_istep: int
-        index of best configuration
+        index of best configuration (step)
+    best_iwalker: int
+        index of best configuration (walker)
     comm: MPI.comm
         MPI communicator
     rank: int
         MPI rank
-    Ts: list
+    Ts: np.ndarray
         List of temperatures
-    Tindex: int
+    Tindex: np.ndarray
         Temperature index
     """
 
@@ -66,9 +67,9 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
     best_x: np.ndarray
     best_fx: float
     best_istep: int
-    T: float
+    best_iwalker: int
     Ts: np.ndarray
-    Tindex: int
+    Tindex: np.ndarray
 
     def __init__(
         self, info: py2dmat.Info, runner: py2dmat.Runner = None, nwalkers: int = 1
@@ -109,10 +110,15 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
                 info, num_walkers=nwalkers
             )
         self.fx = np.zeros(self.nwalkers)
+        self.best_fx = 0.0
+        self.best_istep = 0
+        self.best_iwalker = 0
         time_end = time.perf_counter()
         self.timer["init"]["total"] = time_end - time_sta
 
-    def read_Ts(self, info: dict) -> np.ndarray:
+    def read_Ts(self, info: dict, numT: int = None) -> np.ndarray:
+        if numT is None:
+            numT = self.nwalkers * self.mpisize
         bTinv = info.get("Tinvspace", False)
         bTlog = info.get("Tlogspace", True)
         bTlogdefined = "Tlogspace" in info
@@ -127,20 +133,20 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
             T_inverse = np.linspace(
                 start=(1.0 / info.get("Tmin", 0.1)),
                 stop=(1.0 / info.get("Tmax", 10)),
-                num=self.mpisize,
+                num=numT,
             )
             Ts = 1.0 / T_inverse
         elif bTlog:
             Ts = np.logspace(
                 start=np.log10(info.get("Tmin", 0.1)),
                 stop=np.log10(info.get("Tmax", 10.0)),
-                num=self.mpisize,
+                num=numT,
             )
         else:
             Ts = np.linspace(
                 start=info.get("Tmin", 0.1),
                 stop=info.get("Tmax", 10.0),
-                num=self.mpisize,
+                num=numT,
             )
         return Ts
 
@@ -247,7 +253,7 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
             np.copyto(self.best_x, self.x[minidx, :])
             self.best_fx = self.fx[minidx]
             self.best_istep = self.istep
-            self.best_iwalker = minidx
+            self.best_iwalker = typing.cast(int, minidx)
         self._write_result(file_result)
 
     def _write_result_header(self, fp) -> None:
@@ -260,7 +266,7 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         for iwalker in range(self.nwalkers):
             fp.write(f"{self.istep} ")
             fp.write(f"{iwalker} ")
-            fp.write(f"{self.Ts[self.Tindex]} ")
+            fp.write(f"{self.Ts[self.Tindex[iwalker]]} ")
             fp.write(f"{self.fx[iwalker]} ")
             for x in self.x[iwalker, :]:
                 fp.write(f"{x} ")

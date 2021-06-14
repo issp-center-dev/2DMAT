@@ -1,12 +1,13 @@
-from typing import List
 from io import open
 import copy
 import time
+import itertools
 
 import numpy as np
 
 import py2dmat
 import py2dmat.algorithm.montecarlo
+import py2dmat.util.separateT
 
 
 class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
@@ -16,7 +17,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     ==========
     x: np.ndarray
         current configuration
-    fx: float
+    fx: np.ndarray
         current "Energy"
     T: float
         current "Temperature"
@@ -38,7 +39,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         List of temperatures
     Tindex: int
         Temperature index
-    T2rep: list
+    T2rep: np.ndarray
         Mapping from temperature index to replica index
     exchange_direction: bool
     """
@@ -53,35 +54,36 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
     fx: np.ndarray
     istep: int
-    best_x: np.ndarray
-    best_fx: float
-    best_istep: int
     nreplica: int
-    T: float
     Ts: np.ndarray
-    Tindex: int
-    T2rep: List[int]
+    Tindex: np.ndarray
+    rep2T: np.ndarray
+    T2rep: np.ndarray
 
     def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
         time_sta = time.perf_counter()
-        super().__init__(info=info, runner=runner)
+
+        info_exchange = info.algorithm["exchange"]
+        nwalkers = info_exchange.get("nreplica_per_proc", 1)
+
+        super().__init__(info=info, runner=runner, nwalkers=nwalkers)
 
         if self.mpicomm is None:
             msg = "ERROR: algorithm.exchange requires mpi4py, but mpi4py cannot be imported"
             raise ImportError(msg)
 
-        info_exchange = info.algorithm["exchange"]
-
-        self.Ts = self.read_Ts(info_exchange)
-        self.Tindex = self.mpirank
-        self.T2rep = list(range(self.mpisize))
-        self.nreplica = self.mpisize
+        self.nreplica = self.mpisize * self.nwalkers
+        self.Ts = self.read_Ts(info_exchange, numT=self.nreplica)
+        self.Tindex = np.arange(
+            self.mpirank * self.nwalkers, (self.mpirank + 1) * self.nwalkers
+        )
+        self.rep2T = np.arange(self.nreplica)
+        self.T2rep = np.arange(self.nreplica)
 
         self.numsteps = info_exchange["numsteps"]
         self.numsteps_exchange = info_exchange["numsteps_exchange"]
         time_end = time.perf_counter()
         self.timer["init"]["total"] = time_end - time_sta
-
 
     def _run(self) -> None:
         rank = self.mpirank
@@ -106,13 +108,14 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.best_x = copy.copy(self.x[minidx, :])
         self.best_fx = np.min(self.fx[minidx])
         self.best_istep = 0
+        self.best_iwalker = 0
 
         while self.istep < self.numsteps:
             # Exchange
             if self.istep % self.numsteps_exchange == 0:
                 time_sta = time.perf_counter()
                 self._exchange(exchange_direction)
-                if self.mpisize > 1:
+                if self.nreplica > 2:
                     exchange_direction = not exchange_direction
                 time_end = time.perf_counter()
                 self.timer["run"]["exchange"] += time_end - time_sta
@@ -123,24 +126,30 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
         file_result.close()
         file_trial.close()
-        print("complete main process : rank {:08d}/{:08d}".format(rank, self.nreplica))
+        print("complete main process : rank {:08d}/{:08d}".format(rank, self.mpisize))
 
     def _exchange(self, direction: bool) -> None:
         """try to exchange temperatures"""
+        if self.nwalkers == 1:
+            self.__exchange_single_walker(direction)
+        else:
+            self.__exchange_multi_walker(direction)
+
+    def __exchange_single_walker(self, direction: bool) -> None:
         self.mpicomm.Barrier()
         if direction:
-            if self.Tindex % 2 == 0:
-                other_index = self.Tindex + 1
+            if self.Tindex[0] % 2 == 0:
+                other_index = self.Tindex[0] + 1
                 is_main = True
             else:
-                other_index = self.Tindex - 1
+                other_index = self.Tindex[0] - 1
                 is_main = False
         else:
-            if self.Tindex % 2 == 0:
-                other_index = self.Tindex - 1
+            if self.Tindex[0] % 2 == 0:
+                other_index = self.Tindex[0] - 1
                 is_main = False
             else:
-                other_index = self.Tindex + 1
+                other_index = self.Tindex[0] + 1
                 is_main = True
 
         ibuf = np.zeros(1, dtype=np.int64)
@@ -151,13 +160,13 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             if is_main:
                 self.mpicomm.Recv(fbuf, source=other_rank, tag=1)
                 other_fx = fbuf[0]
-                beta = 1.0 / self.Ts[self.Tindex]
-                other_beta = 1.0 / self.Ts[self.Tindex + 1]
+                beta = 1.0 / self.Ts[self.Tindex[0]]
+                other_beta = 1.0 / self.Ts[self.Tindex[0] + 1]
                 logp = (other_beta - beta) * (other_fx - self.fx[0])
                 if logp >= 0.0 or self.rng.rand() < np.exp(logp):
                     ibuf[0] = self.Tindex
                     self.mpicomm.Send(ibuf, dest=other_rank, tag=2)
-                    self.Tindex += 1
+                    self.Tindex[0] += 1
                 else:
                     ibuf[0] = self.Tindex + 1
                     self.mpicomm.Send(ibuf, dest=other_rank, tag=2)
@@ -165,43 +174,92 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
                 fbuf[0] = self.fx[0]
                 self.mpicomm.Send(fbuf, dest=other_rank, tag=1)
                 self.mpicomm.Recv(ibuf, source=other_rank, tag=2)
-                self.Tindex = ibuf[0]
+                self.Tindex[0] = ibuf[0]
 
         self.mpicomm.Barrier()
         if self.mpirank == 0:
-            self.T2rep[self.Tindex] = self.mpirank
+            self.T2rep[self.Tindex[0]] = self.mpirank
             for other_rank in range(1, self.nreplica):
                 self.mpicomm.Recv(ibuf, source=other_rank, tag=0)
                 self.T2rep[ibuf[0]] = other_rank
         else:
             ibuf[0] = self.Tindex
             self.mpicomm.Send(ibuf, dest=0, tag=0)
-        new_T2rep = np.array(self.T2rep)
-        self.mpicomm.Bcast(new_T2rep, root=0)
-        self.T2rep[:] = new_T2rep[:]
+        self.mpicomm.Bcast(self.T2rep, root=0)
 
-        self.T = self.Ts[self.Tindex]
+    def __exchange_multi_walker(self, direction: bool) -> None:
+        comm = self.mpicomm
+        if self.mpisize > 1:
+            fx_all = comm.allgather(self.fx)
+            fx_all = np.array(fx_all).flatten()
+        else:
+            fx_all = self.fx
+
+        rep2T_diff = []
+        T2rep_diff = []
+
+        for irep in range(
+            self.mpirank * self.nwalkers, (self.mpirank + 1) * self.nwalkers
+        ):
+            iT = self.rep2T[irep]
+            if iT % 2 != 0:
+                continue
+            jT = iT + 1 if direction else iT - 1
+            if jT < 0 or jT == self.nreplica:
+                continue
+            jrep = self.T2rep[jT]
+            fdiff = fx_all[jrep] - fx_all[irep]
+            bdiff = 1.0 / self.Ts[jT] - 1.0 / self.Ts[iT]
+            logp = fdiff * bdiff
+            if logp >= 0.0 or self.rng.rand() < np.exp(logp):
+                rep2T_diff.append((irep, jT))  # this means self.rep2T[irep] = jT
+                rep2T_diff.append((jrep, iT))
+                T2rep_diff.append((iT, jrep))
+                T2rep_diff.append((jT, irep))
+
+        if self.mpisize > 1:
+            rep2T_diff = comm.allgather(rep2T_diff)
+            rep2T_diff = list(itertools.chain.from_iterable(rep2T_diff))  # flatten
+            T2rep_diff = comm.allgather(T2rep_diff)
+            T2rep_diff = list(itertools.chain.from_iterable(T2rep_diff))  # flatten
+
+        for diff in rep2T_diff:
+            self.rep2T[diff[0]] = diff[1]
+        for diff in T2rep_diff:
+            self.T2rep[diff[0]] = diff[1]
+        self.Tindex = self.rep2T[
+            self.mpirank * self.nwalkers : (self.mpirank + 1) * self.nwalkers
+        ]
 
     def _prepare(self) -> None:
         self.timer["run"]["submit"] = 0.0
         self.timer["run"]["exchange"] = 0.0
 
     def _post(self) -> None:
+        py2dmat.util.separateT.separateT(
+            Ts=self.Ts,
+            nwalkers=self.nwalkers,
+            output_dir=self.output_dir,
+            comm=self.mpicomm,
+        )
         best_fx = self.mpicomm.gather(self.best_fx, root=0)
         best_x = self.mpicomm.gather(self.best_x, root=0)
         best_istep = self.mpicomm.gather(self.best_istep, root=0)
+        best_iwalker = self.mpicomm.gather(self.best_iwalker, root=0)
         if self.mpirank == 0:
             best_rank = np.argmin(best_fx)
             with open("best_result.txt", "w") as f:
                 f.write(f"nprocs = {self.nreplica}\n")
                 f.write(f"rank = {best_rank}\n")
                 f.write(f"step = {best_istep[best_rank]}\n")
+                f.write(f"walker = {best_iwalker[best_rank]}\n")
                 f.write(f"fx = {best_fx[best_rank]}\n")
                 for label, x in zip(self.label_list, best_x[best_rank]):
                     f.write(f"{label} = {x}\n")
-            print("Result:")
+            print("Best Result:")
             print(f"  rank = {best_rank}")
             print(f"  step = {best_istep[best_rank]}")
+            print(f"  walker = {best_iwalker[best_rank]}")
             print(f"  fx = {best_fx[best_rank]}")
             for label, x in zip(self.label_list, best_x[best_rank]):
                 print(f"  {label} = {x}")
