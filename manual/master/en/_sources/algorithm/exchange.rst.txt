@@ -105,6 +105,11 @@ Otherwise, continuous space is used.
   Description: Whether to assign "temperature" to replicas equally spaced in the inverse space or not (1/T).
                When both ``Tlogspace`` and ``Tinvspace`` are activated, py2dmat will stop with an error.
 
+- ``nreplica_per_proc``
+
+  Format: Integer (default: 1)
+
+  Description: The number of replicas in a MPI process.
 
 Refernce file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -200,6 +205,23 @@ The optimal value of the solver and the corresponding parameter among the all sa
     fx = 0.008233957976993406
     z1 = 4.221129370933539
     z2 = 5.139591716517661
+
+
+``result_T#.txt``
+^^^^^^^^^^^^^^^^^^^
+This file stores samples for each temperature ( ``#`` is replaced with the index of temperature ).
+The first column is the index of the MC step.
+The second column is the index of the walker.
+The third column is the value of the solver.
+The remaining columns are the coordinates.
+
+.. code-block::
+
+    # T = 1.0
+    0 15 28.70157662892569 3.3139009347685118 -4.20946994566609
+    1 15 28.70157662892569 3.3139009347685118 -4.20946994566609
+    2 15 28.70157662892569 3.3139009347685118 -4.20946994566609
+    3 15 28.98676409223712 3.7442621319489637 -3.868754990884034
 
 
 Algorithm

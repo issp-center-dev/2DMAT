@@ -123,6 +123,10 @@ If not defined, each component will be 1.0.</p>
 </dd>
 </dl>
 </li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nreplica_per_proc</span></code></p>
+<p>Format: Integer (default: 1)</p>
+<p>Description: The number of replicas in a MPI process.</p>
+</li>
 </ul>
 </section>
 </section>
@@ -206,6 +210,21 @@ This has the same format as <code class="docutils literal notranslate"><span cla
 <span class="n">fx</span> <span class="o">=</span> <span class="mf">0.008233957976993406</span>
 <span class="n">z1</span> <span class="o">=</span> <span class="mf">4.221129370933539</span>
 <span class="n">z2</span> <span class="o">=</span> <span class="mf">5.139591716517661</span>
+</pre></div>
+</div>
+</section>
+<section id="result-t-txt">
+<h3><code class="docutils literal notranslate"><span class="pre">result_T#.txt</span></code><a class="headerlink" href="#result-t-txt" title="Permalink to this headline">¶</a></h3>
+<p>This file stores samples for each temperature ( <code class="docutils literal notranslate"><span class="pre">#</span></code> is replaced with the index of temperature ).
+The first column is the index of the MC step.
+The second column is the index of the walker.
+The third column is the value of the solver.
+The remaining columns are the coordinates.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># T = 1.0</span>
+<span class="mi">0</span> <span class="mi">15</span> <span class="mf">28.70157662892569</span> <span class="mf">3.3139009347685118</span> <span class="o">-</span><span class="mf">4.20946994566609</span>
+<span class="mi">1</span> <span class="mi">15</span> <span class="mf">28.70157662892569</span> <span class="mf">3.3139009347685118</span> <span class="o">-</span><span class="mf">4.20946994566609</span>
+<span class="mi">2</span> <span class="mi">15</span> <span class="mf">28.70157662892569</span> <span class="mf">3.3139009347685118</span> <span class="o">-</span><span class="mf">4.20946994566609</span>
+<span class="mi">3</span> <span class="mi">15</span> <span class="mf">28.98676409223712</span> <span class="mf">3.7442621319489637</span> <span class="o">-</span><span class="mf">3.868754990884034</span>
 </pre></div>
 </div>
 <section id="algorithm">

@@ -129,6 +129,10 @@
 </dd>
 </dl>
 </li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nreplica_per_proc</span></code></p>
+<p>形式: 整数。 (default: 1)</p>
+<p>説明: ひとつのMPI プロセスが担当するレプリカの数。</p>
+</li>
 </ul>
 </section>
 </section>
@@ -177,7 +181,7 @@
 <section id="rank-trial-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">RANK/trial.txt</span></code><a class="headerlink" href="#rank-trial-txt" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>各レプリカについて、モンテカルロサンプリングで提案されたパラメータと、対応する目的関数の値です。
-1列目にステップ数、2列目にプロセス内のwalker 番号、3列目にレプリカの温度、4列目に目的変数の値、5列目以降にパラメータが記載されます。</p>
+1列目にステップ数、2列目にプロセス内のwalker 番号、3列目にレプリカの温度、4列目に目的関数の値、5列目以降にパラメータが記載されます。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># step walker T fx z1 z2</span>
 <span class="mi">0</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.07830821484593968</span> <span class="mf">3.682008067401509</span> <span class="mf">3.9502750191292586</span>
 <span class="mi">1</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.0758494287185766</span> <span class="mf">2.811346329442423</span> <span class="mf">3.691101784194861</span>
@@ -207,6 +211,19 @@
 <span class="n">fx</span> <span class="o">=</span> <span class="mf">0.008233957976993406</span>
 <span class="n">z1</span> <span class="o">=</span> <span class="mf">4.221129370933539</span>
 <span class="n">z2</span> <span class="o">=</span> <span class="mf">5.139591716517661</span>
+</pre></div>
+</div>
+</section>
+<section id="result-t-txt">
+<h3><code class="docutils literal notranslate"><span class="pre">result_T#.txt</span></code><a class="headerlink" href="#result-t-txt" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>サンプリング結果を温度ごとにまとめ直したものです。
+<code class="docutils literal notranslate"><span class="pre">#</span></code> は温度点の番号です。
+ファイルの1 列目はステップ数、2列目は全体での walker 番号、3列目は目的関数の値、 4列目以降は探索パラメータの値です。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># T = 1.0</span>
+<span class="mi">0</span> <span class="mi">15</span> <span class="mf">28.70157662892569</span> <span class="mf">3.3139009347685118</span> <span class="o">-</span><span class="mf">4.20946994566609</span>
+<span class="mi">1</span> <span class="mi">15</span> <span class="mf">28.70157662892569</span> <span class="mf">3.3139009347685118</span> <span class="o">-</span><span class="mf">4.20946994566609</span>
+<span class="mi">2</span> <span class="mi">15</span> <span class="mf">28.70157662892569</span> <span class="mf">3.3139009347685118</span> <span class="o">-</span><span class="mf">4.20946994566609</span>
+<span class="mi">3</span> <span class="mi">15</span> <span class="mf">28.98676409223712</span> <span class="mf">3.7442621319489637</span> <span class="o">-</span><span class="mf">3.868754990884034</span>
 </pre></div>
 </div>
 <section id="id8">
@@ -275,7 +292,7 @@ MH 法によるMCMC は次のようになります。</p>
 レプリカ交換モンテカルロ法では、レプリカと呼ばれる複数の系を、それぞれ異なる温度で並列にモンテカルロシミュレーションします。
 そして、ある一定間隔で、（詳細）釣り合い条件を満たすように他のレプリカと温度を交換します。
 焼戻し法と同様に、温度を上下することで谷を調べたり脱出したりするのですが、各温度点について、かならずレプリカのどれかが対応しているため、全体として特定の温度に偏ることがなくなります。
-また、一つのMPI プロセスに一つのレプリカを担当させることで簡単に並列化可能です。
+また、複数の MPI プロセスを用意してそれぞれレプリカを担当させることで簡単に並列化可能です。
 数多くのレプリカを用意することで温度間隔が狭まると、温度交換の採択率も上がるため、大規模並列計算に特に向いたアルゴリズムです。
 有限温度由来の「ぼやけ」がどうしても生まれるので、モンテカルロ法の結果を初期値として <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> をするのがおすすめです。</p>
 <p class="rubric">脚注</p>
