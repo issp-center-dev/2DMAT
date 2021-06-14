@@ -44,7 +44,7 @@ def himmelblau(xs: np.ndarray) -> float:
         )
     return (xs[0] ** 2 + xs[1] - 11.0) ** 2 + (xs[0] + xs[1] ** 2 - 7.0) ** 2
 
-def regression(xs: np.ndarray) -> float:
+def liner_regression_test(xs: np.ndarray) -> float:
     """
     2d liner regression
     It has a global minimum f(xs) = 1.005071.. at
@@ -93,12 +93,12 @@ class Solver(py2dmat.solver.function.Solver):
                     f"ERROR: himmelblau works only with dimension=2 but input is dimension={dimension}"
                 )
             self.set_function(himmelblau)
-        elif function_name == "regression":
+        elif function_name == "liner_regression_test":
             dimension = self.dimension
             if int(dimension) != 3:
                 raise RuntimeError(
                     f"ERROR: regression works only with dimension=2 but input is dimension={dimension}"
                 )
-            self.set_function(regression)
+            self.set_function(liner_regression_test)
         else:
             raise RuntimeError(f"ERROR: Unknown function, {function_name}")

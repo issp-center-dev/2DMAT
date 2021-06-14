@@ -20,4 +20,4 @@ Tlogspace = false
 
 [solver]
 name = "analytical"
-function_name = "regression"
+function_name = "liner_regression_test"
