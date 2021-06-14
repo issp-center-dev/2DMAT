@@ -95,6 +95,8 @@ class Solver(py2dmat.solver.SolverBase):
                     f"ERROR: surface_template_file ({self.surface_template_file}) does not exist"
                 )
 
+            self._check_template()
+
             filename = info_config.get("bulk_output_file", "bulkP.b")
             filename = Path(filename).expanduser().resolve()
             self.bulk_output_file = self.root_dir / filename
@@ -136,6 +138,21 @@ class Solver(py2dmat.solver.SolverBase):
                                 fitted_x_list[index],
                             )
                     file_output.write(line)
+
+        def _check_template(self) -> None:
+            found = [False] * self.dimension
+            with open(self.surface_template_file, "r") as file_input:
+                for line in file_input:
+                    for index, placeholder in enumerate(self.string_list):
+                        if line.find(placeholder) != -1:
+                            found[index] = True
+            if not np.all(found):
+                msg = "ERROR: the following labels do not appear in the template file:"
+                for label, f in zip(self.string_list, found):
+                    if not f:
+                        msg += "\n"
+                        msg += label
+                raise exception.InputError(msg)
 
         def _pre_bulk(self, Log_number, bulk_output_file, extra):
             if extra:
