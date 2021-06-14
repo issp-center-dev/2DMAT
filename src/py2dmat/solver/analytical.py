@@ -63,7 +63,7 @@ def liner_regression_test(xs: np.ndarray) -> float:
     n = len(ydata)
     t = np.log(xs[2])
 
-    return 0.5 * ( n*t + np.sum( (xs[0]*xdata + xs[1] - ydata)** 2 )/np.exp(t)))
+    return 0.5 * ( n*t + np.sum( (xs[0]*xdata + xs[1] - ydata)** 2 )/np.exp(t))
 
 
 class Solver(py2dmat.solver.function.Solver):
