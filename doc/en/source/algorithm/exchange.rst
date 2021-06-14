@@ -214,7 +214,6 @@ The first column is the index of the MC step.
 The second column is the index of the walker.
 The third column is the value of the solver.
 The remaining columns are the coordinates.
-ファイルの1 列目はステップ数、2列目は全体での walker 番号、3列目は目的関数の値、 4列目以降は探索パラメータの値です。
 
 .. code-block::
 
