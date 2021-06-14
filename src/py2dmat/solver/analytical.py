@@ -47,8 +47,11 @@ def himmelblau(xs: np.ndarray) -> float:
 def liner_regression_test(xs: np.ndarray) -> float:
     """
     2d liner regression
+    y = ax + b
+    a = xs[0], b = xs[1], sigma**2 = xs[2]
+
     It has a global minimum f(xs) = 1.005071.. at
-    xs = [0.628571..., 0.8, -0.664976...].    
+    xs = [0.628571..., 0.8, 0.514285...].    
     """
     if xs.shape[0] != 3:
         raise RuntimeError(
@@ -58,8 +61,9 @@ def liner_regression_test(xs: np.ndarray) -> float:
     xdata = np.array([1, 2, 3, 4, 5, 6])
     ydata = np.array([1, 3, 2, 4, 3, 5])
     n = len(ydata)
+    t = np.log(xs[2])
 
-    return -(-0.5 * ( n*xs[2] + np.sum( (xs[0]*xdata + xs[1] - ydata)** 2 )/np.exp(xs[2]) ))
+    return 0.5 * ( n*t + np.sum( (xs[0]*xdata + xs[1] - ydata)** 2 )/np.exp(t)))
 
 
 class Solver(py2dmat.solver.function.Solver):
