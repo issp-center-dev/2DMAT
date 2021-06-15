@@ -80,7 +80,11 @@ class Cells:
 
 
 def make_neighbor_list_cell(
-    X: np.ndarray, radius: float, show_progress: bool, comm: mpi.Comm = None
+    X: np.ndarray,
+    radius: float,
+    allow_selfloop: bool,
+    show_progress: bool,
+    comm: mpi.Comm = None,
 ) -> List[List[int]]:
     if comm is None:
         mpisize = 1
@@ -115,17 +119,23 @@ def make_neighbor_list_cell(
         cellindex = cells.coord2cellindex(xs)
         for neighborcell in cells.neighborcells(cellindex):
             for other in cells.cells[neighborcell]:
+                if (not allow_selfloop) and n == other:
+                    continue
                 ys = X[other, :]
                 r = np.linalg.norm(xs - ys)
                 if r <= radius:
-                    nnlist[n-points[0]].append(other)
+                    nnlist[n - points[0]].append(other)
     if mpisize > 1:
         nnlist = list(itertools.chain.from_iterable(comm.allgather(nnlist)))
     return nnlist
 
 
 def make_neighbor_list_naive(
-        X: np.ndarray, radius: float, show_progress: bool, comm: mpi.Comm = None
+    X: np.ndarray,
+    radius: float,
+    allow_selfloop: bool,
+    show_progress: bool,
+    comm: mpi.Comm = None,
 ) -> List[List[int]]:
     if comm is None:
         mpisize = 1
@@ -150,11 +160,12 @@ def make_neighbor_list_naive(
     for n in ns:
         xs = X[n, :]
         for m in range(npoints):
-            if n == m: continue
+            if (not allow_selfloop) and n == m:
+                continue
             ys = X[m, :]
             r = np.linalg.norm(xs - ys)
             if r <= radius:
-                nnlist[n-points[0]].append(m)
+                nnlist[n - points[0]].append(m)
     if mpisize > 1:
         nnlist = list(itertools.chain.from_iterable(comm.allgather(nnlist)))
     return nnlist
@@ -163,14 +174,27 @@ def make_neighbor_list_naive(
 def make_neighbor_list(
     X: np.ndarray,
     radius: float,
+    allow_selfloop: bool = False,
     check_allpairs: bool = False,
     show_progress: bool = False,
-    comm: mpi.Comm = None
+    comm: mpi.Comm = None,
 ) -> List[List[int]]:
     if check_allpairs:
-        return make_neighbor_list_naive(X, radius, show_progress=show_progress, comm=comm)
+        return make_neighbor_list_naive(
+            X,
+            radius,
+            allow_selfloop=allow_selfloop,
+            show_progress=show_progress,
+            comm=comm,
+        )
     else:
-        return make_neighbor_list_cell(X, radius, show_progress=show_progress, comm=comm)
+        return make_neighbor_list_cell(
+            X,
+            radius,
+            allow_selfloop=allow_selfloop,
+            show_progress=show_progress,
+            comm=comm,
+        )
 
 
 def load_neighbor_list(filename: PathLike, nnodes: int = None) -> List[List[int]]:
@@ -248,6 +272,7 @@ Note:
     parser.add_argument(
         "-q", "--quiet", action="store_true", help="Do not show progress bar"
     )
+    parser.add_argument("--allow-selfloop", action="store_true", help="allow self loop")
     parser.add_argument(
         "--check-allpairs",
         action="store_true",
@@ -283,7 +308,12 @@ Note:
     X = X[:, 1:] / unit
 
     nnlist = make_neighbor_list(
-        X, radius, check_allpairs=args.check_allpairs, show_progress=(not args.quiet), comm=mpi.comm()
+        X,
+        radius,
+        allow_selfloop=args.allow_selfloop,
+        check_allpairs=args.check_allpairs,
+        show_progress=(not args.quiet),
+        comm=mpi.comm(),
     )
 
     write_neighbor_list(outputfile, nnlist, radius=radius, unit=unit)
