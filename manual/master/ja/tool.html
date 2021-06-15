@@ -59,12 +59,12 @@ $ python3 src/py2dmat_neighborlist.py -o MeshData.txt
 </div>
 <p>次のようなオプションが利用できます。</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">output</span></code></p>
+<li><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">output</span></code> or <code class="docutils literal notranslate"><span class="pre">--output</span> <span class="pre">output</span></code></p>
 <ul>
 <li><p>出力ファイル名 (default: <code class="docutils literal notranslate"><span class="pre">neighborlist.txt</span></code>)</p></li>
 </ul>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-u</span> <span class="pre">&quot;unit1</span> <span class="pre">unit2...&quot;</span></code></p>
+<li><p><code class="docutils literal notranslate"><span class="pre">-u</span> <span class="pre">&quot;unit1</span> <span class="pre">unit2...&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">--unit</span> <span class="pre">&quot;unit1</span> <span class="pre">unit2&quot;</span></code></p>
 <ul>
 <li><p>各次元の長さスケール (default: すべて 1.0)</p>
 <ul>
@@ -74,16 +74,21 @@ $ python3 src/py2dmat_neighborlist.py -o MeshData.txt
 <li><p>各座標はあらかじめこれらの長さスケールで除算されます</p></li>
 </ul>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">radius</span></code></p>
+<li><p><code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">radius</span></code> or <code class="docutils literal notranslate"><span class="pre">--radius</span> <span class="pre">radius</span></code></p>
 <ul>
 <li><p>近傍とみなされるユークリッド距離 (default: 1.0)</p></li>
 <li><p>距離は <code class="docutils literal notranslate"><span class="pre">-u</span></code> で除されたあとの座標に対して計算されます</p></li>
 </ul>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-q</span></code></p>
+<li><p><code class="docutils literal notranslate"><span class="pre">-q</span></code> or <code class="docutils literal notranslate"><span class="pre">--quiet</span></code></p>
 <ul>
 <li><p>進捗バーを表示しません</p></li>
 <li><p>なお、進捗バーの表示には <code class="docutils literal notranslate"><span class="pre">tqdm</span></code> python パッケージが必要です</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--allow-selfloop</span></code></p>
+<ul>
+<li><p>自分自身を隣接リストに含めます（自己ループ）</p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--check-allpairs</span></code></p>

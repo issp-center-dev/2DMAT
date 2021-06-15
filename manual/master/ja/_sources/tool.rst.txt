@@ -26,11 +26,11 @@
 
 次のようなオプションが利用できます。
 
-- ``-o output``
+- ``-o output`` or ``--output output``
 
   - 出力ファイル名 (default: ``neighborlist.txt``)
 
-- ``-u "unit1 unit2..."``
+- ``-u "unit1 unit2..."`` or ``--unit "unit1 unit2"``
 
   - 各次元の長さスケール (default: すべて 1.0)
 
@@ -38,15 +38,19 @@
 
   - 各座標はあらかじめこれらの長さスケールで除算されます
 
-- ``-r radius``
+- ``-r radius`` or ``--radius radius``
 
   - 近傍とみなされるユークリッド距離 (default: 1.0)
   - 距離は ``-u`` で除されたあとの座標に対して計算されます
 
-- ``-q``
+- ``-q`` or ``--quiet``
 
   - 進捗バーを表示しません
   - なお、進捗バーの表示には ``tqdm`` python パッケージが必要です
+
+- ``--allow-selfloop``
+
+  - 自分自身を隣接リストに含めます（自己ループ）
 
 - ``--check-allpairs``
 
