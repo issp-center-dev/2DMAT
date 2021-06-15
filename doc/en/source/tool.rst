@@ -26,11 +26,11 @@ The filename of the generated neighborhood-list file is specified by ``-o`` opti
 
 The following command-line options are available.
 
-- ``-o output``
+- ``-o output`` or ``--output output``
 
   - The filename of output (default: ``neighborlist.txt``)
 
-- ``-u "unit1 unit2..."``
+- ``-u "unit1 unit2..."`` or ``--unit "unit1 unit2..."``
 
   - Length scale for each dimension of coordinate (default: 1.0 for all dims)
 
@@ -40,15 +40,19 @@ The following command-line options are available.
 
   - Each dimension of coordinate is divided by the corresponding ``unit``.
 
-- ``-r radius``
+- ``-r radius`` or ``--radius radius``
 
   - A pair of nodes where the Euclidean distance is less than ``radius`` is considered a neighborhood (default: 1.0)
   - Distances are calculated in the space after coordinates are divided by ``-u``
 
-- ``-q``
+- ``-q`` or ``--quiet``
 
   - Do not show a progress bar
   - Showing a progress bar requires ``tqdm`` python package
+
+- ``--allow-selfloop``
+
+  - Include :math:`i` in the neighborhoods of :math:`i` itself
 
 - ``--check-allpairs``
 
