@@ -61,7 +61,7 @@ def liner_regression_test(xs: np.ndarray) -> float:
 
     if xs[2] <= 10**(-16):
         raise RuntimeError(
-            f"ERROR: The third vaule, xs[2], means the variance (sigma**2).Therefore,`xs[2]> 10**-16.`, but what we received xs[2]={xs[2]}."
+            f"ERROR: The third vaule, xs[2], means the variance(sigma**2). Therefore, `xs[2]> 10**-16`, but what we received xs[2]={xs[2]}."
         )
     xdata = np.array([1, 2, 3, 4, 5, 6])
     ydata = np.array([1, 3, 2, 4, 3, 5])
