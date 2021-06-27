@@ -48,27 +48,21 @@ def linear_regression_test(xs: np.ndarray) -> float:
     """
     2d linear regression
     y = ax + b
-    a = xs[0], b = xs[1], sigma**2 = xs[2]
+    a = xs[0], b = xs[1], t = log(sigma**2) = xs[2]
 
     It has a global minimum f(xs) = 1.005071.. at
-    xs = [0.628571..., 0.8, 0.514285...].    
+    xs = [0.628571..., 0.8, -0.664976...].    
     """
     if xs.shape[0] != 3:
         raise RuntimeError(
             f"ERROR: regression expects d=3 input, but receives d={xs.shape[0]} one"
         )
-
-
-    if xs[2] <= 10**(-16):
-        raise RuntimeError(
-            f"ERROR: The third vaule, xs[2], means the variance(sigma**2). Therefore, `xs[2]> 10**-16`, but what we received xs[2]={xs[2]}."
-        )
+    
     xdata = np.array([1, 2, 3, 4, 5, 6])
     ydata = np.array([1, 3, 2, 4, 3, 5])
     n = len(ydata)
-    t = np.log(xs[2])
 
-    return 0.5 * ( n*t + np.sum( (xs[0]*xdata + xs[1] - ydata)** 2 )/np.exp(t))
+    return 0.5 * ( n*xs[2] + np.sum( (xs[0]*xdata + xs[1] - ydata)** 2 )/np.exp(xs[2]))
 
 
 class Solver(py2dmat.solver.function.Solver):
