@@ -32,6 +32,7 @@ def rosenbrock(xs: np.ndarray) -> float:
     """
     return np.sum(100.0 * (xs[1:] - xs[:-1] ** 2) ** 2 + (1.0 - xs[:-1]) ** 2)
 
+
 def himmelblau(xs: np.ndarray) -> float:
     """Himmelblau's function
 
@@ -44,11 +45,16 @@ def himmelblau(xs: np.ndarray) -> float:
         )
     return (xs[0] ** 2 + xs[1] - 11.0) ** 2 + (xs[0] + xs[1] ** 2 - 7.0) ** 2
 
+
 def linear_regression_test(xs: np.ndarray) -> float:
-    """
-    2d linear regression
+    """ Negative log likelihood of linear regression with Gaussian noise N(0,sigma)
+
     y = ax + b
-    a = xs[0], b = xs[1], t = log(sigma**2) = xs[2]
+
+    trained by xdata = [1, 2, 3, 4, 5, 6] and ydata = [1, 3, 2, 4, 3, 5].
+
+    Model parameters (a, b, sigma) are corresponding to xs as the following,
+    a = xs[0], b = xs[1], log(sigma**2) = xs[2]
 
     It has a global minimum f(xs) = 1.005071.. at
     xs = [0.628571..., 0.8, -0.664976...].    
@@ -57,12 +63,14 @@ def linear_regression_test(xs: np.ndarray) -> float:
         raise RuntimeError(
             f"ERROR: regression expects d=3 input, but receives d={xs.shape[0]} one"
         )
-    
+
     xdata = np.array([1, 2, 3, 4, 5, 6])
     ydata = np.array([1, 3, 2, 4, 3, 5])
     n = len(ydata)
 
-    return 0.5 * ( n*xs[2] + np.sum( (xs[0]*xdata + xs[1] - ydata)** 2 )/np.exp(xs[2]))
+    return 0.5 * (
+        n * xs[2] + np.sum((xs[0] * xdata + xs[1] - ydata) ** 2) / np.exp(xs[2])
+    )
 
 
 class Solver(py2dmat.solver.function.Solver):
