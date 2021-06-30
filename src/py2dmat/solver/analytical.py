@@ -12,6 +12,16 @@ def quadratics(xs: np.ndarray) -> float:
     return np.sum(xs * xs)
 
 
+def quartics(xs: np.ndarray) -> float:
+    """quartic function with two minimum
+
+    It has two global minimum f(xs)=0 at xs = [1,1,...,1] and [0,0,...,0].
+    It has one suddle point f(0,0,...,0) = 1.0.
+    """
+
+    return np.mean((xs - 1.0) ** 2) * np.mean((xs + 1.0) ** 2)
+
+
 def ackley(xs: np.ndarray) -> float:
     """Ackley's function in arbitrary dimension
 
@@ -93,6 +103,8 @@ class Solver(py2dmat.solver.function.Solver):
 
         if function_name == "quadratics":
             self.set_function(quadratics)
+        elif function_name == "quartics":
+            self.set_function(quartics)
         elif function_name == "ackley":
             self.set_function(ackley)
         elif function_name == "rosenbrock":

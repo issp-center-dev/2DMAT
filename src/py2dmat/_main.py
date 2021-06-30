@@ -51,6 +51,8 @@ def main():
         from .algorithm.min_search import Algorithm
     elif algname == "exchange":
         from .algorithm.exchange import Algorithm
+    elif algname == "pamc":
+        from .algorithm.pamc import Algorithm
     elif algname == "bayes":
         from .algorithm.bayes import Algorithm
     else:

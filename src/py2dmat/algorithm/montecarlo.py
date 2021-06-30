@@ -264,9 +264,13 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
 
     def _write_result(self, fp) -> None:
         for iwalker in range(self.nwalkers):
+            if isinstance(self.Tindex, int):
+                T = self.Ts[self.Tindex]
+            else:
+                T = self.Ts[self.Tindex[iwalker]]
             fp.write(f"{self.istep} ")
             fp.write(f"{iwalker} ")
-            fp.write(f"{self.Ts[self.Tindex[iwalker]]} ")
+            fp.write(f"{T} ")
             fp.write(f"{self.fx[iwalker]} ")
             for x in self.x[iwalker, :]:
                 fp.write(f"{x} ")
