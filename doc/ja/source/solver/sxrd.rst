@@ -1,8 +1,7 @@
 ``sxrd`` ソルバー
 ***********************************************
 
-``sxrd`` は ``calc_sxrd`` を用いて原子位置 :math:`x` や原子の占有率、デバイワラー因子を与えることで Rocking curve を計算し、
-実験で得られた Rocking curve からの誤差を :math:`f(x)` として返す ``Solver`` です。
+``sxrd`` は ``calc_sxrd`` を用いて原子位置 :math:`x` や原子の占有率、デバイワラー因子を与えることで Rocking curve を計算し、実験で得られた Rocking curve からの誤差を :math:`f(x)` として返す ``Solver`` です。
 
 前準備
 ~~~~~~~~~~~~
@@ -84,7 +83,7 @@ T.B.A.
 
   説明: ドメイン全体の占有率。
 
-[``param.domain.atom``] サブサブセクション
+[``param.domain.atom``] サブセクション
 ---------------------------------------------
 本セクションはドメインに所属する最適化したい原子の個数分定義を行う必要があります。
 なお、変数の種類を表すtypeですが、float形式で正の数を入力する必要がありますので注意してください。
@@ -148,31 +147,30 @@ T.B.A.
    
    [[param.domain]]
    domain_occupancy = 1.0
-   [[[param.domain.atom]]]
-   name = "Si"
-   pos_center = [0.00000000, 0.00000000, 1.00000000]
-   DWfactor = 0.0
-   occupancy = 1.0
-   displace_vector = [[1.0, 0.0, 0.0, 1.0]]
-   [[[param.domain.atom]]]
-   name = "Si"
-   pos_center = [0.33333333, 0.66666667, 1.00000000]
-   DWfactor = 0.0
-   occupancy = 1.0
-   displace_vector = [[1.0, 0.0, 0.0, 1.0]]
-   [[[param.domain.atom]]]
-   name = "Si"
-   pos_center = [0.66666667, 0.33333333, 1.00000000]
-   DWfactor = 0.0
-   occupancy = 1.0
-   displace_vector = [[1.0, 0.0, 0.0, 1.0]]
-   [[[param.domain.atom]]]
-   name = "Si"
-   pos_center = [0.33333333, 0.33333333, 1.00000000]
-   DWfactor = 0.0
-   occupancy = 1.0
-   displace_vector = [[2.0, 0.0, 0.0, 1.0]]
-
+    [[param.domain.atom]]
+      name = "Si"
+      pos_center = [0.00000000, 0.00000000, 1.00000000]
+      DWfactor = 0.0
+      occupancy = 1.0
+      displace_vector = [[1.0, 0.0, 0.0, 1.0]]
+    [[param.domain.atom]]
+      name = "Si"
+      pos_center = [0.33333333, 0.66666667, 1.00000000]
+      DWfactor = 0.0
+      occupancy = 1.0
+      displace_vector = [[1.0, 0.0, 0.0, 1.0]]
+    [[param.domain.atom]]
+      name = "Si"
+      pos_center = [0.66666667, 0.33333333, 1.00000000]
+      DWfactor = 0.0
+      occupancy = 1.0
+      displace_vector = [[1.0, 0.0, 0.0, 1.0]]
+    [[param.domain.atom]]
+      name = "Si"
+      pos_center = [0.33333333, 0.33333333, 1.00000000]
+      DWfactor = 0.0
+      occupancy = 1.0
+      displace_vector = [[2.0, 0.0, 0.0, 1.0]]
   
 
 [``reference``] セクション
@@ -211,7 +209,7 @@ T.B.A.
 1行目がコメント, 2行目が ``a b c alpha beta gamma`` を表します。
 ここで、 ``a`` , ``b``, ``c`` はユニットセルの格子定数、 ``alpha``, ``beta``, ``gamma`` はそれらのなす角です。
 3行目以降は ``atomsymbol r1 r2 r3 DWfactor occupancy`` を指定します。
-ここで、 ``atomsymbol`` は原子種、 ``r1``, ``r2``, ``r3`` は原子の位置座標、 ``DWfactor`` はデバイワラー因子、 ``occupancy`` は占有率をそれぞれ荒wします。
+ここで、 ``atomsymbol`` は原子種、 ``r1``, ``r2``, ``r3`` は原子の位置座標、 ``DWfactor`` はデバイワラー因子、 ``occupancy`` は占有率をそれぞれ表します。
 以下、ファイル例を記載します。
 
 .. code-block::
