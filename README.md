@@ -7,19 +7,10 @@ The optimal parameters are estimated by minimizing the loss function using a sea
 In the current version, for solving a direct problem, 2DMAT offers the wrapper of the solver for the total-reflection high-energy positron diffraction (TRHEPD) experiment.
 As algorithms, it offers the Nelder-Mead method, the grid search method, the Bayesian optimization method, and the replica exchange Monte Carlo method. In the future, we plan to add other direct problem solvers and search algorithms in 2DMAT.
 
-| Branch | Build status | Documentation |
-| :-: | :-: | :-: |
-| master | [![master][CI/master/badge]][CI/master/uri] | [![doc_en][doc/en/badge]][doc/en/uri] [![doc_ja][doc/ja/badge]][doc/ja/uri] |
-| v1.0.1 | -- | [![doc_en][doc/en/badge]][doc/stable/en/uri] [![doc_ja][doc/ja/badge]][doc/stable/ja/uri] |
-
-[CI/master/badge]:https://github.com/issp-center-dev/2DMAT/workflows/Test/badge.svg?branch=master
-[CI/master/uri]:https://github.com/issp-center-dev/2DMAT/actions?query=branch%3Amaster
-[doc/en/badge]:https://img.shields.io/badge/doc-English-blue.svg
-[doc/en/uri]:https://issp-center-dev.github.io/2DMAT/manual/master/en/index.html
-[doc/ja/badge]:https://img.shields.io/badge/doc-Japanese-blue.svg
-[doc/ja/uri]:https://issp-center-dev.github.io/2DMAT/manual/master/ja/index.html
-[doc/stable/en/uri]:https://issp-center-dev.github.io/2DMAT/manual/v1.0.1/en/index.html
-[doc/stable/ja/uri]:https://issp-center-dev.github.io/2DMAT/manual/v1.0.1/ja/index.html
+| Branch |                Build status                 |                                       Documentation                                       |
+| :----: | :-----------------------------------------: | :---------------------------------------------------------------------------------------: |
+| master | [![master][ci/master/badge]][ci/master/uri] |        [![doc_en][doc/en/badge]][doc/en/uri] [![doc_ja][doc/ja/badge]][doc/ja/uri]        |
+| v1.0.1 |                     --                      | [![doc_en][doc/en/badge]][doc/stable/en/uri] [![doc_ja][doc/ja/badge]][doc/stable/ja/uri] |
 
 ## py2dmat
 
@@ -32,7 +23,7 @@ and solvers (`py2dmat` also means this script).
 - Required
   - python >= 3.6
   - numpy >= 1.14
-  - toml
+  - tomli >= 1.0.0
 - Optional
   - scipy
     - for `minsearch` algorithm
@@ -49,7 +40,7 @@ and solvers (`py2dmat` also means this script).
     - [`pipx`](https://pipxproject.github.io/pipx/) may help you from the dependency hell :p
 - From Source (For developers)
   1. update `pip >= 19` by `python3 -m pip install -U pip`
-  2. `python3 -m pip install 2DMAT_ROOT_DIRECTORY` to install `py2dmat` package and `py2dmat` command
+  1. `python3 -m pip install 2DMAT_ROOT_DIRECTORY` to install `py2dmat` package and `py2dmat` command
 
 ### Simple Usage
 
@@ -64,4 +55,13 @@ This package is distributed under GNU General Public License version 3 (GPL v3) 
 ## Copyright
 
 © *2020- The University of Tokyo. All rights reserved.*
-This software was developed with the support of \"*Project for advancement of software usability in materials science*\" of The Institute for Solid State Physics, The University of Tokyo. 
+This software was developed with the support of "*Project for advancement of software usability in materials science*" of The Institute for Solid State Physics, The University of Tokyo.
+
+[ci/master/badge]: https://github.com/issp-center-dev/2DMAT/workflows/Test/badge.svg?branch=master
+[ci/master/uri]: https://github.com/issp-center-dev/2DMAT/actions?query=branch%3Amaster
+[doc/en/badge]: https://img.shields.io/badge/doc-English-blue.svg
+[doc/en/uri]: https://issp-center-dev.github.io/2DMAT/manual/master/en/index.html
+[doc/ja/badge]: https://img.shields.io/badge/doc-Japanese-blue.svg
+[doc/ja/uri]: https://issp-center-dev.github.io/2DMAT/manual/master/ja/index.html
+[doc/stable/en/uri]: https://issp-center-dev.github.io/2DMAT/manual/v1.0.1/en/index.html
+[doc/stable/ja/uri]: https://issp-center-dev.github.io/2DMAT/manual/v1.0.1/ja/index.html
