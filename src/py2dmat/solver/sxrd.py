@@ -124,18 +124,18 @@ class Solver(py2dmat.solver.SolverBase):
                         fw.write(
                             "pos {} {} {} {} {} {}\n".format(atom_info["name"], position[0], position[1], position[2],
                                                              atom_info["DWfactor"], atom_info["occupancy"]))
-                        for idx, displ in enumerate(atom_info["displace_vector"]):
+                        for idx_atom, displ in enumerate(atom_info["displace_vector"]):
                             fw.write(
-                                "displ{} {} {} {} {}\n".format(idx + 1, int(displ[0]), displ[1], displ[2], displ[3]))
+                                "displ{} {} {} {} {}\n".format(idx_atom + 1, int(displ[0]), displ[1], displ[2], displ[3]))
                             if "opt_DW" in atom_info.keys():
                                 DW_info = atom_info["opt_DW"]
                                 fw.write("dw_par {} {}\n".format(DW_info[0], DW_info[1]))
                             if "opt_occupancy" in atom_info.keys():
                                 fw.write("occ {} \n".format(atom_info["opt_occupancy"]))
-                        if info_param["opt_scale_factor"] is True:
-                            type_vector.insert(0, 0)
-                        else:
-                            fw.write("start_par 0 {}\n".format(info_param["scale_factor"]))
+                    if info_param["opt_scale_factor"] is True and idx==0:
+                        type_vector.insert(0, 0)
+                    else:
+                        fw.write("start_par 0 {}\n".format(info_param["scale_factor"]))
                     for type_idx, variable in zip(type_vector, variables):
                         fw.write("start_par {} {}\n".format(int(type_idx), variable))
 
