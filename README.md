@@ -9,8 +9,17 @@ As algorithms, it offers the Nelder-Mead method, the grid search method, the Bay
 
 | Branch | Build status | Documentation |
 | :-: | :-: | :-: |
-| master | [![master](https://github.com/issp-center-dev/2DMAT/workflows/Test/badge.svg?branch=master)](https://github.com/issp-center-dev/2DMAT/actions?query=branch%3Amaster) | [![doc_en](https://img.shields.io/badge/doc-English-blue.svg)](https://issp-center-dev.github.io/2DMAT/manual/master/en/index.html)  [![doc_ja](https://img.shields.io/badge/doc-Japanese-blue.svg)](https://issp-center-dev.github.io/2DMAT/manual/master/ja/index.html) |
-| v1.0.1 | -- | [![doc_en](https://img.shields.io/badge/doc-English-blue.svg)](https://issp-center-dev.github.io/2DMAT/manual/v1.0.1/en/index.html)  [![doc_ja](https://img.shields.io/badge/doc-Japanese-blue.svg)](https://issp-center-dev.github.io/2DMAT/manual/v1.0.1/ja/index.html) |
+| master | [![master][CI/master/badge]][CI/master/uri] | [![doc_en][doc/en/badge]][doc/en/uri] [![doc_ja][doc/ja/badge]][doc/ja/uri] |
+| v1.0.1 | -- | [![doc_en][doc/en/badge]][doc/stable/en/uri] [![doc_ja][doc/ja/badge]][doc/stable/ja/uri] |
+
+[CI/master/badge]:https://github.com/issp-center-dev/2DMAT/workflows/Test/badge.svg?branch=master
+[CI/master/uri]:https://github.com/issp-center-dev/2DMAT/actions?query=branch%3Amaster
+[doc/en/badge]:https://img.shields.io/badge/doc-English-blue.svg
+[doc/en/uri]:https://issp-center-dev.github.io/2DMAT/manual/master/en/index.html
+[doc/ja/badge]:https://img.shields.io/badge/doc-Japanese-blue.svg
+[doc/ja/uri]:https://issp-center-dev.github.io/2DMAT/manual/master/ja/index.html
+[doc/stable/en/uri]:https://issp-center-dev.github.io/2DMAT/manual/v1.0.1/en/index.html
+[doc/stable/ja/uri]:https://issp-center-dev.github.io/2DMAT/manual/v1.0.1/ja/index.html
 
 ## py2dmat
 
