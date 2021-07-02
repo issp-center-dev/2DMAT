@@ -6,7 +6,7 @@ Prerequisites
 - Python3 (>=3.6)
 
     - The following Python packages are required.
-        - toml
+        - tomli
         - numpy >= 1.14
 
     - Optional packages

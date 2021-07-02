@@ -1,5 +1,6 @@
 try:
     from mpi4py import MPI
+    Comm = MPI.Comm
 
     __comm = MPI.COMM_WORLD
     __size = __comm.size

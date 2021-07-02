@@ -15,6 +15,7 @@ class SolverBase(object, metaclass=ABCMeta):
     proc_dir: Path
     work_dir: Path
     _name: str
+    dimension: int
     timer: Dict[str, Dict]
 
     @abstractmethod
@@ -25,6 +26,10 @@ class SolverBase(object, metaclass=ABCMeta):
         self.work_dir = self.proc_dir
         self._name = ""
         self.timer = {"prepare": {}, "run": {}, "post": {}}
+        if "dimension" in info.solver:
+            self.dimension = info.solver["dimension"]
+        else:
+            self.dimension = info.base["dimension"]
 
     @abstractmethod
     def default_run_scheme(self) -> str:

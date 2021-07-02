@@ -14,8 +14,6 @@ from py2dmat import exception
 class Solver(py2dmat.solver.SolverBase):
     path_to_solver: Path
 
-    dimension: int
-
     def __init__(self, info: py2dmat.Info):
         super().__init__(info)
 
@@ -66,9 +64,13 @@ class Solver(py2dmat.solver.SolverBase):
         surface_template_file: Path
 
         def __init__(self, info):
-            self.dimension = info.base["dimension"]
             self.root_dir = info.base["root_dir"]
             self.output_dir = info.base["output_dir"]
+
+            if "dimension" in info.solver:
+                self.dimension = info.solver["dimension"]
+            else:
+                self.dimension = info.base["dimension"]
 
             info_s = info.solver
 
@@ -92,6 +94,8 @@ class Solver(py2dmat.solver.SolverBase):
                 raise exception.InputError(
                     f"ERROR: surface_template_file ({self.surface_template_file}) does not exist"
                 )
+
+            self._check_template()
 
             filename = info_config.get("bulk_output_file", "bulkP.b")
             filename = Path(filename).expanduser().resolve()
@@ -135,6 +139,21 @@ class Solver(py2dmat.solver.SolverBase):
                             )
                     file_output.write(line)
 
+        def _check_template(self) -> None:
+            found = [False] * self.dimension
+            with open(self.surface_template_file, "r") as file_input:
+                for line in file_input:
+                    for index, placeholder in enumerate(self.string_list):
+                        if line.find(placeholder) != -1:
+                            found[index] = True
+            if not np.all(found):
+                msg = "ERROR: the following labels do not appear in the template file:"
+                for label, f in zip(self.string_list, found):
+                    if not f:
+                        msg += "\n"
+                        msg += label
+                raise exception.InputError(msg)
+
         def _pre_bulk(self, Log_number, bulk_output_file, extra):
             if extra:
                 folder_name = "Extra_Log{:08d}".format(Log_number)
@@ -168,7 +187,11 @@ class Solver(py2dmat.solver.SolverBase):
         degree_list: List[float]
 
         def __init__(self, info):
-            self.dimension = info.base["dimension"]
+            if "dimension" in info.solver:
+                self.dimension = info.solver["dimension"]
+            else:
+                self.dimension = info.base["dimension"]
+
             info_s = info.solver
 
             # solver.config

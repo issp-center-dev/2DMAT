@@ -58,6 +58,12 @@ py2dmat は入力ファイルの形式に `TOML <https://toml.io/ja/>`_ を採�
 
     - ``analytical`` : 解析解を与えるソルバー (主にテストに利用)
 
+- ``dimension``
+  
+  形式: 整数型 (default: ``base.dimension``)
+
+  説明: ソルバーが受け取る入力パラメータの数
+
 
 各種ソルバーの詳細および入出力ファイルは :doc:`solver/index` を参照してください。
 
@@ -88,7 +94,7 @@ py2dmat は入力ファイルの形式に `TOML <https://toml.io/ja/>`_ を採�
 
   説明: 初期値のランダム生成やモンテカルロ更新などで用いる擬似乱数生成器の種を指定します。
         各MPIプロセスに対して、 ``seed + mpi_rank * seed_delta`` の値が実際の種として用いられます。
-        省略した場合は `Numpy の規定の方法 <https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.default_rng>`_ で初期化されます。
+        省略した場合は `Numpy の規定の方法 <https://numpy.org/doc/stable/reference/random/legacy.html#numpy.random.RandomState>`_ で初期化されます。
 
 
 - ``seed_delta``
@@ -105,7 +111,50 @@ py2dmat は入力ファイルの形式に `TOML <https://toml.io/ja/>`_ を採�
 [``runner``] セクション
 ************************
 ``Algorithm`` と ``Solver`` を橋渡しする要素である ``Runner`` の設定を記述します。
-サブセクションとして ``log`` を持ちます。
+サブセクションとして ``mapping`` と ``log`` を持ちます。
+
+[``mapping``] セクション
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``Algorithm`` で探索しているパラメータ :math:`x` から ``Solver`` で使うパラメータ :math:`y` への写像を定義します。
+現在はアフィン写像 :math:`y = Ax+b` が利用可能です。
+
+- ``A``
+
+  形式: リストのリスト、あるいは文字列 (default: [])
+
+  説明: 変換行列 :math:`A` 。空のリストを渡した場合、単位行列とみなされます。
+        文字列として与える場合はそのまま行列の要素を空白および改行で区切って並べてください。
+
+- ``b``
+
+  形式: リスト、あるいは文字列 (default: [])
+
+  説明: 並進移動ベクトル :math:`b` 。空のリストを渡した場合、ゼロベクトルとみなされます。
+        文字列として与える場合はそのままベクトルの要素を空白区切りで並べてください。
+
+行列の指定方法について、例えば、 ::
+
+  A = [[1,1], [0,1]]
+
+と ::
+
+  A = """
+  1 1
+  0 1
+  """
+
+はともに
+
+.. math::
+
+  A = \left(
+  \begin{matrix}
+  1 & 1 \\
+  0 & 1
+  \end{matrix}
+  \right)
+
+を表します。
 
 [``log``] セクション
 ^^^^^^^^^^^^^^^^^^^^^^^^
