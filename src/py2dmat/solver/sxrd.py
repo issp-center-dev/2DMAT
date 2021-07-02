@@ -20,7 +20,40 @@ class Solver(py2dmat.solver.SolverBase):
         super().__init__(info)
 
         self._name = "sxrd"
-        p2solver = info.solver["config"].get("sxrd_exec_file", "sxrdcalc")
+        info_s  = info.solver
+
+        # Check keywords
+        def check_keywords(key, segment, registered_list):
+            if (key in registered_list) is False:
+                msg = "Error: {} in {} is not correct keyword.".format(key, segment)
+                raise RuntimeError(msg)
+
+        keywords_solver = ["name", "config", "reference", "param"]
+        keywords = {}
+        keywords["config"] = ["sxrd_exec_file", "bulk_struc_in_file"]
+        keywords["reference"] = ["f_in_file"]
+        keywords["param"] = ["scale_factor", "type_vector", "opt_scale_factor", "domain"]
+
+        for key in info_s.keys():
+            check_keywords(key, "solver", keywords_solver)
+            if key == "name":
+                continue
+            for key_child in info_s[key].keys():
+                check_keywords(key_child, key, keywords[key])
+
+        # Check keywords of param.domain list
+        keywords_domain = ["domain_occupancy", "atom"]
+        keywords_atom = ["name", "pos_center", "DWfactor", "occupancy",
+                         "displace_vector", "opt_DW", "opt_occupancy"]
+        for domain in info_s["param"]["domain"]:
+            for key_domain in domain.keys():
+                check_keywords(key_domain, "domain", keywords_domain)
+            for atom in domain["atom"]:
+                for key_atom in atom.keys():
+                    check_keywords(key_atom, "atom", keywords_atom)
+
+        #Set environment
+        p2solver = info_s["config"].get("sxrd_exec_file", "sxrdcalc")
         if os.path.dirname(p2solver) != "":
             # ignore ENV[PATH]
             self.path_to_solver = self.root_dir / Path(p2solver).expanduser()
@@ -31,8 +64,8 @@ class Solver(py2dmat.solver.SolverBase):
                     break
         if not os.access(self.path_to_solver, mode=os.X_OK):
             raise exception.InputError(f"ERROR: solver ({p2solver}) is not found")
-        self.path_to_f_in = info.solver["reference"]["f_in_file"]
-        self.path_to_bulk = info.solver["config"]["bulk_struc_in_file"]
+        self.path_to_f_in = info_s["reference"]["f_in_file"]
+        self.path_to_bulk = info_s["config"]["bulk_struc_in_file"]
         self.input = Solver.Input(info)
 
     def default_run_scheme(self):
@@ -75,8 +108,14 @@ class Solver(py2dmat.solver.SolverBase):
 
             info_s = info.solver
             self.info_param = info_s["param"]
-            #set default
+            # Set default values
+            # Initial values
             self.info_param["opt_scale_factor"] = self.info_param.get("opt_scale_factor", False)
+            self.info_param["scale_factor"] = self.info_param.get("scale_factor", 1.0)
+
+
+
+
             # Read info (a, b, c, alpha, beta, gamma ) from blk or surf files.
             self.lattice_info = self._read_lattice_info(info_s["config"]["bulk_struc_in_file"])
             # Generate input file
@@ -127,7 +166,7 @@ class Solver(py2dmat.solver.SolverBase):
                         position = atom_info["pos_center"]
                         fw.write(
                             "pos {} {} {} {} {} {}\n".format(atom_info["name"], position[0], position[1], position[2],
-                                                             atom_info["DWfactor"], atom_info["occupancy"]))
+                                                             atom_info["DWfactor"], atom_info.get("occupancy", 1.0)))
                         for idx_atom, displ in enumerate(atom_info["displace_vector"]):
                             fw.write(
                                 "displ{} {} {} {} {}\n".format(idx_atom + 1, int(displ[0]), displ[1], displ[2], displ[3]))
