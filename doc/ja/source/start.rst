@@ -7,7 +7,7 @@ py2dmat のインストール
 
     - 必要なpythonパッケージ
 
-        - toml
+        - tomli
         - numpy (>= 1.14)
 
     - Optional なパッケージ
