@@ -17,10 +17,12 @@
 4. ``algorithm.main()`` を実行する
 
 
-プログラム例 ::
+プログラム例 
+
+.. code-block:: python
 
     import sys
-    import toml
+    import tomli
     import py2dmat
 
     # (1)
@@ -31,12 +33,11 @@
     class Algorithm(py2dmat.algorithm.AlgorithmBase):
         # Define your algorithm
         pass
-    
-
-    file_name = sys.argv[1]
 
     # (2)
-    info = py2dmat.Info(toml.load(file_name))
+    with open(sys.argv[1]) as f:
+        inp = tomli.load(f)
+    info = py2dmat.Info(inp)
 
     # (3)
     solver = Solver(info)

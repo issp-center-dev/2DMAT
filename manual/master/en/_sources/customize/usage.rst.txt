@@ -19,10 +19,12 @@ The number of flow corresponds the comment in the program example.
 4. Invoke ``algorithm.main()``
 
 
-Example::
+Example
+
+.. code-block:: python
 
     import sys
-    import toml
+    import tomli
     import py2dmat
 
     # (1)
@@ -35,10 +37,10 @@ Example::
         ...
     
 
-    file_name = sys.argv[1]
-
     # (2)
-    info = py2dmat.Info(toml.load(file_name))
+    with open(sys.argv[1]) as f:
+        inp = tomli.load(f)
+    info = py2dmat.Info(inp)
 
     # (3)
     solver = Solver(info)

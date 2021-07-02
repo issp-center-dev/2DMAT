@@ -56,8 +56,8 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">algorithm.main()</span></code> を実行する</p></li>
 </ol>
 <p>プログラム例</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">toml</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">tomli</span>
 <span class="kn">import</span> <span class="nn">py2dmat</span>
 
 <span class="c1"># (1)</span>
@@ -69,11 +69,10 @@
     <span class="c1"># Define your algorithm</span>
     <span class="k">pass</span>
 
-
-<span class="n">file_name</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-
 <span class="c1"># (2)</span>
-<span class="n">info</span> <span class="o">=</span> <span class="n">py2dmat</span><span class="o">.</span><span class="n">Info</span><span class="p">(</span><span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_name</span><span class="p">))</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">inp</span> <span class="o">=</span> <span class="n">tomli</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="n">info</span> <span class="o">=</span> <span class="n">py2dmat</span><span class="o">.</span><span class="n">Info</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
 
 <span class="c1"># (3)</span>
 <span class="n">solver</span> <span class="o">=</span> <span class="n">Solver</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
