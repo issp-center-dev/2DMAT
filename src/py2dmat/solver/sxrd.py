@@ -75,6 +75,8 @@ class Solver(py2dmat.solver.SolverBase):
 
             info_s = info.solver
             self.info_param = info_s["param"]
+            #set default
+            self.info_param["opt_scale_factor"] = self.info_param.get("opt_scale_factor", False)
             # Read info (a, b, c, alpha, beta, gamma ) from blk or surf files.
             self.lattice_info = self._read_lattice_info(info_s["config"]["bulk_struc_in_file"])
             # Generate input file
@@ -87,8 +89,7 @@ class Solver(py2dmat.solver.SolverBase):
 
             # Generate fit file
             # Add variables by numpy array.(Variables are updated in optimization process).
-            initial_params = self.info_param["initial_params"]
-            self.info_param["opt_scale_factor"] = True
+            initial_params = message.x
             if self.info_param["opt_scale_factor"] is True:
                 initial_params.insert(0, self.info_param["scale_factor"])
             variables = np.array(initial_params)

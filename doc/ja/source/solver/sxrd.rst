@@ -22,7 +22,7 @@ T.B.A.
 [``config``] セクション
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- ``calc_sxrd_exec_file``
+- ``sxrd_exec_file``
 
   形式: string型
 
@@ -65,12 +65,6 @@ T.B.A.
   [``param.atom``]サブセクションで指定されるtypeの種類と、本リストが対応します。
   typeが同じ場合は、同じ変数として取り扱われます。
 
-- ``initial_params``
-
-  形式: list型
-
-  説明:   ``type_vector`` で定義された各変数(type)の初期値をlist形式で与えます。
-  ``type_vector`` と同じ長さである必要があります。
 
 [``param.domain``] サブセクション
 -----------------------------------
@@ -143,8 +137,7 @@ T.B.A.
    [param]
    scale_factor = 1.0
    type_vector = [1, 2]
-   initial_params = [0.01, 0.02]
-   
+
    [[param.domain]]
    domain_occupancy = 1.0
     [[param.domain.atom]]
@@ -152,25 +145,25 @@ T.B.A.
       pos_center = [0.00000000, 0.00000000, 1.00000000]
       DWfactor = 0.0
       occupancy = 1.0
-      displace_vector = [[1.0, 0.0, 0.0, 1.0]]
+      displace_vector = [[1, 0.0, 0.0, 1.0]]
     [[param.domain.atom]]
       name = "Si"
       pos_center = [0.33333333, 0.66666667, 1.00000000]
       DWfactor = 0.0
       occupancy = 1.0
-      displace_vector = [[1.0, 0.0, 0.0, 1.0]]
+      displace_vector = [[1, 0.0, 0.0, 1.0]]
     [[param.domain.atom]]
       name = "Si"
       pos_center = [0.66666667, 0.33333333, 1.00000000]
       DWfactor = 0.0
       occupancy = 1.0
-      displace_vector = [[1.0, 0.0, 0.0, 1.0]]
+      displace_vector = [[1, 0.0, 0.0, 1.0]]
     [[param.domain.atom]]
       name = "Si"
       pos_center = [0.33333333, 0.33333333, 1.00000000]
       DWfactor = 0.0
       occupancy = 1.0
-      displace_vector = [[2.0, 0.0, 0.0, 1.0]]
+      displace_vector = [[2, 0.0, 0.0, 1.0]]
   
 
 [``reference``] セクション
@@ -232,10 +225,36 @@ T.B.A.
 ``stdout``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ``sxrd`` が出力する標準出力が記載されています。
-
+sxrdのLeast square fittingに対して、初期パラメータとして変数を与え、1ショット計算(iteration数=0)をした際のRfactorを計算します。
+RfactorはFit results以下のRに記載されます。
 以下、出力例です。
 
 .. code-block::
 
-   T.B.A.
+    ---------------------------------------
+    Program /Users/k-yoshimi/program/2dmat_test/py2dmat/mapper_sxrd/sxrdcalc for surface x-ray diffraction calculations.
+    Version 3.3.3 - August 2019
+
+
+     Inputfile: lsfit.in
+    Least-squares fit of model to experimental structure factors.
+
+    ...
+
+    Fit results:
+    Fit not converged after 0 iterations.
+    Consider increasing the maximum number of iterations or find better starting values.
+    chi^2 = 10493110.323318, chi^2 / (degree of freedom) = 223257.666454 (Intensities)
+    chi^2 = 3707027.897897, chi^2 / (degree of freedom) = 78872.933998 (Structure factors)
+    R = 0.378801
+
+    Scale factor:   1.00000000000000 +/- 0.000196
+    Parameter Nr. 1:   3.500000 +/- 299467640982.406067
+    Parameter Nr. 2:   3.500000 +/- 898402922947.218384
+
+    Covariance matrix:
+              0            1            2
+     0  0.0000000383 20107160.3315223120 -60321480.9945669472
+     1  20107160.3315223120 89680867995567253356544.0000000000 -269042603986701827178496.0000000000
+     2  -60321480.9945669472 -269042603986701827178496.0000000000 807127811960105615753216.0000000000
 
