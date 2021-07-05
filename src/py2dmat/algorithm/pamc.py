@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Dict
 
 from io import open
 import copy
@@ -64,7 +64,12 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     Ts: np.ndarray
     Tindex: int
 
-    walker_families: np.ndarray
+    logQ: np.ndarray
+
+    walker_ancestors: np.ndarray
+    populations: np.ndarray
+    family_lo: int
+    family_hi: int
 
     Fmeans: np.ndarray
     Ferrs: np.ndarray
@@ -84,6 +89,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             raise ImportError(msg)
 
         self.nreplica = self.mpisize * self.nwalkers
+        self.initial_nreplica = self.nreplica
 
         numsteps = info_pamc.get("numsteps", 0)
         numsteps_resampling = info_pamc.get("numsteps_resampling", 0)
@@ -121,15 +127,18 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.Ts[::-1].sort()  # sort in descending
         self.Tindex = 0
 
+        self.logQ = np.zeros(numT)
+
         self.Fmeans = np.zeros(numT)
         self.Ferrs = np.zeros(numT)
         self.nmeans = np.zeros(numT)
         self.nstds = np.zeros(numT)
 
+        self.populations = np.zeros((numT, self.nwalkers), dtype=int)
+        self.family_lo = self.nwalkers * self.mpirank
+        self.family_hi = self.nwalkers * (self.mpirank+1)
+        self.walker_ancestors = np.arange(self.family_lo, self.family_hi)
         self.fix_nwalkers = info_pamc.get("fix_num_walkers", True)
-        self.walker_families = np.array_split(range(self.nreplica), self.mpisize)[
-            self.mpirank
-        ]
 
         time_end = time.perf_counter()
         self.timer["init"]["total"] = time_end - time_sta
@@ -164,6 +173,11 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             self.Tindex = Tindex
             beta = 1.0 / T
 
+            with open(f"ancestors_T{Tindex}.txt", "w") as f:
+                f.write("# iwalker ancestor\n")
+                for iwalker, ancestor in enumerate(self.walker_ancestors):
+                    f.write(f"{iwalker} {ancestor}\n")
+
             if Tindex > 0:
                 file_trial = open(f"trial_T{Tindex}.txt", "w")
                 file_result = open(f"result_T{Tindex}.txt", "w")
@@ -185,8 +199,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
                 time_end = time.perf_counter()
                 self.timer["run"]["resampling"] += time_end - time_sta
             else:
-                fxs, ns = self._gather_information()
-                self._save_stats(fxs, ns)
+                res = self._gather_information()
+                self._save_stats(res)
 
         file_result.close()
         file_trial.close()
@@ -194,27 +208,41 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             self.mpicomm.barrier()
         print("complete main process : rank {:08d}/{:08d}".format(rank, self.mpisize))
 
-    def _gather_information(self) -> Tuple[np.ndarray, np.ndarray]:
+    def _gather_information(self) -> Dict[str, np.ndarray]:
         """
 
         Returns
         -------
-        fxs: np.ndarray
-            objective function of each walker over all processes
-        ns: np.ndarray
-            number of walkers in each process
+        res: Dict[str, np.ndarray]
+            key-value corresponding is the following
+
+            - fxs
+                - objective function of each walker over all processes
+            - ns
+                - number of walkers in each process
+            - ancestors
+                - ancestor (origin) of each walker
         """
+        res = {}
         if self.mpisize > 1:
             fxs_list = self.mpicomm.allgather(self.fx)
             # transform a jagged array to a vector
-            fxs = np.array(list(itertools.chain.from_iterable(fxs_list)))
-            ns = np.array([len(fs) for fs in fxs_list])
+            res["fxs"] = np.array(list(itertools.chain.from_iterable(fxs_list)))
+            res["ns"] = np.array([len(fs) for fs in fxs_list], dtype=int)
+            ancestors_list = self.mpicomm.allgather(self.walker_ancestors)
+            res["ancestors"] = np.array(
+                list(itertools.chain.from_iterable(ancestors_list)),
+                dtype=int
+            )
         else:
-            fxs = self.fx
-            ns = np.array([self.nwalkers])
-        return fxs, ns
+            res["fxs"] = self.fx
+            res["ns"] = np.array([self.nwalkers], dtype=int)
+            res["ancestors"] = self.walker_ancestors
+        return res
 
-    def _save_stats(self, fxs: np.ndarray, ns: np.ndarray, bprint: bool = True) -> None:
+    def _save_stats(self, info: Dict[str, np.ndarray], bprint: bool = True) -> None:
+        fxs = info["fxs"]
+        ns = info["ns"]
         fm = np.mean(fxs)
         ferr = np.sqrt(np.var(fxs) / fxs.size)
         self.Fmeans[self.Tindex] = fm
@@ -225,54 +253,64 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.nmeans[self.Tindex] = nm
         self.nstds[self.Tindex] = nstd
 
+        if self.Tindex == len(self.Ts)-1:
+            # last step
+            dbeta = 0.0
+        else:
+            dbeta = (1.0 / self.Ts[self.Tindex + 1]) - (1.0 / self.Ts[self.Tindex])
+        fx_base = np.min(fxs)
+        logQ = np.log(np.mean(np.exp(-dbeta * (fxs-fx_base)))) - dbeta * fx_base
+        self.logQ[self.Tindex] = logQ
+        mbF = np.sum(self.logQ[0:self.Tindex])
+
         if bprint and self.mpirank == 0:
-            print(f"{self.Ts[self.Tindex]} {fm} {ferr} {nm} {nstd}")
-        pass
+            print(f"{self.Ts[self.Tindex]} {fm} {ferr} {nm} {nstd} {mbF} {logQ}")
 
     def _resample(self) -> None:
-        fxs, ns = self._gather_information()
-        self._save_stats(fxs, ns)
+        res = self._gather_information()
+        self._save_stats(res)
+        fxs = res["fxs"]
         if self.fix_nwalkers:
             self._resample_fixed(fxs)
         else:
             self._resample_varied(fxs)
 
     def _resample_varied(self, fxs: np.ndarray) -> None:
-        nwalkers = fxs.size
         newbeta = 1.0 / self.Ts[self.Tindex + 1]
+
+        # avoid over/under-flow
         fxs_base = np.min(fxs)
         weights = np.exp((-newbeta) * (fxs - fxs_base))
         weights_sum = np.sum(weights)
-        weights.sort()
-        weights_sum_sorted = np.sum(weights)
         expected_numbers = (
-            nwalkers * np.exp((-newbeta) * (self.fx - fxs_base)) / weights_sum
+            self.initial_nreplica * np.exp((-newbeta) * (self.fx - fxs_base)) / weights_sum
         )
         next_numbers = self.rng.poisson(expected_numbers)
 
         if self.iscontinuous:
             new_x = []
             new_fx = []
-            new_families = []
+            new_ancestors = []
             for iwalker in range(self.nwalkers):
                 for _ in range(next_numbers[iwalker]):
                     new_x.append(self.x[iwalker, :])
                     new_fx.append(self.fx[iwalker])
-                    new_families.append(self.walker_families[iwalker])
+                    new_ancestors.append(self.walker_ancestors[iwalker])
             self.x = np.array(new_x)
             self.fx = np.array(new_fx)
-            self.walker_families = np.array(new_families)
+            self.walker_ancestors = np.array(new_ancestors)
         else:
             new_inodes = []
             new_fx = []
+            new_ancestors = []
             for iwalker in range(self.nwalkers):
                 for _ in range(next_numbers[iwalker]):
                     new_inodes.append(self.inodes[iwalker])
                     new_fx.append(self.fx[iwalker])
-                    new_families.append(self.walker_families[iwalker])
+                    new_ancestors.append(self.walker_ancestors[iwalker])
             self.inode = np.array(new_inodes)
             self.fx = np.array(new_fx)
-            self.walker_families = np.array(new_families)
+            self.walker_ancestors = np.array(new_ancestors)
             self.x = self.node_coordinates[self.inode, :]
         self.nwalkers = np.sum(next_numbers)
 
@@ -288,25 +326,25 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
                 xs = np.zeros((self.mpisize, self.nwalkers, self.dimension))
                 self.mpicomm.Allgather(self.x, xs)
                 xs = xs.reshape(self.nreplica, self.dimension)
-                families = np.array(
-                    self.mpicomm.allgather(self.walker_families)
+                ancestors = np.array(
+                    self.mpicomm.allgather(self.walker_ancestors)
                 ).flatten()
             else:
                 xs = self.x
-                families = self.walker_families
+                ancestors = self.walker_ancestors
             self.x = xs[new_index, :]
-            self.walker_families = families[new_index]
+            self.walker_ancestors = ancestors[new_index]
         else:
             if self.mpisize > 1:
                 inodes = np.array(self.mpicomm.allgather(self.inode)).flatten()
-                families = np.array(
-                    self.mpicomm.allgather(self.walker_families)
+                ancestors = np.array(
+                    self.mpicomm.allgather(self.walker_ancestors)
                 ).flatten()
             else:
                 inodes = self.inode
-                families = self.walker_families
+                ancestors = self.walker_ancestors
             self.inode = inodes[new_index]
-            self.walker_families = families[new_index]
+            self.walker_ancestors = ancestors[new_index]
             self.x = self.node_coordinates[self.inode, :]
 
     def _prepare(self) -> None:
@@ -345,9 +383,13 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             for label, x in zip(self.label_list, best_x[best_rank]):
                 print(f"  {label} = {x}")
 
+            mbF = 0.0
             with open("fx.txt", "w") as f:
                 for i in range(len(self.Ts)):
+                    if i > 0:
+                        mbF += self.logQ[i-1]
                     f.write(f"{self.Ts[i]}")
                     f.write(f" {self.Fmeans[i]} {self.Ferrs[i]}")
                     f.write(f" {self.nmeans[i]} {self.nstds[i]}")
+                    f.write(f" {mbF} {self.logQ[i]}")
                     f.write("\n")
