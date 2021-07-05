@@ -60,7 +60,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
     fx: np.ndarray
     istep: int
-    nreplica: int
+    nreplicas: np.ndarray
     Ts: np.ndarray
     Tindex: int
 
@@ -73,8 +73,6 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
     Fmeans: np.ndarray
     Ferrs: np.ndarray
-    nmeans: np.ndarray
-    nstds: np.ndarray
 
     def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
         time_sta = time.perf_counter()
@@ -87,9 +85,6 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         if self.mpicomm is None:
             msg = "ERROR: algorithm.pamc requires mpi4py, but mpi4py cannot be imported"
             raise ImportError(msg)
-
-        self.nreplica = self.mpisize * self.nwalkers
-        self.initial_nreplica = self.nreplica
 
         numsteps = info_pamc.get("numsteps", 0)
         numsteps_resampling = info_pamc.get("numsteps_resampling", 0)
@@ -131,8 +126,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
         self.Fmeans = np.zeros(numT)
         self.Ferrs = np.zeros(numT)
-        self.nmeans = np.zeros(numT)
-        self.nstds = np.zeros(numT)
+        nreplicas = self.mpisize * self.nwalkers
+        self.nreplicas = np.full(numT, nreplicas)
 
         self.populations = np.zeros((numT, self.nwalkers), dtype=int)
         self.family_lo = self.nwalkers * self.mpirank
@@ -242,16 +237,13 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
     def _save_stats(self, info: Dict[str, np.ndarray], bprint: bool = True) -> None:
         fxs = info["fxs"]
-        ns = info["ns"]
         fm = np.mean(fxs)
         ferr = np.sqrt(np.var(fxs) / fxs.size)
         self.Fmeans[self.Tindex] = fm
         self.Ferrs[self.Tindex] = ferr
 
-        nm = np.mean(ns)
-        nstd = np.std(ns)
-        self.nmeans[self.Tindex] = nm
-        self.nstds[self.Tindex] = nstd
+        nreplicas = len(fxs)
+        self.nreplicas[self.Tindex] = nreplicas
 
         if self.Tindex == len(self.Ts)-1:
             # last step
@@ -264,7 +256,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         mbF = np.sum(self.logQ[0:self.Tindex])
 
         if bprint and self.mpirank == 0:
-            print(f"{self.Ts[self.Tindex]} {fm} {ferr} {nm} {nstd} {mbF} {logQ}")
+            print(f"{self.Ts[self.Tindex]} {fm} {ferr} {nreplicas} {mbF} {logQ}")
 
     def _resample(self) -> None:
         res = self._gather_information()
@@ -283,7 +275,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         weights = np.exp((-newbeta) * (fxs - fxs_base))
         weights_sum = np.sum(weights)
         expected_numbers = (
-            self.initial_nreplica * np.exp((-newbeta) * (self.fx - fxs_base)) / weights_sum
+            self.nreplicas[0] * np.exp((-newbeta) * (self.fx - fxs_base)) / weights_sum
         )
         next_numbers = self.rng.poisson(expected_numbers)
 
@@ -325,7 +317,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             if self.mpisize > 1:
                 xs = np.zeros((self.mpisize, self.nwalkers, self.dimension))
                 self.mpicomm.Allgather(self.x, xs)
-                xs = xs.reshape(self.nreplica, self.dimension)
+                xs = xs.reshape(self.nreplicas[self.Tindex], self.dimension)
                 ancestors = np.array(
                     self.mpicomm.allgather(self.walker_ancestors)
                 ).flatten()
@@ -368,7 +360,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         if self.mpirank == 0:
             best_rank = np.argmin(best_fx)
             with open("best_result.txt", "w") as f:
-                f.write(f"nprocs = {self.nreplica}\n")
+                f.write(f"nprocs = {self.mpisize}\n")
                 f.write(f"rank = {best_rank}\n")
                 f.write(f"step = {best_istep[best_rank]}\n")
                 f.write(f"walker = {best_iwalker[best_rank]}\n")
@@ -385,11 +377,17 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
             mbF = 0.0
             with open("fx.txt", "w") as f:
+                f.write("# $1: T\n")
+                f.write("# $2: mean of f(x)\n")
+                f.write("# $3: standard error of f(x)\n")
+                f.write("# $4: number of replicas\n")
+                f.write("# $5: -βF\n")
+                f.write("# $6: log(Q)\n")
                 for i in range(len(self.Ts)):
                     if i > 0:
                         mbF += self.logQ[i-1]
                     f.write(f"{self.Ts[i]}")
                     f.write(f" {self.Fmeans[i]} {self.Ferrs[i]}")
-                    f.write(f" {self.nmeans[i]} {self.nstds[i]}")
+                    f.write(f" {self.nreplicas[i]}")
                     f.write(f" {mbF} {self.logQ[i]}")
                     f.write("\n")
