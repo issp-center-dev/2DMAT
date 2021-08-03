@@ -3,7 +3,6 @@ from typing import List, Dict
 from io import open
 import copy
 import time
-import itertools
 
 import numpy as np
 
@@ -12,8 +11,6 @@ import py2dmat.exception
 import py2dmat.algorithm.montecarlo
 import py2dmat.util.separateT
 import py2dmat.util.resampling
-
-from pprint import pprint
 
 
 class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
@@ -25,8 +22,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         current configuration
     fx: np.ndarray
         current "Energy"
-    T: float
-        current "Temperature"
+    logweights: np.ndarray
+        current logarithm of weights (Neal-Jarzynski factor)
     istep: int
         current step (or, the number of calculated energies)
     best_x: np.ndarray
@@ -41,13 +38,10 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         The number of replicas (= the number of procs)
     rank: int
         MPI rank
-    Ts: list
-        List of temperatures
+    betas: list
+        List of inverse temperatures
     Tindex: int
         Temperature index
-    T2rep: np.ndarray
-        Mapping from temperature index to replica index
-    exchange_direction: bool
     """
 
     x: np.ndarray
@@ -56,15 +50,19 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     xunit: np.ndarray
 
     numsteps: int
-    numsteps_resampling: int
+    numsteps_annealing: int
 
+    logweights: np.ndarray
     fx: np.ndarray
     istep: int
     nreplicas: np.ndarray
     betas: np.ndarray
     Tindex: int
 
-    logQ: np.ndarray
+    fx_from_reset: np.ndarray
+    resampling_interval: int
+
+    nset_bootstrap: int
 
     walker_ancestors: np.ndarray
     populations: np.ndarray
@@ -87,20 +85,21 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             raise ImportError(msg)
 
         numsteps = info_pamc.get("numsteps", 0)
-        numsteps_resampling = info_pamc.get("numsteps_resampling", 0)
+        numsteps_annealing = info_pamc.get("numsteps_annealing", 0)
         numT = info_pamc.get("Tnum", 0)
 
-        oks = np.array([numsteps, numsteps_resampling, numT]) > 0
+        oks = np.array([numsteps, numsteps_annealing, numT]) > 0
         if np.count_nonzero(oks) != 2:
-            msg = "ERROR: Two of 'numsteps', 'numsteps_resampling', and 'Tnum' should be positive in the input file\n"
-            msg += "  numsteps = {numsteps}\n"
-            msg += "  numsteps_resampling = {numsteps_resampling}\n"
-            msg += "  Tnum = {numT}\n"
+            msg = "ERROR: Two of 'numsteps', 'numsteps_annealing', "
+            msg += "and 'Tnum' should be positive in the input file\n"
+            msg += f"  numsteps = {numsteps}\n"
+            msg += f"  numsteps_annealing = {numsteps_annealing}\n"
+            msg += f"  Tnum = {numT}\n"
             raise py2dmat.exception.InputError(msg)
 
         if numsteps <= 0:
-            self.numsteps_for_T = np.full(numT, numsteps_resampling)
-        elif numsteps_resampling <= 0:
+            self.numsteps_for_T = np.full(numT, numsteps_annealing)
+        elif numsteps_annealing <= 0:
             nr = numsteps // numT
             self.numsteps_for_T = np.full(numT, nr)
             rem = numsteps - nr * numT
@@ -109,9 +108,9 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         else:
             ss: List[int] = []
             while numsteps > 0:
-                if numsteps > numsteps_resampling:
-                    ss.append(numsteps_resampling)
-                    numsteps -= numsteps_resampling
+                if numsteps > numsteps_annealing:
+                    ss.append(numsteps_annealing)
+                    numsteps -= numsteps_annealing
                 else:
                     ss.append(numsteps)
                     numsteps = 0
@@ -119,41 +118,45 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             numT = len(ss)
 
         self.betas = self.read_Ts(info_pamc, numT=numT)
-        self.betas.sort()  # sort in descending
+        self.betas.sort()
         self.Tindex = 0
 
-        self.logQ = np.zeros(numT)
+        self.bF = 0.0
+        self.bFs = np.zeros(numT)
+        self.logweights = np.zeros(self.nwalkers)
 
         self.Fmeans = np.zeros(numT)
         self.Ferrs = np.zeros(numT)
         nreplicas = self.mpisize * self.nwalkers
         self.nreplicas = np.full(numT, nreplicas)
+        self.fx_from_reset = np.zeros((self.resampling_interval, self.nwalkers))
 
         self.populations = np.zeros((numT, self.nwalkers), dtype=int)
         self.family_lo = self.nwalkers * self.mpirank
-        self.family_hi = self.nwalkers * (self.mpirank+1)
+        self.family_hi = self.nwalkers * (self.mpirank + 1)
         self.walker_ancestors = np.arange(self.family_lo, self.family_hi)
         self.fix_nwalkers = info_pamc.get("fix_num_walkers", True)
+        self.resampling_interval = info_pamc.get("resampling_interval", 1)
+        if self.resampling_interval < 1:
+            self.resampling_interval = numT + 1
 
         time_end = time.perf_counter()
         self.timer["init"]["total"] = time_end - time_sta
 
     def _run(self) -> None:
-        rank = self.mpirank
-
         beta = self.betas[self.Tindex]
-
         self.istep = 0
 
-        # first step
         self._evaluate()
 
         file_trial = open("trial_T0.txt", "w")
         file_result = open("result_T0.txt", "w")
-        self._write_result_header(file_result)
-        self._write_result(file_result)
-        self._write_result_header(file_trial)
-        self._write_result(file_trial)
+        self._write_result_header(file_result, ("weight", "ancestor"))
+        self._write_result(
+            file_result, [np.exp(self.logweights), self.walker_ancestors]
+        )
+        self._write_result_header(file_trial, ("weight", "ancestor"))
+        self._write_result(file_trial, [np.exp(self.logweights), self.walker_ancestors])
         file_trial.close()
         file_result.close()
         self.istep += 1
@@ -164,46 +167,62 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.best_istep = 0
         self.best_iwalker = 0
 
+        index_from_reset = 0
         for Tindex, beta in enumerate(self.betas):
             self.Tindex = Tindex
-
-            with open(f"ancestors_T{Tindex}.txt", "w") as f:
-                f.write("# iwalker ancestor\n")
-                for iwalker, ancestor in enumerate(self.walker_ancestors):
-                    f.write(f"{iwalker} {ancestor}\n")
 
             if Tindex > 0:
                 file_trial = open(f"trial_T{Tindex}.txt", "w")
                 file_result = open(f"result_T{Tindex}.txt", "w")
-                self._write_result_header(file_result)
-                self._write_result(file_result)
+                self._write_result_header(file_result, ["weight", "ancestor"])
+                self._write_result_header(file_trial, ["weight", "ancestor"])
             else:
                 file_trial = open(f"trial_T{Tindex}.txt", "a")
                 file_result = open(f"result_T{Tindex}.txt", "a")
 
             for _ in range(self.numsteps_for_T[Tindex]):
-                self.local_update(beta, file_trial, file_result)
+                self.local_update(
+                    beta,
+                    file_trial,
+                    file_result,
+                    extra_info_to_write=[
+                        np.exp(self.logweights),
+                        self.walker_ancestors,
+                    ],
+                )
                 self.istep += 1
             file_trial.close()
             file_result.close()
 
-            if Tindex < len(self.betas) - 1:
+            self.fx_from_reset[index_from_reset, :] = self.fx[:]
+            index_from_reset += 1
+
+            if Tindex == len(self.betas) - 1:
+                break
+            dbeta = self.betas[Tindex + 1] - self.betas[Tindex]
+            self.logweights += -dbeta * self.fx
+            if index_from_reset == self.resampling_interval:
                 time_sta = time.perf_counter()
                 self._resample()
                 time_end = time.perf_counter()
                 self.timer["run"]["resampling"] += time_end - time_sta
-            else:
-                res = self._gather_information()
-                self._save_stats(res)
-
+                index_from_reset = 0
+        if index_from_reset > 0:
+            res = self._gather_information(index_from_reset)
+            self._save_stats(res)
         file_result.close()
         file_trial.close()
         if self.mpisize > 1:
             self.mpicomm.barrier()
-        print("complete main process : rank {:08d}/{:08d}".format(rank, self.mpisize))
+        print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
 
-    def _gather_information(self) -> Dict[str, np.ndarray]:
+    def _gather_information(self, numT: int = None) -> Dict[str, np.ndarray]:
         """
+        Arguments
+        ---------
+
+        numT: int
+            size of dataset
 
         Returns
         -------
@@ -212,70 +231,112 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
             - fxs
                 - objective function of each walker over all processes
+            - logweights
+                - log of weights
             - ns
                 - number of walkers in each process
             - ancestors
                 - ancestor (origin) of each walker
         """
+
+        if numT is None:
+            numT = self.resampling_interval
         res = {}
         if self.mpisize > 1:
-            fxs_list = self.mpicomm.allgather(self.fx)
-            # transform a jagged array to a vector
-            res["fxs"] = np.array(list(itertools.chain.from_iterable(fxs_list)))
-            res["ns"] = np.array([len(fs) for fs in fxs_list], dtype=int)
+            fxs_list = self.mpicomm.allgather(self.fx_from_reset[0:numT, :])
+            fxs = np.block(fxs_list)
+            res["fxs"] = fxs
+            ns = np.array([fs.shape[1] for fs in fxs_list], dtype=int)
+            res["ns"] = ns
             ancestors_list = self.mpicomm.allgather(self.walker_ancestors)
-            res["ancestors"] = np.array(
-                list(itertools.chain.from_iterable(ancestors_list)),
-                dtype=int
-            )
+            res["ancestors"] = np.block(ancestors_list)
         else:
-            res["fxs"] = self.fx
+            res["fxs"] = self.fx_from_reset[0:numT, :]
             res["ns"] = np.array([self.nwalkers], dtype=int)
             res["ancestors"] = self.walker_ancestors
+        fxs = res["fxs"]
+        numT, nreplicas = fxs.shape
+        endTindex = self.Tindex + 1
+        startTindex = endTindex - numT
+        logweights = np.zeros((numT, nreplicas))
+        for iT in range(1, numT):
+            dbeta = self.betas[startTindex + iT] - self.betas[startTindex + iT - 1]
+            logweights[iT, :] = logweights[iT - 1, :] - dbeta * fxs[iT - 1, :]
+        res["logweights"] = logweights
         return res
 
     def _save_stats(self, info: Dict[str, np.ndarray], bprint: bool = True) -> None:
         fxs = info["fxs"]
-        fm = np.mean(fxs)
-        ferr = np.sqrt(np.var(fxs) / fxs.size)
-        self.Fmeans[self.Tindex] = fm
-        self.Ferrs[self.Tindex] = ferr
+        numT, nreplicas = fxs.shape
+        endTindex = self.Tindex + 1
+        startTindex = endTindex - numT
 
-        nreplicas = len(fxs)
-        self.nreplicas[self.Tindex] = nreplicas
+        logweights = info["logweights"]
+        weights = np.exp(
+            logweights - logweights.max(axis=1).reshape(-1, 1)
+        )  # to avoid overflow
 
-        if self.Tindex == len(self.betas)-1:
-            # last step
-            dbeta = 0.0
-        else:
-            dbeta = self.betas[self.Tindex + 1] - self.betas[self.Tindex]
-        fx_base = np.min(fxs)
-        logQ = np.log(np.mean(np.exp(-dbeta * (fxs-fx_base)))) - dbeta * fx_base
-        self.logQ[self.Tindex] = logQ
-        mbF = np.sum(self.logQ[0:self.Tindex])
+        # bias-corrected jackknife resampling method
+        fs = np.zeros((numT, nreplicas))
+        fw_sum = (fxs * weights).sum(axis=1)
+        w_sum = weights.sum(axis=1)
+        for i in range(nreplicas):
+            F = fw_sum - fxs[:, i] * weights[:, i]
+            W = w_sum - weights[:, i]
+            fs[:, i] = F / W
+        N = fs.shape[1]
+        fm = N * (fw_sum / w_sum) - (N - 1) * fs.mean(axis=1)
+        ferr = np.sqrt((N - 1) * fs.var(axis=1))
+
+        self.Fmeans[startTindex:endTindex] = fm
+        self.Ferrs[startTindex:endTindex] = ferr
+        self.nreplicas[startTindex:endTindex] = nreplicas
+
+        weights = np.exp(logweights)
+        dF = -np.log(np.mean(weights, axis=1))
+        # bdiff = (self.betas[startTindex:endTindex] - self.betas[startTindex]).reshape(-1,1)
+        # dF = -np.log(np.exp(-bdiff * fxs[0, :]).mean(axis=1))
+
+        self.bFs[startTindex:endTindex] = self.bF + dF
+
+        if endTindex < len(self.betas):
+            bdiff = self.betas[endTindex] - self.betas[endTindex - 1]
+            w = np.exp(logweights[-1, :] - bdiff * fxs[-1, :])
+            self.bF = self.bFs[startTindex] - np.log(w.mean())
+            # bdiff = self.betas[endTindex] - self.betas[startTindex]
+            # self.bF = self.bFs[startTindex] - np.log(np.exp(-bdiff*fxs[0, :]).mean())
 
         if bprint and self.mpirank == 0:
-            print(f"{self.betas[self.Tindex]} {fm} {ferr} {nreplicas} {mbF} {logQ}")
+            for iT in range(startTindex, endTindex):
+                for v in [
+                    self.betas[iT],
+                    self.Fmeans[iT],
+                    self.Ferrs[iT],
+                    self.nreplicas[iT],
+                    self.bFs[iT],
+                ]:
+                    print(v, end=" ")
+                print()
 
     def _resample(self) -> None:
         res = self._gather_information()
         self._save_stats(res)
-        fxs = res["fxs"]
+
+        # weights for resampling
+        dbeta = self.betas[self.Tindex + 1] - self.betas[self.Tindex]
+        logweights = res["logweights"][-1, :] - dbeta * res["fxs"][-1, :]
+        weights = np.exp(logweights - logweights.max())  # to avoid overflow
         if self.fix_nwalkers:
-            self._resample_fixed(fxs)
+            self._resample_fixed(weights)
+            self.logweights[:] = 0.0
         else:
-            self._resample_varied(fxs)
+            self._resample_varied(weights)
+            self.fx_from_reset = np.zeros((self.resampling_interval, self.nwalkers))
+            self.logweights = np.zeros(self.nwalkers)
 
-    def _resample_varied(self, fxs: np.ndarray) -> None:
-        newbeta = self.betas[self.Tindex + 1]
-
-        # avoid over/under-flow
-        fxs_base = np.min(fxs)
-        weights = np.exp((-newbeta) * (fxs - fxs_base))
+    def _resample_varied(self, weights: np.ndarray) -> None:
         weights_sum = np.sum(weights)
-        expected_numbers = (
-            self.nreplicas[0] * np.exp((-newbeta) * (self.fx - fxs_base)) / weights_sum
-        )
+        expected_numbers = (self.nreplicas[0] / weights_sum) * weights
         next_numbers = self.rng.poisson(expected_numbers)
 
         if self.iscontinuous:
@@ -305,10 +366,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             self.x = self.node_coordinates[self.inode, :]
         self.nwalkers = np.sum(next_numbers)
 
-    def _resample_fixed(self, fxs: np.ndarray) -> None:
-        newbeta = self.betas[self.Tindex + 1]
-        fxs_base = np.min(fxs)
-        weights = np.exp((-newbeta) * (fxs - fxs_base))
+    def _resample_fixed(self, weights: np.ndarray) -> None:
         resampler = py2dmat.util.resampling.WalkerTable(weights)
         new_index = resampler.sample(self.rng, self.nwalkers)
 
@@ -345,7 +403,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     def _post(self) -> None:
         for name in ("result", "trial"):
             with open(self.proc_dir / f"{name}.txt", "w") as fout:
-                self._write_result_header(fout)
+                self._write_result_header(fout, ["weight", "ancestor"])
                 for Tindex in range(len(self.betas)):
                     with open(self.proc_dir / f"{name}_T{Tindex}.txt") as fin:
                         for line in fin:
@@ -374,19 +432,15 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             for label, x in zip(self.label_list, best_x[best_rank]):
                 print(f"  {label} = {x}")
 
-            mbF = 0.0
             with open("fx.txt", "w") as f:
                 f.write("# $1: beta\n")
                 f.write("# $2: mean of f(x)\n")
                 f.write("# $3: standard error of f(x)\n")
                 f.write("# $4: number of replicas\n")
-                f.write("# $5: -βF\n")
-                f.write("# $6: log(Q)\n")
+                f.write("# $5: βF\n")
                 for i in range(len(self.betas)):
-                    if i > 0:
-                        mbF += self.logQ[i-1]
                     f.write(f"{self.betas[i]}")
                     f.write(f" {self.Fmeans[i]} {self.Ferrs[i]}")
                     f.write(f" {self.nreplicas[i]}")
-                    f.write(f" {mbF} {self.logQ[i]}")
+                    f.write(f" {self.bFs[i]}")
                     f.write("\n")
