@@ -105,23 +105,26 @@ If not defined, each component will be 1.0.</p>
 <p>Description: The number of interval Monte Carlo steps between replica exchange.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Tmin</span></code></p>
-<p>Format: Float (default: 0.1)</p>
-<p>Description: The minimum value of the “temperature”.</p>
+<p>Format: Float</p>
+<p>Description: The minimum value of the “temperature” (<span class="math notranslate nohighlight">\(T\)</span>).</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Tmax</span></code></p>
-<p>Format: Float (default: 10.0)</p>
-<p>Description: The maximum value of the “temperature”.</p>
+<p>Format: Float</p>
+<p>Description: The maximum value of the “temperature” (<span class="math notranslate nohighlight">\(T\)</span>).</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bmin</span></code></p>
+<p>Format: Float</p>
+<p>Description: The minimum value of the “inverse temperature” (<span class="math notranslate nohighlight">\(\beta = 1/T\)</span>).
+One of the “temperature” and “inverse temperature” should be defined.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bmax</span></code></p>
+<p>Format: Float</p>
+<p>Description: The maximum value of the “inverse temperature” (<span class="math notranslate nohighlight">\(\beta = 1/T\)</span>).
+One of the “temperature” and “inverse temperature” should be defined.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Tlogspace</span></code></p>
 <p>Format: Boolean (default: true)</p>
 <p>Description: Whether to assign “temperature” to replicas equally spaced in the logarithmic space or not.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Tinvspace</span></code></p>
-<p>Format: Boolean (default: false)</p>
-<dl class="simple">
-<dt>Description: Whether to assign “temperature” to replicas equally spaced in the inverse space or not (1/T).</dt><dd><p>When both <code class="docutils literal notranslate"><span class="pre">Tlogspace</span></code> and <code class="docutils literal notranslate"><span class="pre">Tinvspace</span></code> are activated, py2dmat will stop with an error.</p>
-</dd>
-</dl>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nreplica_per_proc</span></code></p>
 <p>Format: Integer (default: 1)</p>
@@ -330,7 +333,7 @@ This is why this algorithm suits for the massively parallel calculation.</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
     </div>
   </body>
 </html>

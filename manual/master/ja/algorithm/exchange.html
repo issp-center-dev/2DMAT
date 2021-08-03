@@ -107,25 +107,27 @@
 <p>説明: 「温度」のレプリカ交換を行う頻度。この回数だけモンテカルロ更新を行ったらレプリカ交換を実行します。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Tmin</span></code></p>
-<p>形式: 実数値。 (default: 0.1)</p>
-<p>説明: 「温度」の最小値。</p>
+<p>形式: 実数値。</p>
+<p>説明: 「温度」(<span class="math notranslate nohighlight">\(T\)</span>)の最小値。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Tmax</span></code></p>
-<p>形式: 実数値。 (default: 10.0)</p>
-<p>説明: 「温度」の最大値。</p>
+<p>形式: 実数値。</p>
+<p>説明: 「温度」(<span class="math notranslate nohighlight">\(T\)</span>)の最大値。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bmin</span></code></p>
+<p>形式: 実数値。</p>
+<p>説明: 「逆温度」(<span class="math notranslate nohighlight">\(\beta = 1/T\)</span>)の最小値。
+温度と逆温度はどちらか片方だけを指定する必要があります。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bmax</span></code></p>
+<p>形式: 実数値。</p>
+<p>説明: 「逆温度」(<span class="math notranslate nohighlight">\(\beta = 1/T\)</span>)の最大値。
+温度と逆温度はどちらか片方だけを指定する必要があります。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Tlogspace</span></code></p>
 <p>形式: 真偽値。 (default: true)</p>
 <dl class="simple">
 <dt>説明: 「温度」を各レプリカに割り当てる際に、対数空間で等分割するか否かを指定します。</dt><dd><p>true のときは対数空間で等分割します。</p>
-</dd>
-</dl>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Tinvspace</span></code></p>
-<p>形式: 真偽値。 (default: false)</p>
-<dl class="simple">
-<dt>説明: 「温度」を各レプリカに割り当てる際に、逆温度空間で等分割するか否かを指定します。</dt><dd><p>true のときは逆温度空間で等分割します。
-<code class="docutils literal notranslate"><span class="pre">Tlogspace</span></code> と同時に指定することは出来ません。</p>
 </dd>
 </dl>
 </li>
@@ -320,7 +322,7 @@ MH 法によるMCMC は次のようになります。</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
     </div>
   </body>
 </html>

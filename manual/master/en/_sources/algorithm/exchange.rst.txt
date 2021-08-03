@@ -82,28 +82,35 @@ Otherwise, continuous space is used.
 
 - ``Tmin``
 
-  Format: Float (default: 0.1)
+  Format: Float
 
-  Description: The minimum value of the "temperature".
+  Description: The minimum value of the "temperature" (:math:`T`).
 
 - ``Tmax``
 
-  Format: Float (default: 10.0)
+  Format: Float
 
-  Description: The maximum value of the "temperature".
+  Description: The maximum value of the "temperature" (:math:`T`).
+
+- ``bmin``
+
+  Format: Float
+
+  Description: The minimum value of the "inverse temperature" (:math:`\beta = 1/T`).
+  One of the "temperature" and "inverse temperature" should be defined.
+
+- ``bmax``
+
+  Format: Float
+
+  Description: The maximum value of the "inverse temperature" (:math:`\beta = 1/T`).
+  One of the "temperature" and "inverse temperature" should be defined.
 
 - ``Tlogspace``
 
   Format: Boolean (default: true)
 
   Description: Whether to assign "temperature" to replicas equally spaced in the logarithmic space or not.
-
-- ``Tinvspace``
-
-  Format: Boolean (default: false)
-
-  Description: Whether to assign "temperature" to replicas equally spaced in the inverse space or not (1/T).
-               When both ``Tlogspace`` and ``Tinvspace`` are activated, py2dmat will stop with an error.
 
 - ``nreplica_per_proc``
 
