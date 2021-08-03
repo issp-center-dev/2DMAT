@@ -1,5 +1,5 @@
 import typing
-from typing import TextIO, Union, List
+from typing import TextIO, Union, List, Tuple
 import copy
 import time
 import pathlib
@@ -7,7 +7,7 @@ import pathlib
 import numpy as np
 
 import py2dmat
-from py2dmat.util.neighborlist import make_neighbor_list, load_neighbor_list
+from py2dmat.util.neighborlist import load_neighbor_list
 import py2dmat.util.graph
 
 
@@ -68,7 +68,8 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
     best_fx: float
     best_istep: int
     best_iwalker: int
-    Ts: np.ndarray
+    betas: np.ndarray
+    input_as_beta: bool
     Tindex: np.ndarray
 
     def __init__(
@@ -86,15 +87,15 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
             self.x = self.node_coordinates[self.inode, :]
 
             if "neighborlist_path" not in info_param:
-                msg = "ERROR: Parameter algorithm.param.neighborlist_path does not exist."
+                msg = (
+                    "ERROR: Parameter algorithm.param.neighborlist_path does not exist."
+                )
                 raise RuntimeError(msg)
             nn_path = (
                 self.root_dir
                 / pathlib.Path(info_param["neighborlist_path"]).expanduser()
             )
-            self.neighbor_list = load_neighbor_list(
-                nn_path, nnodes=self.nnodes
-            )
+            self.neighbor_list = load_neighbor_list(nn_path, nnodes=self.nnodes)
             if not py2dmat.util.graph.is_connected(self.neighbor_list):
                 msg = "ERROR: The transition graph made from neighbor list is not connected."
                 msg += "\nHINT: Increase neighborhood radius."
@@ -102,7 +103,9 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
             if not py2dmat.util.graph.is_bidirectional(self.neighbor_list):
                 msg = "ERROR: The transition graph made from neighbor list is not bidirectional."
                 raise RuntimeError(msg)
-            self.ncandidates = np.array([ len(ns)-1 for ns in self.neighbor_list ], dtype=np.int64)
+            self.ncandidates = np.array(
+                [len(ns) - 1 for ns in self.neighbor_list], dtype=np.int64
+            )
 
         else:
             self.iscontinuous = True
@@ -115,40 +118,98 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         self.best_iwalker = 0
         time_end = time.perf_counter()
         self.timer["init"]["total"] = time_end - time_sta
+        self.Tindex = 0
+        self.input_as_beta = False
 
     def read_Ts(self, info: dict, numT: int = None) -> np.ndarray:
+        """
+
+        Returns
+        -------
+        bs: np.ndarray
+            inverse temperatures
+        """
         if numT is None:
             numT = self.nwalkers * self.mpisize
-        bTinv = info.get("Tinvspace", False)
-        bTlog = info.get("Tlogspace", True)
-        bTlogdefined = "Tlogspace" in info
 
-        if bTinv and bTlog:
-            msg = "ERROR: Both Tinvspace and Tlogspace are enabled."
-            if not bTlogdefined:
-                msg += "\nNote: The default value of Tlogspace is true."
-            raise RuntimeError(msg)
+        Tmin = info.get("Tmin", None)
+        Tmax = info.get("Tmax", None)
+        bmin = info.get("bmin", None)
+        bmax = info.get("bmax", None)
 
-        if bTinv:
-            T_inverse = np.linspace(
-                start=(1.0 / info.get("Tmin", 0.1)),
-                stop=(1.0 / info.get("Tmax", 10)),
-                num=numT,
-            )
-            Ts = 1.0 / T_inverse
-        elif bTlog:
-            Ts = np.logspace(
-                start=np.log10(info.get("Tmin", 0.1)),
-                stop=np.log10(info.get("Tmax", 10.0)),
-                num=numT,
-            )
+        if bmin is not None or bmax is not None:
+            self.input_as_beta = True
+            if bmax is None:
+                msg = "ERROR: bmin is defined but bmax is not."
+                raise RuntimeError(msg)
+            if bmin is None:
+                msg = "ERROR: bmax is defined but bmin is not."
+                raise RuntimeError(msg)
+            if Tmin is not None:
+                msg = "ERROR: Both bmin and Tmin are defined."
+                raise RuntimeError(msg)
+            if Tmax is not None:
+                msg = "ERROR: Both bmin and Tmax are defined."
+                raise RuntimeError(msg)
+
+            if not np.isreal(bmin) or bmin < 0.0:
+                msg = "ERROR: bmin should be a positive number or 0.0"
+                raise RuntimeError(msg)
+            if not np.isreal(bmax) or bmax < 0.0:
+                msg = "ERROR: bmax should be a positive number or 0.0"
+                raise RuntimeError(msg)
+            if bmin > bmax:
+                msg = "ERROR: bmin should be less than bmax"
+                raise RuntimeError(msg)
+
+            bTlog = info.get("Tlogspace", True)
+            if bTlog:
+                if bmin == 0.0:
+                    msg = "ERROR: when Tlogspace is true, bmin should be > 0.0.\n"
+                    msg += "INFO: Default value of Tlogspace is true"
+                    raise RuntimeError(msg)
+                bs = np.logspace(start=np.log10(bmin), stop=np.log10(bmax), num=numT)
+            else:
+                bs = np.linspace(start=bmin, stop=bmax, num=numT)
+            return bs
+
         else:
-            Ts = np.linspace(
-                start=info.get("Tmin", 0.1),
-                stop=info.get("Tmax", 10.0),
-                num=numT,
-            )
-        return Ts
+            self.input_as_beta = False
+
+            if Tmin is None:
+                msg = "ERROR: Tmin is not defined."
+                raise RuntimeError(msg)
+            if Tmax is None:
+                msg = "ERROR: Tmax is not defined."
+                raise RuntimeError(msg)
+            if not np.isreal(Tmin) or Tmin <= 0.0:
+                msg = "ERROR: Tmin should be a positive number"
+                raise RuntimeError(msg)
+            if not np.isreal(Tmax) or Tmax <= 0.0:
+                msg = "ERROR: Tmax should be a positive number"
+                raise RuntimeError(msg)
+            if Tmin > Tmax:
+                msg = "ERROR: Tmin should be less than Tmax"
+                raise RuntimeError(msg)
+
+            if "Tinvspace" in info:
+                msg = "ERROR: Tinvspace is deprecated. Use bmin/bmax instead."
+                raise RuntimeError(msg)
+            bTlog = info.get("Tlogspace", True)
+
+            if bTlog:
+                Ts = np.logspace(
+                    start=np.log10(Tmin),
+                    stop=np.log10(Tmax),
+                    num=numT,
+                )
+            else:
+                Ts = np.linspace(
+                    start=Tmin,
+                    stop=Tmax,
+                    num=numT,
+                )
+            return 1.0 / Ts
 
     def _evaluate(self) -> np.ndarray:
         """evaluate current "Energy"s
@@ -257,7 +318,10 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         self._write_result(file_result)
 
     def _write_result_header(self, fp) -> None:
-        fp.write("# step walker T fx")
+        if self.input_as_beta:
+            fp.write("# step walker beta fx")
+        else:
+            fp.write("# step walker T fx")
         for label in self.label_list:
             fp.write(f" {label}")
         fp.write("\n")
@@ -266,7 +330,11 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         for iwalker in range(self.nwalkers):
             fp.write(f"{self.istep} ")
             fp.write(f"{iwalker} ")
-            fp.write(f"{self.Ts[self.Tindex[iwalker]]} ")
+            beta = self.betas[self.Tindex[iwalker]]
+            if self.input_as_beta:
+                fp.write(f"{beta} ")
+            else:
+                fp.write(f"{1.0/beta} ")
             fp.write(f"{self.fx[iwalker]} ")
             for x in self.x[iwalker, :]:
                 fp.write(f"{x} ")

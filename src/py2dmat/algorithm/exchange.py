@@ -35,10 +35,6 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         The number of replicas (= the number of procs)
     rank: int
         MPI rank
-    Ts: list
-        List of temperatures
-    Tindex: int
-        Temperature index
     T2rep: np.ndarray
         Mapping from temperature index to replica index
     exchange_direction: bool
@@ -55,7 +51,6 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     fx: np.ndarray
     istep: int
     nreplica: int
-    Ts: np.ndarray
     Tindex: np.ndarray
     rep2T: np.ndarray
     T2rep: np.ndarray
@@ -73,7 +68,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             raise ImportError(msg)
 
         self.nreplica = self.mpisize * self.nwalkers
-        self.Ts = self.read_Ts(info_exchange, numT=self.nreplica)
+        self.betas = self.read_Ts(info_exchange, numT=self.nreplica)
         self.Tindex = np.arange(
             self.mpirank * self.nwalkers, (self.mpirank + 1) * self.nwalkers
         )
@@ -88,7 +83,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     def _run(self) -> None:
         rank = self.mpirank
 
-        beta = 1.0 / self.Ts[self.Tindex]
+        beta = self.betas[self.Tindex]
         exchange_direction = True
 
         self.istep = 0
@@ -119,7 +114,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
                     exchange_direction = not exchange_direction
                 time_end = time.perf_counter()
                 self.timer["run"]["exchange"] += time_end - time_sta
-                beta = 1.0 / self.Ts[self.Tindex]
+                beta = self.betas[self.Tindex]
 
             self.local_update(beta, file_trial, file_result)
             self.istep += 1
@@ -160,8 +155,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             if is_main:
                 self.mpicomm.Recv(fbuf, source=other_rank, tag=1)
                 other_fx = fbuf[0]
-                beta = 1.0 / self.Ts[self.Tindex[0]]
-                other_beta = 1.0 / self.Ts[self.Tindex[0] + 1]
+                beta = self.betas[self.Tindex[0]]
+                other_beta = self.betas[self.Tindex[0] + 1]
                 logp = (other_beta - beta) * (other_fx - self.fx[0])
                 if logp >= 0.0 or self.rng.rand() < np.exp(logp):
                     ibuf[0] = self.Tindex
@@ -209,7 +204,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
                 continue
             jrep = self.T2rep[jT]
             fdiff = fx_all[jrep] - fx_all[irep]
-            bdiff = 1.0 / self.Ts[jT] - 1.0 / self.Ts[iT]
+            bdiff = self.betas[jT] - self.betas[iT]
             logp = fdiff * bdiff
             if logp >= 0.0 or self.rng.rand() < np.exp(logp):
                 rep2T_diff.append((irep, jT))  # this means self.rep2T[irep] = jT
@@ -236,11 +231,13 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.timer["run"]["exchange"] = 0.0
 
     def _post(self) -> None:
+        Ts = self.betas if self.input_as_beta else 1.0/self.betas
         py2dmat.util.separateT.separateT(
-            Ts=self.Ts,
+            Ts=Ts,
             nwalkers=self.nwalkers,
             output_dir=self.output_dir,
             comm=self.mpicomm,
+            use_beta=self.input_as_beta,
         )
         best_fx = self.mpicomm.gather(self.best_fx, root=0)
         best_x = self.mpicomm.gather(self.best_x, root=0)
