@@ -211,7 +211,7 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
                 )
             return 1.0 / Ts
 
-    def _evaluate(self) -> np.ndarray:
+    def _evaluate(self, in_range: np.ndarray = None) -> np.ndarray:
         """evaluate current "Energy"s
 
         ``self.fx`` will be overwritten with the result
@@ -224,12 +224,16 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         """
 
         for iwalker in range(self.nwalkers):
-            message = py2dmat.Message(self.x[iwalker, :], self.istep, iwalker)
+            x = self.x[iwalker, :]
+            if in_range is None or in_range[iwalker]:
+                message = py2dmat.Message(x, self.istep, iwalker)
 
-            time_sta = time.perf_counter()
-            self.fx[iwalker] = self.runner.submit(message)
-            time_end = time.perf_counter()
-            self.timer["run"]["submit"] += time_end - time_sta
+                time_sta = time.perf_counter()
+                self.fx[iwalker] = self.runner.submit(message)
+                time_end = time.perf_counter()
+                self.timer["run"]["submit"] += time_end - time_sta
+            else:
+                self.fx[iwalker] = np.inf
         return self.fx
 
     def propose(self, current: np.ndarray) -> np.ndarray:
@@ -271,39 +275,37 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         x_old = copy.copy(self.x)
         if self.iscontinuous:
             self.x = self.propose(x_old)
+            in_range = ((self.xmin <= self.x) & (self.x <= self.xmax)).all(axis=1)
         else:
             i_old = copy.copy(self.inode)
             self.inode = self.propose(self.inode)
             self.x = self.node_coordinates[self.inode, :]
+            in_range = np.ones(self.nwalkers, dtype=bool)
 
         # evaluate "Energy"s
-        fx_old = copy.copy(self.fx)
-        self._evaluate()
+        fx_old = self.fx.copy()
+        self._evaluate(in_range)
         self._write_result(file_trial)
-
         fdiff = self.fx - fx_old
 
-        # Ignore an overflow warning when evaluating np.exp(x) for x >~ 710.
+        # Ignore an overflow warning in np.exp(x) for x >~ 710
+        # and an invalid operation warning in exp(nan) (nan came from 0 * inf)
+        # Note: fdiff (fx) becomes inf when x is out of range
         old_setting = np.seterr(over="ignore")
         probs = np.exp(-beta * fdiff)
+        # probs[np.isnan(probs)] = 0.0
         np.seterr(**old_setting)
 
-        if self.iscontinuous:
-            in_range = ((self.xmin <= self.x) & (self.x <= self.xmax)).all(axis=1)
-            tocheck = in_range & (probs < 1.0)
-        else:
+        if not self.iscontinuous:
             probs *= self.ncandidates[i_old] / self.ncandidates[self.inode]
-            tocheck = probs < 1.0
-
+        tocheck = in_range & (probs < 1.0)
         num_check = np.count_nonzero(tocheck)
 
-        accepted = np.ones(self.nwalkers, dtype=bool)
-        if self.iscontinuous:
-            accepted[~in_range] = False
+        accepted = in_range.copy()
         accepted[tocheck] = self.rng.rand(num_check) < probs[tocheck]
+        rejected = ~accepted
 
         # revert rejected steps
-        rejected = ~accepted
         self.x[rejected, :] = x_old[rejected, :]
         self.fx[rejected] = fx_old[rejected]
         if not self.iscontinuous:
