@@ -61,7 +61,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     fx: np.ndarray
     istep: int
     nreplicas: np.ndarray
-    Ts: np.ndarray
+    betas: np.ndarray
     Tindex: int
 
     logQ: np.ndarray
@@ -118,8 +118,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             self.numsteps_for_T = np.array(ss)
             numT = len(ss)
 
-        self.Ts = self.read_Ts(info_pamc, numT=numT)
-        self.Ts[::-1].sort()  # sort in descending
+        self.betas = self.read_Ts(info_pamc, numT=numT)
+        self.betas.sort()  # sort in descending
         self.Tindex = 0
 
         self.logQ = np.zeros(numT)
@@ -141,7 +141,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     def _run(self) -> None:
         rank = self.mpirank
 
-        beta = 1.0 / self.Ts[self.Tindex]
+        beta = self.betas[self.Tindex]
 
         self.istep = 0
 
@@ -164,9 +164,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.best_istep = 0
         self.best_iwalker = 0
 
-        for Tindex, T in enumerate(self.Ts):
+        for Tindex, beta in enumerate(self.betas):
             self.Tindex = Tindex
-            beta = 1.0 / T
 
             with open(f"ancestors_T{Tindex}.txt", "w") as f:
                 f.write("# iwalker ancestor\n")
@@ -188,7 +187,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             file_trial.close()
             file_result.close()
 
-            if Tindex < len(self.Ts) - 1:
+            if Tindex < len(self.betas) - 1:
                 time_sta = time.perf_counter()
                 self._resample()
                 time_end = time.perf_counter()
@@ -245,18 +244,18 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         nreplicas = len(fxs)
         self.nreplicas[self.Tindex] = nreplicas
 
-        if self.Tindex == len(self.Ts)-1:
+        if self.Tindex == len(self.betas)-1:
             # last step
             dbeta = 0.0
         else:
-            dbeta = (1.0 / self.Ts[self.Tindex + 1]) - (1.0 / self.Ts[self.Tindex])
+            dbeta = self.betas[self.Tindex + 1] - self.betas[self.Tindex]
         fx_base = np.min(fxs)
         logQ = np.log(np.mean(np.exp(-dbeta * (fxs-fx_base)))) - dbeta * fx_base
         self.logQ[self.Tindex] = logQ
         mbF = np.sum(self.logQ[0:self.Tindex])
 
         if bprint and self.mpirank == 0:
-            print(f"{self.Ts[self.Tindex]} {fm} {ferr} {nreplicas} {mbF} {logQ}")
+            print(f"{self.betas[self.Tindex]} {fm} {ferr} {nreplicas} {mbF} {logQ}")
 
     def _resample(self) -> None:
         res = self._gather_information()
@@ -268,7 +267,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             self._resample_varied(fxs)
 
     def _resample_varied(self, fxs: np.ndarray) -> None:
-        newbeta = 1.0 / self.Ts[self.Tindex + 1]
+        newbeta = self.betas[self.Tindex + 1]
 
         # avoid over/under-flow
         fxs_base = np.min(fxs)
@@ -307,7 +306,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.nwalkers = np.sum(next_numbers)
 
     def _resample_fixed(self, fxs: np.ndarray) -> None:
-        newbeta = 1.0 / self.Ts[self.Tindex + 1]
+        newbeta = self.betas[self.Tindex + 1]
         fxs_base = np.min(fxs)
         weights = np.exp((-newbeta) * (fxs - fxs_base))
         resampler = py2dmat.util.resampling.WalkerTable(weights)
@@ -347,7 +346,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         for name in ("result", "trial"):
             with open(self.proc_dir / f"{name}.txt", "w") as fout:
                 self._write_result_header(fout)
-                for Tindex in range(len(self.Ts)):
+                for Tindex in range(len(self.betas)):
                     with open(self.proc_dir / f"{name}_T{Tindex}.txt") as fin:
                         for line in fin:
                             if line.startswith("#"):
@@ -377,16 +376,16 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
             mbF = 0.0
             with open("fx.txt", "w") as f:
-                f.write("# $1: T\n")
+                f.write("# $1: beta\n")
                 f.write("# $2: mean of f(x)\n")
                 f.write("# $3: standard error of f(x)\n")
                 f.write("# $4: number of replicas\n")
                 f.write("# $5: -βF\n")
                 f.write("# $6: log(Q)\n")
-                for i in range(len(self.Ts)):
+                for i in range(len(self.betas)):
                     if i > 0:
                         mbF += self.logQ[i-1]
-                    f.write(f"{self.Ts[i]}")
+                    f.write(f"{self.betas[i]}")
                     f.write(f" {self.Fmeans[i]} {self.Ferrs[i]}")
                     f.write(f" {self.nreplicas[i]}")
                     f.write(f" {mbF} {self.logQ[i]}")

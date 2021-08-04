@@ -10,7 +10,7 @@ from py2dmat import mpi
 Entry = namedtuple("Entry", ["step", "walker", "fx", "xs"])
 
 
-def separateT(Ts: np.ndarray, nwalkers: int, output_dir: PathLike, comm: mpi.Comm) -> None:
+def separateT(Ts: np.ndarray, nwalkers: int, output_dir: PathLike, comm: mpi.Comm, use_beta:bool) -> None:
     mpisize = comm.size
     mpirank = comm.rank
     output_dir = pathlib.Path(output_dir)
@@ -50,7 +50,10 @@ def separateT(Ts: np.ndarray, nwalkers: int, output_dir: PathLike, comm: mpi.Com
         idx = T2idx[T]
         d[str(T)].sort(key=lambda e: e.step)
         with open(output_dir / f"result_T{idx}.txt", "w") as f:
-            f.write(f"# T = {T}\n")
+            if use_beta:
+                f.write(f"# beta = {T}\n")
+            else:
+                f.write(f"# T = {T}\n")
             for e in d[str(T)]:
                 f.write(f"{e.step} ")
                 f.write(f"{e.walker} ")
