@@ -296,19 +296,19 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.Ferrs[startTindex:endTindex] = ferr
         self.nreplicas[startTindex:endTindex] = nreplicas
 
-        weights = np.exp(logweights)
-        dF = -np.log(np.mean(weights, axis=1))
-        # bdiff = (self.betas[startTindex:endTindex] - self.betas[startTindex]).reshape(-1,1)
-        # dF = -np.log(np.exp(-bdiff * fxs[0, :]).mean(axis=1))
+        # weights = np.exp(logweights)
+        # dF = -np.log(np.mean(weights, axis=1))
+        bdiff = (self.betas[startTindex:endTindex] - self.betas[startTindex]).reshape(-1,1)
+        dF = -np.log(np.exp(-bdiff * fxs[0, :]).mean(axis=1))
 
         self.bFs[startTindex:endTindex] = self.bF + dF
 
         if endTindex < len(self.betas):
-            bdiff = self.betas[endTindex] - self.betas[endTindex - 1]
-            w = np.exp(logweights[-1, :] - bdiff * fxs[-1, :])
-            self.bF = self.bFs[startTindex] - np.log(w.mean())
-            # bdiff = self.betas[endTindex] - self.betas[startTindex]
-            # self.bF = self.bFs[startTindex] - np.log(np.exp(-bdiff*fxs[0, :]).mean())
+            # bdiff = self.betas[endTindex] - self.betas[endTindex - 1]
+            # w = np.exp(logweights[-1, :] - bdiff * fxs[-1, :])
+            # self.bF = self.bFs[startTindex] - np.log(w.mean())
+            bdiff = self.betas[endTindex] - self.betas[startTindex]
+            self.bF = self.bFs[startTindex] - np.log(np.exp(-bdiff*fxs[0, :]).mean())
 
         if bprint and self.mpirank == 0:
             for iT in range(startTindex, endTindex):
