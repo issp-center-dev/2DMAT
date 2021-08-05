@@ -129,7 +129,6 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.Ferrs = np.zeros(numT)
         nreplicas = self.mpisize * self.nwalkers
         self.nreplicas = np.full(numT, nreplicas)
-        self.fx_from_reset = np.zeros((self.resampling_interval, self.nwalkers))
 
         self.populations = np.zeros((numT, self.nwalkers), dtype=int)
         self.family_lo = self.nwalkers * self.mpirank
@@ -139,6 +138,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.resampling_interval = info_pamc.get("resampling_interval", 1)
         if self.resampling_interval < 1:
             self.resampling_interval = numT + 1
+        self.fx_from_reset = np.zeros((self.resampling_interval, self.nwalkers))
 
         time_end = time.perf_counter()
         self.timer["init"]["total"] = time_end - time_sta
@@ -214,7 +214,11 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         file_trial.close()
         if self.mpisize > 1:
             self.mpicomm.barrier()
-        print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
+        print(
+            "complete main process : rank {:08d}/{:08d}".format(
+                self.mpirank, self.mpisize
+            )
+        )
 
     def _gather_information(self, numT: int = None) -> Dict[str, np.ndarray]:
         """
@@ -330,13 +334,18 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             self._resample_fixed(weights)
             self.logweights[:] = 0.0
         else:
-            self._resample_varied(weights)
+            ns = res["ns"]
+            offsets = ns.cumsum()
+            offset = offsets[self.mpirank - 1] if self.mpirank > 0 else 0
+            self._resample_varied(weights, offset)
             self.fx_from_reset = np.zeros((self.resampling_interval, self.nwalkers))
             self.logweights = np.zeros(self.nwalkers)
 
-    def _resample_varied(self, weights: np.ndarray) -> None:
+    def _resample_varied(self, weights: np.ndarray, offset: int) -> None:
         weights_sum = np.sum(weights)
-        expected_numbers = (self.nreplicas[0] / weights_sum) * weights
+        expected_numbers = (self.nreplicas[0] / weights_sum) * weights[
+            offset : offset + self.nwalkers
+        ]
         next_numbers = self.rng.poisson(expected_numbers)
 
         if self.iscontinuous:
