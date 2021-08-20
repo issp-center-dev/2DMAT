@@ -127,7 +127,7 @@ T.B.A.
 
   形式: int型
 
-  説明: 定義した場合、占有率が変化する。指定された変数がtypeを表す。
+  説明: 定義した場合、占有率が変化する。指定された変数がtypeを表します。
 
 
 以下、入力例を記載します。
@@ -218,8 +218,7 @@ T.B.A.
 出力ファイル
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``sxrd`` では、 計算時に出力されるファイルが、
-ランクの番号が記載されたフォルダ下にある ``Log%%%%%`` フォルダに一式出力されます。
+``sxrd`` では、 計算時に出力されるファイルが、ランクの番号が記載されたフォルダ下にある ``Log%%%%%`` フォルダに一式出力されます。
 ここでは、 ``py2dmat`` で独自に出力するファイルについて説明します。
 
 ``stdout``
@@ -232,7 +231,7 @@ RfactorはFit results以下のRに記載されます。
 .. code-block::
 
     ---------------------------------------
-    Program /Users/k-yoshimi/program/2dmat_test/py2dmat/mapper_sxrd/sxrdcalc for surface x-ray diffraction calculations.
+    Program py2dmat/mapper_sxrd/sxrdcalc for surface x-ray diffraction calculations.
     Version 3.3.3 - August 2019
 
 
