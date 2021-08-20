@@ -11,8 +11,12 @@ Entry = namedtuple("Entry", ["step", "walker", "fx", "xs"])
 
 
 def separateT(Ts: np.ndarray, nwalkers: int, output_dir: PathLike, comm: mpi.Comm, use_beta:bool) -> None:
-    mpisize = comm.size
-    mpirank = comm.rank
+    if comm is None:
+        mpisize = 1
+        mpirank = 0
+    else:
+        mpisize = comm.size
+        mpirank = comm.rank
     output_dir = pathlib.Path(output_dir)
     proc_dir = output_dir / str(mpirank)
 
