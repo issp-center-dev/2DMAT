@@ -269,6 +269,7 @@ The fifth column is the logarithmic of the ratio between the normalization facto
    \log\frac{Z}{Z_0} = \log\int \mathrm{d}x e^{-\beta f(x)} - \log\int \mathrm{d}x e^{-\beta_0 f(x)},
 
 where :math:`\beta_0` is the minimum value of :math:`\beta` used in the calculation.
+The sixth column is the acceptance ratio of MC updates.
 
 .. code-block::
 
@@ -277,11 +278,10 @@ where :math:`\beta_0` is the minimum value of :math:`\beta` used in the calculat
     # $3: standard error of f(x)
     # $4: number of replicas
     # $5: log(Z/Z0)
-    0.0 33.36426034198166 3.0193077565358273 100 0.0
-    0.1 4.518006242920819 0.9535301415484388 100 -1.2134775491597027
-    0.2 1.5919146358616842 0.2770369776964151 100 -1.538611313376179
-    0.30000000000000004 1.5906917803210376 0.2319239558874302 92 -1.6831647075423322
-    0.4 1.7867318682076245 0.24467257608363938 92 -1.8216980574386021
+    # $6: acceptance ratio
+    0.0 33.36426034198166 3.0193077565358273 100 0.0 0.9804
+    0.1 4.518006242920819 0.9535301415484388 100 -1.2134775491597027 0.9058
+    0.2 1.5919146358616842 0.2770369776964151 100 -1.538611313376179 0.9004
     ...
 
 

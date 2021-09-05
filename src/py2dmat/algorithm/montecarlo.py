@@ -72,6 +72,9 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
     input_as_beta: bool
     Tindex: np.ndarray
 
+    ntrial: int
+    naccepted: int
+
     def __init__(
         self, info: py2dmat.Info, runner: py2dmat.Runner = None, nwalkers: int = 1
     ) -> None:
@@ -120,6 +123,8 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         self.timer["init"]["total"] = time_end - time_sta
         self.Tindex = 0
         self.input_as_beta = False
+        self.naccepted = 0
+        self.ntrial = 0
 
     def read_Ts(self, info: dict, numT: int = None) -> np.ndarray:
         """
@@ -312,6 +317,8 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         accepted = in_range.copy()
         accepted[tocheck] = self.rng.rand(num_check) < probs[tocheck]
         rejected = ~accepted
+        self.naccepted += accepted.sum()
+        self.ntrial += accepted.size
 
         # revert rejected steps
         self.x[rejected, :] = x_old[rejected, :]

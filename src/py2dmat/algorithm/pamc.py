@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Union
 
 from io import open
 import copy
@@ -60,6 +60,10 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     Tindex: int
 
     fx_from_reset: np.ndarray
+
+    # 0th column: number of accepted MC trials
+    # 1st column: number of total MC trials
+    naccepted_from_reset: np.ndarray
     resampling_interval: int
 
     nset_bootstrap: int
@@ -135,6 +139,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         if self.resampling_interval < 1:
             self.resampling_interval = numT + 1
         self.fx_from_reset = np.zeros((self.resampling_interval, self.nwalkers))
+        self.naccepted_from_reset = np.zeros((self.resampling_interval, 2), dtype=int)
+        self.acceptance_ratio = np.zeros(numT)
 
         time_end = time.perf_counter()
         self.timer["init"]["total"] = time_end - time_sta
@@ -147,7 +153,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
         bprint = True
         if bprint and self.mpirank == 0:
-            print("β mean[f] Err[f] nreplica log(Z/Z0)")
+            print("β mean[f] Err[f] nreplica log(Z/Z0) acceptance_ratio")
 
         file_trial = open("trial_T0.txt", "w")
         file_result = open("result_T0.txt", "w")
@@ -195,6 +201,10 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             file_result.close()
 
             self.fx_from_reset[index_from_reset, :] = self.fx[:]
+            self.naccepted_from_reset[index_from_reset, 0] = self.naccepted
+            self.naccepted_from_reset[index_from_reset, 1] = self.ntrial
+            self.naccepted = 0
+            self.ntrial = 0
             index_from_reset += 1
 
             if Tindex == len(self.betas) - 1:
@@ -241,6 +251,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
                 - number of walkers in each process
             - ancestors
                 - ancestor (origin) of each walker
+            - acceptance ratio
+                - acceptance_ratio for each temperature
         """
 
         if numT is None:
@@ -254,10 +266,16 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             res["ns"] = ns
             ancestors_list = self.mpicomm.allgather(self.walker_ancestors)
             res["ancestors"] = np.block(ancestors_list)
+
+            naccepted = self.mpicomm.allreduce(self.naccepted_from_reset[0:numT, :])
+            res["acceptance ratio"] = naccepted[:, 0] / naccepted[:, 1]
         else:
             res["fxs"] = self.fx_from_reset[0:numT, :]
             res["ns"] = np.array([self.nwalkers], dtype=int)
             res["ancestors"] = self.walker_ancestors
+            res["acceptance ratio"] = (
+                self.naccepted_from_reset[:, 0] / self.naccepted_from_reset[:, 1]
+            )
         fxs = res["fxs"]
         numT, nreplicas = fxs.shape
         endTindex = self.Tindex + 1
@@ -295,6 +313,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.Fmeans[startTindex:endTindex] = fm
         self.Ferrs[startTindex:endTindex] = ferr
         self.nreplicas[startTindex:endTindex] = nreplicas
+        self.acceptance_ratio[startTindex:endTindex] = info["acceptance ratio"][0:numT]
 
         weights = np.exp(logweights)
         logz = np.log(np.mean(weights, axis=1))
@@ -313,6 +332,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
                     self.Ferrs[iT],
                     self.nreplicas[iT],
                     self.logZs[iT],
+                    self.acceptance_ratio[iT],
                 ]:
                     print(v, end=" ")
                 print()
@@ -448,9 +468,11 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
                 f.write("# $3: standard error of f(x)\n")
                 f.write("# $4: number of replicas\n")
                 f.write("# $5: log(Z/Z0)\n")
+                f.write("# $6: acceptance ratio\n")
                 for i in range(len(self.betas)):
                     f.write(f"{self.betas[i]}")
                     f.write(f" {self.Fmeans[i]} {self.Ferrs[i]}")
                     f.write(f" {self.nreplicas[i]}")
                     f.write(f" {self.logZs[i]}")
+                    f.write(f" {self.acceptance_ratio[i]}")
                     f.write("\n")
