@@ -29,7 +29,11 @@ In 2DMAT, the algorithms for solving the inverse problem can be selected as foll
 
    Sampling plausible atomic coordinates using a replica exchange Monte Carlo method.
 
-In this tutorial, we will first introduce how to run the sequential problem program, and then how to run ``minsearch`` , ``mapper_mpi``, ``bayes``, and ``exchange`` .
+- ``pamc``
+
+   Sampling plausible atomic coordinates using a population annealing Monte Carlo method.
+
+In this tutorial, we will first introduce how to run the sequential problem program, and then how to run ``minsearch`` , ``mapper_mpi``, ``bayes``, ``exchange``, and ``pamc`` .
 
 
 .. toctree::
@@ -40,4 +44,5 @@ In this tutorial, we will first introduce how to run the sequential problem prog
    mpi
    bayes
    exchange
+   pamc
    
