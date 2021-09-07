@@ -2,7 +2,7 @@ sh ./prepare.sh
 
 ./bulk.exe
 
-time python3 ../../../src/py2dmat_main.py input.toml | tee log.txt
+time python3 ../../../../src/py2dmat_main.py input.toml | tee log.txt
 
 echo diff res.txt ref.txt
 res=0

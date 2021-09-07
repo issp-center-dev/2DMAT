@@ -2,7 +2,7 @@ sh prepare.sh
 
 ./bulk.exe
 
-time python3 ../../../src/py2dmat_main.py input.toml
+time python3 ../../../../src/py2dmat_main.py input.toml
 
 echo diff ColorMap.txt ref_ColorMap.txt
 res=0

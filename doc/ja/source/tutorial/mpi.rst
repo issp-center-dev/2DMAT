@@ -8,7 +8,7 @@
 サンプルファイルの場所
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-サンプルファイルは ``sample/py2dmat/mapper`` にあります。
+サンプルファイルは ``sample/py2dmat/sim-trhepd-rheed/mapper`` にあります。
 フォルダには以下のファイルが格納されています。
 
 - ``bulk.txt``
