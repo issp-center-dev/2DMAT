@@ -15,4 +15,5 @@ In this section, the search algorithms implemented in ``py2dmat`` are described.
    minsearch
    mapper_mpi
    exchange
+   pamc
    bayes

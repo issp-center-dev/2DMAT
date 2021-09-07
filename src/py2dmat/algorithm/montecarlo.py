@@ -72,6 +72,9 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
     input_as_beta: bool
     Tindex: np.ndarray
 
+    ntrial: int
+    naccepted: int
+
     def __init__(
         self, info: py2dmat.Info, runner: py2dmat.Runner = None, nwalkers: int = 1
     ) -> None:
@@ -120,6 +123,8 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         self.timer["init"]["total"] = time_end - time_sta
         self.Tindex = 0
         self.input_as_beta = False
+        self.naccepted = 0
+        self.ntrial = 0
 
     def read_Ts(self, info: dict, numT: int = None) -> np.ndarray:
         """
@@ -258,7 +263,11 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         return proposed
 
     def local_update(
-        self, beta: Union[float, np.ndarray], file_trial: TextIO, file_result: TextIO
+        self,
+        beta: Union[float, np.ndarray],
+        file_trial: TextIO,
+        file_result: TextIO,
+        extra_info_to_write: Union[List, Tuple] = None,
     ):
         """one step of Monte Carlo
 
@@ -270,6 +279,8 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
             log file for all trial points
         file_result: TextIO
             log file for all generated samples
+        extra_info_to_write: List of np.ndarray or tuple of np.ndarray
+            extra information to write
         """
         # make candidate
         x_old = copy.copy(self.x)
@@ -285,13 +296,15 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         # evaluate "Energy"s
         fx_old = self.fx.copy()
         self._evaluate(in_range)
-        self._write_result(file_trial)
+        self._write_result(file_trial, extra_info_to_write=extra_info_to_write)
+
         fdiff = self.fx - fx_old
 
         # Ignore an overflow warning in np.exp(x) for x >~ 710
         # and an invalid operation warning in exp(nan) (nan came from 0 * inf)
         # Note: fdiff (fx) becomes inf when x is out of range
-        old_setting = np.seterr(over="ignore")
+        # old_setting = np.seterr(over="ignore")
+        old_setting = np.seterr(all="ignore")
         probs = np.exp(-beta * fdiff)
         # probs[np.isnan(probs)] = 0.0
         np.seterr(**old_setting)
@@ -304,6 +317,8 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         accepted = in_range.copy()
         accepted[tocheck] = self.rng.rand(num_check) < probs[tocheck]
         rejected = ~accepted
+        self.naccepted += accepted.sum()
+        self.ntrial += accepted.size
 
         # revert rejected steps
         self.x[rejected, :] = x_old[rejected, :]
@@ -317,28 +332,37 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
             self.best_fx = self.fx[minidx]
             self.best_istep = self.istep
             self.best_iwalker = typing.cast(int, minidx)
-        self._write_result(file_result)
+        self._write_result(file_result, extra_info_to_write=extra_info_to_write)
 
-    def _write_result_header(self, fp) -> None:
+    def _write_result_header(self, fp, extra_names=None) -> None:
         if self.input_as_beta:
             fp.write("# step walker beta fx")
         else:
             fp.write("# step walker T fx")
         for label in self.label_list:
             fp.write(f" {label}")
+        if extra_names is not None:
+            for label in extra_names:
+                fp.write(f" {label}")
         fp.write("\n")
 
-    def _write_result(self, fp) -> None:
+    def _write_result(self, fp, extra_info_to_write: Union[List, Tuple] = None) -> None:
         for iwalker in range(self.nwalkers):
-            fp.write(f"{self.istep} ")
-            fp.write(f"{iwalker} ")
-            beta = self.betas[self.Tindex[iwalker]]
-            if self.input_as_beta:
-                fp.write(f"{beta} ")
+            if isinstance(self.Tindex, int):
+                beta = self.betas[self.Tindex]
             else:
-                fp.write(f"{1.0/beta} ")
-            fp.write(f"{self.fx[iwalker]} ")
+                beta = self.betas[self.Tindex[iwalker]]
+            fp.write(f"{self.istep}")
+            fp.write(f" {iwalker}")
+            if self.input_as_beta:
+                fp.write(f" {beta}")
+            else:
+                fp.write(f" {1.0/beta}")
+            fp.write(f" {self.fx[iwalker]}")
             for x in self.x[iwalker, :]:
-                fp.write(f"{x} ")
+                fp.write(f" {x}")
+            if extra_info_to_write is not None:
+                for ex in extra_info_to_write:
+                    fp.write(f" {ex[iwalker]}")
             fp.write("\n")
         fp.flush()

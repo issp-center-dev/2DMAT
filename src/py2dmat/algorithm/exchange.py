@@ -239,10 +239,16 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             comm=self.mpicomm,
             use_beta=self.input_as_beta,
         )
-        best_fx = self.mpicomm.gather(self.best_fx, root=0)
-        best_x = self.mpicomm.gather(self.best_x, root=0)
-        best_istep = self.mpicomm.gather(self.best_istep, root=0)
-        best_iwalker = self.mpicomm.gather(self.best_iwalker, root=0)
+        if self.mpisize > 1:
+            best_fx = self.mpicomm.gather(self.best_fx, root=0)
+            best_x = self.mpicomm.gather(self.best_x, root=0)
+            best_istep = self.mpicomm.gather(self.best_istep, root=0)
+            best_iwalker = self.mpicomm.gather(self.best_iwalker, root=0)
+        else:
+            best_fx = [self.best_fx]
+            best_x = [self.best_x]
+            best_istep = [self.best_istep]
+            best_iwalker = [self.best_iwalker]
         if self.mpirank == 0:
             best_rank = np.argmin(best_fx)
             with open("best_result.txt", "w") as f:
