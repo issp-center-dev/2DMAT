@@ -118,7 +118,7 @@ Otherwise, continuous space is used.
 
   Description: The number of replicas in a MPI process.
 
-Refernce file
+Reference file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Mesh definition file

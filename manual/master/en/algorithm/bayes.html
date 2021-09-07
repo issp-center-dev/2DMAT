@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Bayse optimization bayes &#8212; 2DMAT 1.0.1 documentation</title>
+    <title>Bayse optimization bayes &#8212; 2DMAT 2.0-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
@@ -17,16 +17,16 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Direct Problem Solver" href="../solver/index.html" />
-    <link rel="prev" title="Replica exchange Monte Carlo exchange" href="exchange.html" /> 
+    <link rel="prev" title="Population Annealing Monte Carlo pamc" href="pamc.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
-          <span>2DMAT 1.0.1 documentation</span></a></h1>
+          <span>2DMAT 2.0-dev documentation</span></a></h1>
         <h2 class="heading"><span>Bayse optimization bayes</span></h2>
       </div>
       <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
-        «&#160;&#160;<a href="exchange.html">Replica exchange Monte Carlo <code class="docutils literal notranslate"><span class="pre">exchange</span></code></a>
+        «&#160;&#160;<a href="pamc.html">Population Annealing Monte Carlo <code class="docutils literal notranslate"><span class="pre">pamc</span></code></a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
@@ -156,7 +156,7 @@ After repeating these searches, the best value of the objective function as the 
 but it does not contribute much to improving the accuracy of the model function because it is considered to already have enough information.
 On the other hand, a point with a large error may not be the correct answer,
 but it is a place with little information and is considered to be beneficial for updating the model function.
-Selecting the former is called “utilization,” while selecting the latter is called “exploration,” and it is important to balance both.
+Selecting the former is called “exploition,” while selecting the latter is called “exploration,” and it is important to balance both.
 The definition of “score” defines how to choose between them.</p>
 <p>In 2DMAT, we use <a class="reference external" href="https://www.pasums.issp.u-tokyo.ac.jp/physbo/en">PHYSBO</a> as a library for Bayesian optimization.
 PHYSBO, like <code class="docutils literal notranslate"><span class="pre">mapper_mpi</span></code>, computes a “score” for a predetermined set of candidate points, and proposes an optimal solution.
@@ -171,7 +171,7 @@ In PHYSBO, “expected improvement (EI)”, “probability of improvement (PI)�
       <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
-        «&#160;&#160;<a href="exchange.html">Replica exchange Monte Carlo <code class="docutils literal notranslate"><span class="pre">exchange</span></code></a>
+        «&#160;&#160;<a href="pamc.html">Population Annealing Monte Carlo <code class="docutils literal notranslate"><span class="pre">pamc</span></code></a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
