@@ -1,5 +1,5 @@
 import typing
-from typing import TextIO, Union, List
+from typing import TextIO, Union, List, Tuple
 import copy
 import time
 import pathlib
@@ -7,7 +7,7 @@ import pathlib
 import numpy as np
 
 import py2dmat
-from py2dmat.util.neighborlist import make_neighbor_list, load_neighbor_list
+from py2dmat.util.neighborlist import load_neighbor_list
 import py2dmat.util.graph
 
 
@@ -68,8 +68,12 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
     best_fx: float
     best_istep: int
     best_iwalker: int
-    Ts: np.ndarray
+    betas: np.ndarray
+    input_as_beta: bool
     Tindex: np.ndarray
+
+    ntrial: int
+    naccepted: int
 
     def __init__(
         self, info: py2dmat.Info, runner: py2dmat.Runner = None, nwalkers: int = 1
@@ -86,15 +90,15 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
             self.x = self.node_coordinates[self.inode, :]
 
             if "neighborlist_path" not in info_param:
-                msg = "ERROR: Parameter algorithm.param.neighborlist_path does not exist."
+                msg = (
+                    "ERROR: Parameter algorithm.param.neighborlist_path does not exist."
+                )
                 raise RuntimeError(msg)
             nn_path = (
                 self.root_dir
                 / pathlib.Path(info_param["neighborlist_path"]).expanduser()
             )
-            self.neighbor_list = load_neighbor_list(
-                nn_path, nnodes=self.nnodes
-            )
+            self.neighbor_list = load_neighbor_list(nn_path, nnodes=self.nnodes)
             if not py2dmat.util.graph.is_connected(self.neighbor_list):
                 msg = "ERROR: The transition graph made from neighbor list is not connected."
                 msg += "\nHINT: Increase neighborhood radius."
@@ -102,7 +106,9 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
             if not py2dmat.util.graph.is_bidirectional(self.neighbor_list):
                 msg = "ERROR: The transition graph made from neighbor list is not bidirectional."
                 raise RuntimeError(msg)
-            self.ncandidates = np.array([ len(ns)-1 for ns in self.neighbor_list ], dtype=np.int64)
+            self.ncandidates = np.array(
+                [len(ns) - 1 for ns in self.neighbor_list], dtype=np.int64
+            )
 
         else:
             self.iscontinuous = True
@@ -115,42 +121,102 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         self.best_iwalker = 0
         time_end = time.perf_counter()
         self.timer["init"]["total"] = time_end - time_sta
+        self.Tindex = 0
+        self.input_as_beta = False
+        self.naccepted = 0
+        self.ntrial = 0
 
     def read_Ts(self, info: dict, numT: int = None) -> np.ndarray:
+        """
+
+        Returns
+        -------
+        bs: np.ndarray
+            inverse temperatures
+        """
         if numT is None:
             numT = self.nwalkers * self.mpisize
-        bTinv = info.get("Tinvspace", False)
-        bTlog = info.get("Tlogspace", True)
-        bTlogdefined = "Tlogspace" in info
 
-        if bTinv and bTlog:
-            msg = "ERROR: Both Tinvspace and Tlogspace are enabled."
-            if not bTlogdefined:
-                msg += "\nNote: The default value of Tlogspace is true."
-            raise RuntimeError(msg)
+        Tmin = info.get("Tmin", None)
+        Tmax = info.get("Tmax", None)
+        bmin = info.get("bmin", None)
+        bmax = info.get("bmax", None)
 
-        if bTinv:
-            T_inverse = np.linspace(
-                start=(1.0 / info.get("Tmin", 0.1)),
-                stop=(1.0 / info.get("Tmax", 10)),
-                num=numT,
-            )
-            Ts = 1.0 / T_inverse
-        elif bTlog:
-            Ts = np.logspace(
-                start=np.log10(info.get("Tmin", 0.1)),
-                stop=np.log10(info.get("Tmax", 10.0)),
-                num=numT,
-            )
+        if bmin is not None or bmax is not None:
+            self.input_as_beta = True
+            if bmax is None:
+                msg = "ERROR: bmin is defined but bmax is not."
+                raise RuntimeError(msg)
+            if bmin is None:
+                msg = "ERROR: bmax is defined but bmin is not."
+                raise RuntimeError(msg)
+            if Tmin is not None:
+                msg = "ERROR: Both bmin and Tmin are defined."
+                raise RuntimeError(msg)
+            if Tmax is not None:
+                msg = "ERROR: Both bmin and Tmax are defined."
+                raise RuntimeError(msg)
+
+            if not np.isreal(bmin) or bmin < 0.0:
+                msg = "ERROR: bmin should be a positive number or 0.0"
+                raise RuntimeError(msg)
+            if not np.isreal(bmax) or bmax < 0.0:
+                msg = "ERROR: bmax should be a positive number or 0.0"
+                raise RuntimeError(msg)
+            if bmin > bmax:
+                msg = "ERROR: bmin should be less than bmax"
+                raise RuntimeError(msg)
+
+            bTlog = info.get("Tlogspace", True)
+            if bTlog:
+                if bmin == 0.0:
+                    msg = "ERROR: when Tlogspace is true, bmin should be > 0.0.\n"
+                    msg += "INFO: Default value of Tlogspace is true"
+                    raise RuntimeError(msg)
+                bs = np.logspace(start=np.log10(bmin), stop=np.log10(bmax), num=numT)
+            else:
+                bs = np.linspace(start=bmin, stop=bmax, num=numT)
+            return bs
+
         else:
-            Ts = np.linspace(
-                start=info.get("Tmin", 0.1),
-                stop=info.get("Tmax", 10.0),
-                num=numT,
-            )
-        return Ts
+            self.input_as_beta = False
 
-    def _evaluate(self) -> np.ndarray:
+            if Tmin is None:
+                msg = "ERROR: Tmin is not defined."
+                raise RuntimeError(msg)
+            if Tmax is None:
+                msg = "ERROR: Tmax is not defined."
+                raise RuntimeError(msg)
+            if not np.isreal(Tmin) or Tmin <= 0.0:
+                msg = "ERROR: Tmin should be a positive number"
+                raise RuntimeError(msg)
+            if not np.isreal(Tmax) or Tmax <= 0.0:
+                msg = "ERROR: Tmax should be a positive number"
+                raise RuntimeError(msg)
+            if Tmin > Tmax:
+                msg = "ERROR: Tmin should be less than Tmax"
+                raise RuntimeError(msg)
+
+            if "Tinvspace" in info:
+                msg = "ERROR: Tinvspace is deprecated. Use bmin/bmax instead."
+                raise RuntimeError(msg)
+            bTlog = info.get("Tlogspace", True)
+
+            if bTlog:
+                Ts = np.logspace(
+                    start=np.log10(Tmin),
+                    stop=np.log10(Tmax),
+                    num=numT,
+                )
+            else:
+                Ts = np.linspace(
+                    start=Tmin,
+                    stop=Tmax,
+                    num=numT,
+                )
+            return 1.0 / Ts
+
+    def _evaluate(self, in_range: np.ndarray = None) -> np.ndarray:
         """evaluate current "Energy"s
 
         ``self.fx`` will be overwritten with the result
@@ -163,12 +229,16 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         """
 
         for iwalker in range(self.nwalkers):
-            message = py2dmat.Message(self.x[iwalker, :], self.istep, iwalker)
+            x = self.x[iwalker, :]
+            if in_range is None or in_range[iwalker]:
+                message = py2dmat.Message(x, self.istep, iwalker)
 
-            time_sta = time.perf_counter()
-            self.fx[iwalker] = self.runner.submit(message)
-            time_end = time.perf_counter()
-            self.timer["run"]["submit"] += time_end - time_sta
+                time_sta = time.perf_counter()
+                self.fx[iwalker] = self.runner.submit(message)
+                time_end = time.perf_counter()
+                self.timer["run"]["submit"] += time_end - time_sta
+            else:
+                self.fx[iwalker] = np.inf
         return self.fx
 
     def propose(self, current: np.ndarray) -> np.ndarray:
@@ -193,7 +263,11 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         return proposed
 
     def local_update(
-        self, beta: Union[float, np.ndarray], file_trial: TextIO, file_result: TextIO
+        self,
+        beta: Union[float, np.ndarray],
+        file_trial: TextIO,
+        file_result: TextIO,
+        extra_info_to_write: Union[List, Tuple] = None,
     ):
         """one step of Monte Carlo
 
@@ -205,44 +279,48 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
             log file for all trial points
         file_result: TextIO
             log file for all generated samples
+        extra_info_to_write: List of np.ndarray or tuple of np.ndarray
+            extra information to write
         """
         # make candidate
         x_old = copy.copy(self.x)
         if self.iscontinuous:
             self.x = self.propose(x_old)
+            in_range = ((self.xmin <= self.x) & (self.x <= self.xmax)).all(axis=1)
         else:
             i_old = copy.copy(self.inode)
             self.inode = self.propose(self.inode)
             self.x = self.node_coordinates[self.inode, :]
+            in_range = np.ones(self.nwalkers, dtype=bool)
 
         # evaluate "Energy"s
-        fx_old = copy.copy(self.fx)
-        self._evaluate()
-        self._write_result(file_trial)
+        fx_old = self.fx.copy()
+        self._evaluate(in_range)
+        self._write_result(file_trial, extra_info_to_write=extra_info_to_write)
 
         fdiff = self.fx - fx_old
 
-        # Ignore an overflow warning when evaluating np.exp(x) for x >~ 710.
-        old_setting = np.seterr(over="ignore")
+        # Ignore an overflow warning in np.exp(x) for x >~ 710
+        # and an invalid operation warning in exp(nan) (nan came from 0 * inf)
+        # Note: fdiff (fx) becomes inf when x is out of range
+        # old_setting = np.seterr(over="ignore")
+        old_setting = np.seterr(all="ignore")
         probs = np.exp(-beta * fdiff)
+        # probs[np.isnan(probs)] = 0.0
         np.seterr(**old_setting)
 
-        if self.iscontinuous:
-            in_range = ((self.xmin <= self.x) & (self.x <= self.xmax)).all(axis=1)
-            tocheck = in_range & (probs < 1.0)
-        else:
+        if not self.iscontinuous:
             probs *= self.ncandidates[i_old] / self.ncandidates[self.inode]
-            tocheck = probs < 1.0
-
+        tocheck = in_range & (probs < 1.0)
         num_check = np.count_nonzero(tocheck)
 
-        accepted = np.ones(self.nwalkers, dtype=bool)
-        if self.iscontinuous:
-            accepted[~in_range] = False
+        accepted = in_range.copy()
         accepted[tocheck] = self.rng.rand(num_check) < probs[tocheck]
+        rejected = ~accepted
+        self.naccepted += accepted.sum()
+        self.ntrial += accepted.size
 
         # revert rejected steps
-        rejected = ~accepted
         self.x[rejected, :] = x_old[rejected, :]
         self.fx[rejected] = fx_old[rejected]
         if not self.iscontinuous:
@@ -254,21 +332,37 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
             self.best_fx = self.fx[minidx]
             self.best_istep = self.istep
             self.best_iwalker = typing.cast(int, minidx)
-        self._write_result(file_result)
+        self._write_result(file_result, extra_info_to_write=extra_info_to_write)
 
-    def _write_result_header(self, fp) -> None:
-        fp.write("# step walker T fx")
+    def _write_result_header(self, fp, extra_names=None) -> None:
+        if self.input_as_beta:
+            fp.write("# step walker beta fx")
+        else:
+            fp.write("# step walker T fx")
         for label in self.label_list:
             fp.write(f" {label}")
+        if extra_names is not None:
+            for label in extra_names:
+                fp.write(f" {label}")
         fp.write("\n")
 
-    def _write_result(self, fp) -> None:
+    def _write_result(self, fp, extra_info_to_write: Union[List, Tuple] = None) -> None:
         for iwalker in range(self.nwalkers):
-            fp.write(f"{self.istep} ")
-            fp.write(f"{iwalker} ")
-            fp.write(f"{self.Ts[self.Tindex[iwalker]]} ")
-            fp.write(f"{self.fx[iwalker]} ")
+            if isinstance(self.Tindex, int):
+                beta = self.betas[self.Tindex]
+            else:
+                beta = self.betas[self.Tindex[iwalker]]
+            fp.write(f"{self.istep}")
+            fp.write(f" {iwalker}")
+            if self.input_as_beta:
+                fp.write(f" {beta}")
+            else:
+                fp.write(f" {1.0/beta}")
+            fp.write(f" {self.fx[iwalker]}")
             for x in self.x[iwalker, :]:
-                fp.write(f"{x} ")
+                fp.write(f" {x}")
+            if extra_info_to_write is not None:
+                for ex in extra_info_to_write:
+                    fp.write(f" {ex[iwalker]}")
             fp.write("\n")
         fp.flush()

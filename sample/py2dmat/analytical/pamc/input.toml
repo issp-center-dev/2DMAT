@@ -1,0 +1,24 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[algorithm]
+name = "pamc"
+seed = 12345
+
+[algorithm.param]
+max_list = [6.0, 6.0]
+min_list = [-6.0, -6.0]
+unit_list = [0.3, 0.3]
+
+[algorithm.pamc]
+bmin = 0.0
+bmax = 1.0
+Tnum = 11
+Tlogspace = false
+numsteps_annealing = 100
+nreplica_per_proc = 100
+
+[solver]
+name = "analytical"
+function_name = "himmelblau"

@@ -8,7 +8,7 @@
 サンプルファイルの場所
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-サンプルファイルは ``sample/py2dmat/bayes`` にあります。
+サンプルファイルは ``sample/py2dmat/sim-trhepd-rheed/bayes`` にあります。
 フォルダには以下のファイルが格納されています。
 
 - ``bulk.txt``

@@ -235,7 +235,7 @@ class run_subprocess(Run):
         command: List[str] = solver.command()
         with open("stdout", "w") as fi:
             subprocess.run(
-                command, stdout=fi, stderr=subprocess.STDOUT, check=True, shell=True
+                command, stdout=fi, stderr=subprocess.STDOUT, check=True
             )
         return 0
 
