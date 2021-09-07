@@ -8,7 +8,7 @@ However, it is necessary to prepare the data ``MeshData.txt`` to give the search
 Location of the sample files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The sample files are located in ``sample/py2dmat/mapper``.
+The sample files are located in ``sample/py2dmat/sim-trhepd-rheed/mapper``.
 The following files are stored in the folder
 
 - ``bulk.txt``

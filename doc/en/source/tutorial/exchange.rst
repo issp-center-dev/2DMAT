@@ -6,7 +6,7 @@ This tutorial subscribes how to estimate atomic positions from the experimental 
 Sample files
 ~~~~~~~~~~~~~~~~~~
 
-Sample files are available from ``sample/py2dmat/bayes`` .
+Sample files are available from ``sample/py2dmat/sim-trhepd-rheed/exchange`` .
 This directory includes the following files:
 
 - ``bulk.txt``
