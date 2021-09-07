@@ -150,6 +150,7 @@ latex_documents = [
     (master_doc, '2DMAT.tex', u'2DMAT\'s Documentation',
      u'2DMAT\'s developer team', 'manual', 'True'),
 ]
+latex_engine = 'xelatex'
 
 
 # -- Options for manual page output ---------------------------------------

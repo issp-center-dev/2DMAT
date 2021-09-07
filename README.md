@@ -9,14 +9,14 @@ As algorithms, it offers the Nelder-Mead method, the grid search method, the Bay
 
 | Branch |                Build status                 |                                       Documentation                                       |
 | :----: | :-----------------------------------------: | :---------------------------------------------------------------------------------------: |
-| master | [![master][ci/master/badge]][ci/master/uri] |        [![doc_en][doc/en/badge]][doc/en/uri] [![doc_ja][doc/ja/badge]][doc/ja/uri]        |
-| v1.0.1 |                     --                      | [![doc_en][doc/en/badge]][doc/stable/en/uri] [![doc_ja][doc/ja/badge]][doc/stable/ja/uri] |
+| [master][source/master] (latest) | [![master][ci/master/badge]][ci/master/uri] |        [![doc_en][doc/en/badge]][doc/en/uri] [![doc_ja][doc/ja/badge]][doc/ja/uri]        |
+| [v1.0.1][source/stable] (latest stable) |                     --                      | [![doc_en][doc/en/badge]][doc/stable/en/uri] [![doc_ja][doc/ja/badge]][doc/stable/ja/uri] |
 
 ## py2dmat
 
 `py2dmat` is a python framework library for solving inverse problems.
-It also offers a driver script to solve the problem with predefined algorithms
-and solvers (`py2dmat` also means this script).
+It also offers a driver script to solve the problem with predefined optimization algorithms
+and direct problem solvers (`py2dmat` also means this script).
 
 ### Prerequists
 
@@ -57,6 +57,8 @@ This package is distributed under GNU General Public License version 3 (GPL v3) 
 © *2020- The University of Tokyo. All rights reserved.*
 This software was developed with the support of "*Project for advancement of software usability in materials science*" of The Institute for Solid State Physics, The University of Tokyo.
 
+[source/master]: https://github.com/issp-center-dev/2DMAT/
+[source/stable]: https://github.com/issp-center-dev/2DMAT/tree/v1.0.1
 [ci/master/badge]: https://github.com/issp-center-dev/2DMAT/workflows/Test/badge.svg?branch=master
 [ci/master/uri]: https://github.com/issp-center-dev/2DMAT/actions?query=branch%3Amaster
 [doc/en/badge]: https://img.shields.io/badge/doc-English-blue.svg

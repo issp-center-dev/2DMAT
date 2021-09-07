@@ -152,7 +152,7 @@ A point that gives a better expected value with a smaller error is likely to be 
 but it does not contribute much to improving the accuracy of the model function because it is considered to already have enough information.
 On the other hand, a point with a large error may not be the correct answer,
 but it is a place with little information and is considered to be beneficial for updating the model function.
-Selecting the former is called "utilization," while selecting the latter is called "exploration," and it is important to balance both.
+Selecting the former is called "exploition," while selecting the latter is called "exploration," and it is important to balance both.
 The definition of "score" defines how to choose between them.
 
 In 2DMAT, we use `PHYSBO`_ as a library for Bayesian optimization.
