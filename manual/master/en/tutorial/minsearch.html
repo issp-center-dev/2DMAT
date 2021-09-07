@@ -45,7 +45,7 @@ The specific calculation procedure is as follows.</p>
 <p>Prepare the reference file to be matched (in this tutorial, it corresponds to <code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code> described below).</p>
 </li>
 <li><p>Perform calculations on the bulk part of the surface structure.</p>
-<p>Copy <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> to <code class="docutils literal notranslate"><span class="pre">sample/py2dmat/minsearch</span></code> and run the calculation.</p>
+<p>Copy <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> to <code class="docutils literal notranslate"><span class="pre">sample/py2dmat/sim-trhepd-rheed/minsearch</span></code> and run the calculation.</p>
 </li>
 <li><p>Run the main program</p>
 <p>Run the calculation using <code class="docutils literal notranslate"><span class="pre">src/py2dmat_main.py</span></code> to estimate the atomic coordinates.</p>
@@ -54,7 +54,7 @@ The specific calculation procedure is as follows.</p>
 <p>In the main program, the Nelder-Mead method (using <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.fmin.html">scipy.optimize.fmin</a>) is used. ) to find the parameter that minimizes the deviation (R-value) between the intensity obtained using the solver (in this case <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code>) and the intensity listed in the reference file (<code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code>).</p>
 <section id="location-of-the-sample-files">
 <h2>Location of the sample files<a class="headerlink" href="#location-of-the-sample-files" title="Permalink to this headline">¶</a></h2>
-<p>The sample files are located in <code class="docutils literal notranslate"><span class="pre">sample/py2dmat/minsearch</span></code>.
+<p>The sample files are located in <code class="docutils literal notranslate"><span class="pre">sample/py2dmat/sim-trhepd-rheed/minsearch</span></code>.
 The following files are stored in the folder.</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">bulk.txt</span></code></p>
