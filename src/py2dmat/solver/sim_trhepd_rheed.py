@@ -29,9 +29,11 @@ class Solver(py2dmat.solver.SolverBase):
                     break
         if not os.access(self.path_to_solver, mode=os.X_OK):
             raise exception.InputError(f"ERROR: solver ({p2solver}) is not found")
+        info_config = info.solver.get("config", {})
 
         self.input = Solver.Input(info)
         self.output = Solver.Output(info)
+        self.result = None
 
     def default_run_scheme(self):
         """
@@ -50,9 +52,12 @@ class Solver(py2dmat.solver.SolverBase):
         fitted_x_list, subdir = self.input.prepare(message)
         self.work_dir = self.proc_dir / Path(subdir)
         self.output.prepare(fitted_x_list)
+        self.result = None
 
     def get_results(self) -> float:
-        return self.output.get_results(self.work_dir)
+        if self.result is None:
+            self.result = self.output.get_results(self.work_dir)
+        return self.result
 
     class Input(object):
         root_dir: Path
@@ -108,7 +113,7 @@ class Solver(py2dmat.solver.SolverBase):
         def prepare(self, message: py2dmat.Message):
             x_list = message.x
             step = message.step
-            extra = message.set > 0
+            iset = message.set
 
             dimension = self.dimension
             string_list = self.string_list
@@ -122,7 +127,7 @@ class Solver(py2dmat.solver.SolverBase):
                 fitted_x_list.append(fitted_value)
             for index in range(dimension):
                 print(string_list[index], "=", fitted_x_list[index])
-            folder_name = self._pre_bulk(step, bulk_output_file, extra)
+            folder_name = self._pre_bulk(step, bulk_output_file, iset)
             self._replace(fitted_x_list, folder_name)
             return fitted_x_list, folder_name
 
@@ -134,8 +139,7 @@ class Solver(py2dmat.solver.SolverBase):
                     for index in range(self.dimension):
                         if line.find(self.string_list[index]) != -1:
                             line = line.replace(
-                                self.string_list[index],
-                                fitted_x_list[index],
+                                self.string_list[index], fitted_x_list[index],
                             )
                     file_output.write(line)
 
@@ -154,11 +158,8 @@ class Solver(py2dmat.solver.SolverBase):
                         msg += label
                 raise exception.InputError(msg)
 
-        def _pre_bulk(self, Log_number, bulk_output_file, extra):
-            if extra:
-                folder_name = "Extra_Log{:08d}".format(Log_number)
-            else:
-                folder_name = "Log{:08d}".format(Log_number)
+        def _pre_bulk(self, Log_number, bulk_output_file, iset):
+            folder_name = "Log{:08d}_{:08d}".format(Log_number, iset)
             os.makedirs(folder_name, exist_ok=True)
             shutil.copy(
                 bulk_output_file, os.path.join(folder_name, bulk_output_file.name)
@@ -239,6 +240,8 @@ class Solver(py2dmat.solver.SolverBase):
                 raise exception.InputError("ERROR: omega should be positive")
             self.omega = v
 
+            self.remove_work_dir = info_post.get("remove_work_dir", False)
+
             # solver.param
             info_param = info_s.get("param", {})
             v = info_param.setdefault("string_list", ["value_01", "value_02"])
@@ -308,6 +311,12 @@ class Solver(py2dmat.solver.SolverBase):
             os.chdir(work_dir)
             Rfactor = self._post(self.fitted_x_list)
             os.chdir(cwd)
+            if self.remove_work_dir:
+
+                def rmtree_error_handler(function, path, excinfo):
+                    print(f"WARNING: Failed to remove a working directory, {path}")
+
+                shutil.rmtree(work_dir, onerror=rmtree_error_handler)
             return Rfactor
 
         def _post(self, fitted_x_list):

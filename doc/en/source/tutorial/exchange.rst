@@ -239,5 +239,6 @@ Looking at the resulting diagram, we can see that the samples are concentrated n
 
     Sampled parameters and ``R-factor``. The horizontal axes is ``value_01``  and the vertical axes is ``value_02`` .
 
-Also, ``RockingCurve.txt`` is stored in each subfolder.
+Also, ``RockingCurve.txt`` is stored in each subfolder,
+``LogXXX_YYY`` (``XXX`` is an index of MC step and ``YYY`` is an index of a replica in the MPI process).
 By using this, it is possible to compare with the experimental value according to the procedure of the previous tutorial.
