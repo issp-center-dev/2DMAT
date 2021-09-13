@@ -270,14 +270,14 @@ Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference
 計算結果の可視化
 ~~~~~~~~~~~~~~~~~~~
 
-それぞれのステップでのロッキングカーブのデータは、``Extra_Logxxxxx`` (xxxxはステップ数)に ``RockingCurve.txt`` として保存されています。
+それぞれのステップでのロッキングカーブのデータは、 ``LogXXX_00000001`` (``XXX`` はステップ数)フォルダに ``RockingCurve.txt`` として保存されています (``LogXXX_00000000`` フォルダはNelder-Mead 法の途中での評価です)。
 このデータを可視化するツール ``draw_RC_double.py`` が準備されています。
 ここでは、このツールを利用して結果を可視化します。
 
 .. code-block::
 
-    cp 0/Extra_Log00000001/RockingCurve.txt RockingCurve_ini.txt
-    cp 0/Extra_Log00000062/RockingCurve.txt RockingCurve_con.txt
+    cp 0/Log00000001_00000001/RockingCurve.txt RockingCurve_ini.txt
+    cp 0/Log00000062_00000001/RockingCurve.txt RockingCurve_con.txt
     cp ../../../script/draw_RC_double.py .
     python draw_RC_double.py
 

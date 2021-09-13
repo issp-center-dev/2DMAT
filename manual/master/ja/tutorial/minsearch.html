@@ -267,11 +267,11 @@ fi
 </section>
 <section id="id5">
 <h2>計算結果の可視化<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>それぞれのステップでのロッキングカーブのデータは、<code class="docutils literal notranslate"><span class="pre">Extra_Logxxxxx</span></code> (xxxxはステップ数)に <code class="docutils literal notranslate"><span class="pre">RockingCurve.txt</span></code> として保存されています。
+<p>それぞれのステップでのロッキングカーブのデータは、 <code class="docutils literal notranslate"><span class="pre">LogXXX_00000001</span></code> (<code class="docutils literal notranslate"><span class="pre">XXX</span></code> はステップ数)フォルダに <code class="docutils literal notranslate"><span class="pre">RockingCurve.txt</span></code> として保存されています (<code class="docutils literal notranslate"><span class="pre">LogXXX_00000000</span></code> フォルダはNelder-Mead 法の途中での評価です)。
 このデータを可視化するツール <code class="docutils literal notranslate"><span class="pre">draw_RC_double.py</span></code> が準備されています。
 ここでは、このツールを利用して結果を可視化します。</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="mi">0</span><span class="o">/</span><span class="n">Extra_Log00000001</span><span class="o">/</span><span class="n">RockingCurve</span><span class="o">.</span><span class="n">txt</span> <span class="n">RockingCurve_ini</span><span class="o">.</span><span class="n">txt</span>
-<span class="n">cp</span> <span class="mi">0</span><span class="o">/</span><span class="n">Extra_Log00000062</span><span class="o">/</span><span class="n">RockingCurve</span><span class="o">.</span><span class="n">txt</span> <span class="n">RockingCurve_con</span><span class="o">.</span><span class="n">txt</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="mi">0</span><span class="o">/</span><span class="n">Log00000001_00000001</span><span class="o">/</span><span class="n">RockingCurve</span><span class="o">.</span><span class="n">txt</span> <span class="n">RockingCurve_ini</span><span class="o">.</span><span class="n">txt</span>
+<span class="n">cp</span> <span class="mi">0</span><span class="o">/</span><span class="n">Log00000062_00000001</span><span class="o">/</span><span class="n">RockingCurve</span><span class="o">.</span><span class="n">txt</span> <span class="n">RockingCurve_con</span><span class="o">.</span><span class="n">txt</span>
 <span class="n">cp</span> <span class="o">../../../</span><span class="n">script</span><span class="o">/</span><span class="n">draw_RC_double</span><span class="o">.</span><span class="n">py</span> <span class="o">.</span>
 <span class="n">python</span> <span class="n">draw_RC_double</span><span class="o">.</span><span class="n">py</span>
 </pre></div>

@@ -262,11 +262,11 @@ fi
 </section>
 <section id="visualization-of-calculation-results">
 <h2>Visualization of calculation results<a class="headerlink" href="#visualization-of-calculation-results" title="Permalink to this headline">¶</a></h2>
-<p>The data of the rocking curve at each step is stored in <code class="docutils literal notranslate"><span class="pre">Extra_Logxxxxx</span></code> (where xxxx is the number of steps) as <code class="docutils literal notranslate"><span class="pre">RockingCurve.txt</span></code>.
+<p>The data of the rocking curve at each step is stored in <code class="docutils literal notranslate"><span class="pre">Logxxxx_00000001</span></code> (where <code class="docutils literal notranslate"><span class="pre">xxxx</span></code> is the index of steps) as <code class="docutils literal notranslate"><span class="pre">RockingCurve.txt</span></code>.
 A tool <code class="docutils literal notranslate"><span class="pre">draw_RC_double.py</span></code> is provided to visualize this data.
 In this section, we will use this tool to visualize the results.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="mi">0</span><span class="o">/</span><span class="n">Extra_Log00000001</span><span class="o">/</span><span class="n">RockingCurve</span><span class="o">.</span><span class="n">txt</span> <span class="n">RockingCurve_ini</span><span class="o">.</span><span class="n">txt</span>
-<span class="n">cp</span> <span class="mi">0</span><span class="o">/</span><span class="n">Extra_Log00000062</span><span class="o">/</span><span class="n">RockingCurve</span><span class="o">.</span><span class="n">txt</span> <span class="n">RockingCurve_con</span><span class="o">.</span><span class="n">txt</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="mi">0</span><span class="o">/</span><span class="n">Log00000001_00000001</span><span class="o">/</span><span class="n">RockingCurve</span><span class="o">.</span><span class="n">txt</span> <span class="n">RockingCurve_ini</span><span class="o">.</span><span class="n">txt</span>
+<span class="n">cp</span> <span class="mi">0</span><span class="o">/</span><span class="n">Log00000062_00000001</span><span class="o">/</span><span class="n">RockingCurve</span><span class="o">.</span><span class="n">txt</span> <span class="n">RockingCurve_con</span><span class="o">.</span><span class="n">txt</span>
 <span class="n">cp</span> <span class="o">../../../</span><span class="n">script</span><span class="o">/</span><span class="n">draw_RC_double</span><span class="o">.</span><span class="n">py</span> <span class="o">.</span>
 <span class="n">python</span> <span class="n">draw_RC_double</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
