@@ -87,6 +87,11 @@ Input parameters can be specified in subcsections ``config``, ``post``, ``param`
 
   Description: This parameter specifies the half-width of convolution.
 
+- ``remove_work_dir``
+
+  Format: boolean (default: false)
+
+  Description: Whether to remove working directories after reading R-factor or not
 
 [``param``] section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -180,7 +185,11 @@ An example of the file is shown below.
 
 Output file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-For ``sim-trhepd-rheed``, the files output by ``surf.exe`` will be output in the ``Log%%%%%`` folder under the folder with the rank number.
+For ``sim-trhepd-rheed``, the files output by ``surf.exe`` will be output in the ``Log%%%%%_#####`` folder under the folder with the rank number.
+``%%%%%`` means an index of iteration in ``Algorithm`` (e.g., steps in Monte Carlo),
+and ``#####`` means an index of group (e.g., replica index in Monte Carlo).
+In large calculation, the number of these folders becomes too large to be written in the storage of the system.
+For such a case, let ``solver.post.remove_work_dir`` parameter be ``true`` in order to remove these folders.
 This section describes the own files that are output by this solver.
 
 ``stdout``
@@ -199,7 +208,7 @@ An example is shown below.
 
 ``RockingCurve.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-This file is located in the ``Log%%%%%`` folder.
+This file is located in the ``Log%%%%%_#####`` folder.
 The first line is the header, and the second and subsequent lines are the angle, convoluted calculated/experimental values, normalized calculated/experimental values, and raw calculated values in that order.
 An example is shown below.
 

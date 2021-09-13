@@ -266,14 +266,14 @@ Here is what it does, without further explanation.
 Visualization of calculation results
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The data of the rocking curve at each step is stored in ``Extra_Logxxxxx`` (where xxxx is the number of steps) as ``RockingCurve.txt``.
+The data of the rocking curve at each step is stored in ``Logxxxx_00000001`` (where ``xxxx`` is the index of steps) as ``RockingCurve.txt``.
 A tool ``draw_RC_double.py`` is provided to visualize this data.
 In this section, we will use this tool to visualize the results.
 
 .. code-block::
 
-    cp 0/Extra_Log00000001/RockingCurve.txt RockingCurve_ini.txt
-    cp 0/Extra_Log00000062/RockingCurve.txt RockingCurve_con.txt
+    cp 0/Log00000001_00000001/RockingCurve.txt RockingCurve_ini.txt
+    cp 0/Log00000062_00000001/RockingCurve.txt RockingCurve_con.txt
     cp ../../../script/draw_RC_double.py .
     python draw_RC_double.py
 
