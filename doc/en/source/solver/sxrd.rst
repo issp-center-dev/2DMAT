@@ -221,7 +221,7 @@ An example file is given below.
 Output files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In ``sxrd``, the output files are stored in the ``Log%%%%%`` folder under the folder with the rank number.
+In ``sxrd``, the output files are stored in the folder with the rank number.
 Here is a description of the files that are output by ``py2dmat``.
 
 ``stdout``
