@@ -1,17 +1,21 @@
 ``sxrd`` ソルバー
 ***********************************************
 
-``sxrd`` は ``calc_sxrd`` を用いて原子位置 :math:`x` や原子の占有率、デバイワラー因子を与えることで Rocking curve を計算し、実験で得られた Rocking curve からの誤差を :math:`f(x)` として返す ``Solver`` です。
+``sxrd`` は ``sxrdcalc`` を用いて原子位置 :math:`x` や原子の占有率、デバイワラー因子を与えることで Rocking curve を計算し、実験で得られた Rocking curve からの誤差を :math:`f(x)` として返す ``Solver`` です。
 
 前準備
 ~~~~~~~~~~~~
 
-あらかじめ ``calc_sxrd`` をインストールしておく必要があります。
+``sxrdcalc`` は ``py2dmat`` から呼び出されます。
+そのため、あらかじめ ``sxrdcalc`` をインストールしておく必要があります。
+``sxrdcalc`` はGitHubの以下のURLで公開されています。
 
-T.B.A.
+https://github.com/sxrdcalc/sxrdcalc
 
-``py2dmat`` を実行する前にあらかじめバルクデータを作成しておきます(フォーマットについては、後述のソルバー用補助ファイルをご覧ください)。
-``calc_sxrd`` は ``py2dmat`` から呼び出されます。
+サイトにアクセスの上、「Code」-「Download zip」よりソースコード一式をダウンロードします。
+zipファイル解凍後に、Makefileを自身の計算環境に合うように編集したあとに、 ``make`` コマンドを打つことで ``sxrdcalc`` の実行ファイルができます。
+
+なお、 ``py2dmat`` を実行する前にあらかじめバルクデータを作成する必要があります(フォーマットについては、後述のソルバー用補助ファイルをご覧ください)。
 
 入力パラメータ
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -26,7 +30,7 @@ T.B.A.
 
   形式: string型
 
-  説明: ソルバー ``calc_sxrd`` へのパス
+  説明: ソルバー ``sxrdcalc`` へのパス
 
 - ``bulk_struc_in_file``
 
@@ -39,7 +43,7 @@ T.B.A.
 .. code-block::
 
    [config]
-   calc_sxrd_exec_file = "../../sxrdcalc"
+   sxrd_exec_file = "../../sxrdcalc"
    bulk_struc_in_file = "sic111-r3xr3.blk"
 
 [``param``] セクション

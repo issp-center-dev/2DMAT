@@ -1,15 +1,21 @@
 ``sxrd`` solver
 ***********************************************
 
-``sxrd`` is a ``Solver`` that uses ``calc_sxrd`` to calculate the Rocking curve by giving atomic positions :math:`x` , atomic occupancies, and Debye-Waller factor and finally returnes the error :math:`f(x)`  from the experimental Rocking curve.
+``sxrd`` is a ``Solver`` that uses ``sxrdcalc`` to calculate the Rocking curve by giving atomic positions :math:`x` , atomic occupancies, and Debye-Waller factor and finally returnes the error :math:`f(x)`  from the experimental Rocking curve.
 
 Preparation
 ~~~~~~~~~~~~
 
-You will need to install ``calc_sxrd`` beforehand.
+The ``sxrdcalc`` is called from ``py2dmat``.
+You will need to install ``sxrdcalc`` beforehand.
+``sxrdcalc`` is available on GitHub at the following URL:
 
-The bulk data is prepared in advance before running ``py2dmat`` (see the auxiliary file for solvers below for the format).
-The ``calc_sxrd`` is called from ``py2dmat``.
+https://github.com/sxrdcalc/sxrdcalc
+
+Access the site and download the source code from "Code" - "Download zip".
+After unzipping the zip file, edit the Makefile to fit your computing environment, and then type ``make`` to create the ``sxrdcalc`` executable.
+
+It is noted that the bulk data must be prepared in advance before running ``py2dmat`` (see the auxiliary file for solvers below for the format).
 
 Input parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -23,7 +29,7 @@ Input parameters are specified in subsections in the ``solver`` section (``confi
 
   Format: string
 
-  Description: Path to the solver ``calc_sxrd``.
+  Description: Path to the solver ``sxrdcalc``.
 
 - ``bulk_struc_in_file``
 
@@ -36,7 +42,7 @@ Input parameters are specified in subsections in the ``solver`` section (``confi
 .. code-block::
 
    [config]
-   calc_sxrd_exec_file = "../../sxrdcalc"
+   sxrd_exec_file = "../../sxrdcalc"
    bulk_struc_in_file = "sic111-r3xr3.blk"
 
 [``param``] section
