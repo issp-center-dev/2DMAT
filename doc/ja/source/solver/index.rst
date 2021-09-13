@@ -13,3 +13,4 @@
 
    analytical
    sim-trhepd-rheed
+   sxrd
