@@ -20,7 +20,7 @@ class Solver(py2dmat.solver.SolverBase):
         super().__init__(info)
 
         self._name = "sxrd"
-        info_s  = info.solver
+        info_s = info.solver
 
         # Check keywords
         def check_keywords(key, segment, registered_list):
@@ -32,7 +32,12 @@ class Solver(py2dmat.solver.SolverBase):
         keywords = {}
         keywords["config"] = ["sxrd_exec_file", "bulk_struc_in_file"]
         keywords["reference"] = ["f_in_file"]
-        keywords["param"] = ["scale_factor", "type_vector", "opt_scale_factor", "domain"]
+        keywords["param"] = [
+            "scale_factor",
+            "type_vector",
+            "opt_scale_factor",
+            "domain",
+        ]
 
         for key in info_s.keys():
             check_keywords(key, "solver", keywords_solver)
@@ -43,8 +48,15 @@ class Solver(py2dmat.solver.SolverBase):
 
         # Check keywords of param.domain list
         keywords_domain = ["domain_occupancy", "atom"]
-        keywords_atom = ["name", "pos_center", "DWfactor", "occupancy",
-                         "displace_vector", "opt_DW", "opt_occupancy"]
+        keywords_atom = [
+            "name",
+            "pos_center",
+            "DWfactor",
+            "occupancy",
+            "displace_vector",
+            "opt_DW",
+            "opt_occupancy",
+        ]
         for domain in info_s["param"]["domain"]:
             for key_domain in domain.keys():
                 check_keywords(key_domain, "domain", keywords_domain)
@@ -52,7 +64,7 @@ class Solver(py2dmat.solver.SolverBase):
                 for key_atom in atom.keys():
                     check_keywords(key_atom, "atom", keywords_atom)
 
-        #Set environment
+        # Set environment
         p2solver = info_s["config"].get("sxrd_exec_file", "sxrdcalc")
         if os.path.dirname(p2solver) != "":
             # ignore ENV[PATH]
@@ -79,20 +91,23 @@ class Solver(py2dmat.solver.SolverBase):
 
     def command(self) -> List[str]:
         """Command to invoke solver"""
-        return [str(self.path_to_solver) +  " lsfit.in"]
+        return [str(self.path_to_solver), "lsfit.in"]
 
     def prepare(self, message: py2dmat.Message) -> None:
         self.work_dir = self.proc_dir
         self.input.prepare(message)
         import shutil
+
         for file in ["lsfit.in", self.path_to_f_in, self.path_to_bulk]:
-            shutil.copyfile(os.path.join(self.root_dir, file), os.path.join(self.work_dir, file))
+            shutil.copyfile(
+                os.path.join(self.root_dir, file), os.path.join(self.work_dir, file)
+            )
 
     def get_results(self) -> float:
         # Get R-factor
         with open(os.path.join(self.work_dir, "stdout"), "r") as fr:
             lines = fr.readlines()
-            l_rfactor = [line for line in lines if 'R =' in line][0]
+            l_rfactor = [line for line in lines if "R =" in line][0]
             rfactor = float(l_rfactor.strip().split("=")[1])
         return rfactor
 
@@ -110,13 +125,19 @@ class Solver(py2dmat.solver.SolverBase):
             self.info_param = info_s["param"]
             # Set default values
             # Initial values
-            self.info_param["opt_scale_factor"] = self.info_param.get("opt_scale_factor", False)
+            self.info_param["opt_scale_factor"] = self.info_param.get(
+                "opt_scale_factor", False
+            )
             self.info_param["scale_factor"] = self.info_param.get("scale_factor", 1.0)
 
             # Read info (a, b, c, alpha, beta, gamma ) from blk or surf files.
-            self.lattice_info = self._read_lattice_info(info_s["config"]["bulk_struc_in_file"])
+            self.lattice_info = self._read_lattice_info(
+                info_s["config"]["bulk_struc_in_file"]
+            )
             # Generate input file
-            self._write_input_file(info_s["config"], info_s["reference"], info_s["param"]["domain"])
+            self._write_input_file(
+                info_s["config"], info_s["reference"], info_s["param"]["domain"]
+            )
 
         def prepare(self, message: py2dmat.Message):
             x_list = message.x
@@ -132,18 +153,34 @@ class Solver(py2dmat.solver.SolverBase):
                 lines = fr.readlines()
             # (a, b, c, alpha, beta, gamma)
             lattice_info = lines[1]
-            return (lattice_info)
+            return lattice_info
 
         def _write_input_file(self, info_config, info_reference, info_domain):
             with open("lsfit.in", "w") as fw:
                 fw.write("do = ls_fit\n")
-                fw.write("bulk_struc_in_file = {}\n".format(info_config["bulk_struc_in_file"]))
+                fw.write(
+                    "bulk_struc_in_file = {}\n".format(
+                        info_config["bulk_struc_in_file"]
+                    )
+                )
                 for idx, domain in enumerate(info_domain):
-                    fw.write("fit_struc_in_file{} = {}\n".format(idx + 1, "ls_{}.fit".format(idx + 1)))
-                    fw.write("fit_coord_out_file{} = {}\n".format(idx + 1, "ls_{}.sur".format(idx + 1)))
+                    fw.write(
+                        "fit_struc_in_file{} = {}\n".format(
+                            idx + 1, "ls_{}.fit".format(idx + 1)
+                        )
+                    )
+                    fw.write(
+                        "fit_coord_out_file{} = {}\n".format(
+                            idx + 1, "ls_{}.sur".format(idx + 1)
+                        )
+                    )
                 fw.write("nr_domains = {}\n".format(len(info_domain)))
                 for idx, domain in enumerate(info_domain):
-                    fw.write("domain_occ{} = {}\n".format(idx + 1, domain["domain_occupancy"]))
+                    fw.write(
+                        "domain_occ{} = {}\n".format(
+                            idx + 1, domain["domain_occupancy"]
+                        )
+                    )
                 for key, value in info_reference.items():
                     fw.write("{} = {}\n".format(key, value))
                 fw.write("max_iteration = 0\n")
@@ -158,25 +195,43 @@ class Solver(py2dmat.solver.SolverBase):
                     for atom_info in domain["atom"]:
                         position = atom_info["pos_center"]
                         fw.write(
-                            "pos {} {} {} {} {} {}\n".format(atom_info["name"], position[0], position[1], position[2],
-                                                             atom_info["DWfactor"], atom_info.get("occupancy", 1.0)))
+                            "pos {} {} {} {} {} {}\n".format(
+                                atom_info["name"],
+                                position[0],
+                                position[1],
+                                position[2],
+                                atom_info["DWfactor"],
+                                atom_info.get("occupancy", 1.0),
+                            )
+                        )
                         for idx_atom, displ in enumerate(atom_info["displace_vector"]):
                             fw.write(
-                                "displ{} {} {} {} {}\n".format(idx_atom + 1, int(displ[0]), displ[1], displ[2], displ[3]))
+                                "displ{} {} {} {} {}\n".format(
+                                    idx_atom + 1,
+                                    int(displ[0]),
+                                    displ[1],
+                                    displ[2],
+                                    displ[3],
+                                )
+                            )
                             type_atom.append(int(displ[0]))
                             if "opt_DW" in atom_info.keys():
                                 DW_info = atom_info["opt_DW"]
-                                fw.write("dw_par {} {}\n".format(DW_info[0], DW_info[1]))
+                                fw.write(
+                                    "dw_par {} {}\n".format(DW_info[0], DW_info[1])
+                                )
                                 type_atom.append(DW_info[0])
                             if "opt_occupancy" in atom_info.keys():
                                 fw.write("occ {} \n".format(atom_info["opt_occupancy"]))
                                 type_atom.append(atom_info["opt_occupancy"])
-                    if info_param["opt_scale_factor"] is True and idx==0:
+                    if info_param["opt_scale_factor"] is True and idx == 0:
                         type_vector.insert(0, 0)
                         type_atom.append(0)
                     else:
                         fw.write("start_par 0 {}\n".format(info_param["scale_factor"]))
                     for type_idx, variable in zip(type_vector, variables):
                         if type_idx in type_atom:
-                            fw.write("start_par {} {}\n".format(int(type_idx), variable))
+                            fw.write(
+                                "start_par {} {}\n".format(int(type_idx), variable)
+                            )
 
