@@ -15,4 +15,5 @@
    minsearch
    mapper_mpi
    exchange
+   pamc
    bayes

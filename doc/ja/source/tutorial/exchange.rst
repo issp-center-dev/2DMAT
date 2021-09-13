@@ -7,7 +7,7 @@
 サンプルファイルの場所
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-サンプルファイルは ``sample/py2dmat/exchange`` にあります。
+サンプルファイルは ``sample/py2dmat/sim-threpd-rheed/exchange`` にあります。
 フォルダには以下のファイルが格納されています。
 
 - ``bulk.txt``
