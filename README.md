@@ -58,12 +58,12 @@ This package is distributed under GNU General Public License version 3 (GPL v3) 
 This software was developed with the support of "*Project for advancement of software usability in materials science*" of The Institute for Solid State Physics, The University of Tokyo.
 
 [source/master]: https://github.com/issp-center-dev/2DMAT/
-[source/stable]: https://github.com/issp-center-dev/2DMAT/tree/v1.0.1
+[source/stable]: https://github.com/issp-center-dev/2DMAT/tree/v2.0-beta
 [ci/master/badge]: https://github.com/issp-center-dev/2DMAT/workflows/Test/badge.svg?branch=master
 [ci/master/uri]: https://github.com/issp-center-dev/2DMAT/actions?query=branch%3Amaster
 [doc/en/badge]: https://img.shields.io/badge/doc-English-blue.svg
 [doc/en/uri]: https://issp-center-dev.github.io/2DMAT/manual/master/en/index.html
 [doc/ja/badge]: https://img.shields.io/badge/doc-Japanese-blue.svg
 [doc/ja/uri]: https://issp-center-dev.github.io/2DMAT/manual/master/ja/index.html
-[doc/stable/en/uri]: https://issp-center-dev.github.io/2DMAT/manual/v1.0.1/en/index.html
-[doc/stable/ja/uri]: https://issp-center-dev.github.io/2DMAT/manual/v1.0.1/ja/index.html
+[doc/stable/en/uri]: https://issp-center-dev.github.io/2DMAT/manual/v2.0-beta/en/index.html
+[doc/stable/ja/uri]: https://issp-center-dev.github.io/2DMAT/manual/v2.0-beta/ja/index.html
