@@ -10,7 +10,7 @@ As algorithms, it offers the Nelder-Mead method, the grid search method, the Bay
 | Branch |                Build status                 |                                       Documentation                                       |
 | :----: | :-----------------------------------------: | :---------------------------------------------------------------------------------------: |
 | [master][source/master] (latest) | [![master][ci/master/badge]][ci/master/uri] |        [![doc_en][doc/en/badge]][doc/en/uri] [![doc_ja][doc/ja/badge]][doc/ja/uri]        |
-| [v1.0.1][source/stable] (latest stable) |                     --                      | [![doc_en][doc/en/badge]][doc/stable/en/uri] [![doc_ja][doc/ja/badge]][doc/stable/ja/uri] |
+| [v2.0-beta][source/stable] (latest stable) |                     --                      | [![doc_en][doc/en/badge]][doc/stable/en/uri] [![doc_ja][doc/ja/badge]][doc/stable/ja/uri] |
 
 ## py2dmat
 
@@ -35,8 +35,9 @@ and direct problem solvers (`py2dmat` also means this script).
 ### Install
 
 - From PyPI (Recommended)
-  - `python3 -m pip install py2dmat`
-    - If you install them locally, use `--user` option like `python3 -m pip install --user`
+  - `python3 -m pip install -U py2dmat`
+    - If you want to install pre-release version (e.g., v2.0-beta), use `--pre` option like `python3 -m pip install -U --pre`
+    - If you install them locally, use `--user` option like `python3 -m pip install -U --user`
     - [`pipx`](https://pipxproject.github.io/pipx/) may help you from the dependency hell :p
 - From Source (For developers)
   1. update `pip >= 19` by `python3 -m pip install -U pip`
@@ -58,12 +59,12 @@ This package is distributed under GNU General Public License version 3 (GPL v3) 
 This software was developed with the support of "*Project for advancement of software usability in materials science*" of The Institute for Solid State Physics, The University of Tokyo.
 
 [source/master]: https://github.com/issp-center-dev/2DMAT/
-[source/stable]: https://github.com/issp-center-dev/2DMAT/tree/v1.0.1
+[source/stable]: https://github.com/issp-center-dev/2DMAT/tree/v2.0-beta
 [ci/master/badge]: https://github.com/issp-center-dev/2DMAT/workflows/Test/badge.svg?branch=master
 [ci/master/uri]: https://github.com/issp-center-dev/2DMAT/actions?query=branch%3Amaster
 [doc/en/badge]: https://img.shields.io/badge/doc-English-blue.svg
 [doc/en/uri]: https://issp-center-dev.github.io/2DMAT/manual/master/en/index.html
 [doc/ja/badge]: https://img.shields.io/badge/doc-Japanese-blue.svg
 [doc/ja/uri]: https://issp-center-dev.github.io/2DMAT/manual/master/ja/index.html
-[doc/stable/en/uri]: https://issp-center-dev.github.io/2DMAT/manual/v1.0.1/en/index.html
-[doc/stable/ja/uri]: https://issp-center-dev.github.io/2DMAT/manual/v1.0.1/ja/index.html
+[doc/stable/en/uri]: https://issp-center-dev.github.io/2DMAT/manual/v2.0-beta/en/index.html
+[doc/stable/ja/uri]: https://issp-center-dev.github.io/2DMAT/manual/v2.0-beta/ja/index.html
