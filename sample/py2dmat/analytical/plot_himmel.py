@@ -7,18 +7,19 @@ def himmel(x, y):
     return (x ** 2 + y - 11) ** 2 + (x + y ** 2 - 7) ** 2
 
 
-def load_data(filename, xcol=0, ycol=1):
+def load_data(filenames, xcol=0, ycol=1):
     xs = []
     ys = []
-    with open(filename) as f:
-        for line in f:
-            if line.startswith("#"):
-                continue
-            words = line.split()
-            x = float(words[xcol])
-            y = float(words[ycol])
-            xs.append(x)
-            ys.append(y)
+    for filename in filenames:
+        with open(filename) as f:
+            for line in f:
+                if line.startswith("#"):
+                    continue
+                words = line.split()
+                x = float(words[xcol])
+                y = float(words[ycol])
+                xs.append(x)
+                ys.append(y)
     return np.array(xs), np.array(ys)
 
 
@@ -29,9 +30,9 @@ if __name__ == "__main__":
     parser.add_argument("--output", default="res.pdf")
     parser.add_argument("--format", default="-o")
     parser.add_argument("--skip", type=int, default=0)
-    parser.add_argument("inputfile")
+    parser.add_argument("inputfiles", nargs="+")
     args = parser.parse_args()
-    xs, ys = load_data(args.inputfile, xcol=args.xcol, ycol=args.ycol)
+    xs, ys = load_data(args.inputfiles, xcol=args.xcol, ycol=args.ycol)
 
     npts = 201
     c_x, c_y = np.mgrid[-6 : 6 : npts * 1j, -6 : 6 : npts * 1j]
