@@ -20,6 +20,7 @@ try:
 
 
 except ImportError:
+    Comm = None
 
     def comm() -> None:
         return None
