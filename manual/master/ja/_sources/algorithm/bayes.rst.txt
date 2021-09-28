@@ -154,9 +154,8 @@ BO では目的関数 :math:`f(\vec{x})` を、評価が早く最適化のしや
 前者を選ぶことを「活用」、後者を選ぶことを「探索」とよび、両者をバランス良く行うのが重要です。
 「スコア」の定義はこれらをどう選ぶかを定めます。
 
-2DMAT では、ベイズ最適化のライブラリとして、 `PHYSBO <https://github.com/issp-center-dev/PHYSBO>`_ を用います。
+2DMAT では、ベイズ最適化のライブラリとして、 `PHYSBO`_ を用います。
 PHYSBO は ``mapper_mpi`` のように、あらかじめ決めておいた候補点の集合に対して「スコア」を計算して、最適解を提案します。
 候補点の集合を分割することでMPI 並列実行が可能です。
 また、 訓練データの点数 :math:`N` に対して線形の計算量でモデル関数の評価、ひいては「スコア」の計算が可能となるようなカーネルを用いています。
 PHYSBO では「スコア」関数として "expected improvement (EI)", "probability of improvement (PI)", "Thompson sampling (TS)" が利用できます。
-

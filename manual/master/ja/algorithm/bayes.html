@@ -41,10 +41,10 @@
   <section id="bayes">
 <h1>ベイズ最適化 <code class="docutils literal notranslate"><span class="pre">bayes</span></code><a class="headerlink" href="#bayes" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">bayes</span></code> はベイズ最適化を用いてパラメータ探索を行う <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> です。</p>
-<p>実装には <a href="#id8"><span class="problematic" id="id9">`PHYSBO`_</span></a> を用いています。</p>
+<p>実装には <a class="reference external" href="https://pasums.issp.u-tokyo.ac.jp/physbo">PHYSBO</a> を用いています。</p>
 <section id="id1">
 <h2>前準備<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>あらかじめ <a href="#id10"><span class="problematic" id="id11">`PHYSBO`_</span></a> をインストールしておく必要があります。:</p>
+<p>あらかじめ <a class="reference external" href="https://pasums.issp.u-tokyo.ac.jp/physbo">PHYSBO</a> をインストールしておく必要があります。:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">physbo</span>
 </pre></div>
 </div>
@@ -161,7 +161,7 @@ MPI 並列計算が可能です。</p>
 逆に、誤差の大きな点は正解ではないかもしれませんが、情報の少ない場所であり、モデル関数の更新には有益だと考えられます。
 前者を選ぶことを「活用」、後者を選ぶことを「探索」とよび、両者をバランス良く行うのが重要です。
 「スコア」の定義はこれらをどう選ぶかを定めます。</p>
-<p>2DMAT では、ベイズ最適化のライブラリとして、 <a class="reference external" href="https://github.com/issp-center-dev/PHYSBO">PHYSBO</a> を用います。
+<p>2DMAT では、ベイズ最適化のライブラリとして、 <a class="reference external" href="https://pasums.issp.u-tokyo.ac.jp/physbo">PHYSBO</a> を用います。
 PHYSBO は <code class="docutils literal notranslate"><span class="pre">mapper_mpi</span></code> のように、あらかじめ決めておいた候補点の集合に対して「スコア」を計算して、最適解を提案します。
 候補点の集合を分割することでMPI 並列実行が可能です。
 また、 訓練データの点数 <span class="math notranslate nohighlight">\(N\)</span> に対して線形の計算量でモデル関数の評価、ひいては「スコア」の計算が可能となるようなカーネルを用いています。
