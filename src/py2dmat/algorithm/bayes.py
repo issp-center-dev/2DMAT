@@ -51,8 +51,12 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         print(f"interval = {self.interval}")
         print(f"num_rand_basis = {self.num_rand_basis}")
 
-        self.mesh_list, actions = self._meshgrid(info, split=False)
-        X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
+        if self.param_sets is None:
+            self.param_sets = self.parameter_space.to_SetParams()
+
+        self.mesh_list = self.param_sets.coordinates()
+        print(self.mesh_list)
+        X_normalized = physbo.misc.centering(self.mesh_list)
         comm = self.mpicomm if self.mpisize > 1 else None
         self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
         if "seed" in info.algorithm:
@@ -70,7 +74,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         class simulator:
             def __call__(self, action: np.ndarray) -> float:
                 a = int(action[0])
-                message = py2dmat.Message(mesh_list[a, 1:], a, 0)
+                message = py2dmat.Message(mesh_list[a, :], a, 0)
                 fx = runner.submit(message)
                 fx_list.append(fx)
                 param_list.append(mesh_list[a])
@@ -94,7 +98,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         time_end = time.perf_counter()
         self.timer["run"]["bayes_search"] = time_end - time_sta
         self.best_fx, self.best_action = res.export_all_sequence_best_fx()
-        self.xopt = mesh_list[int(self.best_action[-1]), 1:]
+        self.xopt = mesh_list[int(self.best_action[-1]), :]
         self.fx_list = fx_list
         self.param_list = param_list
 
@@ -117,11 +121,11 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                 for step, fx in enumerate(self.fx_list):
                     file_BD.write(str(step))
                     best_idx = int(self.best_action[step])
-                    for v in self.mesh_list[best_idx][1:]:
+                    for v in self.mesh_list[best_idx]:
                         file_BD.write(f" {v}")
                     file_BD.write(f" {-self.best_fx[step]}")
 
-                    for v in self.param_list[step][1:]:
+                    for v in self.param_list[step]:
                         file_BD.write(f" {v}")
                     file_BD.write(f" {fx}\n")
             print("Best Solution:")

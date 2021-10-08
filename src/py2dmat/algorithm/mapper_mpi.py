@@ -12,7 +12,10 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
     def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
         super().__init__(info=info, runner=runner)
-        self.mesh_list, actions = self._meshgrid(info, split=True)
+        if self.param_sets is None:
+            self.param_sets = self.parameter_space.to_SetParams()
+        self.mesh_list = self.param_sets.coordinates(self.mpisize, self.mpirank)
+        self.indices = self.param_sets.indices(self.mpisize, self.mpirank)
 
     def _run(self) -> None:
         # Make ColorMap
@@ -34,19 +37,19 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
             message = py2dmat.Message([], 0, 0)
             iterations = len(self.mesh_list)
-            for iteration_count, mesh in enumerate(self.mesh_list):
+            for (iteration_count, (index, mesh)) in enumerate(zip(self.indices, self.mesh_list)):
                 print("Iteration : {}/{}".format(iteration_count + 1, iterations))
                 print("mesh before:", mesh)
 
                 time_sta = time.perf_counter()
-                for value in mesh[1:]:
+                for value in mesh:
                     file_CM.write("{:8f} ".format(value))
                 time_end = time.perf_counter()
                 self.timer["run"]["file_CM"] += time_end - time_sta
 
                 # update information
-                message.step = int(mesh[0])
-                message.x = mesh[1:]
+                message.step = index
+                message.x = mesh
 
                 time_sta = time.perf_counter()
                 fx = run.submit(message)
@@ -64,8 +67,8 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             fx_order = np.argsort(fx_list)
             minimum_point = []
             print("mesh_list[fx_order[0]]:")
-            print(self.mesh_list[fx_order[0]])
-            for index in range(1, dimension + 1):
+            print(self.indices[fx_order[0]], " ", self.mesh_list[fx_order[0]])
+            for index in range(0, dimension):
                 minimum_point.append(self.mesh_list[fx_order[0]][index])
 
             time_sta = time.perf_counter()
@@ -74,7 +77,6 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                 file_CM.write(" {:8f}".format(value))
             file_CM.write("\n")
             file_CM.write("#R-factor : {:8f}\n".format(fx_list[fx_order[0]]))
-            file_CM.write("#see Log{}\n".format(round(self.mesh_list[fx_order[0]][0])))
             time_end = time.perf_counter()
             self.timer["run"]["file_CM"] += time_end - time_sta
 
