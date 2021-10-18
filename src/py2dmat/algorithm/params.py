@@ -33,18 +33,33 @@ class Param(abc.ABC):
     def isValid(self, val: Union[float, np.ndarray]) -> Union[bool, np.ndarray]:
         ...
 
+    @property
+    @abc.abstractmethod
+    def lower_bound(self) -> float:
+        ...
+
+    @property
+    @abc.abstractmethod
+    def upper_bound(self) -> float:
+        ...
+
+    @property
+    @abc.abstractmethod
+    def unit(self) -> float:
+        ...
+
 
 class ContinuousParam(Param):
-    lower_bound: float
-    upper_bound: float
-    unit: float
+    _lower_bound: float
+    _upper_bound: float
+    _unit: float
 
     def __init__(
         self, lower_bound: float, upper_bound: float, unit: float, name: str = None
     ):
-        self.lower_bound = lower_bound
-        self.upper_bound = upper_bound
-        self.unit = unit
+        self._lower_bound = lower_bound
+        self._upper_bound = upper_bound
+        self._unit = unit
         if name is None:
             self.name = ""
         else:
@@ -90,6 +105,18 @@ class ContinuousParam(Param):
 
     def isValid(self, val):
         return (self.lower_bound <= val) & (val <= self.upper_bound)
+
+    @property
+    def lower_bound(self) -> float:
+        return self._lower_bound
+
+    @property
+    def upper_bound(self) -> float:
+        return self._upper_bound
+
+    @property
+    def unit(self) -> float:
+        return self._unit
 
 
 class DiscreteParam(Param):
@@ -185,23 +212,37 @@ class DiscreteParam(Param):
     def __iter__(self):
         yield from self.candidates
 
+    @property
+    def lower_bound(self) -> float:
+        return self.candidates[0]
+
+    @property
+    def upper_bound(self) -> float:
+        return self.candidates[-1]
+
+    @property
+    def unit(self) -> float:
+        raise NotImplementedError()
+
 
 class SetParams:
     _coordinates: np.ndarray
     ncoordinates: int
     neighbor_list: List[List[int]]
-    ncandidates: List[int]
+    ncandidates: np.ndarray
     offset: int
     _indicies: np.ndarray
 
-    def __init__(self, coordinates: np.ndarray, offset: int = 0, indices: np.ndarray = None) -> None:
+    def __init__(
+        self, coordinates: np.ndarray, offset: int = 0, indices: np.ndarray = None
+    ) -> None:
         self._coordinates = coordinates
         self.ncoordinates = coordinates.shape[0]
         self.offset = offset
         self.neighbor_list = []
-        self.ncandidates = []
+        self.ncandidates = np.array([])
         if indices is None:
-            self._indices = np.arange(offset, offset+self.ncoordinates)
+            self._indices = np.arange(offset, offset + self.ncoordinates)
         else:
             self._indices = indices
 
@@ -227,7 +268,7 @@ class SetParams:
 
     def set_neighborlist(self, nlist: List[List[int]]) -> None:
         self.neighbor_list = nlist
-        self.ncandidates = [len(nn) for nn in nlist]
+        self.ncandidates = np.array([len(nn) for nn in nlist])
 
     def coordinates(self, mpisize: int = 1, mpirank: int = 0):
         idx = np.array_split(np.arange(self.ncoordinates), mpisize)[mpirank]
@@ -265,6 +306,14 @@ class DirectProductParams:
             Which parameters will be changed.
             If None, all the parameters will be changed.
         """
+        if x.ndim == 1:
+            x = x.reshape((1, -1))
+            is_1d = True
+        elif x.ndim == 2:
+            is_1d = False
+        else:
+            raise RuntimeError()
+
         if changes is None:
             changes_ = np.ones(shape=self.nparams, dtype=bool)
         elif isinstance(changes, int):
@@ -278,12 +327,18 @@ class DirectProductParams:
                 changes_[changes] = True
             else:
                 changes_ = np.array(changes)
-        ret = np.zeros(self.nparams, dtype=float)
-        for i in range(self.nparams):
-            if changes_[i]:
-                ret[i] = self.params[i].next(rng, x[i])
-            else:
-                ret[i] = x[i]
+
+        nwalkers = x.shape[0]
+        ret = np.zeros((nwalkers, self.nparams), dtype=float)
+        for iwalker in range(nwalkers):
+            for ipara in range(self.nparams):
+                if changes_[ipara]:
+                    r = self.params[ipara].next(rng, x[iwalker, ipara])
+                    ret[iwalker, ipara] = r
+                else:
+                    ret[iwalker, ipara] = x[iwalker, ipara]
+        if is_1d:
+            ret = ret.reshape(-1)
         return ret
 
     def random(self, rng: np.random.RandomState, nwalkers: int = 1) -> np.ndarray:
@@ -292,11 +347,30 @@ class DirectProductParams:
             X[:, iparam] = self.params[iparam].random(rng, nwalkers)
         return X
 
-    def isValid(self, x: np.ndarray) -> bool:
-        for v, param in zip(x, self.params):
-            if not param.isValid(cast(float, v)):
-                return False
-        return True
+    def isValid(self, x: np.ndarray) -> np.ndarray:
+        if x.ndim == 1:
+            x = np.reshape(x, (1, -1))
+        elif x.ndim > 2:
+            raise RuntimeError()
+
+        n = x.shape[0]
+        res = np.ones(n, dtype=bool)
+        for i in range(n):
+            for v, param in zip(x[i,:], self.params):
+                res[i] &= param.isValid(cast(float, v))
+        return res
+
+    def min_list(self) -> np.ndarray:
+        res = [p.lower_bound for p in self.params]
+        return np.array(res)
+
+    def max_list(self) -> np.ndarray:
+        res = [p.upper_bound for p in self.params]
+        return np.array(res)
+
+    def unit_list(self) -> np.ndarray:
+        res = [p.unit for p in self.params]
+        return np.array(res)
 
     def is_all_continuous(self) -> bool:
         b = np.array([isinstance(param, ContinuousParam) for param in self.params])
@@ -320,12 +394,9 @@ def read_input_old(
         skiprows = info_param.get("skiprows", 0)
 
         data = np.loadtxt(
-            mesh_path,
-            comments=comments,
-            delimiter=delimiter,
-            skiprows=skiprows,
+            mesh_path, comments=comments, delimiter=delimiter, skiprows=skiprows,
         )
-        indices = data[:, 0]
+        indices = data[:, 0].astype(int)
         coords = data[:, 1:]
         return SetParams(coords, offset=indices[0], indices=indices)
 
@@ -380,26 +451,30 @@ def read_input_old(
 def read_input(
     input_dict: MutableMapping[str, Any], dimension: int, root_dir: PathLike
 ):
-    if "param" in input_dict:
-        # old format
-        return read_input_old(input_dict["param"], dimension, root_dir)
-    else:
+    if "parameter" in input_dict:
         # new format
-        if "parameter" not in input_dict:
-            raise exception.InputError(
-                "ERROR: algorithm.parameter is not defined in the input"
-            )
-            pass
         params_array_tables = input_dict["parameter"]
-        if len(params_array_tables) != dimension:
-            raise exception.InputError(
-                f"ERROR: len(parameter) != dimension ({len(params_array_tables)} != {dimension})"
-            )
         params: List[Param] = []
         for param_dict in params_array_tables:
-            if "xs" in param_dict or "xnum" in param_dict:
-                param = DiscreteParam.from_dict(param_dict)
-            else:
-                param = ContinuousParam.from_dict(param_dict)
-            params.append(param)
+            repeat = param_dict.get("repeat", 1)
+            if not (isinstance(repeat, int) and repeat >= 0):
+                msg = f"repeat should be non-negative integer ({repeat} is given)"
+                raise exception.InputError(msg)
+            for _ in range(repeat):
+                if "xs" in param_dict or "xnum" in param_dict:
+                    param = DiscreteParam.from_dict(param_dict)
+                else:
+                    param = ContinuousParam.from_dict(param_dict)
+                params.append(param)
+        if len(params) != dimension:
+            raise exception.InputError(
+                f"ERROR: len(parameter) != dimension ({len(params)} != {dimension})"
+            )
         return DirectProductParams(params)
+    else:
+        # old format
+        if "param" not in input_dict:
+            raise exception.InputError(
+                "ERROR: algorithm.param is not defined in the input"
+            )
+        return read_input_old(input_dict["param"], dimension, root_dir)

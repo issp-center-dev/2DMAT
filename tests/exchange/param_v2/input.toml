@@ -1,0 +1,23 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[algorithm]
+name = "exchange"
+seed = 12345
+
+[[algorithm.parameter]]
+repeat = 2
+xmin = -5.0
+xmax = 5.0
+
+[algorithm.exchange]
+numsteps = 10000
+numsteps_exchange = 20
+Tmin = 0.1
+Tmax = 1.0
+Tlogspace = false
+
+[solver]
+name = "analytical"
+function_name = "rosenbrock"

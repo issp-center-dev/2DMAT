@@ -12,7 +12,6 @@ label_list = ["z1", "z2"]
 seed = 1
 
 [algorithm.param]
-mesh_path = "MeshData.txt"
-# min_list = [-5.0, -5.0]
-# max_list = [5.0, 5.0]
-# num_list = [11, 11]
+min_list = [-5.0, -5.0]
+max_list = [5.0, 5.0]
+num_list = [11, 11]

@@ -1,0 +1,16 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[algorithm]
+name = "minsearch"
+seed = 12345
+
+[[algorithm.parameter]]
+repeat = 2
+xmin = -5.0
+xmax = 5.0
+
+[solver]
+name = "analytical"
+function_name = "rosenbrock"

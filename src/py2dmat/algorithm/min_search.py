@@ -5,6 +5,7 @@ import numpy as np
 from scipy.optimize import minimize
 
 import py2dmat
+import py2dmat.exception
 
 
 class Algorithm(py2dmat.algorithm.AlgorithmBase):
@@ -12,9 +13,6 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
     # inputs
     label_list: np.ndarray
     initial_list: np.ndarray
-    min_list: np.ndarray
-    max_list: np.ndarray
-    unit_list: np.ndarray
 
     # hyperparameters of Nelder-Mead
     initial_simplex_list: List[List[float]]
@@ -33,13 +31,18 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
     def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
         super().__init__(info=info, runner=runner)
 
-        (
-            self.initial_list,
-            self.min_list,
-            self.max_list,
-            self.unit_list,
-        ) = self._read_param(info)
-        self.initial_list = self.initial_list.flatten()
+        if self.parameter_space is None:
+            msg = "ERROR: minsearch does not accept mesh_path"
+            raise py2dmat.exception.InputError(msg)
+        if not self.parameter_space.is_all_continuous():
+            msg = "ERROR: Some of parameter space are discrete."
+            raise py2dmat.exception.InputError(msg)
+
+        initial_list = self._read_initial_list(info)
+        if initial_list is None:
+            self.initial_list = self.parameter_space.random(self.rng).flatten()
+        else:
+            self.initial_list = initial_list
 
         info_minimize = info.algorithm.get("minimize", {})
         self.initial_scale_list = info_minimize.get(
@@ -54,9 +57,9 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         run = self.runner
         callback_list = []
 
-        min_list = self.min_list
-        max_list = self.max_list
-        unit_list = self.unit_list
+        min_list = self.parameter_space.min_list()
+        max_list = self.parameter_space.max_list()
+        unit_list = self.parameter_space.unit_list()
         label_list = self.label_list
         dimension = self.dimension
 

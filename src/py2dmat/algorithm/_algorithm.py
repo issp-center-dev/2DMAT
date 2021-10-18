@@ -117,6 +117,13 @@ class AlgorithmBase(metaclass=ABCMeta):
         else:
             self.rng = np.random.RandomState(seed + self.mpirank * seed_delta)
 
+    def _read_initial_list(self, info: py2dmat.Info) -> Optional[np.ndarray]:
+        info_param = info.algorithm.get("param", {})
+        if "initial_list" not in info_param:
+            return None
+        else:
+            return np.ndarray(info_param["initial_list"])
+
     def set_runner(self, runner: py2dmat.Runner) -> None:
         self.runner = runner
         self.runner.prepare(self.proc_dir)

@@ -1,6 +1,6 @@
 nprocs = 4
 rank = 0
-step = 1311
+step = 497
 walker = 0
 fx = 0.0
 x1 = 1.0

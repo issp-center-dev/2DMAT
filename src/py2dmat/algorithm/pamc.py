@@ -363,7 +363,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         ]
         next_numbers = self.rng.poisson(expected_numbers)
 
-        if self.iscontinuous:
+        if self.parameter_space is not None:
             new_x = []
             new_fx = []
             new_ancestors = []
@@ -394,7 +394,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         resampler = py2dmat.util.resampling.WalkerTable(weights)
         new_index = resampler.sample(self.rng, self.nwalkers)
 
-        if self.iscontinuous:
+        if self.parameter_space is not None:
             if self.mpisize > 1:
                 xs = np.zeros((self.mpisize, self.nwalkers, self.dimension))
                 self.mpicomm.Allgather(self.x, xs)

@@ -58,7 +58,7 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
     nnodes: int
     node_coordinates: np.ndarray
     neighbor_list: List[List[int]]
-    ncandidates: np.ndarray  # len(neighbor_list[i])-1
+    ncandidates: np.ndarray  # len(neighbor_list[i])
 
     numsteps: int
 
@@ -81,14 +81,12 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         time_sta = time.perf_counter()
         super().__init__(info=info, runner=runner)
         self.nwalkers = nwalkers
-        info_param = info.algorithm["param"]
-        if "mesh_path" in info_param:
-            self.iscontinuous = False
-            self.node_coordinates = self._meshgrid(info)[0][:, 1:]
-            self.nnodes = self.node_coordinates.shape[0]
+        if self.parameter_space is None:
+            self.nnodes = self.param_sets.ncoordinates
             self.inode = self.rng.randint(self.nnodes, size=self.nwalkers)
-            self.x = self.node_coordinates[self.inode, :]
+            self.x = self.param_sets.coordinate(self.inode)
 
+            info_param = info.algorithm["param"]
             if "neighborlist_path" not in info_param:
                 msg = (
                     "ERROR: Parameter algorithm.param.neighborlist_path does not exist."
@@ -98,23 +96,18 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
                 self.root_dir
                 / pathlib.Path(info_param["neighborlist_path"]).expanduser()
             )
-            self.neighbor_list = load_neighbor_list(nn_path, nnodes=self.nnodes)
-            if not py2dmat.util.graph.is_connected(self.neighbor_list):
+            neighbor_list = load_neighbor_list(nn_path, nnodes=self.nnodes)
+            if not py2dmat.util.graph.is_connected(neighbor_list):
                 msg = "ERROR: The transition graph made from neighbor list is not connected."
                 msg += "\nHINT: Increase neighborhood radius."
                 raise RuntimeError(msg)
-            if not py2dmat.util.graph.is_bidirectional(self.neighbor_list):
+            if not py2dmat.util.graph.is_bidirectional(neighbor_list):
                 msg = "ERROR: The transition graph made from neighbor list is not bidirectional."
                 raise RuntimeError(msg)
-            self.ncandidates = np.array(
-                [len(ns) - 1 for ns in self.neighbor_list], dtype=np.int64
-            )
-
+            self.param_sets.set_neighborlist(neighbor_list)
         else:
-            self.iscontinuous = True
-            self.x, self.xmin, self.xmax, self.xunit = self._read_param(
-                info, num_walkers=nwalkers
-            )
+            self.x = self.parameter_space.random(self.rng, nwalkers)
+
         self.fx = np.zeros(self.nwalkers)
         self.best_fx = 0.0
         self.best_istep = 0
@@ -241,26 +234,26 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
                 self.fx[iwalker] = np.inf
         return self.fx
 
-    def propose(self, current: np.ndarray) -> np.ndarray:
-        """propose next candidate
-
-        Parameters
-        ==========
-        current: np.ndarray
-            current position
-
-        Returns
-        =======
-        proposed: np.ndarray
-            proposal
-        """
-        if self.iscontinuous:
-            dx = self.rng.normal(size=(self.nwalkers, self.dimension)) * self.xunit
-            proposed = current + dx
-        else:
-            proposed_list = [self.rng.choice(self.neighbor_list[i]) for i in current]
-            proposed = np.array(proposed_list, dtype=np.int64)
-        return proposed
+    # def propose(self, current: np.ndarray) -> np.ndarray:
+    #     """propose next candidate
+    #
+    #     Parameters
+    #     ==========
+    #     current: np.ndarray
+    #         current position
+    #
+    #     Returns
+    #     =======
+    #     proposed: np.ndarray
+    #         proposal
+    #     """
+    #     if self.iscontinuous:
+    #         dx = self.rng.normal(size=(self.nwalkers, self.dimension)) * self.xunit
+    #         proposed = current + dx
+    #     else:
+    #         proposed_list = [self.rng.choice(self.neighbor_list[i]) for i in current]
+    #         proposed = np.array(proposed_list, dtype=np.int64)
+    #     return proposed
 
     def local_update(
         self,
@@ -284,14 +277,23 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         """
         # make candidate
         x_old = copy.copy(self.x)
-        if self.iscontinuous:
-            self.x = self.propose(x_old)
-            in_range = ((self.xmin <= self.x) & (self.x <= self.xmax)).all(axis=1)
+        if self.param_sets is None:
+            self.x = self.parameter_space.next(self.rng, x_old)
+            in_range = self.parameter_space.isValid(self.x)
         else:
             i_old = copy.copy(self.inode)
-            self.inode = self.propose(self.inode)
-            self.x = self.node_coordinates[self.inode, :]
+            self.inode = self.param_sets.next(self.rng, i_old)
             in_range = np.ones(self.nwalkers, dtype=bool)
+            self.x = self.param_sets.coordinate(self.inode)
+
+        # if self.iscontinuous:
+        #     self.x = self.propose(x_old)
+        #     in_range = ((self.xmin <= self.x) & (self.x <= self.xmax)).all(axis=1)
+        # else:
+        #     i_old = copy.copy(self.inode)
+        #     self.inode = self.propose(self.inode)
+        #     self.x = self.node_coordinates[self.inode, :]
+        #     in_range = np.ones(self.nwalkers, dtype=bool)
 
         # evaluate "Energy"s
         fx_old = self.fx.copy()
@@ -309,8 +311,8 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         # probs[np.isnan(probs)] = 0.0
         np.seterr(**old_setting)
 
-        if not self.iscontinuous:
-            probs *= self.ncandidates[i_old] / self.ncandidates[self.inode]
+        if self.param_sets is not None:
+            probs *= self.param_sets.ncandidates[i_old] / self.param_sets.ncandidates[self.inode]
         tocheck = in_range & (probs < 1.0)
         num_check = np.count_nonzero(tocheck)
 
@@ -323,7 +325,7 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         # revert rejected steps
         self.x[rejected, :] = x_old[rejected, :]
         self.fx[rejected] = fx_old[rejected]
-        if not self.iscontinuous:
+        if self.param_sets is not None:
             self.inode[rejected] = i_old[rejected]
 
         minidx = np.argmin(self.fx)

@@ -1,17 +1,30 @@
-rm -rf output
+set -e
 
-time python3 ../../src/py2dmat_main.py input.toml
+maindir=$(cd "$(dirname $0)"; pwd)
 
-resfile=output/BayesData.txt
-
-echo diff $resfile ref.txt
 res=0
-diff $resfile ref.txt || res=$?
-if [ $res -eq 0 ]; then
-  echo TEST PASS
+failedlist=""
+
+for subdir in mesh_path param_v1 param_v2; do
+  cd $maindir
+  cd $subdir
+  echo Start test on $subdir
+  res=0
+  sh ./do.sh || res=$?
+  if [ $res -ne 0 ]; then
+    failedlist="${failedlist} ${subdir}"
+  fi
+  echo Finish test on $subdir
+  echo
+done
+
+echo Summary:
+
+if [ -z "$failedlist" ]; then
+  echo All test PASSED
   true
 else
-  echo TEST FAILED: $resfile and ref.txt differ
+  echo SOME OF TEST FAILED:
+  echo $failedlist
   false
 fi
-
