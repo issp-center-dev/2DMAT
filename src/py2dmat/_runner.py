@@ -12,7 +12,7 @@ import py2dmat.util.mapping
 
 # type hints
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict
 from . import mpi
 
 
@@ -166,6 +166,17 @@ class Runner(object):
         result = self.solver.get_results()
         self.logger.count(message, result)
         return result
+
+    def submit_delta(self, message_old: py2dmat.Message, delta: Dict[int, float]) -> float:
+        self.solver.prepare_delta(message_old, delta)
+        cwd = os.getcwd()
+        os.chdir(self.solver.work_dir)
+        self.solver.run_delta()
+        os.chdir(cwd)
+        result = self.solver.get_results()
+        # self.logger.count(message, result)
+        return result
+
 
     def post(self) -> None:
         self.logger.write()

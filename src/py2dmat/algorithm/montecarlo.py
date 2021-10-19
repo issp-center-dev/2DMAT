@@ -234,26 +234,38 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
                 self.fx[iwalker] = np.inf
         return self.fx
 
-    # def propose(self, current: np.ndarray) -> np.ndarray:
-    #     """propose next candidate
-    #
-    #     Parameters
-    #     ==========
-    #     current: np.ndarray
-    #         current position
-    #
-    #     Returns
-    #     =======
-    #     proposed: np.ndarray
-    #         proposal
-    #     """
-    #     if self.iscontinuous:
-    #         dx = self.rng.normal(size=(self.nwalkers, self.dimension)) * self.xunit
-    #         proposed = current + dx
-    #     else:
-    #         proposed_list = [self.rng.choice(self.neighbor_list[i]) for i in current]
-    #         proposed = np.array(proposed_list, dtype=np.int64)
-    #     return proposed
+    def _evaluate_delta(self, x_old: np.ndarray, ipara: int, in_range: np.ndarray = None) -> np.ndarray:
+        """evaluate current "Energy"s
+
+        ``self.fx`` will be overwritten with the result
+
+        Parameters
+        ==========
+        run_info: dict
+            Parameter set.
+            Some parameters will be overwritten.
+        """
+
+        for iwalker in range(self.nwalkers):
+            x = self.x[iwalker, :]
+            if in_range is None or in_range[iwalker]:
+                delta = {ipara: x[ipara]}
+                message = py2dmat.Message(x_old[iwalker, :], self.istep, iwalker)
+
+                time_sta = time.perf_counter()
+                D = self.runner.submit_delta(message, delta)
+                self.fx[iwalker] += D
+                # self.fx[iwalker] = self.runner.submit(message)
+                time_end = time.perf_counter()
+                self.timer["run"]["submit"] += time_end - time_sta
+
+                # message = py2dmat.Message(x, self.istep, iwalker)
+                # fx = self.runner.submit(message)
+                # print(fx - self.fx[iwalker])
+
+            else:
+                self.fx[iwalker] = np.inf
+        return self.fx
 
     def local_update(
         self,
@@ -285,15 +297,6 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
             self.inode = self.param_sets.next(self.rng, i_old)
             in_range = np.ones(self.nwalkers, dtype=bool)
             self.x = self.param_sets.coordinate(self.inode)
-
-        # if self.iscontinuous:
-        #     self.x = self.propose(x_old)
-        #     in_range = ((self.xmin <= self.x) & (self.x <= self.xmax)).all(axis=1)
-        # else:
-        #     i_old = copy.copy(self.inode)
-        #     self.inode = self.propose(self.inode)
-        #     self.x = self.node_coordinates[self.inode, :]
-        #     in_range = np.ones(self.nwalkers, dtype=bool)
 
         # evaluate "Energy"s
         fx_old = self.fx.copy()
@@ -327,6 +330,70 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         self.fx[rejected] = fx_old[rejected]
         if self.param_sets is not None:
             self.inode[rejected] = i_old[rejected]
+
+        minidx = np.argmin(self.fx)
+        if self.fx[minidx] < self.best_fx:
+            np.copyto(self.best_x, self.x[minidx, :])
+            self.best_fx = self.fx[minidx]
+            self.best_istep = self.istep
+            self.best_iwalker = typing.cast(int, minidx)
+        self._write_result(file_result, extra_info_to_write=extra_info_to_write)
+
+    def local_update_delta(
+        self,
+        beta: Union[float, np.ndarray],
+        file_trial: TextIO,
+        file_result: TextIO,
+        extra_info_to_write: Union[List, Tuple] = None,
+    ):
+        """one step of Monte Carlo
+
+        Parameters
+        ==========
+        beta: np.ndarray
+            inverse temperature for each walker
+        file_trial: TextIO
+            log file for all trial points
+        file_result: TextIO
+            log file for all generated samples
+        extra_info_to_write: List of np.ndarray or tuple of np.ndarray
+            extra information to write
+        """
+
+        for ipara in range(self.dimension):
+            # make candidate
+            x_old = copy.copy(self.x)
+            self.x = self.parameter_space.next(self.rng, x_old, changes=ipara)
+            in_range = self.parameter_space.isValid(self.x)
+
+            # evaluate "Energy"s
+            fx_old = self.fx.copy()
+            self._evaluate_delta(x_old, ipara, in_range)
+            # self._write_result(file_trial, extra_info_to_write=extra_info_to_write)
+
+            fdiff = self.fx - fx_old
+
+            # Ignore an overflow warning in np.exp(x) for x >~ 710
+            # and an invalid operation warning in exp(nan) (nan came from 0 * inf)
+            # Note: fdiff (fx) becomes inf when x is out of range
+            # old_setting = np.seterr(over="ignore")
+            old_setting = np.seterr(all="ignore")
+            probs = np.exp(-beta * fdiff)
+            # probs[np.isnan(probs)] = 0.0
+            np.seterr(**old_setting)
+
+            tocheck = in_range & (probs < 1.0)
+            num_check = np.count_nonzero(tocheck)
+
+            accepted = in_range.copy()
+            accepted[tocheck] = self.rng.rand(num_check) < probs[tocheck]
+            rejected = ~accepted
+            self.naccepted += accepted.sum()
+            self.ntrial += accepted.size
+
+            # revert rejected steps
+            self.x[rejected, :] = x_old[rejected, :]
+            self.fx[rejected] = fx_old[rejected]
 
         minidx = np.argmin(self.fx)
         if self.fx[minidx] < self.best_fx:

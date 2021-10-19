@@ -134,7 +134,7 @@ class DiscreteParam(Param):
     @classmethod
     def from_dict(cls, input_dict: MutableMapping[str, Any]) -> "DiscreteParam":
         if "xs" in input_dict:
-            candidates = input_dict["xs"]
+            candidates = np.array(input_dict["xs"])
         else:
             for name in ("xmin", "xmax", "xnum"):
                 if name not in input_dict:

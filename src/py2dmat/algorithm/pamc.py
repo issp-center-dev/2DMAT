@@ -187,7 +187,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
                 file_result = open(f"result_T{Tindex}.txt", "a")
 
             for _ in range(self.numsteps_for_T[Tindex]):
-                self.local_update(
+                self.local_update_delta(
                     beta,
                     file_trial,
                     file_result,
@@ -217,6 +217,9 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
                 time_end = time.perf_counter()
                 self.timer["run"]["resampling"] += time_end - time_sta
                 index_from_reset = 0
+
+            self._evaluate()
+
         if index_from_reset > 0:
             res = self._gather_information(index_from_reset)
             self._save_stats(res)

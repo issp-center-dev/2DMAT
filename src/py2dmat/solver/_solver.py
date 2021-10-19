@@ -20,6 +20,9 @@ class SolverBase(object, metaclass=ABCMeta):
     dimension: int
     timer: Dict[str, Dict]
 
+    delta: Dict[int, float]
+    last_iset: int
+
     @abstractmethod
     def __init__(self, info: py2dmat.Info) -> None:
         self.root_dir = info.base["root_dir"]
@@ -47,6 +50,13 @@ class SolverBase(object, metaclass=ABCMeta):
 
     @abstractmethod
     def get_results(self) -> float:
+        raise NotImplementedError()
+
+    def prepare_delta(self, message: py2dmat.Message, delta: Dict[int, float]) -> None:
+        self.delta = delta
+        self.prepare(message)
+
+    def run_delta(self) -> None:
         raise NotImplementedError()
 
     def _run_by_subprocess(self, command: List[str]) -> None:

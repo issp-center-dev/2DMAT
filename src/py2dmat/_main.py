@@ -73,6 +73,10 @@ def main():
         from .solver.sxrd import Solver
     elif solvername == "analytical":
         from .solver.analytical import Solver
+    elif solvername == "ising":
+        from .solver.ising import Solver
+    elif solvername == "potts":
+        from .solver.potts import Solver
     else:
         print(f"ERROR: Unknown solver ({solvername})")
         exit(1)
