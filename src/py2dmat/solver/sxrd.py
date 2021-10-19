@@ -80,19 +80,6 @@ class Solver(py2dmat.solver.SolverBase):
         self.path_to_bulk = info_s["config"]["bulk_struc_in_file"]
         self.input = Solver.Input(info)
 
-    def default_run_scheme(self):
-        """
-        Return
-        -------
-        str
-            run_scheme.
-        """
-        return "subprocess"
-
-    def command(self) -> List[str]:
-        """Command to invoke solver"""
-        return [str(self.path_to_solver), "lsfit.in"]
-
     def prepare(self, message: py2dmat.Message) -> None:
         self.work_dir = self.proc_dir
         self.input.prepare(message)
@@ -102,6 +89,9 @@ class Solver(py2dmat.solver.SolverBase):
             shutil.copyfile(
                 os.path.join(self.root_dir, file), os.path.join(self.work_dir, file)
             )
+
+    def run(self, nprocs: int = 1, nthreads: int = 1) -> None:
+        self._run_by_subprocess([str(self.path_to_solver), "lsfit.in"])
 
     def get_results(self) -> float:
         # Get R-factor
@@ -234,4 +224,3 @@ class Solver(py2dmat.solver.SolverBase):
                             fw.write(
                                 "start_par {} {}\n".format(int(type_idx), variable)
                             )
-
