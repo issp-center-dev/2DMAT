@@ -36,16 +36,6 @@ The following methods should be defined.
 
     - Read the input parameter ``info`` and save as instance variables.
 
-- ``default_run_scheme(self) -> str``
-
-    - Returns the default method to invoke the solver.
-    - The followings are available:
-
-        - ``subprocess`` : run as a process via ``subprocess.run``
-        - ``function`` : run as a python function
-
-    - In future, we plans to make a ``Solver`` support multiple way to invoke.
-
 - ``prepare(self, message: py2dmat.Message) -> None``
 
     - This is called before the solver starts
@@ -53,23 +43,16 @@ The following methods should be defined.
 
         - e.g., to generate an input file of the solver
 
+- ``run(self, nprocs: int = 1, nthreads: int = 1) -> None``
+
+    - Run the solver
+    - Result should be saved to somewhere in order to be read by ``get_results`` later
+
+        - e.g., save f(x) as an instance variable
+
 - ``get_results(self) -> float``
 
     - This is called after the solver finishes
     - Returns the result of the solver
 
         - e.g., to retrieve the result from the output file of the solver
-
-One of the following two method should be defined:
-
-- ``command(self) -> List[str]``
-
-    - Returns a command to invoke the solver
-    - The return value will be transferred to ``subprocess.run``
-    - This method is nessesary when ``default_run_scheme`` returns ``"subprocess"``
-
-- ``function(self) -> Callable[[], None]``
-
-    - Returns a python function to invoke the solver
-    - The return value (function) will be called immediately.
-    - This method is nessesary when ``default_run_scheme`` returns ``"function"``

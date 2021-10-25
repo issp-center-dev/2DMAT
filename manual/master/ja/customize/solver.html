@@ -96,21 +96,6 @@
 </ul>
 </div></blockquote>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">default_run_scheme(self)</span> <span class="pre">-&gt;</span> <span class="pre">str</span></code></p>
-<blockquote>
-<div><ul>
-<li><p>ソルバーのデフォルトの実行方法 (<code class="docutils literal notranslate"><span class="pre">run_scheme</span></code>) を返してください。現在の選択肢は次のとおりです</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">subprocess</span></code> : <code class="docutils literal notranslate"><span class="pre">subprocess.run</span></code> を用いてサブプロセス実行する</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">function</span></code> : python の関数として実行する</p></li>
-</ul>
-</div></blockquote>
-</li>
-<li><p>将来的に、ひとつのソルバーが実行方法をサポートできるようになる予定です</p></li>
-</ul>
-</div></blockquote>
-</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">prepare(self,</span> <span class="pre">message:</span> <span class="pre">py2dmat.Message)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></p>
 <blockquote>
 <div><ul>
@@ -119,6 +104,21 @@
 <blockquote>
 <div><ul class="simple">
 <li><p>例：ソルバーの入力ファイルを生成する</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run(self,</span> <span class="pre">nprocs:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">nthreads:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></p>
+<blockquote>
+<div><ul>
+<li><p>ソルバーを実行します</p></li>
+<li><p>後ほど <code class="docutils literal notranslate"><span class="pre">get_results</span></code> で目的関数の値を読み取れるようにしておいてください</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>例：出力結果をインスタンス変数に保存しておく</p></li>
+<li><p>例：実行結果をファイルに保存しておく</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -136,25 +136,6 @@
 </ul>
 </div></blockquote>
 </li>
-</ul>
-</div></blockquote>
-</li>
-</ul>
-<p>また、次のメソッドのうち、どちらか必要な方を定義してください。</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">command(self)</span> <span class="pre">-&gt;</span> <span class="pre">List[str]</span></code></p>
-<blockquote>
-<div><ul class="simple">
-<li><p>ソルバーを実行するためのコマンド</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">run_scheme</span> <span class="pre">==</span> <span class="pre">&quot;subprocess&quot;</span></code> の場合に必要で、そのまま <code class="docutils literal notranslate"><span class="pre">subprocess.run</span></code> に渡されます</p></li>
-</ul>
-</div></blockquote>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">function(self)</span> <span class="pre">-&gt;</span> <span class="pre">Callable[[],</span> <span class="pre">None]</span></code></p>
-<blockquote>
-<div><ul class="simple">
-<li><p>ソルバーを実行するための python 関数</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">run_scheme</span> <span class="pre">==</span> <span class="pre">&quot;function&quot;</span></code> の場合に必要で、そのまま実行されます</p></li>
 </ul>
 </div></blockquote>
 </li>

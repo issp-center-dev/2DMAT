@@ -95,22 +95,6 @@
 </ul>
 </div></blockquote>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">default_run_scheme(self)</span> <span class="pre">-&gt;</span> <span class="pre">str</span></code></p>
-<blockquote>
-<div><ul>
-<li><p>Returns the default method to invoke the solver.</p></li>
-<li><p>The followings are available:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">subprocess</span></code> : run as a process via <code class="docutils literal notranslate"><span class="pre">subprocess.run</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">function</span></code> : run as a python function</p></li>
-</ul>
-</div></blockquote>
-</li>
-<li><p>In future, we plans to make a <code class="docutils literal notranslate"><span class="pre">Solver</span></code> support multiple way to invoke.</p></li>
-</ul>
-</div></blockquote>
-</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">prepare(self,</span> <span class="pre">message:</span> <span class="pre">py2dmat.Message)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></p>
 <blockquote>
 <div><ul>
@@ -119,6 +103,20 @@
 <blockquote>
 <div><ul class="simple">
 <li><p>e.g., to generate an input file of the solver</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run(self,</span> <span class="pre">nprocs:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">nthreads:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></p>
+<blockquote>
+<div><ul>
+<li><p>Run the solver</p></li>
+<li><p>Result should be saved to somewhere in order to be read by <code class="docutils literal notranslate"><span class="pre">get_results</span></code> later</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>e.g., save f(x) as an instance variable</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -136,27 +134,6 @@
 </ul>
 </div></blockquote>
 </li>
-</ul>
-</div></blockquote>
-</li>
-</ul>
-<p>One of the following two method should be defined:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">command(self)</span> <span class="pre">-&gt;</span> <span class="pre">List[str]</span></code></p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Returns a command to invoke the solver</p></li>
-<li><p>The return value will be transferred to <code class="docutils literal notranslate"><span class="pre">subprocess.run</span></code></p></li>
-<li><p>This method is nessesary when <code class="docutils literal notranslate"><span class="pre">default_run_scheme</span></code> returns <code class="docutils literal notranslate"><span class="pre">&quot;subprocess&quot;</span></code></p></li>
-</ul>
-</div></blockquote>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">function(self)</span> <span class="pre">-&gt;</span> <span class="pre">Callable[[],</span> <span class="pre">None]</span></code></p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Returns a python function to invoke the solver</p></li>
-<li><p>The return value (function) will be called immediately.</p></li>
-<li><p>This method is nessesary when <code class="docutils literal notranslate"><span class="pre">default_run_scheme</span></code> returns <code class="docutils literal notranslate"><span class="pre">&quot;function&quot;</span></code></p></li>
 </ul>
 </div></blockquote>
 </li>
