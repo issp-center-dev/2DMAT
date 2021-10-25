@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from abc import ABCMeta, abstractmethod
 
+import subprocess
+
 import py2dmat
 import py2dmat.mpi
 
 # type hints
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List
 
 
 class SolverBase(object, metaclass=ABCMeta):
@@ -31,30 +33,27 @@ class SolverBase(object, metaclass=ABCMeta):
         else:
             self.dimension = info.base["dimension"]
 
-    @abstractmethod
-    def default_run_scheme(self) -> str:
-        """
-        Return
-        -------
-        str
-            run_scheme.
-        """
-        pass
-
     @property
     def name(self) -> str:
         return self._name
 
-    def command(self):
-        raise NotImplementedError()
-
-    def function(self):
+    @abstractmethod
+    def prepare(self, message: py2dmat.Message) -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def prepare(self, message: py2dmat.Message) -> None:
-        pass
+    def run(self, nprocs: int = 1, nthreads: int = 1) -> None:
+        raise NotImplementedError()
 
     @abstractmethod
     def get_results(self) -> float:
-        pass
+        raise NotImplementedError()
+
+    def _run_by_subprocess(self, command: List[str]) -> None:
+        with open("stdout", "w") as fi:
+            subprocess.run(
+                command,
+                stdout=fi,
+                stderr=subprocess.STDOUT,
+                check=True,
+            )

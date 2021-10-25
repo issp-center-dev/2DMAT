@@ -116,16 +116,12 @@ class Logger:
 
 class Runner(object):
     solver: "py2dmat.solver.SolverBase"
-    run: Run
     logger: Logger
-    # mapping: Callable[[np.ndarray], np.ndarray]
 
     def __init__(
         self,
         solver: py2dmat.solver.SolverBase,
         info: Optional[py2dmat.Info] = None,
-        nprocs: int = 1,
-        nthreads: int = 1,
         mapping=None,
     ):
         """
@@ -137,30 +133,6 @@ class Runner(object):
         self.solver = solver
         self.solver_name = solver.name
         self.logger = Logger(info)
-        run_scheme = solver.default_run_scheme()
-        if run_scheme == "mpi_spawn_ready":
-            self.run = run_mpispawn_ready(
-                nprocs=nprocs,
-                nthreads=nthreads,
-                comm=mpi.comm(),
-            )
-        elif run_scheme == "mpi_spawn":
-            self.run = run_mpispawn(
-                nprocs=nprocs,
-                nthreads=nthreads,
-                comm=mpi.comm(),
-            )
-        elif run_scheme == "subprocess":
-            self.run = run_subprocess(
-                nprocs=nprocs,
-                nthreads=nthreads,
-                comm=mpi.comm(),
-            )
-        elif run_scheme == "function":
-            self.run = run_function(comm=mpi.comm())
-        else:
-            msg = f"Unknown scheme: {run_scheme}"
-            raise ValueError(msg)
 
         if mapping is None:
             info_mapping = info.runner.get("mapping", {})
@@ -181,13 +153,15 @@ class Runner(object):
     def prepare(self, proc_dir: Path):
         self.logger.prepare(proc_dir)
 
-    def submit(self, message: py2dmat.Message) -> float:
+    def submit(
+        self, message: py2dmat.Message, nprocs: int = 1, nthreads: int = 1
+    ) -> float:
         x = self.mapping(message.x)
         message_indeed = py2dmat.Message(x, message.step, message.set)
         self.solver.prepare(message_indeed)
         cwd = os.getcwd()
         os.chdir(self.solver.work_dir)
-        self.run.submit(self.solver)
+        self.solver.run(nprocs, nthreads)
         os.chdir(cwd)
         result = self.solver.get_results()
         self.logger.count(message, result)
@@ -195,52 +169,3 @@ class Runner(object):
 
     def post(self) -> None:
         self.logger.write()
-
-
-class run_mpispawn(Run):
-    def submit(self, solver: py2dmat.solver.SolverBase):
-        raise NotImplementedError()
-
-
-class run_mpispawn_ready(Run):
-    def submit(self, solver: py2dmat.solver.SolverBase):
-        raise NotImplementedError()
-
-
-class run_subprocess(Run):
-    """
-    Invoker via subprocess
-
-    """
-
-    def submit(self, solver: py2dmat.solver.SolverBase):
-        """
-        Run solver
-
-        Parameters
-        ----------
-        solver : py2dmat.solver.SolverBase
-            solver
-
-        Returns
-        -------
-        status : int
-            Always returns 0
-
-        Raises
-        ------
-        subprocess.CalledProcessError
-            Raises when solver failed.
-        """
-        command: List[str] = solver.command()
-        with open("stdout", "w") as fi:
-            subprocess.run(
-                command, stdout=fi, stderr=subprocess.STDOUT, check=True
-            )
-        return 0
-
-
-class run_function(Run):
-    def submit(self, solver):
-        solver.function()()
-        return 0

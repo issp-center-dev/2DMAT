@@ -3,6 +3,7 @@ import itertools
 import os
 import os.path
 import shutil
+import subprocess
 from pathlib import Path
 
 import numpy as np
@@ -35,24 +36,14 @@ class Solver(py2dmat.solver.SolverBase):
         self.output = Solver.Output(info)
         self.result = None
 
-    def default_run_scheme(self):
-        """
-        Return
-        -------
-        str
-            run_scheme.
-        """
-        return "subprocess"
-
-    def command(self) -> List[str]:
-        """Command to invoke solver"""
-        return [str(self.path_to_solver)]
-
     def prepare(self, message: py2dmat.Message) -> None:
         fitted_x_list, subdir = self.input.prepare(message)
         self.work_dir = self.proc_dir / Path(subdir)
         self.output.prepare(fitted_x_list)
         self.result = None
+
+    def run(self, nprocs: int = 1, nthreads: int = 1) -> None:
+        self._run_by_subprocess([str(self.path_to_solver)])
 
     def get_results(self) -> float:
         if self.result is None:
@@ -139,7 +130,8 @@ class Solver(py2dmat.solver.SolverBase):
                     for index in range(self.dimension):
                         if line.find(self.string_list[index]) != -1:
                             line = line.replace(
-                                self.string_list[index], fitted_x_list[index],
+                                self.string_list[index],
+                                fitted_x_list[index],
                             )
                     file_output.write(line)
 
