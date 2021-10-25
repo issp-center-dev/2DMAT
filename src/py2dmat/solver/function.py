@@ -23,27 +23,15 @@ class Solver(py2dmat.solver.SolverBase):
         self._name = "function"
         self._func = None
 
-    def default_run_scheme(self) -> str:
-        """
-        Return
-        -------
-        str
-            run_scheme.
-        """
-        return "function"
-
-    def function(self) -> Callable[[], None]:
-        """ return function to invoke the solver
-        """
-        return self._run
-
-    def _run(self) -> None:
-        if self._func is None:
-            raise RuntimeError("ERROR: function is not set. Make sure that `set_function` is called.")
-        self.fx = self._func(self.x)
-
     def prepare(self, message: py2dmat.Message) -> None:
         self.x = message.x
+
+    def run(self, nprocs: int = 1, nthreads: int = 1) -> None:
+        if self._func is None:
+            raise RuntimeError(
+                "ERROR: function is not set. Make sure that `set_function` is called."
+            )
+        self.fx = self._func(self.x)
 
     def get_results(self) -> float:
         return self.fx
