@@ -180,3 +180,13 @@ class Runner(object):
 
     def post(self) -> None:
         self.logger.write()
+
+
+    def can_run_delta(self) -> bool:
+        try:
+            self.solver.run_delta()
+            return True
+        except NotImplementedError:
+            return False
+        except:
+            return True

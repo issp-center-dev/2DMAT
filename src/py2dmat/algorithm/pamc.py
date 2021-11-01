@@ -187,7 +187,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
                 file_result = open(f"result_T{Tindex}.txt", "a")
 
             for _ in range(self.numsteps_for_T[Tindex]):
-                self.local_update_delta(
+                self.local_update(
                     beta,
                     file_trial,
                     file_result,

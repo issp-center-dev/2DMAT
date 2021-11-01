@@ -1,5 +1,5 @@
 import typing
-from typing import TextIO, Union, List, Tuple
+from typing import TextIO, Union, List, Tuple, Optional
 import copy
 import time
 import pathlib
@@ -75,6 +75,8 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
     ntrial: int
     naccepted: int
 
+    _can_run_delta: Optional[bool]
+
     def __init__(
         self, info: py2dmat.Info, runner: py2dmat.Runner = None, nwalkers: int = 1
     ) -> None:
@@ -118,6 +120,7 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         self.input_as_beta = False
         self.naccepted = 0
         self.ntrial = 0
+        self._can_run_delta = None
 
     def read_Ts(self, info: dict, numT: int = None) -> np.ndarray:
         """
@@ -196,17 +199,9 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
             bTlog = info.get("Tlogspace", True)
 
             if bTlog:
-                Ts = np.logspace(
-                    start=np.log10(Tmin),
-                    stop=np.log10(Tmax),
-                    num=numT,
-                )
+                Ts = np.logspace(start=np.log10(Tmin), stop=np.log10(Tmax), num=numT,)
             else:
-                Ts = np.linspace(
-                    start=Tmin,
-                    stop=Tmax,
-                    num=numT,
-                )
+                Ts = np.linspace(start=Tmin, stop=Tmax, num=numT,)
             return 1.0 / Ts
 
     def _evaluate(self, in_range: np.ndarray = None) -> np.ndarray:
@@ -234,7 +229,9 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
                 self.fx[iwalker] = np.inf
         return self.fx
 
-    def _evaluate_delta(self, x_old: np.ndarray, ipara: int, in_range: np.ndarray = None) -> np.ndarray:
+    def _evaluate_delta(
+        self, x_old: np.ndarray, ipara: int, in_range: np.ndarray = None
+    ) -> np.ndarray:
         """evaluate current "Energy"s
 
         ``self.fx`` will be overwritten with the result
@@ -268,6 +265,18 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         return self.fx
 
     def local_update(
+        self,
+        beta: Union[float, np.ndarray],
+        file_trial: TextIO,
+        file_result: TextIO,
+        extra_info_to_write: Union[List, Tuple] = None,
+    ):
+        if self.can_run_delta:
+            self.local_update_delta(beta, file_trial, file_result, extra_info_to_write)
+        else:
+            self.local_update_full(beta, file_trial, file_result, extra_info_to_write)
+
+    def local_update_full(
         self,
         beta: Union[float, np.ndarray],
         file_trial: TextIO,
@@ -315,7 +324,10 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         np.seterr(**old_setting)
 
         if self.param_sets is not None:
-            probs *= self.param_sets.ncandidates[i_old] / self.param_sets.ncandidates[self.inode]
+            probs *= (
+                self.param_sets.ncandidates[i_old]
+                / self.param_sets.ncandidates[self.inode]
+            )
         tocheck = in_range & (probs < 1.0)
         num_check = np.count_nonzero(tocheck)
 
@@ -435,3 +447,9 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
                     fp.write(f" {ex[iwalker]}")
             fp.write("\n")
         fp.flush()
+
+    @property
+    def can_run_delta(self) -> bool:
+        if self._can_run_delta is None:
+            self._can_run_delta = self.runner.can_run_delta()
+        return self._can_run_delta
