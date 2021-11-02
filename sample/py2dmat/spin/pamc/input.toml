@@ -1,0 +1,29 @@
+[base]
+dimension = 16
+output_dir = "output"
+
+[algorithm]
+name = "pamc"
+# name = "mapper"
+seed = 12345
+
+[[algorithm.parameter]]
+repeat = 16
+xs = [-1,1]
+
+[algorithm.pamc]
+# numsteps = 100
+numsteps_annealing = 1
+Tnum = 21
+bmin = 0.0
+bmax = 1.0
+Tlogspace = false
+nreplica_per_proc = 100
+fix_num_walkers = false
+resampling_interval = 1
+
+[solver]
+name = "spin"
+type = "ising"
+twobody = "J.dat"
+# onebody = "h.dat"

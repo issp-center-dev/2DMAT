@@ -14,3 +14,4 @@
    analytical
    sim-trhepd-rheed
    sxrd
+   spin
