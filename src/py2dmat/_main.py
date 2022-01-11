@@ -4,23 +4,6 @@ import py2dmat
 import py2dmat.mpi
 import py2dmat.util.toml
 
-# try:
-#     from tomli import load as toml_load
-# except ImportError:
-#     try:
-#         from toml import load as toml_load
-#         if py2dmat.mpi.rank() == 0:
-#             print("WARNING: tomli is not found and toml is found.")
-#             print("         use of toml package is left for compatibility.")
-#             print("         please install tomli package.")
-#             print("HINT: python3 -m pip install tomli")
-#             print()
-#     except ImportError:
-#         if py2dmat.mpi.rank() == 0:
-#             print("ERROR: tomli is not found")
-#             print("HINT: python3 -m pip install tomli")
-#         exit(1)
-
 
 def main():
     import argparse
@@ -40,8 +23,6 @@ def main():
     inp = {}
     if py2dmat.mpi.rank() == 0:
         inp = py2dmat.util.toml.load(file_name)
-        # with open(file_name) as f:
-        #     inp = toml_load(f)
     if py2dmat.mpi.size() > 1:
         inp = py2dmat.mpi.comm().bcast(inp, root=0)
     info = py2dmat.Info(inp)
