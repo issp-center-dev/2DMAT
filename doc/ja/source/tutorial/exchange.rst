@@ -7,7 +7,7 @@
 サンプルファイルの場所
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-サンプルファイルは ``sample/py2dmat/sim-threpd-rheed/exchange`` にあります。
+サンプルファイルは ``sample/sim-threpd-rheed/exchange`` にあります。
 フォルダには以下のファイルが格納されています。
 
 - ``bulk.txt``
@@ -116,7 +116,7 @@
 
 .. code-block::
 
-    cd sample/py2dmat/exchange
+    cd sample/sim-trhepd-rheed/exchange
 
 順問題の時と同様に、 ``bulk.exe`` と ``surf.exe`` をコピーします。
 
