@@ -76,15 +76,3 @@ http://www.icts.hkbu.edu.hk/VanHove_files/leed/leedsatl.zip へアクセスし�
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``leed`` では、 計算時に出力されるファイルが、ランクの番号が記載されたフォルダ下に一式出力されます。
-ここでは、 ``py2dmat`` で独自に出力するファイルについて説明します。
-
-``stdout``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-``leed`` が出力する標準出力が記載されています。
-leedのLeast square fittingに対して、初期パラメータとして変数を与え、1ショット計算(iteration数=0)をした際のRfactorを計算します。
-RfactorはFit results以下のRに記載されます。
-以下、出力例です。
-
-.. code-block::
-
-   T.B.A.

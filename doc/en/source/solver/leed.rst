@@ -84,16 +84,3 @@ Output file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In ``leed``, the output files are stored in the folder with the rank number.
-Here is a description of the files that are output by ``py2dmat``.
-
-``stdout``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The standard output by ``leed`` is described.
-For leed's Least square fitting, we give variables as initial parameters and calculate the Rfactor for a 1-shot calculation (number of iterations = 0).
-The Rfactor is written in R under Fit results.
-Here is an example of the output.
-
-.. code-block::
-
-   T.B.A.
