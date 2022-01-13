@@ -2,7 +2,8 @@ TRHEPD Direct Problem Solver
 ============================
 
 As one of the forward problem solvers, 2DMAT provides a wrapper for the program `sim-trhepd-rheed <https://github.com/sim-trhepd-rheed/sim-trhepd-rheed/>`_ , which calculates the intensity of reflection fast (positron) electron diffraction (RHEED, TRHEPD) (A. Ichimiya, Jpn. J. Appl. Phys. 22, 176 (1983); 24, 1365 (1985)). 
-In this tutorial, we will install and test sim-trhepd-rheed (for details, see the official web page for `sim-trhepd-rheed <https://github.com/sim-trhepd-rheed/sim-trhepd-rheed/>`_).
+In this tutorial, we will show some examples which use some algorithms with sim-trhepd-rheed.
+First, we will install and test sim-trhepd-rheed (for details, see the official web page for `sim-trhepd-rheed <https://github.com/sim-trhepd-rheed/sim-trhepd-rheed/>`_).
 
 Download and Install
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
