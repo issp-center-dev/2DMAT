@@ -36,7 +36,7 @@ sim-trhepd-rheed では、最初に ``bulk.exe`` で表面構造のバルク部�
 .. code-block::
 
    cd ../../
-   cp -r 2DMAT/sample/sim-trhepd-rheed work
+   cp -r 2DMAT/sample/sim-trhepd-rheed/solver work
    cd work
 
 次に ``bulk.exe`` と ``surf.exe`` を ``work`` にコピーします
