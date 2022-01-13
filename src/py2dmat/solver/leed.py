@@ -55,21 +55,19 @@ class Solver(py2dmat.solver.SolverBase):
             raise exception.InputError(f"ERROR: solver ({p2solver}) is not found")
 
         self.path_to_base_dir = info_s["reference"]["path_to_base_dir"]
-        #check files
+        # check files
         files = ["exp.d", "rfac.d", "tleed4.i", "tleed5.i", "tleed.o", "short.t"]
         for file in files:
-            if not os.path.exists(os.path.join(self.path_to_base_dir,file)):
-                raise exception.InputError(f"ERROR: input file ({file}) is not found in ({self.path_to_base_dir})")
+            if not os.path.exists(os.path.join(self.path_to_base_dir, file)):
+                raise exception.InputError(
+                    f"ERROR: input file ({file}) is not found in ({self.path_to_base_dir})"
+                )
         self.input = Solver.Input(info)
 
     def prepare(self, message: py2dmat.Message) -> None:
         self.work_dir = self.proc_dir
-        import shutil
-        print("Debug: {}, {}, {}".format(self.root_dir, self.path_to_base_dir, self.work_dir ))
         for dir in [self.path_to_base_dir]:
-             copy_tree(
-                 os.path.join(self.root_dir, dir), os.path.join(self.work_dir)
-             )
+            copy_tree(os.path.join(self.root_dir, dir), os.path.join(self.work_dir))
         self.input.prepare(message)
 
     def run(self, nprocs: int = 1, nthreads: int = 1) -> None:
@@ -77,12 +75,17 @@ class Solver(py2dmat.solver.SolverBase):
 
     def get_results(self) -> float:
         # Get R-factor
-        with open(os.path.join(self.work_dir,"search.s"), "r") as fr:
+        rfactor = -1.0
+        filename = os.path.join(self.work_dir, "search.s")
+        with open(filename, "r") as fr:
             lines = fr.readlines()
             for line in lines:
                 if "R-FACTOR" in line:
                     rfactor = float(line.split("=")[1])
                     break
+        if rfactor == -1.0:
+            msg = f"R-FACTOR cannot be found in {filename}"
+            raise RuntimeError(msg)
         return rfactor
 
     class Input(object):
@@ -108,13 +111,14 @@ class Solver(py2dmat.solver.SolverBase):
             # Add variables by numpy array.(Variables are updated in optimization process).
             self._write_fit_file(x_list)
 
-
         def _write_fit_file(self, variables):
             with open("tleed4.i", "r") as fr:
                 contents = fr.read()
             for idx, variable in enumerate(variables):
-                #FORTRAN format: F7.6
+                # FORTRAN format: F7.6
                 svariable = str(variable).zfill(6)[:6]
-                contents = contents.replace("opt{}".format(str(idx).zfill(3)), svariable)
-            with open("tleed4.i", 'w') as writer:
+                contents = contents.replace(
+                    "opt{}".format(str(idx).zfill(3)), svariable
+                )
+            with open("tleed4.i", "w") as writer:
                 writer.write(contents)
