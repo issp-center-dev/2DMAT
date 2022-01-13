@@ -36,7 +36,7 @@ First, copy this folder to a suitable working folder ``work``.
 .. code-block::
 
    cd ../../
-   cp -r 2DMAT/sample/sim-trhepd-rheed work
+   cp -r 2DMAT/sample/sim-trhepd-rheed/solver work
    cd work
 
 Next, copy ``bulk.exe`` and ``surf.exe`` to ``work``.
