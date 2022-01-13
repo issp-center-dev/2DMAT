@@ -4,7 +4,7 @@ dimension = 2
 [solver]
 name = "leed"
 [solver.config]
-path_to_solver = "./satleed/satl2.exe"
+path_to_solver = "./leedsatl/satl2.exe"
 [solver.reference]
 path_to_base_dir = "./base"
 
