@@ -6,7 +6,7 @@ This tutorial subscribes how to estimate atomic positions from the experimental 
 Sample files
 ~~~~~~~~~~~~~~~~~~
 
-Sample files are available from ``sample/py2dmat/sim-trhepd-rheed/pamc`` .
+Sample files are available from ``sample/sim-trhepd-rheed/pamc`` .
 This directory includes the following files:
 
 - ``bulk.txt``
@@ -132,7 +132,7 @@ First, move to the folder where the sample file is located (hereinafter, it is a
 
 .. code-block::
 
-    cd sample/py2dmat/pamc
+    cd sample/sim-trhepd-rheed/pamc
 
 Copy ``bulk.exe`` and ``surf.exe`` as the tutorial for the direct problem.
 
