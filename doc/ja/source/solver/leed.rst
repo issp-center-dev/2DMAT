@@ -8,13 +8,22 @@
 前準備
 ~~~~~~~~~~~~
 最初に ``SATLEED`` をインストールします。
-http://www.icts.hkbu.edu.hk/VanHove_files/leed/leedsatl.zip へアクセスし、zipファイルをダウンロードします。zipファイル解凍後に、所定の手続きに従いコンパイルすることで、 ``stal1.exe``, ``satl2.exe`` などの実行ファイルができます。なお、本ツールを利用するにあたっては、 ``satl1.exe`` まで実行していることが前提となります。そのため、以下のファイルが生成されている必要があります。
+http://www.icts.hkbu.edu.hk/VanHove_files/leed/leedsatl.zip へアクセスし、zipファイルをダウンロードします。zipファイル展開後に、所定の手続きに従いコンパイルすることで、 ``stal1.exe``, ``satl2.exe`` などの実行ファイルができます。
+``SATLED`` は計算したい系の詳細によって、ソースコードのパラメータを適宜書き換える必要があります。
+``sample/py2dmat/leed`` にあるサンプルを実行する場合には、 ``SATLEED`` のダウンロードから、サンプル向けのソースコードの書き換え、コンパイルまでを自動で行うスクリプト ``setup.sh`` が用意されています。::
+
+    $ cd sample/py2dmat/leed
+    $ sh ./setup.sh
+
+``setup.sh`` を実行すると、 ``leedsatl`` ディレクトリに ``satl1.exe`` と ``satl2.exe`` が生成されます。
+
+``py2dmat`` から ``SATLEED`` を利用するにあたっては、あらかじめ ``satl1.exe`` まで実行していることが前提となります。そのため、以下のファイルが生成されている必要があります。
 
 - ``satl1.exe`` の入力ファイル: ``exp.d``, ``rfac.d``, ``tleed4.i``, ``tleed5.i``
 
 - ``satl1.exe`` の出力ファイル: ``tleed.o`` , ``short.t``
 
-``py2dmat`` は上の情報を下に ``satl2.exe`` を実行します。
+``py2dmat`` はこれらをもちいて ``satl2.exe`` を実行します。
 
 入力パラメータ
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

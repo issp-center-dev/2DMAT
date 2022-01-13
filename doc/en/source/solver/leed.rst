@@ -12,7 +12,16 @@ First, install  ``SATLEED`` .
 Access to the following URL
 http://www.icts.hkbu.edu.hk/VanHove_files/leed/leedsatl.zip
 and download a zip file.
-After unzipping the zip file, compile programs to generate the executable files such as ``stal1.exe``, ``satl2.exe`` .
+Depending on the details of the system you want to calculate, it is necessary to change the parameters in the source code for ``SATLEED``.
+After changing parameters, compile programs to generate the executable files such as ``stal1.exe``, ``satl2.exe`` .
+
+For trying the example at ``sample/py2dmat/leed``, a utility script file ``setup.sh`` for downloading ``SATLEED``, rewriting source codes, and compiling the program is available.::
+
+    $ cd sample/py2dmat/leed
+    $ sh ./setup.sh
+
+After running ``setup.sh``, executable files ``satl1.exe`` and ``satl2.exe`` are generated in ``leedsatl`` directory.
+
 Note that it is assumed that you have already executed ``satl1.exe`` before using ``py2dmat`` .
 Therefore, the following files must be generated.
 
