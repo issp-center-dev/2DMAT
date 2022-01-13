@@ -12,8 +12,7 @@ First, install  ``SATLEED`` .
 Access to the following URL
 http://www.icts.hkbu.edu.hk/VanHove_files/leed/leedsatl.zip
 and download a zip file.
-After unzipping the zip file, edit the ``leedsatl/Makefile`` to suit your computing environment,
-and then type ``make`` to generate the executable files ``stal1.exe``, ``satl2.exe``, and so on.
+After unzipping the zip file, compile programs to generate the executable files such as ``stal1.exe``, ``satl2.exe`` .
 Note that it is assumed that you have already executed ``satl1.exe`` before using ``py2dmat`` .
 Therefore, the following files must be generated.
 

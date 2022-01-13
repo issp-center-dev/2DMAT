@@ -8,7 +8,7 @@
 前準備
 ~~~~~~~~~~~~
 最初に ``SATLEED`` をインストールします。
-http://www.icts.hkbu.edu.hk/VanHove_files/leed/leedsatl.zip へアクセスし、zipファイルをダウンロードします。zipファイル解凍後に、 ``leedsatl/Makefile`` を自身の計算環境に合うように編集したあとに、 ``make`` コマンドを打つことで ``stal1.exe``, ``satl2.exe`` などの実行ファイルができます。なお、本ツールを利用するにあたっては、 ``satl1.exe`` まで実行していることが前提となります。そのため、以下のファイルが生成されている必要があります。
+http://www.icts.hkbu.edu.hk/VanHove_files/leed/leedsatl.zip へアクセスし、zipファイルをダウンロードします。zipファイル解凍後に、所定の手続きに従いコンパイルすることで、 ``stal1.exe``, ``satl2.exe`` などの実行ファイルができます。なお、本ツールを利用するにあたっては、 ``satl1.exe`` まで実行していることが前提となります。そのため、以下のファイルが生成されている必要があります。
 
 - ``satl1.exe`` の入力ファイル: ``exp.d``, ``rfac.d``, ``tleed4.i``, ``tleed5.i``
 
