@@ -22,7 +22,8 @@ copyright = '2020-, 2DMAT developers'
 author = '2DMAT developers'
 
 # The full version, including alpha/beta/rc tags
-release = '2.0-dev'
+release = '2.0.0'
+version = '2.0'
 
 
 # -- General configuration ---------------------------------------------------
