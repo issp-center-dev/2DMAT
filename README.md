@@ -29,7 +29,7 @@ and direct problem solvers (`py2dmat` also means this script).
     - for `minsearch` algorithm
   - mpi4py
     - for `exchange` algorithm
-  - physbo >= 0.3
+  - physbo >= 1.1
     - for `bayes` algorithm
 
 ### Install
