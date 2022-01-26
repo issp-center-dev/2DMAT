@@ -22,11 +22,11 @@ The input file consists of the following six sections.
 
 - ``mapping``
 
-  - Specify the mapping from a parameter searched by ``Algorithm`` .
+  - Define the mapping from a parameter searched by ``Algorithm`` .
 
 - ``log``
 
-  - Specify related to logging of solver calls.
+  - Specify parameters related to logging of solver calls.
   
 [``base``] section
 ************************
@@ -113,7 +113,7 @@ This section sets the configuration of ``Runner``, which bridges ``Algorithm`` a
 It has two subsections, ``mapping`` and ``log`` .
 
 [``mapping``] section
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+************************
 
 This section defines the mapping from a parameter searched by ``Algorithm``, :math:`x`, to a parameter used in ``Solver``, :math:`y` .
 In the current version, the affine mapping :math:`y = Ax+b` is available.
@@ -155,9 +155,10 @@ mean
   \end{matrix}
   \right).
 
-[``log``] section
-^^^^^^^^^^^^^^^^^^^^^^^^
-Settings related to logging of solver calls.
+  [``log``] section
+************************
+
+Setting parametrs related to logging of solver calls.
 
 - ``filename``
 
