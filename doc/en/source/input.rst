@@ -2,7 +2,7 @@ Input file
 ===========================
 
 As the input file format, `TOML <https://toml.io/ja/>`_ format is used.
-The input file consists of the following four sections.
+The input file consists of the following six sections.
 
 - ``base``
 
@@ -10,17 +10,24 @@ The input file consists of the following four sections.
 
 - ``solver``
 
-  - Specify the prarameters about ``Solver`` .
+  - Specify the parameters about ``Solver`` .
 
 - ``algorithm``
 
-  - Specify the prarameters about ``Algorithm`` .
+  - Specify the parameters about ``Algorithm`` .
 
 - ``runner``
 
   - Specify the parameters about ``Runner`` .
 
+- ``mapping``
 
+  - Specify the mapping from a parameter searched by ``Algorithm`` .
+
+- ``log``
+
+  - Specify related to logging of solver calls.
+  
 [``base``] section
 ************************
 
