@@ -1,4 +1,4 @@
-name: deploy
+name: test for building doc
 
 on: [push]
 
