@@ -221,7 +221,7 @@ Example::
 This is a combination of all the ``trial_T#.txt`` in one.
 
 ``RANK/result_T#.txt``
-^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 This file stores the sampled parameters and the corresponding value returned from the solver for each replica and each temperature.
 This has the same format as ``trial.txt``.
 

@@ -57,7 +57,7 @@ py2dmat のインストール
     $ py2dmat input.toml
 
 定義済みの ``Algorithm`` については :doc:`algorithm/index` を、
-``Solver`` については :doc:`solver/input` を参照してください。
+``Solver`` については :doc:`solver/index` を参照してください。
 
 ``Algorithm`` や ``Solver`` をユーザーが準備する場合は、 ``py2dmat`` パッケージを利用します。
 詳しくは :doc:`customize/index` を参照してください。
