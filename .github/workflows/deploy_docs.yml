@@ -1,4 +1,4 @@
-name: deploy
+name: upload docs to gh-pages
 
 on:
   push:
