@@ -155,7 +155,7 @@ mean
   \end{matrix}
   \right).
 
-  [``log``] section
+[``log``] section
 ************************
 
 Setting parametrs related to logging of solver calls.

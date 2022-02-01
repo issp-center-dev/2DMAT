@@ -90,8 +90,8 @@ html_theme = 'haiku'
 # documentation.
 #
 html_theme_options = {
-    'font_family': 'Helvetica',
-    'sidebar_search_button': 'pink_1'
+    # 'font_family': 'Helvetica',
+    # 'sidebar_search_button': 'pink_1'
 }
 
 # Custom sidebar templates, must be a dictionary that maps document names
