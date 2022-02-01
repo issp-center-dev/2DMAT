@@ -18,7 +18,7 @@
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
     <link rel="next" title="出力ファイル" href="output.html" />
-    <link rel="prev" title="ポピュレーションアニーリングによる探索" href="tutorial/pamc.html" /> 
+    <link rel="prev" title="順問題ソルバーの追加" href="tutorial/solver_simple.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="index.html">
           <span>2DMAT 2.0.0 ドキュメント</span></a></h1>
@@ -27,7 +27,7 @@
       <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
-        «&#160;&#160;<a href="tutorial/pamc.html">ポピュレーションアニーリングによる探索</a>
+        «&#160;&#160;<a href="tutorial/solver_simple.html">順問題ソルバーの追加</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">コンテンツ</a>
         &#160;&#160;::&#160;&#160;
@@ -41,7 +41,7 @@
   <section id="id1">
 <h1>入力ファイル<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p>py2dmat は入力ファイルの形式に <a class="reference external" href="https://toml.io/ja/">TOML</a> を採用しています。
-入力ファイルは次の4つのセクションから構成されます。</p>
+入力ファイルは次の6つのセクションから構成されます。</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">base</span></code></p>
 <ul>
@@ -61,6 +61,16 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">runner</span></code></p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">Runner</span></code> のパラメータを指定します。</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mapping</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> で探索しているパラメータから <code class="docutils literal notranslate"><span class="pre">Solver</span></code> で使うパラメータへの写像を定義します。</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log</span></code></p>
+<ul>
+<li><p>solver 呼び出しのlogging に関して設定します。</p></li>
 </ul>
 </li>
 </ul>
@@ -143,8 +153,9 @@
 <h2>[<code class="docutils literal notranslate"><span class="pre">runner</span></code>] セクション<a class="headerlink" href="#runner" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> と <code class="docutils literal notranslate"><span class="pre">Solver</span></code> を橋渡しする要素である <code class="docutils literal notranslate"><span class="pre">Runner</span></code> の設定を記述します。
 サブセクションとして <code class="docutils literal notranslate"><span class="pre">mapping</span></code> と <code class="docutils literal notranslate"><span class="pre">log</span></code> を持ちます。</p>
+</section>
 <section id="mapping">
-<h3>[<code class="docutils literal notranslate"><span class="pre">mapping</span></code>] セクション<a class="headerlink" href="#mapping" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h2>[<code class="docutils literal notranslate"><span class="pre">mapping</span></code>] セクション<a class="headerlink" href="#mapping" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> で探索しているパラメータ <span class="math notranslate nohighlight">\(x\)</span> から <code class="docutils literal notranslate"><span class="pre">Solver</span></code> で使うパラメータ <span class="math notranslate nohighlight">\(y\)</span> への写像を定義します。
 現在はアフィン写像 <span class="math notranslate nohighlight">\(y = Ax+b\)</span> が利用可能です。</p>
 <ul>
@@ -185,7 +196,7 @@
 <p>を表します。</p>
 </section>
 <section id="log">
-<h3>[<code class="docutils literal notranslate"><span class="pre">log</span></code>] セクション<a class="headerlink" href="#log" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h2>[<code class="docutils literal notranslate"><span class="pre">log</span></code>] セクション<a class="headerlink" href="#log" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>solver 呼び出しのlogging に関する設定です。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">filename</span></code></p>
@@ -207,14 +218,13 @@
 </ul>
 </section>
 </section>
-</section>
 
 
       </div>
       <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
-        «&#160;&#160;<a href="tutorial/pamc.html">ポピュレーションアニーリングによる探索</a>
+        «&#160;&#160;<a href="tutorial/solver_simple.html">順問題ソルバーの追加</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">コンテンツ</a>
         &#160;&#160;::&#160;&#160;

@@ -17,7 +17,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Output files" href="output.html" />
-    <link rel="prev" title="Optimization by population annealing" href="tutorial/pamc.html" /> 
+    <link rel="prev" title="Addition of a direct problem solver" href="tutorial/solver_simple.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="index.html">
           <span>2DMAT 2.0.0 documentation</span></a></h1>
@@ -26,7 +26,7 @@
       <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
-        «&#160;&#160;<a href="tutorial/pamc.html">Optimization by population annealing</a>
+        «&#160;&#160;<a href="tutorial/solver_simple.html">Addition of a direct problem solver</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
@@ -40,7 +40,7 @@
   <section id="input-file">
 <h1>Input file<a class="headerlink" href="#input-file" title="Permalink to this headline">¶</a></h1>
 <p>As the input file format, <a class="reference external" href="https://toml.io/ja/">TOML</a> format is used.
-The input file consists of the following four sections.</p>
+The input file consists of the following six sections.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">base</span></code></p>
 <ul>
@@ -49,17 +49,27 @@ The input file consists of the following four sections.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">solver</span></code></p>
 <ul>
-<li><p>Specify the prarameters about <code class="docutils literal notranslate"><span class="pre">Solver</span></code> .</p></li>
+<li><p>Specify the parameters about <code class="docutils literal notranslate"><span class="pre">Solver</span></code> .</p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">algorithm</span></code></p>
 <ul>
-<li><p>Specify the prarameters about <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> .</p></li>
+<li><p>Specify the parameters about <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> .</p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">runner</span></code></p>
 <ul>
 <li><p>Specify the parameters about <code class="docutils literal notranslate"><span class="pre">Runner</span></code> .</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mapping</span></code></p>
+<ul>
+<li><p>Define the mapping from a parameter searched by <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> .</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log</span></code></p>
+<ul>
+<li><p>Specify parameters related to logging of solver calls.</p></li>
 </ul>
 </li>
 </ul>
@@ -135,8 +145,9 @@ If omitted, the initialization is done by  <a class="reference external" href="h
 <h2>[<code class="docutils literal notranslate"><span class="pre">runner</span></code>] section<a class="headerlink" href="#runner-section" title="Permalink to this headline">¶</a></h2>
 <p>This section sets the configuration of <code class="docutils literal notranslate"><span class="pre">Runner</span></code>, which bridges <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> and <code class="docutils literal notranslate"><span class="pre">Solver</span></code>.
 It has two subsections, <code class="docutils literal notranslate"><span class="pre">mapping</span></code> and <code class="docutils literal notranslate"><span class="pre">log</span></code> .</p>
+</section>
 <section id="mapping-section">
-<h3>[<code class="docutils literal notranslate"><span class="pre">mapping</span></code>] section<a class="headerlink" href="#mapping-section" title="Permalink to this headline">¶</a></h3>
+<h2>[<code class="docutils literal notranslate"><span class="pre">mapping</span></code>] section<a class="headerlink" href="#mapping-section" title="Permalink to this headline">¶</a></h2>
 <p>This section defines the mapping from a parameter searched by <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code>, <span class="math notranslate nohighlight">\(x\)</span>, to a parameter used in <code class="docutils literal notranslate"><span class="pre">Solver</span></code>, <span class="math notranslate nohighlight">\(y\)</span> .
 In the current version, the affine mapping <span class="math notranslate nohighlight">\(y = Ax+b\)</span> is available.</p>
 <ul>
@@ -168,16 +179,14 @@ In the current version, the affine mapping <span class="math notranslate nohighl
 </div>
 <p>mean</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}A = \left(
+\[ \begin{align}\begin{aligned}\begin{split}A = \left(
 \begin{matrix}
 1 &amp; 1 \\
 0 &amp; 1
 \end{matrix}
-\right).\end{split}\]</div>
-</section>
-<section id="log-section">
-<h3>[<code class="docutils literal notranslate"><span class="pre">log</span></code>] section<a class="headerlink" href="#log-section" title="Permalink to this headline">¶</a></h3>
-<p>Settings related to logging of solver calls.</p>
+\right).\end{split}\\[``log``] section\end{aligned}\end{align} \]</div>
+<hr class="docutils" />
+<p>Setting parametrs related to logging of solver calls.</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">filename</span></code></p>
 <p>Format: String (default: “runner.log”)</p>
@@ -201,14 +210,13 @@ In the current version, the affine mapping <span class="math notranslate nohighl
 </ul>
 </section>
 </section>
-</section>
 
 
       </div>
       <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
-        «&#160;&#160;<a href="tutorial/pamc.html">Optimization by population annealing</a>
+        «&#160;&#160;<a href="tutorial/solver_simple.html">Addition of a direct problem solver</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
