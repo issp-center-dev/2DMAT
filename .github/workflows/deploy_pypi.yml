@@ -1,4 +1,4 @@
-name: deploy
+name: upload package to PyPI
 
 on:
   push:
