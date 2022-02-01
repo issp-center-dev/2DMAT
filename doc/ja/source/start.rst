@@ -31,8 +31,8 @@ py2dmat のインストール
 
 - ソースコードからのインストール
 
-    #. ``git clone https://github.com/issp-center-dev/2DMAT``
-    #. ``python3 -m pip install ./2DMAT``
+    1. ``git clone https://github.com/issp-center-dev/2DMAT``
+    2. ``python3 -m pip install ./2DMAT``
 
         - ``pip`` のバージョンは 19 以上が必要です (``python3 -m pip install -U pip`` で更新可能)
 
@@ -51,6 +51,7 @@ py2dmat のインストール
 
 実行方法
 ~~~~~~~~~~~~~
+
 ``py2dmat`` コマンドは定義済みの最適化アルゴリズム ``Algorithm`` と順問題ソルバー ``Solver`` の組み合わせで解析を行います。::
     
     $ py2dmat input.toml
@@ -60,6 +61,11 @@ py2dmat のインストール
 
 ``Algorithm`` や ``Solver`` をユーザーが準備する場合は、 ``py2dmat`` パッケージを利用します。
 詳しくは :doc:`customize/index` を参照してください。
+
+なお、 プログラムを改造する場合など、 ``py2dmat`` コマンドをインストールせずに直接実行することも可能です。
+``src/py2dmat_main.py`` を利用してください。::
+
+    $ py2dmat src/py2dmat_main.py input.toml
 
 アンインストール
 ~~~~~~~~~~~~~~~~~~~~~~~~
