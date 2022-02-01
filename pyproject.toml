@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "py2dmat"
-version = "2.0.0"
+version = "2.1-dev"
 description = "Data-analysis software of quantum beam diffraction experiments for 2D material structure"
 authors = ["2DMAT developers <2dmat-dev@issp.u-tokyo.ac.jp>"]
 license = "GPL-3.0-or-later"
