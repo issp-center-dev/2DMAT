@@ -8,19 +8,23 @@ from py2dmat._info import Info
 import math
 import subprocess
 import os
+import glob
+import sys
 
 Pi = math.pi
 
-file_name = "to_dft_input.toml"
+if len(sys.argv) == 1:
+    file_name = "to_xyz_input.toml"
+elif len(sys.argv) == 2:
+    file_name = sys.argv[1]
+else:
+    print("Usage: python3 to_xyz.py file_name.")
+    exit(1)
 
 with open(file_name, "rb") as f:
     dirs = tomli.load(f)
     input_main = dirs["Main"]
-    input_ase = dirs["ASE"]
-    input_sol = dirs["Solver"]
-    pseudopotentials = input_sol.pop("pseudo")
     algorithm = input_main["algorithm"]["algorithm"]
-
 
 lattice = []
 vector  = [[] for _ in range(3)]
@@ -28,14 +32,19 @@ angular = []
 coord_fric =  []
 symbol = []
 coord_car = []
+opti_result = []
 
 f_list = os.listdir("./")
+current_dir = os.getcwd()
+file_list = glob.glob(os.path.join(current_dir,"*.blk"))
+if len(file_list) != 1:
+    print("Error: Multiple blk files exist.")
+    print(file_list)
+    exit(1)
 
-for i in f_list:
-    if os.path.splitext(i)[1] == '.blk':
-        file_name = i
+file_name = file_list[0]
 
-with open("./"+file_name,"r") as f:
+with open(file_name,"r") as f:
     lines = f.readlines()
     lattice = list(map(float,list(filter(None,lines[1].replace('\n','').split(' ')))[0:3]))
     angular = list(map(float,list(filter(None,lines[1].replace('\n','').split(' ')))[3:]))
@@ -55,8 +64,9 @@ coord_car = np.dot(coord_fric,vector).tolist()
 surf_symbol = []
 surf_coord_fric = []
 surf_disvector = []
+opti_result = []
 
-with open("./2dmat_input.toml", "rb") as f:
+with open(input_main["input_2dmat"], "rb") as f:
     toml_dict = tomli.load(f)
     for domain in toml_dict["solver"]["param"]["domain"]:
         for atom in domain["atom"]:
@@ -65,7 +75,7 @@ with open("./2dmat_input.toml", "rb") as f:
             surf_disvector.append(atom["displace_vector"][0])
 
 if toml_dict["algorithm"]["name"] == "mapper":
-    with open("./ColorMap.txt","r") as f:
+    with open(os.path.join(current_dir, "ColorMap.txt"),"r") as f:
         min_r = list(map(float,f.readline().replace('\n','').split(' ')))
         for line in f.readlines():
             line = list(map(float,line.replace('\n','').split(' ')))
@@ -74,14 +84,14 @@ if toml_dict["algorithm"]["name"] == "mapper":
         opti_result = min_r[0:-1]
 
 if toml_dict["algorithm"]["name"] == "minsearch":
-    with open("./res.txt","r") as f:
+    with open(os.path.join(current_dir, "res.txt"),"r") as f:
         for line in f.readlines():
             if 'z' in line:
                 line = line.replace('\n','').split(' ')
                 opti_result.append(float(line[2]))
 
 if algorithm == "exchange" or algorithm == "pamc":
-    with open("./best_result.txt","r") as f:
+    with open(os.path.join(current_dir, "best_result.txt"),"r") as f:
         for line in f.readlines():
             if 'z' in line:
                 line = line.replace('\n','').split(' ')
@@ -125,7 +135,7 @@ for i in range(int(layer[2])-1):
 comment = "Lattice= \"{:.8f} {:.8f} {:.8f} {:.8f} {:.8f} {:.8f} {:.8f} {:.8f} {:.8f}\" Properties=species:S:1:pos:R:3 pbc=\"T T T\""\
     .format(vector[0][0], vector[0][1],vector[0][2], vector[1][0],vector[1][1], vector[1][2],vector[2][0], vector[2][1],vector[2][2])
 
-with open("./surf-bulk.xyz","w") as w:
+with open(os.path.join(current_dir, "surf-bulk.xyz"),"w") as w:
     w.write(str(len(coord_car)+len(surf_coord_final))+"\n")
     w.write(comment+"\n")
     for i in range(len(coord_car)):
@@ -143,12 +153,6 @@ import pprint
 
 print("Parameters for main part")
 pprint.pprint(input_main)
-print("Parameters for ase part")
-pprint.pprint(input_ase)
-print("Parameters for solver part")
-pprint.pprint(input_sol)
-print("Pseudopotentials")
-pprint.pprint(pseudopotentials)
 
 ### Read/Write file names ###
 file_name = "surf-bulk.xyz"
@@ -233,37 +237,4 @@ from ase.io import read, write
 ase_union = read(wfile_name + ".xyz")
 ### CIF file ###
 ase_union.write(wfile_name + '.cif', format='cif')
-### Constraints ###
-from ase.constraints import FixAtoms
 
-z_atoms = atoms_info.get_positions()[:, 2]
-ase_union.set_constraint(FixAtoms(indices=np.where(z_atoms <= z_bottom_2nd[1])[0]))
-
-### Quantum Espresso ###
-from ase.calculators.espresso import Espresso
-
-calculation = input_sol["control"]["calculation"]
-kpts = input_ase["kpts"]
-command = input_ase["command"]
-if calculation == 'scf':
-    qe = Espresso(input_data=input_sol,
-                  pseudopotentials=pseudopotentials,
-                  kpts=kpts,
-                  command=command)
-elif calculation == 'relax':
-    qe = Espresso(input_data=input_sol,
-                  pseudopotentials=pseudopotentials,
-                  kpts=kpts,
-                  command=command)
-elif calculation == 'bands':
-    qe = Espresso(input_data=input_sol,
-                  pseudopotentials=pseudopotentials,
-                  kpts=kpts,
-                  command=command)
-ase_union.calc = qe
-ase_union.calc.write_input(atoms_info)
-try:
-    ase_union.get_potential_energy()  # run pw.x
-except:
-    print("Calculation of get_potential_energy is not normally finished.")
-    pass

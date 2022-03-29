@@ -7,8 +7,7 @@ In the following we will present how to prepare a standard input file for using 
 ```toml
 [Main]
 output_file_head = "surf_bulk_new111_ext"
-[Main.solver]
-solver = "sxrd"
+input_2dmat = "./input.toml"
 [Main.algorithm]
 algorithm = "minsearch"
 [Main.param]
@@ -44,7 +43,11 @@ The input file consists of three sections: `Main`, `ASE`, and `Solver`. Below is
 
   Description: Header for output files (xyz and cif files)
 
-`Main.solver` section
+- input\_2dmat
+
+  Format: string
+
+  Description: Path to input file for 2dmat
 
 `Main.algorithm` section
 
@@ -88,38 +91,13 @@ The input file consists of three sections: `Main`, `ASE`, and `Solver`. Below is
 
   Description: Specify a unit vector that forms a 2D plane (ex. `unit_vec = [[7.67932, 0.00000, 0.00000], [0.00000, 3.83966, 0.00000]]`).
 
-##### `ASE` section
 
-This section specifies parameters related to `ASE`.
-
-- `solver_name`
-
-  Format: string
-
-  Description: The name of the solver. Currently, only `qe` is given.
-
-- `kpts`
-
-  Format: list
-
-  Description: Specify the k-points to be sampled (Monkhorst-Pack grid).
-
-- `command`
-
-  Format: string
-
-  Description: Set the command used to run the solver.
-
-##### `Solver` section
-
-In this section, parameters related to `Solver` are specified. You will need to specify this if you want to perform first-principles calculations directly using ASE. Basically, the configuration is the same as the one specified in the input file of each solver. For example, in the case of QE, `Solver.control` contains the parameters to be set in the `control` section of QE.
-
-#### 2.  Execute the to\_dft.py and output files
+#### 2.  Execute the to\_xyz.py and output files
 
 After preparing the input file, then execute the to\_dft.py by following command:
 
 ```shell
-python3 to_dft.py input.toml
+python3 to_xyz.py input.toml
 ```
 
 Then the unit number in a,b direction and layer number can be specified:
@@ -138,7 +116,6 @@ After finishing calculation the following files are generated:
 
 - `surf_bulk_new111_ext.xyz`
 - `surf_bulk_new111_ext.cif`
-- `espresso.pwi` 
 
 The `surf-bulk.xyz` is structure file for bulk and optimized surface structure. The  `surf_bulk_new111_ext.xyz` and `surf_bulk_new111_ext.cif` are structure files after hydrogen termination, in order to eliminate the influence of dangling bond-derived electrons from the opposite surface of interest.
 
@@ -205,7 +182,3 @@ H        2.66970003       1.54135200       0.54785000
 The `surf_bulk_new111_ext.xyz` is the result of the replacement of the lowest level atom with H and the addition of H to form a tetrahedral structure.
 
 This file can be read by appropriate visualization software as ordinary XYZ Format coordinate data, but the lattice vector information of the periodic structure is written in the place where comments are usually written. You can also copy the data of “element name + 3D coordinate” from the third line of the output file to the input file of QE.
-
-`espresso.pwi` is the input file for QE’s scf calculation, and structural optimization and band calculation can be done by modifying this file accordingly. For details, please refer to the [QE online manual][1] .
-
-[1]:	https://www.quantum-espresso.org/Doc/INPUT_PW.html
