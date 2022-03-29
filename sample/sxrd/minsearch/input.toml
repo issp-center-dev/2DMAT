@@ -5,7 +5,7 @@ dimension = 2
 name = "sxrd"
 
 [solver.config]
-sxrd_exec_file = "/home/HengyuLi/sxrdcalc-main/sxrdcalc"
+sxrd_exec_file = "sxrdcalc"
 bulk_struc_in_file = "sic111-r3xr3.blk"
 [solver.param]
 scale_factor = 1.0
