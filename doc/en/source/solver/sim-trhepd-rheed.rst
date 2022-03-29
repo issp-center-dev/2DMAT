@@ -79,7 +79,8 @@ Input parameters can be specified in subcsections ``config``, ``post``, ``param`
 
   Format: string ("A" or "B", default: "A")
 
-  Description: This parameter specifies how to calculate the R-factor. "A" means the normal method, "B" means Pendry's R-factor is used.
+  Description: This parameter specifies how to calculate the R-factor.
+  When "A" the 2-norm of difference is used, and when "B" Pendry's R-factor is used.
 
 - ``omega``
 
