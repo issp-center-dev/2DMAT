@@ -80,10 +80,10 @@ Input parameters can be specified in subcsections ``config``, ``post``, ``param`
   Format: string ("A" or "B", default: "A")
 
   Description: This parameter specifies how to calculate the R-factor. 
-  The experimental and computational data vectors are denoted as :math:`u = (u_{1}, u_{2},...,u_{m})` , 
-  :math:`v = (v_{1}, v_{2},...,v_{m})`　, respectively. 
-  When "A" type is chosen, R-factor is defined as :math:`R  = (\sum_i^m (u_{i}-v_{i})^{2})^{1/2}` .
-  When "B" type is chosen, R-factor is defined as :math:`R  = (\sum_i^m (u_{i}-v_{i})^{2})^{1/2}/( \sum_i^m u_{i}^2 + \sum_i^m v_{i}^2)` .
+  The experimental and computational data vectors are denoted as :math:`u = (u_{1}, u_{2},...,u_{m})`,
+  :math:`v = (v_{1}, v_{2},...,v_{m})`, respectively. 
+  When "A" type is chosen, R-factor is defined as :math:`R  = (\sum_i^m (u_{i}-v_{i})^{2})^{1/2}`.
+  When "B" type is chosen, R-factor is defined as :math:`R  = (\sum_i^m (u_{i}-v_{i})^{2})^{1/2}/( \sum_i^m u_{i}^2 + \sum_i^m v_{i}^2)`.
 
 - ``omega``
 
