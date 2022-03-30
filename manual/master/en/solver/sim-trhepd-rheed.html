@@ -91,12 +91,15 @@ The <code class="docutils literal notranslate"><span class="pre">surf.exe</span>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">normalization</span></code></p>
 <p>Format: string (“TOTAL” or “MAX”, default: “TOTAL”)</p>
-<p>Description: This parameter specifies whether the R-value is normalized by the sum of the whole values or by the maximum value.</p>
+<p>Description: This parameter specifies whether the experimental and computational data vectors are normalized by the sum of the whole values or by the maximum value.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Rfactor_type</span></code></p>
 <p>Format: string (“A” or “B”, default: “A”)</p>
 <p>Description: This parameter specifies how to calculate the R-factor.
-When “A” the 2-norm of difference is used, and when “B” Pendry’s R-factor is used.</p>
+The experimental and computational data vectors are denoted as <span class="math notranslate nohighlight">\(u = (u_{1}, u_{2},...,u_{m})\)</span>,
+<span class="math notranslate nohighlight">\(v = (v_{1}, v_{2},...,v_{m})\)</span>, respectively.
+When “A” type is chosen, R-factor is defined as <span class="math notranslate nohighlight">\(R  = (\sum_i^m (u_{i}-v_{i})^{2})^{1/2}\)</span>.
+When “B” type is chosen, R-factor is defined as <span class="math notranslate nohighlight">\(R  = (\sum_i^m (u_{i}-v_{i})^{2})^{1/2}/( \sum_i^m u_{i}^2 + \sum_i^m v_{i}^2)\)</span>.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">omega</span></code></p>
 <p>Format: float (default: 0.5)</p>

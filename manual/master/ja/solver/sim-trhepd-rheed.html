@@ -94,11 +94,15 @@
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">normalization</span></code></p>
 <p>形式: string型。&quot;TOTAL&quot;または&quot;MAX&quot;のいずれかをとります。 (default: &quot;TOTAL&quot;)</p>
-<p>説明: R値の規格化の方法。全体の和で規格化するか最大値で規格化するかを指定します。</p>
+<p>説明: 実験・計算のデータベクトルの規格化の方法。全体の和で規格化するか最大値で規格化するかを指定します。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Rfactor_type</span></code></p>
 <p>形式: string型。&quot;A&quot;または&quot;B&quot;のいずれかをとります。 (default: &quot;A&quot;)</p>
-<p>説明: Rファクターの計算方法の指定。&quot;A&quot;だと差の2-ノルム、&quot;B&quot;だとPendryのRファクターを計算します。</p>
+<p>説明: Rファクターの計算方法の指定。
+実験・計算のデータベクトルを、それぞれ、<span class="math notranslate nohighlight">\(u = (u_{1}, u_{2},...,u_{m})\)</span>,
+<span class="math notranslate nohighlight">\(v = (v_{1}, v_{2},...,v_{m})\)</span> と書いたとき、
+&quot;A&quot;タイプを指定すると、Rファクター値は <span class="math notranslate nohighlight">\(R  = (\sum_i^m (u_{i}-v_{i})^{2})^{1/2}\)</span> で計算され、
+&quot;B&quot;タイプを指定すると、Rファクター値は <span class="math notranslate nohighlight">\(R  = (\sum_i^m (u_{i}-v_{i})^{2})^{1/2}/( \sum_i^m u_{i}^2 + \sum_i^m v_{i}^2)\)</span> で計算されます。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">omega</span></code></p>
 <p>形式: 実数型 (default: 0.5)</p>
