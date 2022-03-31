@@ -8,8 +8,6 @@ In the following we will present how to prepare a standard input file for using 
 [Main]
 output_file_head = "surf_bulk_new111_ext"
 input_2dmat = "./input.toml"
-[Main.algorithm]
-algorithm = "minsearch"
 [Main.param]
 z_margin = 0.001
 slab_margin = 10.0
@@ -48,14 +46,6 @@ The input file consists of three sections: `Main`, `ASE`, and `Solver`. Below is
   Format: string
 
   Description: Path to input file for 2dmat
-
-`Main.algorithm` section
-
-- algorithm
-
-  Format: string
-
-  Description: Algorithm name of 2DMAT optimization
 
 ##### `Main.Param` section
 
