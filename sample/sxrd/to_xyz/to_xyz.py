@@ -101,17 +101,13 @@ for domain in toml_dict["solver"]["param"]["domain"]:
         surf_coord_fric.append(atom["pos_center"])
         surf_disvector.append(atom["displace_vector"][0])
 
-if "algorithm" in input_main and "algorithm" in input_main["algorithm"]:
-    algorithm = input_main["algorithm"]["algorithm"]
-else:
-    algorithm = toml_dict["algorithm"]["name"]
-
 nparams = toml_dict["base"]["dimension"]
 if "label_list" in toml_dict["algorithm"]:
     label_list = toml_dict["algorithm"]["label_list"]
 else:
     label_list = [f"x{i+1}" for i in range(nparams)]
 
+algorithm = toml_dict["algorithm"]["name"]
 if algorithm == "mapper":
     with open(os.path.join(output_dir, "ColorMap.txt"), "r") as f:
         min_r = [float(w) for w in f.readline().strip().split()]
