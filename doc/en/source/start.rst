@@ -3,10 +3,10 @@ Install of py2dmat
 
 Prerequisites
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-- Python3 (>=3.6)
+- Python3 (>=3.6.8)
 
     - The following Python packages are required.
-        - tomli
+        - tomli >= 1.2
         - numpy >= 1.14
 
     - Optional packages

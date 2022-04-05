@@ -23,9 +23,9 @@ and direct problem solvers (`py2dmat` also means this script).
 ### Prerequists
 
 - Required
-  - python >= 3.6
+  - python >= 3.6.8
   - numpy >= 1.14
-  - tomli >= 1.0.0
+  - tomli >= 1.2.0
 - Optional
   - scipy
     - for `minsearch` algorithm
@@ -38,7 +38,6 @@ and direct problem solvers (`py2dmat` also means this script).
 
 - From PyPI (Recommended)
   - `python3 -m pip install -U py2dmat`
-    - If you want to install pre-release version (e.g., v2.0-beta), use `--pre` option like `python3 -m pip install -U --pre`
     - If you install them locally, use `--user` option like `python3 -m pip install -U --user`
     - [`pipx`](https://pipxproject.github.io/pipx/) may help you from the dependency hell :p
 - From Source (For developers)
