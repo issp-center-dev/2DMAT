@@ -13,9 +13,9 @@ packages = [
   ]
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = ">=3.6.8"
 numpy = "^1.14"
-tomli = "^1"
+tomli = ">=1.2"
 scipy = {version = "^1", optional = true}
 mpi4py = {version = "^3", optional = true}
 physbo = {version = ">= 1.0.0", optional = true}
@@ -27,6 +27,8 @@ exchange = ["mpi4py"]
 all = ["scipy", "mpi4py", "physbo"]
 
 [tool.poetry.dev-dependencies]
+black = "^22.3.0"
+pynvim = "^0.4.3"
 
 [tool.poetry.scripts]
 py2dmat = "py2dmat:main"
