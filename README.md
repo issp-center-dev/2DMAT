@@ -12,7 +12,7 @@ In the future, we plan to add other direct problem solvers and search algorithms
 | Branch |                Build status                 |                                       Documentation                                       |
 | :----: | :-----------------------------------------: | :---------------------------------------------------------------------------------------: |
 | [master][source/master] (latest) | [![master][ci/master/badge]][ci/master/uri] |        [![doc_en][doc/en/badge]][doc/en/uri] [![doc_ja][doc/ja/badge]][doc/ja/uri]        |
-| [v2.0.0][source/stable] (latest stable) |                     --                      | [![doc_en][doc/en/badge]][doc/stable/en/uri] [![doc_ja][doc/ja/badge]][doc/stable/ja/uri] |
+| [v2.1.0][source/stable] (latest stable) |                     --                      | [![doc_en][doc/en/badge]][doc/stable/en/uri] [![doc_ja][doc/ja/badge]][doc/stable/ja/uri] |
 
 ## py2dmat
 
@@ -80,12 +80,12 @@ This package is distributed under GNU General Public License version 3 (GPL v3) 
 This software was developed with the support of "*Project for advancement of software usability in materials science*" of The Institute for Solid State Physics, The University of Tokyo.
 
 [source/master]: https://github.com/issp-center-dev/2DMAT/
-[source/stable]: https://github.com/issp-center-dev/2DMAT/tree/v2.0.0
+[source/stable]: https://github.com/issp-center-dev/2DMAT/tree/v2.1.0
 [ci/master/badge]: https://github.com/issp-center-dev/2DMAT/workflows/Test/badge.svg?branch=master
 [ci/master/uri]: https://github.com/issp-center-dev/2DMAT/actions?query=branch%3Amaster
 [doc/en/badge]: https://img.shields.io/badge/doc-English-blue.svg
 [doc/en/uri]: https://issp-center-dev.github.io/2DMAT/manual/master/en/index.html
 [doc/ja/badge]: https://img.shields.io/badge/doc-Japanese-blue.svg
 [doc/ja/uri]: https://issp-center-dev.github.io/2DMAT/manual/master/ja/index.html
-[doc/stable/en/uri]: https://issp-center-dev.github.io/2DMAT/manual/v2.0.0/en/index.html
-[doc/stable/ja/uri]: https://issp-center-dev.github.io/2DMAT/manual/v2.0.0/ja/index.html
+[doc/stable/en/uri]: https://issp-center-dev.github.io/2DMAT/manual/v2.1.0/en/index.html
+[doc/stable/ja/uri]: https://issp-center-dev.github.io/2DMAT/manual/v2.1.0/ja/index.html
