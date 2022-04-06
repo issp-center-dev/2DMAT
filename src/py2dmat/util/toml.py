@@ -3,15 +3,13 @@ from typing import MutableMapping, Any
 from ..mpi import rank
 
 USE_TOML = False
-TOMLI_VERSION = 2
+OLD_TOMLI_API = False
 
 try:
     import tomli
 
-    if tomli.__version__ < "2.0.0":
-        TOMLI_VERSION = 1
-    else:
-        TOMLI_VERSION = 2
+    if tomli.__version__ < "1.2.0":
+        OLD_TOMLI_API = True
 except ImportError:
     try:
         import toml
@@ -47,7 +45,7 @@ def load(path: str) -> MutableMapping[str, Any]:
     if USE_TOML:
         return toml.load(path)
     else:
-        if TOMLI_VERSION == 1:
+        if OLD_TOMLI_API:
             with open(path, "r") as f:
                 return tomli.load(f)
         else:
