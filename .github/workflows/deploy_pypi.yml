@@ -24,4 +24,4 @@ jobs:
     - name: Publish
       run: |
           cd ${GITHUB_WORKSPACE}
-          poetry publish --build -u yomichi -p "${{ secrets.PYPI_TOKEN }}"
+          poetry publish --build -u __token__ -p "${{ secrets.PYPI_DEPLOY_TOKEN }}"
