@@ -45,6 +45,7 @@ We hope that you cite the following reference when you publish the results using
 Version Information
 ----------------------
 
+- v2.1.0: 2022-04-08
 - v2.0.0: 2022-01-17
 - v1.0.1: 2021-04-15 
 - v1.0.0: 2021-03-12 
