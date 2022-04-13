@@ -2,9 +2,9 @@
 
 ## What's this
 
-LEED data of Pb/Bi on Cu(001)
+LEED data of clean Cu(001) surface and the I-V curves appear in Fig. 1 of Ref. [1]
 
-Md Kabiruzzaman, Rezwan Ahmed, Takeshi Nakagawa, and Seigi Mizuno,
+[1] Md Kabiruzzaman, Rezwan Ahmed, Takeshi Nakagawa, and Seigi Mizuno,
 Investigation of c(2×2) Phase of Pb and Bi Coadsorption on Cu(001) by Low Energy Electron Diffraction,
 Evergreen. 4 (1), pp. 10-15 (2017)
 https://doi.org/10.5109/1808306
