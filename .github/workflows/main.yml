@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.6, 3.9]
-        sample: [mapper, minsearch, exchange, exchange_mesh, pamc, bayes, transform]
+        sample: [mapper, minsearch, exchange, exchange_mesh, pamc, bayes, transform, function]
       fail-fast: false
 
     steps:
