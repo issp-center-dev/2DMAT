@@ -58,6 +58,8 @@ def main():
         from .solver.leed import Solver
     elif solvername == "analytical":
         from .solver.analytical import Solver
+    elif solvername == "function":
+        from .solver.function import Solver
     else:
         print(f"ERROR: Unknown solver ({solvername})")
         exit(1)

@@ -21,7 +21,11 @@ class Solver(py2dmat.solver.SolverBase):
         """
         super().__init__(info)
         self._name = "function"
-        self._func = None
+        if "function" in info.solver:
+            exec(info.solver["function"], globals())
+            self._func = _f
+        else:
+            self._func = None
 
     def prepare(self, message: py2dmat.Message) -> None:
         self.x = message.x

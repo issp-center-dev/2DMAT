@@ -15,3 +15,4 @@ Direct problem solver ``Solver`` calculates the function to be optimized :math:`
    sim-trhepd-rheed
    sxrd
    leed
+   function

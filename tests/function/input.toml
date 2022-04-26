@@ -1,0 +1,18 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[algorithm]
+name = "mapper"
+
+[algorithm.param]
+min_list = [-3.0, -3.0]
+max_list = [3.0, 3.0]
+num_list = [11, 11]
+
+[solver]
+name = "function"
+function = """
+def _f(x):
+    return np.sum(x**2)
+"""
