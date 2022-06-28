@@ -14,4 +14,5 @@ Direct problem solver ``Solver`` calculates the function to be optimized :math:`
    analytical
    sim-trhepd-rheed
    sxrd
+   leed
    spin

@@ -1,4 +1,4 @@
-name: deploy
+name: upload docs to gh-pages
 
 on:
   push:
@@ -91,4 +91,3 @@ jobs:
           else
             echo "Nothing to deploy"
           fi
-
