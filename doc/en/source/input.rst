@@ -2,7 +2,7 @@ Input file
 ===========================
 
 As the input file format, `TOML <https://toml.io/ja/>`_ format is used.
-The input file consists of the following four sections.
+The input file consists of the following six sections.
 
 - ``base``
 
@@ -10,17 +10,24 @@ The input file consists of the following four sections.
 
 - ``solver``
 
-  - Specify the prarameters about ``Solver`` .
+  - Specify the parameters about ``Solver`` .
 
 - ``algorithm``
 
-  - Specify the prarameters about ``Algorithm`` .
+  - Specify the parameters about ``Algorithm`` .
 
 - ``runner``
 
   - Specify the parameters about ``Runner`` .
 
+- ``mapping``
 
+  - Define the mapping from a parameter searched by ``Algorithm`` .
+
+- ``log``
+
+  - Specify parameters related to logging of solver calls.
+  
 [``base``] section
 ************************
 
@@ -106,7 +113,7 @@ This section sets the configuration of ``Runner``, which bridges ``Algorithm`` a
 It has two subsections, ``mapping`` and ``log`` .
 
 [``mapping``] section
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+************************
 
 This section defines the mapping from a parameter searched by ``Algorithm``, :math:`x`, to a parameter used in ``Solver``, :math:`y` .
 In the current version, the affine mapping :math:`y = Ax+b` is available.
@@ -149,8 +156,9 @@ mean
   \right).
 
 [``log``] section
-^^^^^^^^^^^^^^^^^^^^^^^^
-Settings related to logging of solver calls.
+************************
+
+Setting parametrs related to logging of solver calls.
 
 - ``filename``
 

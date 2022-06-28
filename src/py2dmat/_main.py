@@ -2,23 +2,7 @@ from sys import exit
 
 import py2dmat
 import py2dmat.mpi
-
-try:
-    from tomli import load as toml_load
-except ImportError:
-    try:
-        from toml import load as toml_load
-        if py2dmat.mpi.rank() == 0:
-            print("WARNING: tomli is not found and toml is found.")
-            print("         use of toml package is left for compatibility.")
-            print("         please install tomli package.")
-            print("HINT: python3 -m pip install tomli")
-            print()
-    except ImportError:
-        if py2dmat.mpi.rank() == 0:
-            print("ERROR: tomli is not found")
-            print("HINT: python3 -m pip install tomli")
-        exit(1)
+import py2dmat.util.toml
 
 
 def main():
@@ -38,8 +22,7 @@ def main():
     file_name = args.inputfile
     inp = {}
     if py2dmat.mpi.rank() == 0:
-        with open(file_name) as f:
-            inp = toml_load(f)
+        inp = py2dmat.util.toml.load(file_name)
     if py2dmat.mpi.size() > 1:
         inp = py2dmat.mpi.comm().bcast(inp, root=0)
     info = py2dmat.Info(inp)
@@ -71,6 +54,8 @@ def main():
         from .solver.sim_trhepd_rheed import Solver
     elif solvername == "sxrd":
         from .solver.sxrd import Solver
+    elif solvername == "leed":
+        from .solver.leed import Solver
     elif solvername == "analytical":
         from .solver.analytical import Solver
     else:

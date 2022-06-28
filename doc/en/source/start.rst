@@ -3,10 +3,10 @@ Install of py2dmat
 
 Prerequisites
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-- Python3 (>=3.6)
+- Python3 (>=3.6.8)
 
     - The following Python packages are required.
-        - tomli
+        - tomli >= 1.2
         - numpy >= 1.14
 
     - Optional packages
@@ -52,7 +52,7 @@ In ``py2dmat`` , the analysis is done by using a predefined optimization algorit
     
     $ py2dmat input.toml
 
-See :doc:`algorithm/index` for the predefined ``Algorithm`` and :doc:`solver/input` for the ``Solver``.
+See :doc:`algorithm/index` for the predefined ``Algorithm`` and :doc:`solver/index` for the ``Solver``.
 
 If you want to prepare the ``Algorithm`` or ``Solver`` by yourself, use the ``py2dmat`` package.
 See :doc:`customize/index` for details.

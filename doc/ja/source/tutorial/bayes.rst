@@ -8,7 +8,7 @@
 サンプルファイルの場所
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-サンプルファイルは ``sample/py2dmat/sim-trhepd-rheed/bayes`` にあります。
+サンプルファイルは ``sample/sim-trhepd-rheed/bayes`` にあります。
 フォルダには以下のファイルが格納されています。
 
 - ``bulk.txt``
@@ -160,7 +160,7 @@
 
 .. code-block::
 
-    cd sample/py2dmat/bayes
+    cd sample/sim-trhepd-rheed/bayes
 
 順問題の時と同様に、 ``bulk.exe`` と ``surf.exe`` をコピーします。
 

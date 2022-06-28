@@ -11,7 +11,7 @@ The specific calculation procedure is as follows.
 
 1. Perform calculations on the bulk part of the surface structure.
    
-   Copy ``bulk.exe`` to ``sample/py2dmat/sim-trhepd-rheed/minsearch`` and run the calculation.
+   Copy ``bulk.exe`` to ``sample/sim-trhepd-rheed/minsearch`` and run the calculation.
 
 2. Run the main program
 
@@ -182,7 +182,7 @@ First, move to the folder where the sample files are located (we will assume tha
 
 .. code-block::
 
-    cd sample/py2dmat/minsearch
+    cd sample/sim-trhepd-rheed/minsearch
 
 Copy ``bulk.exe`` and ``surf.exe``.
 

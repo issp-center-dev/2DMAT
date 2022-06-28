@@ -8,7 +8,7 @@
 サンプルファイルの場所
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-サンプルファイルは ``sample/py2dmat/sim-trhepd-rheed/mapper`` にあります。
+サンプルファイルは ``sample/sim-trhepd-rheed/mapper`` にあります。
 フォルダには以下のファイルが格納されています。
 
 - ``bulk.txt``
@@ -141,7 +141,7 @@
 
 .. code-block::
 
-    cd sample/py2dmat/mapper
+    cd sample/sim-trhepd-rheed/mapper
 
 順問題の時と同様に、``bulk.exe`` と ``surf.exe`` をコピーします。
 

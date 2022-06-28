@@ -3,7 +3,8 @@ TRHEPD 順問題ソルバー
 
 2DMAT は順問題ソルバーのひとつとして、 反射高速(陽)電子回折(RHEED, TRHEPD)の強度計算 (A. Ichimiya, Jpn. J. Appl. Phys. 22, 176 (1983); 24, 1365 (1985)) 
 を行うプログラム `sim-trhepd-rheed <https://github.com/sim-trhepd-rheed/sim-trhepd-rheed/>`_ のラッパーを提供しています。
-本チュートリアルでは sim-trhepd-rheed のインストールおよびテストを行います。
+本チュートリアルでは sim-trhepd-rheed を用い、様々なアルゴリズムを利用した解析を行います。
+最初に、チュートリアルを行うために必要な sim-trhepd-rheed のインストールおよびテストを行います。
 
 ダウンロード・インストール
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -35,7 +36,7 @@ sim-trhepd-rheed では、最初に ``bulk.exe`` で表面構造のバルク部�
 .. code-block::
 
    cd ../../
-   cp -r 2DMAT/sample/sim-trhepd-rheed work
+   cp -r 2DMAT/sample/sim-trhepd-rheed/solver work
    cd work
 
 次に ``bulk.exe`` と ``surf.exe`` を ``work`` にコピーします

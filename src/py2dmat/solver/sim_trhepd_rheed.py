@@ -446,6 +446,7 @@ class Solver(py2dmat.solver.SolverBase):
                     R += (I_exp - I_calc) ** 2
                 R = np.sqrt(R)
             else:  # self.Rfactor_type == "B"
+                # Pendry's R-factor
                 y1 = 0.0
                 y2 = 0.0
                 y3 = 0.0
