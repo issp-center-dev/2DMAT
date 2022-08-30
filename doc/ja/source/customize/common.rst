@@ -86,4 +86,5 @@
 
 ``submit`` メソッドは ``mapping`` を用いて、探索アルゴリズムのパラメータ ``x`` から実際にソルバーが使う入力 ``y = mapping(x)`` を得ます。
 ``mapping`` を省略した場合 (``None`` を渡した場合)、変換ルーチンとしてアフィン写像 :math:`y=Ax+b` が用いられます (``py2dmat.util.mapping.Affine(A,b)``)。
-``A, b`` の要素は ``info`` で与えられます。 その他、 ``Runner`` で使われる ``info`` の詳細は :doc:`../input` を参照してください。
+``A, b`` の要素は ``info`` で与えられます。
+その他、 ``Runner`` で使われる ``info`` の詳細は :doc:`../input` を参照してください。
