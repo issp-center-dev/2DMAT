@@ -9,6 +9,7 @@ import numpy as np
 import py2dmat
 import py2dmat.util.read_matrix
 import py2dmat.util.mapping
+from py2dmat.exception import InputError
 
 # type hints
 from pathlib import Path
@@ -139,13 +140,24 @@ class Runner(object):
             A: Optional[np.ndarray] = py2dmat.util.read_matrix.read_matrix(
                 info_mapping.get("A", [])
             )
-            b: Optional[np.ndarray] = py2dmat.util.read_matrix.read_vector(
+            b: Optional[np.ndarray] = py2dmat.util.read_matrix.read_matrix(
                 info_mapping.get("b", [])
             )
-            if A.size == 0:
-                A = None
-            if b.size == 0:
-                b = None
+            if A is not None:
+                if A.size == 0:
+                    A = None
+                elif A.ndim != 2:
+                    raise InputError("A should be a matrix")
+            if b is not None:
+                if b.size == 0:
+                    b = None
+                elif b.ndim == 2:
+                    if b.shape[1] == 1:
+                        b = b.reshape(-1)
+                    else:
+                        raise InputError("b should be a vector")
+                elif b.ndim > 2:
+                    raise InputError("b should be a vector")
             self.mapping = py2dmat.util.mapping.Affine(A=A, b=b)
         else:
             self.mapping = mapping

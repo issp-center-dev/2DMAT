@@ -10,7 +10,7 @@ class Affine:
     A: Optional[np.ndarray]
     b: Optional[np.ndarray]
 
-    def __init__(self, A: np.ndarray = None, b: np.ndarray = None):
+    def __init__(self, A: Optional[np.ndarray] = None, b: Optional[np.ndarray] = None):
         self.A = A
         self.b = b
 
