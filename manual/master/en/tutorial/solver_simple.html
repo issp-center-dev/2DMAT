@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Addition of a direct problem solver &#8212; 2DMAT 2.2-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -12,6 +12,7 @@
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -38,9 +39,9 @@
         
         
   <section id="addition-of-a-direct-problem-solver">
-<h1>Addition of a direct problem solver<a class="headerlink" href="#addition-of-a-direct-problem-solver" title="Permalink to this headline">¶</a></h1>
+<h1>Addition of a direct problem solver<a class="headerlink" href="#addition-of-a-direct-problem-solver" title="Permalink to this heading">¶</a></h1>
 <section id="solver-for-benchmarking-analytical">
-<h2>Solver for benchmarking, <code class="docutils literal notranslate"><span class="pre">analytical</span></code><a class="headerlink" href="#solver-for-benchmarking-analytical" title="Permalink to this headline">¶</a></h2>
+<h2>Solver for benchmarking, <code class="docutils literal notranslate"><span class="pre">analytical</span></code><a class="headerlink" href="#solver-for-benchmarking-analytical" title="Permalink to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> provides an <code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver as a direct problem solver that can be used to test search algorithms.</p>
 <p>To use the <code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver, set <code class="docutils literal notranslate"><span class="pre">name</span></code> to <code class="docutils literal notranslate"><span class="pre">&quot;analytical&quot;</span></code> in the <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> section of the input file.
 You can also use the <code class="docutils literal notranslate"><span class="pre">function_name</span></code> parameter to select the benchmark function <span class="math notranslate nohighlight">\(f(x)\)</span>.</p>
@@ -53,7 +54,7 @@ You can also use the <code class="docutils literal notranslate"><span class="pre
 <p>For details of <code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver, please check the <a class="reference internal" href="../solver/analytical.html"><span class="doc">the reference of the analytical solver</span></a>.</p>
 </section>
 <section id="id1">
-<h2>Addition of a direct problem solver<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2>Addition of a direct problem solver<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
 <p>The easiest way to define and analyze a user-defined direct problem solver is to add it to the <code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver.
 As an example, we will explain the case of adding <a class="reference external" href="https://en.wikipedia.org/wiki/Test_functions_for_optimization">the Booth function</a> (the minimum point is <span class="math notranslate nohighlight">\(f(1,3) = 0\)</span>):</p>
 <div class="math notranslate nohighlight">
@@ -132,7 +133,7 @@ x2 = 2.9999832920260863
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
     </div>
   </body>
 </html>

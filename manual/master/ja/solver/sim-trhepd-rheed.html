@@ -4,7 +4,7 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>sim-trhepd-rheed ソルバー &#8212; 2DMAT 2.2-dev ドキュメント</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -12,6 +12,7 @@
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/translations.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -39,11 +40,11 @@
         
         
   <section id="sim-trhepd-rheed">
-<h1><code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code> ソルバー<a class="headerlink" href="#sim-trhepd-rheed" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<h1><code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code> ソルバー<a class="headerlink" href="#sim-trhepd-rheed" title="この見出しへのパーマリンク">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code> は <a class="reference external" href="https://github.com/sim-trhepd-rheed/sim-trhepd-rheed">sim-trhepd-rheed</a> を用いて原子位置 <span class="math notranslate nohighlight">\(x\)</span> から回折 rocking curve を計算し、
 実験で得られた rocking curve からの誤差を <span class="math notranslate nohighlight">\(f(x)\)</span> として返す <code class="docutils literal notranslate"><span class="pre">Solver</span></code> です。</p>
 <section id="id2">
-<h2>前準備<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2>前準備<a class="headerlink" href="#id2" title="この見出しへのパーマリンク">¶</a></h2>
 <p>あらかじめ <a class="reference external" href="https://github.com/sim-trhepd-rheed/sim-trhepd-rheed">sim-trhepd-rheed</a> をインストールしておく必要があります。</p>
 <ol class="arabic simple">
 <li><p>sim-trhepd-rheed の公式サイトからソースコードをダウンロード</p></li>
@@ -53,11 +54,11 @@
 <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> は <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> から呼び出されます。</p>
 </section>
 <section id="id3">
-<h2>入力パラメータ<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2>入力パラメータ<a class="headerlink" href="#id3" title="この見出しへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">solver</span></code> セクション中のサブセクション
 <code class="docutils literal notranslate"><span class="pre">config</span></code>, <code class="docutils literal notranslate"><span class="pre">post</span></code>, <code class="docutils literal notranslate"><span class="pre">param</span></code>, <code class="docutils literal notranslate"><span class="pre">reference</span></code> を利用します。</p>
 <section id="config">
-<h3>[<code class="docutils literal notranslate"><span class="pre">config</span></code>] セクション<a class="headerlink" href="#config" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">config</span></code>] セクション<a class="headerlink" href="#config" title="この見出しへのパーマリンク">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">surface_exec_file</span></code></p>
 <p>形式: string型 (default: &quot;surf.exe&quot;)</p>
@@ -90,7 +91,7 @@
 </ul>
 </section>
 <section id="post">
-<h3>[<code class="docutils literal notranslate"><span class="pre">post</span></code>] セクション<a class="headerlink" href="#post" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">post</span></code>] セクション<a class="headerlink" href="#post" title="この見出しへのパーマリンク">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">normalization</span></code></p>
 <p>形式: string型。&quot;TOTAL&quot;または&quot;MAX&quot;のいずれかをとります。 (default: &quot;TOTAL&quot;)</p>
@@ -115,7 +116,7 @@
 </ul>
 </section>
 <section id="param">
-<h3>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] セクション<a class="headerlink" href="#param" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] セクション<a class="headerlink" href="#param" title="この見出しへのパーマリンク">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">string_list</span></code></p>
 <p>形式: string型のリスト。長さはdimensionの値と一致させます。 (default: [&quot;value_01&quot;, &quot;value_02&quot;])</p>
@@ -128,7 +129,7 @@
 </ul>
 </section>
 <section id="reference">
-<h3>[<code class="docutils literal notranslate"><span class="pre">reference</span></code>] セクション<a class="headerlink" href="#reference" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">reference</span></code>] セクション<a class="headerlink" href="#reference" title="この見出しへのパーマリンク">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">path</span></code></p>
 <p>形式: string型 (default: <code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code>)</p>
@@ -146,9 +147,9 @@
 </section>
 </section>
 <section id="id4">
-<h2>ソルバー用補助ファイル<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2>ソルバー用補助ファイル<a class="headerlink" href="#id4" title="この見出しへのパーマリンク">¶</a></h2>
 <section id="id5">
-<h3>入力テンプレートファイル<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h3>入力テンプレートファイル<a class="headerlink" href="#id5" title="この見出しへのパーマリンク">¶</a></h3>
 <p>入力テンプレートファイル <code class="docutils literal notranslate"><span class="pre">template.txt</span></code> は <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> の入力ファイルを作成するためのテンプレートです。
 動かすパラメータ（求めたい原子座標などの値）を「 <code class="docutils literal notranslate"><span class="pre">value_*</span></code> 」などの適当な文字列に置き換えます。
 使用する文字列は入力ファイルの <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> - <code class="docutils literal notranslate"><span class="pre">[param]</span></code> セクションにある、
@@ -175,7 +176,7 @@
 <p>この場合、 <code class="docutils literal notranslate"><span class="pre">value_01</span></code>, <code class="docutils literal notranslate"><span class="pre">value_02</span></code>, <code class="docutils literal notranslate"><span class="pre">value_03</span></code> が動かすパラメータとなります。</p>
 </section>
 <section id="id6">
-<h3>ターゲット参照ファイル<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h3>ターゲット参照ファイル<a class="headerlink" href="#id6" title="この見出しへのパーマリンク">¶</a></h3>
 <p>ターゲットにするデータが格納されたファイル <code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code> を指定します。
 第一列に角度、第二列に反射強度に重みをかけて計算した値が入ってます。
 以下、ファイルの例を指定します。</p>
@@ -195,7 +196,7 @@
 </section>
 </section>
 <section id="id7">
-<h2>出力ファイル<a class="headerlink" href="#id7" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2>出力ファイル<a class="headerlink" href="#id7" title="この見出しへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code> では、 <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> で出力されるファイルが、
 ランクの番号が記載されたフォルダ下にある <code class="docutils literal notranslate"><span class="pre">Log%%%%%_#####</span></code> フォルダに一式出力されます。
 <code class="docutils literal notranslate"><span class="pre">%%%%%</span></code> はアルゴリズムの反復回数 <code class="docutils literal notranslate"><span class="pre">step</span></code> (例：モンテカルロステップ数)で、
@@ -204,7 +205,7 @@
 そのような場合には、 <code class="docutils literal notranslate"><span class="pre">solver.post.remove_work_dir</span></code> パラメータを <code class="docutils literal notranslate"><span class="pre">true</span></code> にして、計算が終了した作業フォルダを削除してください。
 以下では、 <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> で独自に出力するファイルについて説明します。</p>
 <section id="stdout">
-<h3><code class="docutils literal notranslate"><span class="pre">stdout</span></code><a class="headerlink" href="#stdout" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">stdout</span></code><a class="headerlink" href="#stdout" title="この見出しへのパーマリンク">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> が出力する標準出力が記載されています。</p>
 <p>以下、出力例です。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>bulk-filename (end=e) ? :
@@ -217,7 +218,7 @@ surf-bulkP.s
 </div>
 </section>
 <section id="rockingcurve-txt">
-<h3><code class="docutils literal notranslate"><span class="pre">RockingCurve.txt</span></code><a class="headerlink" href="#rockingcurve-txt" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">RockingCurve.txt</span></code><a class="headerlink" href="#rockingcurve-txt" title="この見出しへのパーマリンク">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">Log%%%%%_#####</span></code> フォルダに出力されます。
 1行目にヘッダ、2行目以降は角度、コンボリューションされた計算値・実験値、規格化された計算値・実験値と、生の計算値が順に出力されます。
 以下、出力例です。</p>
@@ -252,7 +253,7 @@ surf-bulkP.s
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
     </div>
   </body>
 </html>

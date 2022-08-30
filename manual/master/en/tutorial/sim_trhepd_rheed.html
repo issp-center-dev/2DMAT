@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>TRHEPD Direct Problem Solver &#8212; 2DMAT 2.2-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -12,6 +12,7 @@
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -37,12 +38,12 @@
         
         
   <section id="trhepd-direct-problem-solver">
-<h1>TRHEPD Direct Problem Solver<a class="headerlink" href="#trhepd-direct-problem-solver" title="Permalink to this headline">¶</a></h1>
+<h1>TRHEPD Direct Problem Solver<a class="headerlink" href="#trhepd-direct-problem-solver" title="Permalink to this heading">¶</a></h1>
 <p>As one of the forward problem solvers, 2DMAT provides a wrapper for the program <a class="reference external" href="https://github.com/sim-trhepd-rheed/sim-trhepd-rheed/">sim-trhepd-rheed</a> , which calculates the intensity of reflection fast (positron) electron diffraction (RHEED, TRHEPD) (A. Ichimiya, Jpn. J. Appl. Phys. 22, 176 (1983); 24, 1365 (1985)).
 In this tutorial, we will show some examples which use some algorithms with sim-trhepd-rheed.
 First, we will install and test sim-trhepd-rheed (for details, see the official web page for <a class="reference external" href="https://github.com/sim-trhepd-rheed/sim-trhepd-rheed/">sim-trhepd-rheed</a>).</p>
 <section id="download-and-install">
-<h2>Download and Install<a class="headerlink" href="#download-and-install" title="Permalink to this headline">¶</a></h2>
+<h2>Download and Install<a class="headerlink" href="#download-and-install" title="Permalink to this heading">¶</a></h2>
 <p>First, in the tutorial, we assume that you are at the location where the <code class="docutils literal notranslate"><span class="pre">2DMAT</span></code> folder is located.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ls -d 2DMAT
 2DMAT/
@@ -57,7 +58,7 @@ First, we will install and test sim-trhepd-rheed (for details, see the official 
 <p>If make is successful, <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> and <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> will be created.</p>
 </section>
 <section id="calculation-execution">
-<h2>Calculation execution<a class="headerlink" href="#calculation-execution" title="Permalink to this headline">¶</a></h2>
+<h2>Calculation execution<a class="headerlink" href="#calculation-execution" title="Permalink to this heading">¶</a></h2>
 <p>In sim-trhepd-rheed, the bulk part of the surface structure is first calculated with <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code>.
 Then, using the results of the <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> calculation (the <code class="docutils literal notranslate"><span class="pre">bulkP.b</span></code> file),
 the surface portion of the <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> surface structure is calculated.</p>
@@ -105,7 +106,7 @@ surf-bulkP.s
 (YYYYMMDD and HHMMSS are numbers corresponding to the execution date and time).</p>
 </section>
 <section id="visualization-of-calculation-result">
-<h2>Visualization of calculation result<a class="headerlink" href="#visualization-of-calculation-result" title="Permalink to this headline">¶</a></h2>
+<h2>Visualization of calculation result<a class="headerlink" href="#visualization-of-calculation-result" title="Permalink to this heading">¶</a></h2>
 <p>The contents of <code class="docutils literal notranslate"><span class="pre">surf-bulkP.s</span></code> are shown as follow:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#azimuths,g-angles,beams</span>
 <span class="mi">1</span> <span class="mi">56</span> <span class="mi">13</span>
@@ -173,7 +174,7 @@ written in <code class="docutils literal notranslate"><span class="pre">surf-bul
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
     </div>
   </body>
 </html>

@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Output files &#8212; 2DMAT 2.2-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -12,6 +12,7 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -37,12 +38,12 @@
         
         
   <section id="output-files">
-<h1>Output files<a class="headerlink" href="#output-files" title="Permalink to this headline">¶</a></h1>
+<h1>Output files<a class="headerlink" href="#output-files" title="Permalink to this heading">¶</a></h1>
 <p>See <a class="reference internal" href="solver/index.html"><span class="doc">Direct Problem Solver</span></a> and <a class="reference internal" href="algorithm/index.html"><span class="doc">Search algorithms</span></a> for the output files of each <code class="docutils literal notranslate"><span class="pre">Solver</span></code> and <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code>.</p>
 <section id="common-file">
-<h2>Common file<a class="headerlink" href="#common-file" title="Permalink to this headline">¶</a></h2>
+<h2>Common file<a class="headerlink" href="#common-file" title="Permalink to this heading">¶</a></h2>
 <section id="time-log">
-<h3><code class="docutils literal notranslate"><span class="pre">time.log</span></code><a class="headerlink" href="#time-log" title="Permalink to this headline">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">time.log</span></code><a class="headerlink" href="#time-log" title="Permalink to this heading">¶</a></h3>
 <p>The total time taken for the calculation for each MPI rank is outputted.
 These files will be output under the subfolders of each rank respectively.
 The time taken to pre-process the calculation, the time taken to compute, and the time taken to post-process the calculation are listed in the <code class="docutils literal notranslate"><span class="pre">prepare</span></code> , <code class="docutils literal notranslate"><span class="pre">run</span></code> , and <code class="docutils literal notranslate"><span class="pre">post</span></code> sections.</p>
@@ -59,7 +60,7 @@ The time taken to pre-process the calculation, the time taken to compute, and th
 </div>
 </section>
 <section id="runner-log">
-<h3><code class="docutils literal notranslate"><span class="pre">runner.log</span></code><a class="headerlink" href="#runner-log" title="Permalink to this headline">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">runner.log</span></code><a class="headerlink" href="#runner-log" title="Permalink to this heading">¶</a></h3>
 <p>The log information about solver calls for each MPI rank is outputted.
 These files will be output under the subfolder of each rank.
 The output is only available when the <code class="docutils literal notranslate"><span class="pre">runner.log.interval</span></code> parameter is a positive integer in the input.</p>
@@ -102,7 +103,7 @@ The output is only available when the <code class="docutils literal notranslate"
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
     </div>
   </body>
 </html>

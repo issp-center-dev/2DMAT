@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>leed solver &#8212; 2DMAT 2.2-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -12,6 +12,7 @@
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -38,16 +39,17 @@
         
         
   <section id="leed-solver">
-<h1><code class="docutils literal notranslate"><span class="pre">leed</span></code> solver<a class="headerlink" href="#leed-solver" title="Permalink to this headline">¶</a></h1>
+<h1><code class="docutils literal notranslate"><span class="pre">leed</span></code> solver<a class="headerlink" href="#leed-solver" title="Permalink to this heading">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">leed</span></code> is a <code class="docutils literal notranslate"><span class="pre">Solver</span></code> made by M.A. Van Hove, which calculates the Rocking curve from atomic positions etc., using <code class="docutils literal notranslate"><span class="pre">SATLEED</span></code>, and returns the error from the experimental Rocking curve as <span class="math notranslate nohighlight">\(f(x)\)</span>.
 For more information on <code class="docutils literal notranslate"><span class="pre">SATLEED</span></code>, see <a class="reference internal" href="#satleed" id="id1"><span>[SATLEED]</span></a>.</p>
-<dl class="citation">
-<dt class="label" id="satleed"><span class="brackets"><a class="fn-backref" href="#id1">SATLEED</a></span></dt>
-<dd><p>M.A. Van Hove, W. Moritz, H. Over, P.J. Rous, A. Wander, A. Barbieri, N. Materer, U. Starke, G.A. Somorjai, Automated determination of complex surface structures by LEED, Surface Science Reports, Volume 19, 191-229 (1993). <a class="reference external" href="https://doi.org/10.1016/0167-5729(93)90011-D">https://doi.org/10.1016/0167-5729(93)90011-D</a></p>
-</dd>
-</dl>
+<div role="list" class="citation-list">
+<div class="citation" id="satleed" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">SATLEED</a><span class="fn-bracket">]</span></span>
+<p>M.A. Van Hove, W. Moritz, H. Over, P.J. Rous, A. Wander, A. Barbieri, N. Materer, U. Starke, G.A. Somorjai, Automated determination of complex surface structures by LEED, Surface Science Reports, Volume 19, 191-229 (1993). <a class="reference external" href="https://doi.org/10.1016/0167-5729(93)90011-D">https://doi.org/10.1016/0167-5729(93)90011-D</a></p>
+</div>
+</div>
 <section id="preparation">
-<h2>Preparation<a class="headerlink" href="#preparation" title="Permalink to this headline">¶</a></h2>
+<h2>Preparation<a class="headerlink" href="#preparation" title="Permalink to this heading">¶</a></h2>
 <p>First, install  <code class="docutils literal notranslate"><span class="pre">SATLEED</span></code> .
 Access to the following URL
 <a class="reference external" href="http://www.icts.hkbu.edu.hk/VanHove_files/leed/leedsatl.zip">http://www.icts.hkbu.edu.hk/VanHove_files/leed/leedsatl.zip</a>
@@ -69,10 +71,10 @@ Therefore, the following files must be generated.</p>
 <p><code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> will run <code class="docutils literal notranslate"><span class="pre">satl2.exe</span></code> based on the above files.</p>
 </section>
 <section id="input-parameters">
-<h2>Input parameters<a class="headerlink" href="#input-parameters" title="Permalink to this headline">¶</a></h2>
+<h2>Input parameters<a class="headerlink" href="#input-parameters" title="Permalink to this heading">¶</a></h2>
 <p>Input parameters are specified in subsections in the <code class="docutils literal notranslate"><span class="pre">solver</span></code> section (<code class="docutils literal notranslate"><span class="pre">config</span></code> and <code class="docutils literal notranslate"><span class="pre">reference</span></code>).</p>
 <section id="config-section">
-<h3>[<code class="docutils literal notranslate"><span class="pre">config</span></code>] section<a class="headerlink" href="#config-section" title="Permalink to this headline">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">config</span></code>] section<a class="headerlink" href="#config-section" title="Permalink to this heading">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">path_to_solver</span></code></p>
 <p>Format: string</p>
@@ -81,7 +83,7 @@ Therefore, the following files must be generated.</p>
 </ul>
 </section>
 <section id="reference-section">
-<h3>[<code class="docutils literal notranslate"><span class="pre">reference</span></code>] section<a class="headerlink" href="#reference-section" title="Permalink to this headline">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">reference</span></code>] section<a class="headerlink" href="#reference-section" title="Permalink to this heading">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">path_to_base_dir</span></code></p>
 <p>Format: string</p>
@@ -91,9 +93,9 @@ Therefore, the following files must be generated.</p>
 </section>
 </section>
 <section id="reference-file-for-solver">
-<h2>Reference file for Solver<a class="headerlink" href="#reference-file-for-solver" title="Permalink to this headline">¶</a></h2>
+<h2>Reference file for Solver<a class="headerlink" href="#reference-file-for-solver" title="Permalink to this heading">¶</a></h2>
 <section id="target-reference-file">
-<h3>Target reference file<a class="headerlink" href="#target-reference-file" title="Permalink to this headline">¶</a></h3>
+<h3>Target reference file<a class="headerlink" href="#target-reference-file" title="Permalink to this heading">¶</a></h3>
 <p>The file containing the data to be targeted to fit. Edit <code class="docutils literal notranslate"><span class="pre">tleed4.i</span></code> in <code class="docutils literal notranslate"><span class="pre">path_to_base_dir</span></code> in the [<code class="docutils literal notranslate"><span class="pre">reference</span></code>] section.
 Add the number you want to optimize to <code class="docutils literal notranslate"><span class="pre">optxxx</span></code> (where xxx is a three-digit number in the format 000, 001, 002, …). (where xxx is a three-digit integer in the form 000, 001, 002, …).
 Note that the number of xxx must match the order and number of variables in the list of <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> variables to be optimized.
@@ -121,7 +123,7 @@ Note that if IFLAG and LSFLAG are not set to 0, the satleed side is also optimiz
 </section>
 </section>
 <section id="output-file">
-<h2>Output file<a class="headerlink" href="#output-file" title="Permalink to this headline">¶</a></h2>
+<h2>Output file<a class="headerlink" href="#output-file" title="Permalink to this heading">¶</a></h2>
 <p>In <code class="docutils literal notranslate"><span class="pre">leed</span></code>, the output files are stored in the folder with the rank number.</p>
 </section>
 </section>
@@ -142,7 +144,7 @@ Note that if IFLAG and LSFLAG are not set to 0, the satleed side is also optimiz
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
     </div>
   </body>
 </html>

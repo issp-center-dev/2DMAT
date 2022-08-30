@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Population Annealing Monte Carlo pamc &#8212; 2DMAT 2.2-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -12,6 +12,7 @@
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -38,20 +39,20 @@
         
         
   <section id="population-annealing-monte-carlo-pamc">
-<h1>Population Annealing Monte Carlo <code class="docutils literal notranslate"><span class="pre">pamc</span></code><a class="headerlink" href="#population-annealing-monte-carlo-pamc" title="Permalink to this headline">¶</a></h1>
+<h1>Population Annealing Monte Carlo <code class="docutils literal notranslate"><span class="pre">pamc</span></code><a class="headerlink" href="#population-annealing-monte-carlo-pamc" title="Permalink to this heading">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">pamc</span></code> explores the parameter space by using the Population Annealing Monte Carlo (PAMC) method.</p>
 <section id="preparation">
-<h2>Preparation<a class="headerlink" href="#preparation" title="Permalink to this headline">¶</a></h2>
+<h2>Preparation<a class="headerlink" href="#preparation" title="Permalink to this heading">¶</a></h2>
 <p><a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> should be installed for the MPI parallelization</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">mpi4py</span>
 </pre></div>
 </div>
 </section>
 <section id="input-parameters">
-<h2>Input parameters<a class="headerlink" href="#input-parameters" title="Permalink to this headline">¶</a></h2>
+<h2>Input parameters<a class="headerlink" href="#input-parameters" title="Permalink to this heading">¶</a></h2>
 <p>This has two subsections <code class="docutils literal notranslate"><span class="pre">algorithm.param</span></code> and <code class="docutils literal notranslate"><span class="pre">algorithm.pamc</span></code> .</p>
 <section id="algorithm-param">
-<h3>[<code class="docutils literal notranslate"><span class="pre">algorithm.param</span></code>]<a class="headerlink" href="#algorithm-param" title="Permalink to this headline">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">algorithm.param</span></code>]<a class="headerlink" href="#algorithm-param" title="Permalink to this heading">¶</a></h3>
 <p>This defines a space to be explored.
 When <code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> key is defined the discrete space is used.
 Otherwise, continuous space is used.</p>
@@ -94,7 +95,7 @@ If not defined, each component will be 1.0.</p>
 </ul>
 </section>
 <section id="algorithm-pamc">
-<h3>[<code class="docutils literal notranslate"><span class="pre">algorithm.pamc</span></code>]<a class="headerlink" href="#algorithm-pamc" title="Permalink to this headline">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">algorithm.pamc</span></code>]<a class="headerlink" href="#algorithm-pamc" title="Permalink to this heading">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">numsteps</span></code></p>
 <p>Format: Integer</p>
@@ -144,16 +145,16 @@ One of the “temperature” and “inverse temperature” should be defined.</p
 </li>
 </ul>
 <section id="about-the-number-of-steps">
-<h4>About the number of steps<a class="headerlink" href="#about-the-number-of-steps" title="Permalink to this headline">¶</a></h4>
+<h4>About the number of steps<a class="headerlink" href="#about-the-number-of-steps" title="Permalink to this heading">¶</a></h4>
 <p>Specify just two of <code class="docutils literal notranslate"><span class="pre">numstep</span></code>, <code class="docutils literal notranslate"><span class="pre">numsteps_annealing</span></code>, and <code class="docutils literal notranslate"><span class="pre">numT</span></code>.
 The value of the remaining one will be determined automatically.</p>
 </section>
 </section>
 </section>
 <section id="reference-file">
-<h2>Reference file<a class="headerlink" href="#reference-file" title="Permalink to this headline">¶</a></h2>
+<h2>Reference file<a class="headerlink" href="#reference-file" title="Permalink to this heading">¶</a></h2>
 <section id="mesh-definition-file">
-<h3>Mesh definition file<a class="headerlink" href="#mesh-definition-file" title="Permalink to this headline">¶</a></h3>
+<h3>Mesh definition file<a class="headerlink" href="#mesh-definition-file" title="Permalink to this heading">¶</a></h3>
 <p>Define the grid space to be explored in this file.
 The first column is the index of the mesh, and the second and subsequent columns are the values of variables.
 Note that the index of the mesh will be ignored for this “algorithm”.</p>
@@ -172,7 +173,7 @@ Note that the index of the mesh will be ignored for this “algorithm”.</p>
 </div>
 </section>
 <section id="neighborhood-list-file">
-<h3>Neighborhood-list file<a class="headerlink" href="#neighborhood-list-file" title="Permalink to this headline">¶</a></h3>
+<h3>Neighborhood-list file<a class="headerlink" href="#neighborhood-list-file" title="Permalink to this heading">¶</a></h3>
 <p>Before searching in the discrete space by Markov Chain Monte Carlo method,
 we should define “neighborhoods” for each point <span class="math notranslate nohighlight">\(i\)</span>, which are points that a walker can move from <span class="math notranslate nohighlight">\(i\)</span>
 A neighborhood-list file defines the list of neighborhoods.
@@ -191,9 +192,9 @@ and the indices of final points <span class="math notranslate nohighlight">\(j\)
 </section>
 </section>
 <section id="output-files">
-<h2>Output files<a class="headerlink" href="#output-files" title="Permalink to this headline">¶</a></h2>
+<h2>Output files<a class="headerlink" href="#output-files" title="Permalink to this heading">¶</a></h2>
 <section id="rank-trial-t-txt">
-<h3><code class="docutils literal notranslate"><span class="pre">RANK/trial_T#.txt</span></code><a class="headerlink" href="#rank-trial-t-txt" title="Permalink to this headline">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">RANK/trial_T#.txt</span></code><a class="headerlink" href="#rank-trial-t-txt" title="Permalink to this heading">¶</a></h3>
 <p>This file stores the suggested parameters and the corresponding value returned from the solver for each temperature point (specified by <code class="docutils literal notranslate"><span class="pre">#</span></code>).
 The first column (<code class="docutils literal notranslate"><span class="pre">step</span></code>) is the index of the MC step.
 The second column (<code class="docutils literal notranslate"><span class="pre">walker</span></code>) is the index of the walker in the process.
@@ -214,11 +215,11 @@ The last two columns (<code class="docutils literal notranslate"><span class="pr
 </div>
 </section>
 <section id="rank-trial-txt">
-<h3><code class="docutils literal notranslate"><span class="pre">RANK/trial.txt</span></code><a class="headerlink" href="#rank-trial-txt" title="Permalink to this headline">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">RANK/trial.txt</span></code><a class="headerlink" href="#rank-trial-txt" title="Permalink to this heading">¶</a></h3>
 <p>This is a combination of all the <code class="docutils literal notranslate"><span class="pre">trial_T#.txt</span></code> in one.</p>
 </section>
 <section id="rank-result-t-txt">
-<h3><code class="docutils literal notranslate"><span class="pre">RANK/result_T#.txt</span></code><a class="headerlink" href="#rank-result-t-txt" title="Permalink to this headline">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">RANK/result_T#.txt</span></code><a class="headerlink" href="#rank-result-t-txt" title="Permalink to this heading">¶</a></h3>
 <p>This file stores the sampled parameters and the corresponding value returned from the solver for each replica and each temperature.
 This has the same format as <code class="docutils literal notranslate"><span class="pre">trial.txt</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># step walker beta fx x1 weight ancestor</span>
@@ -233,11 +234,11 @@ This has the same format as <code class="docutils literal notranslate"><span cla
 </div>
 </section>
 <section id="rank-result-txt">
-<h3><code class="docutils literal notranslate"><span class="pre">RANK/result.txt</span></code><a class="headerlink" href="#rank-result-txt" title="Permalink to this headline">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">RANK/result.txt</span></code><a class="headerlink" href="#rank-result-txt" title="Permalink to this heading">¶</a></h3>
 <p>This is a combination of all the <code class="docutils literal notranslate"><span class="pre">result_T#.txt</span></code> in one.</p>
 </section>
 <section id="best-result-txt">
-<h3><code class="docutils literal notranslate"><span class="pre">best_result.txt</span></code><a class="headerlink" href="#best-result-txt" title="Permalink to this headline">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">best_result.txt</span></code><a class="headerlink" href="#best-result-txt" title="Permalink to this heading">¶</a></h3>
 <p>The optimal value of the solver and the corresponding parameter among the all samples.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nprocs</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">rank</span> <span class="o">=</span> <span class="mi">2</span>
@@ -249,7 +250,7 @@ This has the same format as <code class="docutils literal notranslate"><span cla
 </div>
 </section>
 <section id="fx-txt">
-<h3><code class="docutils literal notranslate"><span class="pre">fx.txt</span></code><a class="headerlink" href="#fx-txt" title="Permalink to this headline">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">fx.txt</span></code><a class="headerlink" href="#fx-txt" title="Permalink to this heading">¶</a></h3>
 <p>This file stores statistical metrics over the all replicas for each temperature.
 The first column is inverse temperature.
 The second and third column are the expectation value and the standard error of the solver’s output (<span class="math notranslate nohighlight">\(f(x)\)</span>), respectively.
@@ -274,9 +275,9 @@ The sixth column is the acceptance ratio of MC updates.</p>
 </section>
 </section>
 <section id="algorithm">
-<h2>Algorithm<a class="headerlink" href="#algorithm" title="Permalink to this headline">¶</a></h2>
+<h2>Algorithm<a class="headerlink" href="#algorithm" title="Permalink to this heading">¶</a></h2>
 <section id="goal">
-<h3>Goal<a class="headerlink" href="#goal" title="Permalink to this headline">¶</a></h3>
+<h3>Goal<a class="headerlink" href="#goal" title="Permalink to this heading">¶</a></h3>
 <p>When the weight of the configuration <span class="math notranslate nohighlight">\(x\)</span> under some parameter <span class="math notranslate nohighlight">\(\beta_i\)</span> is given as <span class="math notranslate nohighlight">\(f_i(x)\)</span>
 (e.g., the Bolzmann factor <span class="math notranslate nohighlight">\(f_i(x) = \exp[-\beta_i E(x)]\)</span> ),
 the expectation value of <span class="math notranslate nohighlight">\(A\)</span> is defined as</p>
@@ -290,7 +291,7 @@ and <span class="math notranslate nohighlight">\(\tilde{f}(x) = f(x)/Z\)</span> 
 <p>Our goal is to numerically calculate the expectation value for each <span class="math notranslate nohighlight">\(\beta_i\)</span> and the (ratio of) the normalization factor.</p>
 </section>
 <section id="annealed-importance-sampling-ais-1">
-<h3>Annealed Importance Sampling (AIS) [1]<a class="headerlink" href="#annealed-importance-sampling-ais-1" title="Permalink to this headline">¶</a></h3>
+<h3>Annealed Importance Sampling (AIS) [1]<a class="headerlink" href="#annealed-importance-sampling-ais-1" title="Permalink to this heading">¶</a></h3>
 <p>First, we introduce a series of configurations <span class="math notranslate nohighlight">\(\{x_i\}\)</span> obeying the following joint probability</p>
 <div class="math notranslate nohighlight">
 \[\tilde{f}(x_0, x_1, \dots, x_n) = \tilde{f}_n(x_n) \tilde{T}_n(x_n, x_{n-1}) \tilde{T}_{n-1}(x_{n-1}, x_{n-2}) \cdots \tilde{T}_1(x_1, x_0),\]</div>
@@ -370,7 +371,7 @@ Then, instead of <span class="math notranslate nohighlight">\(\tilde{f}(x_0, x_1
 <p>This weight <span class="math notranslate nohighlight">\(w_n\)</span> is called as the Neal-Jarzynski weight.</p>
 </section>
 <section id="population-annealing-pa-2">
-<h3>population annealing (PA) [2]<a class="headerlink" href="#population-annealing-pa-2" title="Permalink to this headline">¶</a></h3>
+<h3>population annealing (PA) [2]<a class="headerlink" href="#population-annealing-pa-2" title="Permalink to this heading">¶</a></h3>
 <p>Although the AIS method can estimate the expectation values of <span class="math notranslate nohighlight">\(A\)</span> for each parameter <span class="math notranslate nohighlight">\(\beta\)</span> as the form of weighted arithmetic mean,
 the variance of weights <span class="math notranslate nohighlight">\(w\)</span> is generally large and then the accuracy of the result gets worse.
 In order to overcome this problem, the population annealing Monte Carlo (PAMC) method resamples all the replicas according to the probability
@@ -393,7 +394,7 @@ In order to overcome this problem, the population annealing Monte Carlo (PAMC) m
 <p>There are two resampling methods: one with a fixed number of replicas[2] and one without[3].</p>
 </section>
 <section id="references">
-<h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
+<h3>References<a class="headerlink" href="#references" title="Permalink to this heading">¶</a></h3>
 <p>[1] R. M. Neal, Statistics and Computing <strong>11</strong>, 125-139 (2001).</p>
 <p>[2] K. Hukushima and Y. Iba, AIP Conf. Proc. <strong>690</strong>, 200 (2003).</p>
 <p>[3] J. Machta, PRE <strong>82</strong>, 026704 (2010).</p>
@@ -417,7 +418,7 @@ In order to overcome this problem, the population annealing Monte Carlo (PAMC) m
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
     </div>
   </body>
 </html>

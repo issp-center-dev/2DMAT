@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Optimization by Bayesian Optimization &#8212; 2DMAT 2.2-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -12,6 +12,7 @@
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -38,11 +39,11 @@
         
         
   <section id="optimization-by-bayesian-optimization">
-<h1>Optimization by Bayesian Optimization<a class="headerlink" href="#optimization-by-bayesian-optimization" title="Permalink to this headline">¶</a></h1>
+<h1>Optimization by Bayesian Optimization<a class="headerlink" href="#optimization-by-bayesian-optimization" title="Permalink to this heading">¶</a></h1>
 <p>This tutorial subscribes how to estimate atomic positions from the experimental diffraction data by using Bayesian optimization (BO).
 2DMAT uses <a class="reference external" href="https://www.pasums.issp.u-tokyo.ac.jp/physbo/en">PHYSBO</a> for BO.</p>
 <section id="sample-files">
-<h2>Sample files<a class="headerlink" href="#sample-files" title="Permalink to this headline">¶</a></h2>
+<h2>Sample files<a class="headerlink" href="#sample-files" title="Permalink to this heading">¶</a></h2>
 <p>Sample files are available from <code class="docutils literal notranslate"><span class="pre">sample/sim-trhepd-rheed/bayes</span></code> .
 This directory includes the following files:</p>
 <ul>
@@ -65,7 +66,7 @@ This directory includes the following files:</p>
 <p>In the following, we will subscribe these files and then show the result.</p>
 </section>
 <section id="reference-files">
-<h2>Reference files<a class="headerlink" href="#reference-files" title="Permalink to this headline">¶</a></h2>
+<h2>Reference files<a class="headerlink" href="#reference-files" title="Permalink to this heading">¶</a></h2>
 <p>This tutorial uses <code class="docutils literal notranslate"><span class="pre">template.txt</span></code> , <code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code> similar to the previous one (<code class="docutils literal notranslate"><span class="pre">minsearch</span></code>).
 Only difference is that in this tutorial the third parameter <code class="docutils literal notranslate"><span class="pre">value_03</span></code> is fixed to <code class="docutils literal notranslate"><span class="pre">3.5</span></code> in order to speed up the calculation.
 The parameter space to be explored is given by <code class="docutils literal notranslate"><span class="pre">MeshData.txt</span></code>.</p>
@@ -85,7 +86,7 @@ The parameter space to be explored is given by <code class="docutils literal not
 <p>The first column is the index of the point and the remaining ones are the coodinates, <code class="docutils literal notranslate"><span class="pre">value_0</span></code> and <code class="docutils literal notranslate"><span class="pre">value_1</span></code> in the <code class="docutils literal notranslate"><span class="pre">template.txt</span></code>.</p>
 </section>
 <section id="input-files">
-<h2>Input files<a class="headerlink" href="#input-files" title="Permalink to this headline">¶</a></h2>
+<h2>Input files<a class="headerlink" href="#input-files" title="Permalink to this heading">¶</a></h2>
 <p>This subsection describes the input file.
 For details, see <a class="reference internal" href="../algorithm/bayes.html#bayes-input"><span class="std std-ref">the manual of bayes</span></a>.
 <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> in the sample directory is shown as the following</p>
@@ -156,7 +157,7 @@ For details, see <a class="reference internal" href="../algorithm/bayes.html#bay
 <p>For details on other parameters that can be specified in the input file, see the chapter on input files of <code class="docutils literal notranslate"><span class="pre">bayes</span></code>.</p>
 </section>
 <section id="calculation">
-<h2>Calculation<a class="headerlink" href="#calculation" title="Permalink to this headline">¶</a></h2>
+<h2>Calculation<a class="headerlink" href="#calculation" title="Permalink to this heading">¶</a></h2>
 <p>First, move to the folder where the sample file is located (hereinafter, it is assumed that you are the root directory of 2DMAT).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">sample</span><span class="o">/</span><span class="n">sim</span><span class="o">-</span><span class="n">trhepd</span><span class="o">-</span><span class="n">rheed</span><span class="o">/</span><span class="n">bayes</span>
 </pre></div>
@@ -251,7 +252,7 @@ fi
 </div>
 </section>
 <section id="visualization">
-<h2>Visualization<a class="headerlink" href="#visualization" title="Permalink to this headline">¶</a></h2>
+<h2>Visualization<a class="headerlink" href="#visualization" title="Permalink to this heading">¶</a></h2>
 <p>You can see at what step the parameter gave the minimum score by looking at <code class="docutils literal notranslate"><span class="pre">BayesData.txt</span></code>.
 Since <code class="docutils literal notranslate"><span class="pre">RockingCurve.txt</span></code> is stored in a subfolder for each step, it is possible to compare it with the experimental value by following the procedure of :doc:<code class="docutils literal notranslate"><span class="pre">minsearch</span></code>.</p>
 </section>
@@ -273,7 +274,7 @@ Since <code class="docutils literal notranslate"><span class="pre">RockingCurve.
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
     </div>
   </body>
 </html>

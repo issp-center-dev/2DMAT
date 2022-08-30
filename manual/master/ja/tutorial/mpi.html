@@ -4,7 +4,7 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>グリッド型探索 &#8212; 2DMAT 2.2-dev ドキュメント</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -12,6 +12,7 @@
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/translations.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
@@ -38,12 +39,12 @@
         
         
   <section id="id1">
-<h1>グリッド型探索<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<h1>グリッド型探索<a class="headerlink" href="#id1" title="この見出しへのパーマリンク">¶</a></h1>
 <p>ここでは、グリッド型探索を行い、回折データから原子座標を解析する方法について説明します。
 グリッド型探索はMPIに対応しています。具体的な計算手順は <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> の時と同様です。
 ただし、探索グリッドを与えるデータ <code class="docutils literal notranslate"><span class="pre">MeshData.txt</span></code> を事前に準備する必要があります。</p>
 <section id="id2">
-<h2>サンプルファイルの場所<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2>サンプルファイルの場所<a class="headerlink" href="#id2" title="この見出しへのパーマリンク">¶</a></h2>
 <p>サンプルファイルは <code class="docutils literal notranslate"><span class="pre">sample/sim-trhepd-rheed/mapper</span></code> にあります。
 フォルダには以下のファイルが格納されています。</p>
 <ul>
@@ -66,7 +67,7 @@
 <p>以下、これらのファイルについて説明したあと、実際の計算結果を紹介します。</p>
 </section>
 <section id="id3">
-<h2>参照ファイルの説明<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2>参照ファイルの説明<a class="headerlink" href="#id3" title="この見出しへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">template.txt</span></code> , <code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code> については、
 前のチュートリアル(Nealder-Mead法による最適化)と同じものを使用します。
 ただし、計算を軽くするため <code class="docutils literal notranslate"><span class="pre">value_03</span></code> は用いずに <code class="docutils literal notranslate"><span class="pre">3.5</span></code> に固定し、
@@ -88,7 +89,7 @@
 <p>1列目が通し番号、2列目以降は <code class="docutils literal notranslate"><span class="pre">template.txt</span></code> に入る``value_0`` , <code class="docutils literal notranslate"><span class="pre">value_1</span></code> の値が順に指定されています。</p>
 </section>
 <section id="id4">
-<h2>入力ファイルの説明<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2>入力ファイルの説明<a class="headerlink" href="#id4" title="この見出しへのパーマリンク">¶</a></h2>
 <p>ここでは、メインプログラム用の入力ファイル <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> について説明します。
 <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> の詳細については入力ファイルに記載されています。
 以下は、サンプルファイルにある <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> の中身になります。</p>
@@ -152,7 +153,7 @@
 <p>その他、入力ファイルで指定可能なパラメータの詳細については入力ファイルの章をご覧ください。</p>
 </section>
 <section id="id5">
-<h2>計算実行<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2>計算実行<a class="headerlink" href="#id5" title="この見出しへのパーマリンク">¶</a></h2>
 <p>最初にサンプルファイルが置いてあるフォルダへ移動します(以下、本ソフトウェアをダウンロードしたディレクトリ直下にいることを仮定します).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">sample</span><span class="o">/</span><span class="n">sim</span><span class="o">-</span><span class="n">trhepd</span><span class="o">-</span><span class="n">rheed</span><span class="o">/</span><span class="n">mapper</span>
 </pre></div>
@@ -227,7 +228,7 @@ fi
 </div>
 </section>
 <section id="id6">
-<h2>計算結果の可視化<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2>計算結果の可視化<a class="headerlink" href="#id6" title="この見出しへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">ColorMap.txt</span></code> を図示することで、<code class="docutils literal notranslate"><span class="pre">R-factor</span></code> の小さいパラメータがどこにあるかを推定することができます。
 今回の場合は、以下のコマンドをうつことで2次元パラメータ空間の図 <code class="docutils literal notranslate"><span class="pre">ColorMapFig.png</span></code> が作成されます。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">plot_colormap_2d</span><span class="o">.</span><span class="n">py</span>
@@ -261,7 +262,7 @@ fi
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
     </div>
   </body>
 </html>

@@ -4,7 +4,7 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>関連ツール &#8212; 2DMAT 2.2-dev ドキュメント</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -12,6 +12,7 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/translations.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -39,15 +40,15 @@
         
         
   <section id="id1">
-<h1>関連ツール<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<h1>関連ツール<a class="headerlink" href="#id1" title="この見出しへのパーマリンク">¶</a></h1>
 <section id="py2dmat-neighborlist">
-<h2><code class="docutils literal notranslate"><span class="pre">py2dmat_neighborlist</span></code><a class="headerlink" href="#py2dmat-neighborlist" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">py2dmat_neighborlist</span></code><a class="headerlink" href="#py2dmat-neighborlist" title="この見出しへのパーマリンク">¶</a></h2>
 <p>離散空間をモンテカルロ探索する場合に使用する近傍リスト定義ファイルを
 メッシュ定義ファイルから生成するツールです。</p>
 <p><code class="docutils literal notranslate"><span class="pre">pip</span></code> でインストールした場合は <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> と同様に <code class="docutils literal notranslate"><span class="pre">bin</span></code> 以下に <code class="docutils literal notranslate"><span class="pre">py2dmat_neighborlist</span></code> という名前でインストールされます。
 もしくは、ディレクトリ中の <code class="docutils literal notranslate"><span class="pre">src/py2dmat_neighborlist.py</span></code> を直接実行することも可能です。</p>
 <section id="id2">
-<h3>使い方<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h3>使い方<a class="headerlink" href="#id2" title="この見出しへのパーマリンク">¶</a></h3>
 <p>引数としてメッシュ定義ファイルを渡します。
 生成される近傍リスト定義ファイルの名前は <code class="docutils literal notranslate"><span class="pre">-o</span></code> オプションで指定可能です。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ py2dmat_neighborlist -o neighborlist.txt MeshData.txt
@@ -102,10 +103,10 @@ $ python3 src/py2dmat_neighborlist.py -o MeshData.txt
 </section>
 </section>
 <section id="tool-to-dft-to-dft-py">
-<h2><code class="docutils literal notranslate"><span class="pre">tool/to_dft/to_dft.py</span></code><a class="headerlink" href="#tool-to-dft-to-dft-py" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">tool/to_dft/to_dft.py</span></code><a class="headerlink" href="#tool-to-dft-to-dft-py" title="この見出しへのパーマリンク">¶</a></h2>
 <p>本ツールでは、Si等四面体構造のボンドネットワークを有する系の(001)および(111)表面系モデルについて、その原子構造から第一原理電子状態計算ソフトウェア <a class="reference external" href="https://www.quantum-espresso.org/">Quantum Espresso (QE)</a> 用の入力データを作成します。これにより、得られた構造の妥当性検証や、電子状態等の微視的な情報を取得します。なお、注目する表面と反対の表面から生じるダングリングボンド由来の電子の影響を排除するため、最下層のダングリングボンドの位置に水素原子を置く水素終端というテクニックを用いています。</p>
 <section id="id3">
-<h3>必要な環境<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h3>必要な環境<a class="headerlink" href="#id3" title="この見出しへのパーマリンク">¶</a></h3>
 <ul class="simple">
 <li><p>Python3 &gt;= 3.6</p></li>
 </ul>
@@ -118,14 +119,14 @@ $ python3 src/py2dmat_neighborlist.py -o MeshData.txt
 </ul>
 </section>
 <section id="id4">
-<h3>スクリプトの概要<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h3>スクリプトの概要<a class="headerlink" href="#id4" title="この見出しへのパーマリンク">¶</a></h3>
 <p>XYZ形式で記載された構造ファイルのファイル名および、2次元的な周期構造を表すための格子ベクトルの情報などが記載された入力ファイルを読み込み、得られた座標データから、最下層と、その次の層にあたる原子の座標を抽出します。
 最下層の原子は取り除き、対応する位置に H 原子を置いて次層の原子との距離を四面体構造となる距離(例えば、Siの場合はシラン分子となる距離)に調整したモデルを作成します。
 水素終端を行ったモデルはXYZ形式で保存され、cifファイルとQuantum Espresso (QE)の入力ファイルも作成します。
 なお、QEをインストールしている場合には、そのまま計算実行することもできます。</p>
 </section>
 <section id="id5">
-<h3>チュートリアル<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h3>チュートリアル<a class="headerlink" href="#id5" title="この見出しへのパーマリンク">¶</a></h3>
 <ol class="arabic simple">
 <li><p>参照用のXYZファイルを作成します。</p></li>
 </ol>
@@ -179,7 +180,7 @@ $ python3 src/py2dmat_neighborlist.py -o MeshData.txt
 <p>入力ファイルは、 <code class="docutils literal notranslate"><span class="pre">Main</span></code> , <code class="docutils literal notranslate"><span class="pre">ASE</span></code> , <code class="docutils literal notranslate"><span class="pre">Solver</span></code> の3セクションから構成されます。
 以下、各セクション毎に変数の説明を簡単に記載します。</p>
 <section id="main">
-<h4><code class="docutils literal notranslate"><span class="pre">Main</span></code> セクション<a class="headerlink" href="#main" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">Main</span></code> セクション<a class="headerlink" href="#main" title="この見出しへのパーマリンク">¶</a></h4>
 <p>このセクションでは、水素終端を行う際に必要なパラメータに関する設定を行います。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">input_xyz_file</span></code></p>
@@ -193,7 +194,7 @@ $ python3 src/py2dmat_neighborlist.py -o MeshData.txt
 </ul>
 </section>
 <section id="main-param">
-<h4><code class="docutils literal notranslate"><span class="pre">Main.Param</span></code> セクション<a class="headerlink" href="#main-param" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">Main.Param</span></code> セクション<a class="headerlink" href="#main-param" title="この見出しへのパーマリンク">¶</a></h4>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">z_margin</span></code></p>
 <p>形式: float型</p>
@@ -214,7 +215,7 @@ $ python3 src/py2dmat_neighborlist.py -o MeshData.txt
 </ul>
 </section>
 <section id="main-lattice">
-<h4><code class="docutils literal notranslate"><span class="pre">Main.lattice</span></code> セクション<a class="headerlink" href="#main-lattice" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">Main.lattice</span></code> セクション<a class="headerlink" href="#main-lattice" title="この見出しへのパーマリンク">¶</a></h4>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">unit_vec</span></code></p>
 <p>形式： list型</p>
@@ -223,7 +224,7 @@ $ python3 src/py2dmat_neighborlist.py -o MeshData.txt
 </ul>
 </section>
 <section id="ase">
-<h4><code class="docutils literal notranslate"><span class="pre">ASE</span></code> セクション<a class="headerlink" href="#ase" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">ASE</span></code> セクション<a class="headerlink" href="#ase" title="この見出しへのパーマリンク">¶</a></h4>
 <p>このセクションでは、 <code class="docutils literal notranslate"><span class="pre">ASE</span></code> に関連したパラメータを設定します。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">solver_name</span></code></p>
@@ -241,7 +242,7 @@ $ python3 src/py2dmat_neighborlist.py -o MeshData.txt
 </ul>
 </section>
 <section id="solver">
-<h4><code class="docutils literal notranslate"><span class="pre">Solver</span></code> セクション<a class="headerlink" href="#solver" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">Solver</span></code> セクション<a class="headerlink" href="#solver" title="この見出しへのパーマリンク">¶</a></h4>
 <p>このセクションでは、 <code class="docutils literal notranslate"><span class="pre">Solver</span></code> に関連したパラメータを設定します。
 ASEの機能を用いてそのまま第一原理計算を実行する場合に指定が必要となります。
 基本的には各ソルバーの入力ファイルで指定したものと同じ構成で記載します。
@@ -307,7 +308,7 @@ QEの <code class="docutils literal notranslate"><span class="pre">control</span
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
     </div>
   </body>
 </html>

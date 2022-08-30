@@ -4,7 +4,7 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>順問題ソルバーの追加 &#8212; 2DMAT 2.2-dev ドキュメント</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -12,6 +12,7 @@
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/translations.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -39,9 +40,9 @@
         
         
   <section id="id1">
-<h1>順問題ソルバーの追加<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<h1>順問題ソルバーの追加<a class="headerlink" href="#id1" title="この見出しへのパーマリンク">¶</a></h1>
 <section id="id2">
-<h2>ベンチマーク関数ソルバー<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2>ベンチマーク関数ソルバー<a class="headerlink" href="#id2" title="この見出しへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> では探索アルゴリズムのテストに利用できる順問題ソルバーとして、 <code class="docutils literal notranslate"><span class="pre">analytical</span></code> ソルバーを準備しています。</p>
 <p><code class="docutils literal notranslate"><span class="pre">analytical</span></code> ソルバーを使うには、入力ファイルの <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> セクションの <code class="docutils literal notranslate"><span class="pre">name</span></code> を <code class="docutils literal notranslate"><span class="pre">&quot;analytical&quot;</span></code> に設定します。
 また、 <code class="docutils literal notranslate"><span class="pre">function_name</span></code> パラメータを用いてベンチマーク関数 <span class="math notranslate nohighlight">\(f(x)\)</span> を選択します。
@@ -55,7 +56,7 @@
 利用可能な関数の詳細は <a class="reference internal" href="../solver/analytical.html"><span class="doc">analytical ソルバーのリファレンス</span></a> を参照してください。</p>
 </section>
 <section id="id3">
-<h2>順問題ソルバーの追加<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2>順問題ソルバーの追加<a class="headerlink" href="#id3" title="この見出しへのパーマリンク">¶</a></h2>
 <p>ユーザ定義の順問題ソルバーを定義・解析する一番簡単な方法は、 <code class="docutils literal notranslate"><span class="pre">analytical</span></code> ソルバーに追加することです。
 ここでは例として、 <a class="reference external" href="https://en.wikipedia.org/wiki/Test_functions_for_optimization">Booth関数</a></p>
 <div class="math notranslate nohighlight">
@@ -135,7 +136,7 @@ x2 = 2.9999832920260863
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
     </div>
   </body>
 </html>

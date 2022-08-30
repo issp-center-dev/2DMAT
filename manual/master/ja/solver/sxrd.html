@@ -4,7 +4,7 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>sxrd ソルバー &#8212; 2DMAT 2.2-dev ドキュメント</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -12,6 +12,7 @@
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/translations.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -39,10 +40,10 @@
         
         
   <section id="sxrd">
-<h1><code class="docutils literal notranslate"><span class="pre">sxrd</span></code> ソルバー<a class="headerlink" href="#sxrd" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<h1><code class="docutils literal notranslate"><span class="pre">sxrd</span></code> ソルバー<a class="headerlink" href="#sxrd" title="この見出しへのパーマリンク">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">sxrd</span></code> は <code class="docutils literal notranslate"><span class="pre">sxrdcalc</span></code> を用いて原子位置 <span class="math notranslate nohighlight">\(x\)</span> や原子の占有率、デバイワラー因子を与えることで Rocking curve を計算し、実験で得られた Rocking curve からの誤差を <span class="math notranslate nohighlight">\(f(x)\)</span> として返す <code class="docutils literal notranslate"><span class="pre">Solver</span></code> です。</p>
 <section id="id1">
-<h2>前準備<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2>前準備<a class="headerlink" href="#id1" title="この見出しへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">sxrdcalc</span></code> は <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> から呼び出されます。
 そのため、あらかじめ <code class="docutils literal notranslate"><span class="pre">sxrdcalc</span></code> をインストールしておく必要があります。
 <code class="docutils literal notranslate"><span class="pre">sxrdcalc</span></code> はGitHubの以下のURLで公開されています。</p>
@@ -52,11 +53,11 @@ zipファイル解凍後に、Makefileを自身の計算環境に合うように
 <p>なお、 <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> を実行する前にあらかじめバルクデータを作成する必要があります(フォーマットについては、後述のソルバー用補助ファイルをご覧ください)。</p>
 </section>
 <section id="id2">
-<h2>入力パラメータ<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2>入力パラメータ<a class="headerlink" href="#id2" title="この見出しへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">solver</span></code> セクション中のサブセクション
 <code class="docutils literal notranslate"><span class="pre">config</span></code>, <code class="docutils literal notranslate"><span class="pre">post</span></code>, <code class="docutils literal notranslate"><span class="pre">param</span></code>, <code class="docutils literal notranslate"><span class="pre">reference</span></code> を利用します。</p>
 <section id="config">
-<h3>[<code class="docutils literal notranslate"><span class="pre">config</span></code>] セクション<a class="headerlink" href="#config" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">config</span></code>] セクション<a class="headerlink" href="#config" title="この見出しへのパーマリンク">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">sxrd_exec_file</span></code></p>
 <p>形式: string型</p>
@@ -75,7 +76,7 @@ zipファイル解凍後に、Makefileを自身の計算環境に合うように
 </div>
 </section>
 <section id="param">
-<h3>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] セクション<a class="headerlink" href="#param" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] セクション<a class="headerlink" href="#param" title="この見出しへのパーマリンク">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">scale_factor</span></code></p>
 <p>形式: float型 (default: 1.0)</p>
@@ -93,7 +94,7 @@ typeが同じ場合は、同じ変数として取り扱われます。</p>
 </li>
 </ul>
 <section id="param-domain">
-<h4>[<code class="docutils literal notranslate"><span class="pre">param.domain</span></code>] サブセクション<a class="headerlink" href="#param-domain" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<h4>[<code class="docutils literal notranslate"><span class="pre">param.domain</span></code>] サブセクション<a class="headerlink" href="#param-domain" title="この見出しへのパーマリンク">¶</a></h4>
 <p>本セクションではドメインを作成します。作成したいドメイン分、定義する必要があります。
 [<code class="docutils literal notranslate"><span class="pre">param.domain.atom</span></code>] サブサブセクションでドメイン内の情報を指定します。</p>
 <ul>
@@ -104,7 +105,7 @@ typeが同じ場合は、同じ変数として取り扱われます。</p>
 </ul>
 </section>
 <section id="param-domain-atom">
-<h4>[<code class="docutils literal notranslate"><span class="pre">param.domain.atom</span></code>] サブセクション<a class="headerlink" href="#param-domain-atom" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<h4>[<code class="docutils literal notranslate"><span class="pre">param.domain.atom</span></code>] サブセクション<a class="headerlink" href="#param-domain-atom" title="この見出しへのパーマリンク">¶</a></h4>
 <p>本セクションはドメインに所属する最適化したい原子の個数分定義を行う必要があります。
 なお、変数の種類を表すtypeは、正の数で入力します。</p>
 <ul>
@@ -182,7 +183,7 @@ typeが同じ場合は、同じ変数として取り扱われます。</p>
 </section>
 </section>
 <section id="reference">
-<h3>[<code class="docutils literal notranslate"><span class="pre">reference</span></code>] セクション<a class="headerlink" href="#reference" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">reference</span></code>] セクション<a class="headerlink" href="#reference" title="この見出しへのパーマリンク">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">f_in_file</span></code></p>
 <p>形式: string型</p>
@@ -192,9 +193,9 @@ typeが同じ場合は、同じ変数として取り扱われます。</p>
 </section>
 </section>
 <section id="id3">
-<h2>ソルバー用補助ファイル<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2>ソルバー用補助ファイル<a class="headerlink" href="#id3" title="この見出しへのパーマリンク">¶</a></h2>
 <section id="id4">
-<h3>ターゲット参照ファイル<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h3>ターゲット参照ファイル<a class="headerlink" href="#id4" title="この見出しへのパーマリンク">¶</a></h3>
 <p>ターゲットにするデータが格納されたファイル。 [<code class="docutils literal notranslate"><span class="pre">reference</span></code>] セクションの <code class="docutils literal notranslate"><span class="pre">f_in_file</span></code> でパスを指定します。
 1行ごとに <code class="docutils literal notranslate"><span class="pre">h</span> <span class="pre">k</span> <span class="pre">l</span> <span class="pre">F</span> <span class="pre">sigma</span></code> が出力されます。ここで、 <code class="docutils literal notranslate"><span class="pre">h,</span> <span class="pre">k,</span> <span class="pre">l</span></code> は波数, <code class="docutils literal notranslate"><span class="pre">F</span></code> は強度、 <code class="docutils literal notranslate"><span class="pre">sigma</span></code> は <code class="docutils literal notranslate"><span class="pre">F</span></code> の不確かさをそれぞれ表します。
 以下、ファイル例を記載します。</p>
@@ -208,7 +209,7 @@ typeが同じ場合は、同じ変数として取り扱われます。</p>
 </div>
 </section>
 <section id="id5">
-<h3>バルク構造ファイル<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h3>バルク構造ファイル<a class="headerlink" href="#id5" title="この見出しへのパーマリンク">¶</a></h3>
 <p>バルク構造のデータが格納されたファイル。 [<code class="docutils literal notranslate"><span class="pre">config</span></code>] セクションの <code class="docutils literal notranslate"><span class="pre">bulk_struc_in_file</span></code> でパスを指定します。
 1行目がコメント, 2行目が <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">b</span> <span class="pre">c</span> <span class="pre">alpha</span> <span class="pre">beta</span> <span class="pre">gamma</span></code> を表します。
 ここで、 <code class="docutils literal notranslate"><span class="pre">a</span></code> , <code class="docutils literal notranslate"><span class="pre">b</span></code>, <code class="docutils literal notranslate"><span class="pre">c</span></code> はユニットセルの格子定数、 <code class="docutils literal notranslate"><span class="pre">alpha</span></code>, <code class="docutils literal notranslate"><span class="pre">beta</span></code>, <code class="docutils literal notranslate"><span class="pre">gamma</span></code> はそれらのなす角です。
@@ -227,11 +228,11 @@ typeが同じ場合は、同じ変数として取り扱われます。</p>
 </section>
 </section>
 <section id="id6">
-<h2>出力ファイル<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2>出力ファイル<a class="headerlink" href="#id6" title="この見出しへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">sxrd</span></code> では、 計算時に出力されるファイルが、ランクの番号が記載されたフォルダ下に一式出力されます。
 ここでは、 <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> で独自に出力するファイルについて説明します。</p>
 <section id="stdout">
-<h3><code class="docutils literal notranslate"><span class="pre">stdout</span></code><a class="headerlink" href="#stdout" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">stdout</span></code><a class="headerlink" href="#stdout" title="この見出しへのパーマリンク">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">sxrd</span></code> が出力する標準出力が記載されています。
 sxrdのLeast square fittingに対して、初期パラメータとして変数を与え、1ショット計算(iteration数=0)をした際のRfactorを計算します。
 RfactorはFit results以下のRに記載されます。
@@ -284,7 +285,7 @@ RfactorはFit results以下のRに記載されます。
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
     </div>
   </body>
 </html>

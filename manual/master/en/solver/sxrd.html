@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>sxrd solver &#8212; 2DMAT 2.2-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -12,6 +12,7 @@
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -38,10 +39,10 @@
         
         
   <section id="sxrd-solver">
-<h1><code class="docutils literal notranslate"><span class="pre">sxrd</span></code> solver<a class="headerlink" href="#sxrd-solver" title="Permalink to this headline">¶</a></h1>
+<h1><code class="docutils literal notranslate"><span class="pre">sxrd</span></code> solver<a class="headerlink" href="#sxrd-solver" title="Permalink to this heading">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">sxrd</span></code> is a <code class="docutils literal notranslate"><span class="pre">Solver</span></code> that uses <code class="docutils literal notranslate"><span class="pre">sxrdcalc</span></code> to calculate the Rocking curve by giving atomic positions <span class="math notranslate nohighlight">\(x\)</span> , atomic occupancies, and Debye-Waller factor and finally returnes the error <span class="math notranslate nohighlight">\(f(x)\)</span>  from the experimental Rocking curve.</p>
 <section id="preparation">
-<h2>Preparation<a class="headerlink" href="#preparation" title="Permalink to this headline">¶</a></h2>
+<h2>Preparation<a class="headerlink" href="#preparation" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">sxrdcalc</span></code> is called from <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code>.
 You will need to install <code class="docutils literal notranslate"><span class="pre">sxrdcalc</span></code> beforehand.
 <code class="docutils literal notranslate"><span class="pre">sxrdcalc</span></code> is available on GitHub at the following URL:</p>
@@ -51,10 +52,10 @@ After unzipping the zip file, edit the Makefile to fit your computing environmen
 <p>It is noted that the bulk data must be prepared in advance before running <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> (see the auxiliary file for solvers below for the format).</p>
 </section>
 <section id="input-parameters">
-<h2>Input parameters<a class="headerlink" href="#input-parameters" title="Permalink to this headline">¶</a></h2>
+<h2>Input parameters<a class="headerlink" href="#input-parameters" title="Permalink to this heading">¶</a></h2>
 <p>Input parameters are specified in subsections in the <code class="docutils literal notranslate"><span class="pre">solver</span></code> section (<code class="docutils literal notranslate"><span class="pre">config</span></code>, <code class="docutils literal notranslate"><span class="pre">post</span></code>, <code class="docutils literal notranslate"><span class="pre">param</span></code>, and <code class="docutils literal notranslate"><span class="pre">reference</span></code>).</p>
 <section id="config-section">
-<h3>[<code class="docutils literal notranslate"><span class="pre">config</span></code>] section<a class="headerlink" href="#config-section" title="Permalink to this headline">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">config</span></code>] section<a class="headerlink" href="#config-section" title="Permalink to this heading">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">sxrd_exec_file</span></code></p>
 <p>Format: string</p>
@@ -75,7 +76,7 @@ After unzipping the zip file, edit the Makefile to fit your computing environmen
 </div>
 </section>
 <section id="param-section">
-<h3>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] section<a class="headerlink" href="#param-section" title="Permalink to this headline">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] section<a class="headerlink" href="#param-section" title="Permalink to this heading">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">scale_factor</span></code></p>
 <p>Format: float (default: 1.0)</p>
@@ -93,7 +94,7 @@ If the type is the same, they are treated as the same variable.</p>
 </li>
 </ul>
 <section id="param-domain-subsection">
-<h4>[<code class="docutils literal notranslate"><span class="pre">param.domain</span></code>] subsection<a class="headerlink" href="#param-domain-subsection" title="Permalink to this headline">¶</a></h4>
+<h4>[<code class="docutils literal notranslate"><span class="pre">param.domain</span></code>] subsection<a class="headerlink" href="#param-domain-subsection" title="Permalink to this heading">¶</a></h4>
 <p>In this section, parameters to create domains are specified.
 You will need to define the domains you want to create.
 In the [<code class="docutils literal notranslate"><span class="pre">param.domain.atom</span></code>] sub-subsection, paramters of the information in the domain are specified.</p>
@@ -105,7 +106,7 @@ In the [<code class="docutils literal notranslate"><span class="pre">param.domai
 </ul>
 </section>
 <section id="param-domain-atom-subsection">
-<h4>[<code class="docutils literal notranslate"><span class="pre">param.domain.atom</span></code>] subsection<a class="headerlink" href="#param-domain-atom-subsection" title="Permalink to this headline">¶</a></h4>
+<h4>[<code class="docutils literal notranslate"><span class="pre">param.domain.atom</span></code>] subsection<a class="headerlink" href="#param-domain-atom-subsection" title="Permalink to this heading">¶</a></h4>
 <p>This section needs to be defined as many times as the number of atoms you want to optimize belonging to the domain.
 Note that the type, which represents the type of variable, must be a positive number.</p>
 <ul>
@@ -179,7 +180,7 @@ It is defined as [type, scale].</p>
 </section>
 </section>
 <section id="reference-section">
-<h3>[<code class="docutils literal notranslate"><span class="pre">reference</span></code>] section<a class="headerlink" href="#reference-section" title="Permalink to this headline">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">reference</span></code>] section<a class="headerlink" href="#reference-section" title="Permalink to this heading">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">f_in_file</span></code></p>
 <p>Format: string</p>
@@ -189,9 +190,9 @@ It is defined as [type, scale].</p>
 </section>
 </section>
 <section id="reference-file-for-solver">
-<h2>Reference file for Solver<a class="headerlink" href="#reference-file-for-solver" title="Permalink to this headline">¶</a></h2>
+<h2>Reference file for Solver<a class="headerlink" href="#reference-file-for-solver" title="Permalink to this heading">¶</a></h2>
 <section id="target-reference-file">
-<h3>Target reference file<a class="headerlink" href="#target-reference-file" title="Permalink to this headline">¶</a></h3>
+<h3>Target reference file<a class="headerlink" href="#target-reference-file" title="Permalink to this heading">¶</a></h3>
 <p>The file containing the data to be targeted to fit. The path is specified by <code class="docutils literal notranslate"><span class="pre">f_in_file</span></code> in the [<code class="docutils literal notranslate"><span class="pre">reference</span></code>] section.
 For each line, <code class="docutils literal notranslate"><span class="pre">h</span> <span class="pre">k</span> <span class="pre">l</span> <span class="pre">F</span> <span class="pre">sigma</span></code> is written. Here, <code class="docutils literal notranslate"><span class="pre">h,</span> <span class="pre">k,</span> <span class="pre">l</span></code> are the wavenumbers, <code class="docutils literal notranslate"><span class="pre">F</span></code> is the intensity, and <code class="docutils literal notranslate"><span class="pre">sigma</span></code> is the uncertainty of <code class="docutils literal notranslate"><span class="pre">F</span></code>.
 An example file is shown below.</p>
@@ -205,7 +206,7 @@ An example file is shown below.</p>
 </div>
 </section>
 <section id="bulk-structure-file">
-<h3>Bulk structure file<a class="headerlink" href="#bulk-structure-file" title="Permalink to this headline">¶</a></h3>
+<h3>Bulk structure file<a class="headerlink" href="#bulk-structure-file" title="Permalink to this heading">¶</a></h3>
 <p>The file containing the bulk structure data. The path is specified by <code class="docutils literal notranslate"><span class="pre">bulk_struc_in_file</span></code> in the [<code class="docutils literal notranslate"><span class="pre">config</span></code>] section.
 The first line is a comment, the second line is <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">b</span> <span class="pre">c</span> <span class="pre">alpha</span> <span class="pre">beta</span> <span class="pre">gamma</span></code>.
 Here, <code class="docutils literal notranslate"><span class="pre">a</span></code> , <code class="docutils literal notranslate"><span class="pre">b</span></code>, and <code class="docutils literal notranslate"><span class="pre">c</span></code> are the lattice constants of the unit cells, and <code class="docutils literal notranslate"><span class="pre">alpha</span></code>, <code class="docutils literal notranslate"><span class="pre">beta</span></code> , and <code class="docutils literal notranslate"><span class="pre">gamma</span></code> are their angles.
@@ -224,11 +225,11 @@ An example file is given below.</p>
 </section>
 </section>
 <section id="output-files">
-<h2>Output files<a class="headerlink" href="#output-files" title="Permalink to this headline">¶</a></h2>
+<h2>Output files<a class="headerlink" href="#output-files" title="Permalink to this heading">¶</a></h2>
 <p>In <code class="docutils literal notranslate"><span class="pre">sxrd</span></code>, the output files are stored in the folder with the rank number.
 Here is a description of the files that are output by <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code>.</p>
 <section id="stdout">
-<h3><code class="docutils literal notranslate"><span class="pre">stdout</span></code><a class="headerlink" href="#stdout" title="Permalink to this headline">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">stdout</span></code><a class="headerlink" href="#stdout" title="Permalink to this heading">¶</a></h3>
 <p>The standard output by <code class="docutils literal notranslate"><span class="pre">sxrd</span></code> is described.
 For sxrd’s Least square fitting, we give variables as initial parameters and calculate the Rfactor for a 1-shot calculation (number of iterations = 0).
 The Rfactor is written in R under Fit results.
@@ -281,7 +282,7 @@ Here is an example of the output.</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
     </div>
   </body>
 </html>
