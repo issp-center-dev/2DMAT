@@ -150,7 +150,8 @@ It has two subsections, <code class="docutils literal notranslate"><span class="
 <section id="mapping-section">
 <h2>[<code class="docutils literal notranslate"><span class="pre">mapping</span></code>] section<a class="headerlink" href="#mapping-section" title="Permalink to this heading">¶</a></h2>
 <p>This section defines the mapping from an <span class="math notranslate nohighlight">\(N\)</span> dimensional parameter searched by <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code>, <span class="math notranslate nohighlight">\(x\)</span>, to an <span class="math notranslate nohighlight">\(M\)</span> dimensional parameter used in <code class="docutils literal notranslate"><span class="pre">Solver</span></code>, <span class="math notranslate nohighlight">\(y\)</span> .
-In the current version, the affine mapping (linear mapping + translation) <span class="math notranslate nohighlight">\(y = Ax+b\)</span> is available.</p>
+In the case of <span class="math notranslate nohighlight">\(N \ne M\)</span>, the parameter <code class="docutils literal notranslate"><span class="pre">dimension</span></code> in <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> section should be specified.</p>
+<p>In the current version, the affine mapping (linear mapping + translation) <span class="math notranslate nohighlight">\(y = Ax+b\)</span> is available.</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">A</span></code></p>
 <p>Format: List of list of float, or a string (default: <code class="docutils literal notranslate"><span class="pre">[]</span></code>)</p>

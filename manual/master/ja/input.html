@@ -111,7 +111,7 @@
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">dimension</span></code></p>
 <p>形式: 整数型 (default: <code class="docutils literal notranslate"><span class="pre">base.dimension</span></code>)</p>
-<p>説明: ソルバーが受け取る入力パラメータの数</p>
+<p>説明: ソルバーが受け取る入力パラメータの数。</p>
 </li>
 </ul>
 <p>各種ソルバーの詳細および入出力ファイルは <a class="reference internal" href="solver/index.html"><span class="doc">順問題ソルバー</span></a> を参照してください。</p>
@@ -158,7 +158,8 @@
 <section id="mapping">
 <h2>[<code class="docutils literal notranslate"><span class="pre">mapping</span></code>] セクション<a class="headerlink" href="#mapping" title="この見出しへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> で探索している <span class="math notranslate nohighlight">\(N\)</span> 次元のパラメータ <span class="math notranslate nohighlight">\(x\)</span> から <code class="docutils literal notranslate"><span class="pre">Solver</span></code> で使う <span class="math notranslate nohighlight">\(M\)</span> 次元のパラメータ <span class="math notranslate nohighlight">\(y\)</span> への写像を定義します。
-現在はアフィン写像（線形写像+平行移動） <span class="math notranslate nohighlight">\(y = Ax+b\)</span> が利用可能です。</p>
+<span class="math notranslate nohighlight">\(N \ne M\)</span> となる場合には、 <code class="docutils literal notranslate"><span class="pre">solver</span></code> セクションにも <code class="docutils literal notranslate"><span class="pre">dimension</span></code> パラメータを指定してください。</p>
+<p>現在はアフィン写像（線形写像+平行移動） <span class="math notranslate nohighlight">\(y = Ax+b\)</span> が利用可能です。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">A</span></code></p>
 <p>形式: リストのリスト、あるいは文字列 (default: [])</p>

@@ -116,6 +116,8 @@ It has two subsections, ``mapping`` and ``log`` .
 ************************
 
 This section defines the mapping from an :math:`N` dimensional parameter searched by ``Algorithm``, :math:`x`, to an :math:`M` dimensional parameter used in ``Solver``, :math:`y` .
+In the case of :math:`N \ne M`, the parameter ``dimension`` in ``[solver]`` section should be specified.
+
 In the current version, the affine mapping (linear mapping + translation) :math:`y = Ax+b` is available.
 
 - ``A``
