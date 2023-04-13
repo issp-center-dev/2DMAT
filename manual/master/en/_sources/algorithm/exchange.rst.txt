@@ -44,12 +44,17 @@ Otherwise, continuous space is used.
     Format: List of float. Length should be equal to ``dimension``.
 
     Description: Minimum value of each parameter.
+                 When a parameter falls below this value during the Monte Carlo search,
+                 the solver is not evaluated and the value is considered infinite.
+
 
   - ``max_list``
 
     Format: List of float. Length should be equal to ``dimension``.
 
     Description: Maximum value of each parameter.
+                 When a parameter exceeds this value during the Monte Carlo search,
+                 the solver is not evaluated and the value is considered infinite.
 
 - Discrete space
 
