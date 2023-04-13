@@ -43,17 +43,22 @@ It has subsections ``param`` and ``minimize``.
         In the search algorithm, each parameter is divided by each of these values to perform a simple dimensionless and normalization.
         If not defined, the value is 1.0 for all dimensions.
 	
-- ``min_list``
+  - ``min_list``
 
-  Format: List of float. The length should match the value of dimension.
+    Format: List of float. Length should be equal to ``dimension``.
 
-  Description: The minimum value the parameter can take.
+    Description: Minimum value of each parameter.
+                 When a parameter falls below this value during the Nelson-Mead method,
+                 the solver is not evaluated and the value is considered infinite.
 
-- ``max_list``
 
-  Format: List of float. The length should match the value of dimension. 
+  - ``max_list``
 
-  Description: The maximum value the parameter can take.
+    Format: List of float. Length should be equal to ``dimension``.
+
+    Description: Maximum value of each parameter.
+                 When a parameter exceeds this value during the Nelson-Mead method,
+                 the solver is not evaluated and the value is considered infinite.
 
 [``minimize``] section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
