@@ -202,17 +202,21 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
                 file_trial = open(f"trial_T{Tindex}.txt", "a")
                 file_result = open(f"result_T{Tindex}.txt", "a")
 
-            for _ in range(self.numsteps_for_T[Tindex]):
-                self.local_update(
-                    beta,
-                    file_trial,
-                    file_result,
-                    extra_info_to_write=[
-                        np.exp(self.logweights),
-                        self.walker_ancestors,
-                    ],
-                )
-                self.istep += 1
+            if self.nwalkers != 0:
+                for _ in range(self.numsteps_for_T[Tindex]):
+                    self.local_update(
+                        beta,
+                        file_trial,
+                        file_result,
+                        extra_info_to_write=[
+                            np.exp(self.logweights),
+                            self.walker_ancestors,
+                        ],
+                    )
+                    self.istep += 1
+            else : #self.nwalkers == 0
+                pass
+
             file_trial.close()
             file_result.close()
 
