@@ -87,11 +87,13 @@ def separateT(
             rank = T2rank[Tstr]
             results[rank][Tstr].append(entry)
         if mpisize > 1:
-            results = comm.alltoall(results)
-        d = results[0]
-        for i in range(1, len(results)):
+            results2 = comm.alltoall(results)
+        else:
+            results2 = results
+        d = results2[0]
+        for i in range(1, len(results2)):
             for key in d.keys():
-                d[key].extend(results[i][key])
+                d[key].extend(results2[i][key])
         for T in Ts[mpirank * nwalkers : (mpirank + 1) * nwalkers]:
             idx = T2idx[T]
             d[str(T)].sort(key=lambda e: e.step)
