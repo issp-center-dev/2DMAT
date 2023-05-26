@@ -254,6 +254,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             output_dir=self.output_dir,
             comm=self.mpicomm,
             use_beta=self.input_as_beta,
+            buffer_size=10000,
         )
         if self.mpisize > 1:
             best_fx = self.mpicomm.gather(self.best_fx, root=0)

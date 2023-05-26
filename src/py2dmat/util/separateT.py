@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 import pathlib
 from os import PathLike
 from collections import namedtuple
@@ -26,13 +26,21 @@ from py2dmat import mpi
 Entry = namedtuple("Entry", ["step", "walker", "fx", "xs"])
 
 
-def separateT(Ts: np.ndarray, nwalkers: int, output_dir: PathLike, comm: mpi.Comm, use_beta:bool) -> None:
+def separateT(
+    Ts: np.ndarray,
+    nwalkers: int,
+    output_dir: PathLike,
+    comm: Optional[mpi.Comm],
+    use_beta: bool,
+    buffer_size: int = 10000,
+) -> None:
     if comm is None:
         mpisize = 1
         mpirank = 0
     else:
         mpisize = comm.size
         mpirank = comm.rank
+    buffer_size = int(np.ceil(buffer_size / nwalkers)) * nwalkers
     output_dir = pathlib.Path(output_dir)
     proc_dir = output_dir / str(mpirank)
 
@@ -46,8 +54,26 @@ def separateT(Ts: np.ndarray, nwalkers: int, output_dir: PathLike, comm: mpi.Com
             d[str(T)] = []
         results.append(d)
 
-    with open(proc_dir / "result.txt") as f:
-        for line in f:
+    # write file header
+    for T in Ts[mpirank * nwalkers : (mpirank + 1) * nwalkers]:
+        idx = T2idx[T]
+        with open(output_dir / f"result_T{idx}.txt", "w") as f_out:
+            if use_beta:
+                f_out.write(f"# beta = {T}\n")
+            else:
+                f_out.write(f"# T = {T}\n")
+
+    f_in = open(proc_dir / "result.txt")
+    EOF = False
+    while not EOF:
+        for i in range(len(results)):
+            for key in results[i].keys():
+                results[i][key] = []
+        for _ in range(buffer_size):
+            line = f_in.readline()
+            if line == "":
+                EOF = True
+                break
             line = line.split("#")[0].strip()
             if len(line) == 0:
                 continue
@@ -60,24 +86,20 @@ def separateT(Ts: np.ndarray, nwalkers: int, output_dir: PathLike, comm: mpi.Com
             entry = Entry(step=step, walker=walker, fx=fx, xs=xs)
             rank = T2rank[Tstr]
             results[rank][Tstr].append(entry)
-    if mpisize > 1:
-        results = comm.alltoall(results)
-    d = results[0]
-    for i in range(1, len(results)):
-        for key in d.keys():
-            d[key].extend(results[i][key])
-    for T in Ts[mpirank * nwalkers : (mpirank + 1) * nwalkers]:
-        idx = T2idx[T]
-        d[str(T)].sort(key=lambda e: e.step)
-        with open(output_dir / f"result_T{idx}.txt", "w") as f:
-            if use_beta:
-                f.write(f"# beta = {T}\n")
-            else:
-                f.write(f"# T = {T}\n")
-            for e in d[str(T)]:
-                f.write(f"{e.step} ")
-                f.write(f"{e.walker} ")
-                f.write(f"{e.fx} ")
-                for x in e.xs:
-                    f.write(f"{x} ")
-                f.write("\n")
+        if mpisize > 1:
+            results = comm.alltoall(results)
+        d = results[0]
+        for i in range(1, len(results)):
+            for key in d.keys():
+                d[key].extend(results[i][key])
+        for T in Ts[mpirank * nwalkers : (mpirank + 1) * nwalkers]:
+            idx = T2idx[T]
+            d[str(T)].sort(key=lambda e: e.step)
+            with open(output_dir / f"result_T{idx}.txt", "a") as f_out:
+                for e in d[str(T)]:
+                    f_out.write(f"{e.step} ")
+                    f_out.write(f"{e.walker} ")
+                    f_out.write(f"{e.fx} ")
+                    for x in e.xs:
+                        f_out.write(f"{x} ")
+                    f_out.write("\n")
