@@ -455,10 +455,11 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
                                 continue
                             fout.write(line)
         if self.mpisize > 1:
-            best_fx = self.mpicomm.gather(self.best_fx, root=0)
-            best_x = self.mpicomm.gather(self.best_x, root=0)
-            best_istep = self.mpicomm.gather(self.best_istep, root=0)
-            best_iwalker = self.mpicomm.gather(self.best_iwalker, root=0)
+            # NOTE: Some MPI environment (e.g., Intel 2021.8) has a bug in gather while allgather works
+            best_fx = self.mpicomm.allgather(self.best_fx)
+            best_x = self.mpicomm.allgather(self.best_x)
+            best_istep = self.mpicomm.allgather(self.best_istep)
+            best_iwalker = self.mpicomm.allgather(self.best_iwalker)
         else:
             best_fx = [self.best_fx]
             best_x = [self.best_x]

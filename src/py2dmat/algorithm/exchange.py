@@ -18,6 +18,7 @@ from io import open
 import copy
 import time
 import itertools
+import sys
 
 import numpy as np
 
@@ -248,6 +249,9 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
     def _post(self) -> None:
         Ts = self.betas if self.input_as_beta else 1.0/self.betas
+        if self.mpirank==0:
+            print(f"start separateT {self.mpirank}")
+            sys.stdout.flush()
         py2dmat.util.separateT.separateT(
             Ts=Ts,
             nwalkers=self.nwalkers,
@@ -257,10 +261,11 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             buffer_size=10000,
         )
         if self.mpisize > 1:
-            best_fx = self.mpicomm.gather(self.best_fx, root=0)
-            best_x = self.mpicomm.gather(self.best_x, root=0)
-            best_istep = self.mpicomm.gather(self.best_istep, root=0)
-            best_iwalker = self.mpicomm.gather(self.best_iwalker, root=0)
+            # NOTE: Some MPI environments (e.g., Intel 2021.8) has a bug in gather while allgather works
+            best_fx = self.mpicomm.allgather(self.best_fx)
+            best_x = self.mpicomm.allgather(self.best_x)
+            best_istep = self.mpicomm.allgather(self.best_istep)
+            best_iwalker = self.mpicomm.allgather(self.best_iwalker)
         else:
             best_fx = [self.best_fx]
             best_x = [self.best_x]
