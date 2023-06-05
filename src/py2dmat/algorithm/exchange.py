@@ -248,8 +248,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.timer["run"]["exchange"] = 0.0
 
     def _post(self) -> None:
-        Ts = self.betas if self.input_as_beta else 1.0/self.betas
-        if self.mpirank==0:
+        Ts = self.betas if self.input_as_beta else 1.0 / self.betas
+        if self.mpirank == 0:
             print(f"start separateT {self.mpirank}")
             sys.stdout.flush()
         py2dmat.util.separateT.separateT(
@@ -261,7 +261,10 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             buffer_size=10000,
         )
         if self.mpisize > 1:
-            # NOTE: Some MPI environments (e.g., Intel 2021.8) has a bug in gather while allgather works
+            # NOTE:
+            # ``gather`` seems not to work with many processes (say, 32) in some MPI implementation.
+            # ``Gather`` and ``allgather`` seem to work fine.
+            # Since the performance is not so important here, we use ``allgather`` for simplicity.
             best_fx = self.mpicomm.allgather(self.best_fx)
             best_x = self.mpicomm.allgather(self.best_x)
             best_istep = self.mpicomm.allgather(self.best_istep)

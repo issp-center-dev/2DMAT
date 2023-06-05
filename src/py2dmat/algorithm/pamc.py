@@ -455,7 +455,10 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
                                 continue
                             fout.write(line)
         if self.mpisize > 1:
-            # NOTE: Some MPI environment (e.g., Intel 2021.8) has a bug in gather while allgather works
+            # NOTE:
+            # ``gather`` seems not to work with many processes (say, 32) in some MPI implementation.
+            # ``Gather`` and ``allgather`` seem to work fine.
+            # Since the performance is not so important here, we use ``allgather`` for simplicity.
             best_fx = self.mpicomm.allgather(self.best_fx)
             best_x = self.mpicomm.allgather(self.best_x)
             best_istep = self.mpicomm.allgather(self.best_istep)
