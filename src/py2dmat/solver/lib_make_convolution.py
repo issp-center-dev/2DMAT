@@ -16,7 +16,8 @@ def calc(Clines, omega, verbose_mode):
         return g
 
     number_of_lines        = int(len(Clines))
-    number_of_header_lines = 4
+    #number_of_header_lines = 4 + alpha_lines 
+    #Nakano_write('+ 1')
     if verbose_mode:
        print("number_of_lines         =", number_of_lines)
        print("number_of_header_lines  =", number_of_header_lines)
@@ -26,13 +27,23 @@ def calc(Clines, omega, verbose_mode):
 
     # Read the file header
     line = Clines[0]
+    if verbose_mode:
+        print("debug:lib_make_convolution.py")
+        print(f"Clines[0:5]=",Clines[0:5])
+    #print(line)
+    if line ==  ' FILE OUTPUT for UNIT3\n':
+        alpha_lines = 1
+    else:
+        alpha_lines = 0
+    if verbose_mode: print("debug alpha_lines=",alpha_lines)
+    number_of_header_lines = 4 + alpha_lines
     #print("file header :", line)
-    line = Clines[1]
+    line = Clines[1 + alpha_lines]
     #print("file header :", line)
     #sys.exit()
     line = line.replace(",", "")
     data = line.split()
-    #print(data)
+    
     number_of_azimuth_angles  = int(data[0])
     number_of_glancing_angles = int(data[1])
     number_of_beams           = int(data[2])
@@ -48,9 +59,9 @@ def calc(Clines, omega, verbose_mode):
     RC_data_cnv = np.zeros((number_of_glancing_angles, number_of_beams+1))
 
     # Read the file header
-    line = Clines[2]
+    line = Clines[2+ alpha_lines]
     #print("file header :", line, end="")
-    line = Clines[3]
+    line = Clines[3+ alpha_lines]
     #print("file header :", line, end="")
     line = line.replace(",", "")
     data = line.split()

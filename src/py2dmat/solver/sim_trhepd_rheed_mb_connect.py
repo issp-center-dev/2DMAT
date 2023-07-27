@@ -193,6 +193,12 @@ class Solver(py2dmat.solver.SolverBase):
         import sys
         sys.exit()
         '''
+    def run(self, nprocs: int = 1, nthreads: int = 1) -> None:
+        if self.run_scheme == "connect_so":
+            self.launch_so()
+        elif self.run_scheme == "subprocess":
+            self._run_by_subprocess([str(self.path_to_solver)])
+             
 
     class Input(object):
         root_dir: Path
