@@ -3,8 +3,8 @@ import sys
 
 def calc(Clines, omega, verbose_mode):
     if verbose_mode:
-       print('arg:filename=',args.filename)
-       print('omega   =',args.omega)
+       #print('arg:filename=',args.filename)
+       print('omega   =',omega)
 
     sigma = 0.5 * omega / (np.sqrt(2.0*np.log(2.0)))
 
@@ -13,11 +13,27 @@ def calc(Clines, omega, verbose_mode):
     #    return g
     def g(x):
         g = (1.0 / (sigma*np.sqrt(2.0*np.pi))) * np.exp(-0.5 * x ** 2.0 / sigma ** 2.0)
+
         return g
 
+    # Read the file header
+    if verbose_mode:
+        print("debug:lib_make_convolution.py")
+        print(f"Clines[0:5]=",Clines[0:5])
+    #print(line)
+    
+    line = Clines[0]
+   
+    if line ==  ' FILE OUTPUT for UNIT3\n':
+        alpha_lines = 1
+    else:
+        alpha_lines = 0
+   
+    if verbose_mode: print("debug alpha_lines=",alpha_lines)
+   
     number_of_lines        = int(len(Clines))
-    #number_of_header_lines = 4 + alpha_lines 
-    #Nakano_write('+ 1')
+    number_of_header_lines = 4 + alpha_lines
+    
     if verbose_mode:
        print("number_of_lines         =", number_of_lines)
        print("number_of_header_lines  =", number_of_header_lines)
@@ -25,18 +41,6 @@ def calc(Clines, omega, verbose_mode):
     #degree_list = []
     #C_list = []
 
-    # Read the file header
-    line = Clines[0]
-    if verbose_mode:
-        print("debug:lib_make_convolution.py")
-        print(f"Clines[0:5]=",Clines[0:5])
-    #print(line)
-    if line ==  ' FILE OUTPUT for UNIT3\n':
-        alpha_lines = 1
-    else:
-        alpha_lines = 0
-    if verbose_mode: print("debug alpha_lines=",alpha_lines)
-    number_of_header_lines = 4 + alpha_lines
     #print("file header :", line)
     line = Clines[1 + alpha_lines]
     #print("file header :", line)
@@ -68,9 +72,12 @@ def calc(Clines, omega, verbose_mode):
     #print(data)
 
     if verbose_mode:
+       """
        print("beam index (p,q): i  p_i q_i")
        for beam_index in range(number_of_beams):
           print(beam_index, data[beam_index*2], data[beam_index*2+1])
+       """
+       pass
 
     for g_angle_index in range(number_of_glancing_angles):
         line_index = number_of_header_lines + g_angle_index
@@ -87,6 +94,8 @@ def calc(Clines, omega, verbose_mode):
     angle_interval = RC_data_org[1,0] - RC_data_org[0,0]
 
     if verbose_mode:
+       print("RC_data_org =\n",RC_data_org) 
+       print("RC_data_cnv =\n",RC_data_cnv) 
        print('angle_ interval=', angle_interval)
 
     for beam_index in range(number_of_beams):
@@ -94,9 +103,15 @@ def calc(Clines, omega, verbose_mode):
             integral = 0.0
             for index2 in range(number_of_glancing_angles):
                 integral += RC_data_org[index2,beam_index+1] * g(RC_data_org[index,0] - RC_data_org[index2,0]) * angle_interval
+                if verbose_mode:
+                    print("beam_index, index, index2, g(RC_data_org[index,0] - RC_data_org[index2,0]) =",beam_index, index, index2, g(RC_data_org[index,0] - RC_data_org[index2,0]))
             RC_data_cnv[index, beam_index+1]=integral
 
     #np.savetxt("convolution.txt", RC_data_cnv, fmt="%.5e")
+
+    if verbose_mode:
+       print("RC_data_cnv =\n",RC_data_cnv) 
+
     return RC_data_cnv
 
 #np.savetxt("original.txt", RC_data_org, fmt="%.5e")

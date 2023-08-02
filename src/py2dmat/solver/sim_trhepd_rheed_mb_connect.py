@@ -974,6 +974,7 @@ class Solver(py2dmat.solver.SolverBase):
             #############
             if self.detail_timer is not None : time_sta = time.perf_counter() 
             verbose_mode = False
+            #print("debug: Clines:",Clines)
             data_convolution = lib_make_convolution.calc(
                     Clines, self.omega, verbose_mode
                         ) 
@@ -1116,12 +1117,9 @@ class Solver(py2dmat.solver.SolverBase):
             return R
          
         def _multiply_spot_weight(self,I_not_multiplied_spotwgt,s_weight):
-            if self.Rfactor_type=="A":
-                I_multiplied = s_weight*I_not_multiplied_spotwgt
-            
-            elif self.Rfactor_type=="A2":
+            if (self.Rfactor_type=="A") or (self.Rfactor_type=="A2") :
                 I_multiplied = np.sqrt(s_weight)*I_not_multiplied_spotwgt
-
+            
             else:
                 raise exception.InputError(
                         'ERROR: When normalization="MS_NORM_SET_WGT" is set, only Rfactor_type="A" or Rfactor_type="A2" is valid.'
