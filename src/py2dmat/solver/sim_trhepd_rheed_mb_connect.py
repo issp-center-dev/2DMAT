@@ -815,54 +815,55 @@ class Solver(py2dmat.solver.SolverBase):
             string_list = self.string_list
             
             if self.generate_rocking_curve :
-                if self.detail_timer is not None : time_sta = time.perf_counter()
-                with open("RockingCurve.txt", "w") as file_RC:
-                    # Write headers
-                    file_RC.write("#")
-                    for index in range(dimension):
-                        file_RC.write(
-                            "{} = {} ".format(string_list[index], fitted_x_list[index])
-                        )
-                    file_RC.write("\n")
-                    file_RC.write(f"#Rfactor_type = {self.Rfactor_type}")
-                    file_RC.write("\n")
-                    file_RC.write(f"#normalization = {self.normalization}")
-                    file_RC.write("\n")
-                    file_RC.write("#R-factor = {}\n".format(Rfactor))
-                    file_RC.write("#cal_number = {}\n".format(self.cal_number))
-                    file_RC.write("#spot_weight = {}\n".format(self.spot_weight))
-                    
-                    file_RC.write("#")
-                    file_RC.write("\n")
-                    file_RC.write("#NOTICE : The listed intensities are NOT multiplied by spot_weight.")
-                    file_RC.write("\n")
-                    file_RC.write("#The intensity I_(spot) for each spot is normalized as in the following equation.")
-                    file_RC.write("\n")
-                    file_RC.write("#sum( I_(spot) ) = 1")
-                    file_RC.write("\n")
-                    
-                    file_RC.write("#")
-                    file_RC.write("\n")
-                    
-                    label_column = ["glancing_angle"]
-                    fmt_rc = '%.5f'
-                    for i in range(len(self.cal_number)):
-                        label_column.append(f"cal_number={self.cal_number[i]}")
-                        fmt_rc += " %.15e"
-
-                    for i in range(len(label_column)):
-                        file_RC.write(f"# #{i} {label_column[i]}")
-                        file_RC.write("\n")
-
-                    angle_for_rc = np.array([self.glancing_angle])
-                    np.savetxt(
-                            file_RC, 
-                            np.block(
-                                [angle_for_rc.T, 
-                                 self.convolution_I_calculated_list_normalized_not_spotwgt_array.T] 
-                                ),
-                            fmt=fmt_rc
+                if self.normalization == "MS_NORM":
+                    print('NOTICE: The output of rocking curve is not implemented when the following settings are made: self.normalization == "MS_NORM".')
+                else:
+                    if self.detail_timer is not None : time_sta = time.perf_counter()
+                    with open("RockingCurve.txt", "w") as file_RC:
+                        # Write headers
+                        file_RC.write("#")
+                        for index in range(dimension):
+                            file_RC.write(
+                                "{} = {} ".format(string_list[index], fitted_x_list[index])
                             )
+                        file_RC.write("\n")
+                        file_RC.write(f"#Rfactor_type = {self.Rfactor_type}")
+                        file_RC.write("\n")
+                        file_RC.write(f"#normalization = {self.normalization}")
+                        file_RC.write("\n")
+                        file_RC.write("#R-factor = {}\n".format(Rfactor))
+                        file_RC.write("#cal_number = {}\n".format(self.cal_number))
+                        if self.normalization == "MS_NORM_SET_WGT" :
+                            file_RC.write("#spot_weight = {}\n".format(self.spot_weight))
+                            file_RC.write("#NOTICE : The listed intensities are NOT multiplied by spot_weight.")
+                            file_RC.write("\n")
+                        file_RC.write("#The intensity I_(spot) for each spot is normalized as in the following equation.")
+                        file_RC.write("\n")
+                        file_RC.write("#sum( I_(spot) ) = 1")
+                        file_RC.write("\n")
+                        
+                        file_RC.write("#")
+                        file_RC.write("\n")
+                        
+                        label_column = ["glancing_angle"]
+                        fmt_rc = '%.5f'
+                        for i in range(len(self.cal_number)):
+                            label_column.append(f"cal_number={self.cal_number[i]}")
+                            fmt_rc += " %.15e"
+
+                        for i in range(len(label_column)):
+                            file_RC.write(f"# #{i} {label_column[i]}")
+                            file_RC.write("\n")
+
+                        angle_for_rc = np.array([self.glancing_angle]) 
+                        np.savetxt(
+                                file_RC,
+                                np.block(
+                                    [angle_for_rc.T, 
+                                     self.calc_rocking_curve.T]  
+                                    ),
+                                fmt=fmt_rc
+                                )
                     
 
                 
@@ -1010,6 +1011,8 @@ class Solver(py2dmat.solver.SolverBase):
                     convolution_I_calculated_list_normalized = [
                         c / I_calculated_norm for c in convolution_I_calculated_list
                     ]
+                    self.calc_rocking_curve = np.array([copy.deepcopy(convolution_I_calculated_list_normalized)])
+                    #print("convolution_I_calculated_list_normalized=",convolution_I_calculated_list_normalized)
              
                 elif self.normalization == "MS_NORM":
                     if i == 0: 
@@ -1057,6 +1060,7 @@ class Solver(py2dmat.solver.SolverBase):
                                  self.spot_weight[i]) ] ]
                             )
                     convolution_I_calculated_list_normalized = convolution_I_calculated_list_normalized_array[-1,:].copy()
+                    self.calc_rocking_curve = np.copy(self.convolution_I_calculated_list_normalized_not_spotwgt_array) 
                     #debug
                     #print(f"i={i}, number[i]={number[i]}")
                     #print(f"I_calculated_norm={I_calculated_norm}")
@@ -1070,6 +1074,8 @@ class Solver(py2dmat.solver.SolverBase):
                     convolution_I_calculated_list_normalized = [
                         c / I_calculated_norm for c in convolution_I_calculated_list
                     ]
+                    self.calc_rocking_curve = np.array([copy.deepcopy(convolution_I_calculated_list_normalized)])
+                
                 for h in convolution_I_calculated_list_normalized:
                     self.all_convolution_I_calculated_list_normalized.append(h)
                 
