@@ -250,11 +250,11 @@ class Solver(py2dmat.solver.SolverBase):
                     f"ERROR: surface_template_file ({self.surface_template_file}) does not exist"
                 )
 
-            self._check_template()
             
             #if False:
             if True:
                 if self.mpirank == 0:
+                    self._check_template()
                     temp_origin = self.load_surface_template_file(filename)   
                 else:
                     temp_origin = None
