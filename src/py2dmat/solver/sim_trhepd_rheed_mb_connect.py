@@ -339,8 +339,7 @@ class Solver(py2dmat.solver.SolverBase):
             #
             x_list = message.x
             step = message.step
-            #extra = False
-            extra = message.set > 0
+            iset = message.set
             
             #### ADHOC_MPPING! ###"
             adhoc_mapping = False
@@ -375,14 +374,14 @@ class Solver(py2dmat.solver.SolverBase):
             if self.detail_timer is not None : time_sta = time.perf_counter() 
             #
             if self.generate_rocking_curve:
-                folder_name = self._pre_bulk(step, bulk_output_file, extra)
+                folder_name = self._pre_bulk(step, bulk_output_file, iset)
             else:
                 if self.run_scheme == "connect_so":
                     folder_name = "."
                         
                 elif self.run_scheme == "subprocess":
                     #make workdir and copy bulk output file
-                    folder_name = self._pre_bulk(step, bulk_output_file, extra)
+                    folder_name = self._pre_bulk(step, bulk_output_file, iset)
             #
             if self.detail_timer is not None :
                 time_end = time.perf_counter() 
@@ -398,11 +397,8 @@ class Solver(py2dmat.solver.SolverBase):
 
             return fitted_x_list, folder_name
 
-        def _pre_bulk(self, Log_number, bulk_output_file, extra):
-            if extra:
-                folder_name = "Extra_Log{:08d}".format(Log_number)
-            else:
-                folder_name = "Log{:08d}".format(Log_number)
+        def _pre_bulk(self, Log_number, bulk_output_file, iset):
+            folder_name = "Log{:08d}_{:08d}".format(Log_number, iset)
             os.makedirs(folder_name, exist_ok=True)
             if self.run_scheme == "connect_so":
                 pass
