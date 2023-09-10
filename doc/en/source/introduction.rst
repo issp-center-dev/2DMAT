@@ -13,13 +13,13 @@ In the future, we plan to add other direct problem solvers and search algorithms
 
 [2] `T. Hanada, Y. Motoyama, K. Yoshimi, and T. Hoshi, Computer Physics Communications 277, 108371 (2022). <https://doi.org/10.1016/j.cpc.2022.108371>`_
 
-[3] W. Voegeli, K. Akimoto, T. Aoyama, K. Sumitani, S. Nakatani, H. Tajiri, T. Takahashi, Y. Hisada, S. Mukainakano, X. Zhang, H. Sugiyama, H. Kawata, Applied Surface Science 252 (2006) 5259.
+[3] `W. Voegeli, K. Akimoto, T. Aoyama, K. Sumitani, S. Nakatani, H. Tajiri, T. Takahashi, Y. Hisada, S. Mukainakano, X. Zhang, H. Sugiyama, H. Kawata, Applied Surface Science 252, 5259 (2006). <https://doi.org/10.1016/j.apsusc.2005.12.019>`_
 
 [4] `M.A. Van Hove, W. Moritz, H. Over, P.J. Rous, A. Wander, A. Barbieri, N. Materer, U. Starke, G.A. Somorjai, Automated determination of complex surface structures by LEED, Surface Science Reports, Volume 19, 191-229 (1993). <https://doi.org/10.1016/0167-5729(93)90011-D>`_
 
 [5] `K. Tanaka, T. Hoshi, I. Mochizuki, T. Hanada, A. Ichimiya, and T. Hyodo, Acta. Phys. Pol. A 137, 188 (2020) <http://przyrbwn.icm.edu.pl/APP/PDF/137/app137z2p25.pdf>`_.
 
-[6] `K. Tanaka, I. Mochizuki, T. Hanada, A. Ichimiya, T. Hyodo, and T. Hoshi, JJAP Conf. Series, <https://doi.org/10.56646/jjapcp.9.0_011301>`_.
+[6] `K. Tanaka, I. Mochizuki, T. Hanada, A. Ichimiya, T. Hyodo, and T. Hoshi, JJAP Conf. Series, 9, 011301 (2023) <https://doi.org/10.56646/jjapcp.9.0_011301>`_.
 
 [7] `Y. Motoyama, R. Tamura, K. Yoshimi, K. Terayama, T. Ueno, and K. Tsuda,  Computer Physics Communications 278, 108405 (2022) <http://dx.doi.org/10.1016/j.cpc.2022.108405>`_
 
@@ -40,8 +40,8 @@ Copyright (c) <2020-> The University of Tokyo. All rights reserved.
 This software was developed with the support of "Project for advancement of software usability in materials science" of The Institute for Solid State Physics, The University of Tokyo.
 We hope that you cite the following reference when you publish the results using 2DMAT:
 
-“Data-analysis software framework 2DMAT and its application to experimental measurements for two-dimensional material structures”,
-Y. Motoyama, K. Yoshimi, I. Mochizuki, H. Iwamoto, H. Ichinose, and T. Hoshi, Computer Physics Communications 280, 108465 (2022).
+`“Data-analysis software framework 2DMAT and its application to experimental measurements for two-dimensional material structures”,
+Y. Motoyama, K. Yoshimi, I. Mochizuki, H. Iwamoto, H. Ichinose, and T. Hoshi, Computer Physics Communications 280, 108465 (2022).<https://doi.org/10.1016/j.cpc.2022.108465>`_
 
 Bibtex:
 
