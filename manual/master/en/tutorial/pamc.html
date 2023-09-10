@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Optimization by population annealing &#8212; 2DMAT 2.2-dev documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=e491ac2d" />
+    <script src="../_static/documentation_options.js?v=b33cbb84"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -36,10 +36,10 @@
         
         
   <section id="optimization-by-population-annealing">
-<h1>Optimization by population annealing<a class="headerlink" href="#optimization-by-population-annealing" title="Permalink to this heading">¶</a></h1>
+<h1>Optimization by population annealing<a class="headerlink" href="#optimization-by-population-annealing" title="Link to this heading">¶</a></h1>
 <p>This tutorial subscribes how to estimate atomic positions from the experimental diffraction data by using the population annealing Monte Carlo method (PAMC).</p>
 <section id="sample-files">
-<h2>Sample files<a class="headerlink" href="#sample-files" title="Permalink to this heading">¶</a></h2>
+<h2>Sample files<a class="headerlink" href="#sample-files" title="Link to this heading">¶</a></h2>
 <p>Sample files are available from <code class="docutils literal notranslate"><span class="pre">sample/sim-trhepd-rheed/pamc</span></code> .
 This directory includes the following files:</p>
 <ul>
@@ -62,12 +62,12 @@ This directory includes the following files:</p>
 <p>In the following, we will subscribe these files and then show the result.</p>
 </section>
 <section id="reference-files">
-<h2>Reference files<a class="headerlink" href="#reference-files" title="Permalink to this heading">¶</a></h2>
+<h2>Reference files<a class="headerlink" href="#reference-files" title="Link to this heading">¶</a></h2>
 <p>This tutorial uses reference files, <code class="docutils literal notranslate"><span class="pre">template.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code>,
 which are the same as the previous tutorial (<a class="reference internal" href="minsearch.html"><span class="doc">Optimization by Nelder-Mead method</span></a>) uses.</p>
 </section>
 <section id="input-files">
-<h2>Input files<a class="headerlink" href="#input-files" title="Permalink to this heading">¶</a></h2>
+<h2>Input files<a class="headerlink" href="#input-files" title="Link to this heading">¶</a></h2>
 <p>This subsection describes the input file.
 For details, see <a class="reference internal" href="../algorithm/bayes.html#bayes-input"><span class="std std-ref">the manual of bayes</span></a>.
 <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> in the sample directory is shown as the following</p>
@@ -166,7 +166,7 @@ For details, see the manual of <a class="reference internal" href="../algorithm/
 </ul>
 </section>
 <section id="calculation">
-<h2>Calculation<a class="headerlink" href="#calculation" title="Permalink to this heading">¶</a></h2>
+<h2>Calculation<a class="headerlink" href="#calculation" title="Link to this heading">¶</a></h2>
 <p>First, move to the folder where the sample file is located (hereinafter, it is assumed that you are the root directory of 2DMAT).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">sample</span><span class="o">/</span><span class="n">sim</span><span class="o">-</span><span class="n">trhepd</span><span class="o">-</span><span class="n">rheed</span><span class="o">/</span><span class="n">pamc</span>
 </pre></div>
@@ -249,7 +249,7 @@ fi
 </div>
 </section>
 <section id="visualization">
-<h2>Visualization<a class="headerlink" href="#visualization" title="Permalink to this heading">¶</a></h2>
+<h2>Visualization<a class="headerlink" href="#visualization" title="Link to this heading">¶</a></h2>
 <p>By illustrating <code class="docutils literal notranslate"><span class="pre">result_T.txt</span></code>, you can estimate regions where the parameters with small R-factor are.
 In this case, the figure <code class="docutils literal notranslate"><span class="pre">result_fx.pdf</span></code> and <code class="docutils literal notranslate"><span class="pre">result_T.pdf</span></code> of the 2D parameter space is created by using the following command.
 The color of symbols of <code class="docutils literal notranslate"><span class="pre">result_fx.pdf</span></code> and <code class="docutils literal notranslate"><span class="pre">result_T.pdf</span></code> mean <code class="docutils literal notranslate"><span class="pre">R-factor</span></code> and <span class="math notranslate nohighlight">\(\beta\)</span>, respectively.</p>
@@ -260,13 +260,13 @@ The color of symbols of <code class="docutils literal notranslate"><span class="
 <figure class="align-default" id="id1">
 <img alt="../_images/pamc_fx.png" src="../_images/pamc_fx.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 5 </span><span class="caption-text">Sampled parameters and <code class="docutils literal notranslate"><span class="pre">R-factor</span></code>. The horizontal axes is <code class="docutils literal notranslate"><span class="pre">value_01</span></code>  and the vertical axes is <code class="docutils literal notranslate"><span class="pre">value_02</span></code> .</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 5 </span><span class="caption-text">Sampled parameters and <code class="docutils literal notranslate"><span class="pre">R-factor</span></code>. The horizontal axes is <code class="docutils literal notranslate"><span class="pre">value_01</span></code>  and the vertical axes is <code class="docutils literal notranslate"><span class="pre">value_02</span></code> .</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id2">
 <img alt="../_images/pamc_T.png" src="../_images/pamc_T.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 6 </span><span class="caption-text">Sampled parameters and <span class="math notranslate nohighlight">\(\beta\)</span>. The horizontal axes is <code class="docutils literal notranslate"><span class="pre">value_01</span></code>  and the vertical axes is <code class="docutils literal notranslate"><span class="pre">value_02</span></code> .</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 6 </span><span class="caption-text">Sampled parameters and <span class="math notranslate nohighlight">\(\beta\)</span>. The horizontal axes is <code class="docutils literal notranslate"><span class="pre">value_01</span></code>  and the vertical axes is <code class="docutils literal notranslate"><span class="pre">value_02</span></code> .</span><a class="headerlink" href="#id2" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>Also, <code class="docutils literal notranslate"><span class="pre">RockingCurve.txt</span></code> is stored in each subfolder,
@@ -290,8 +290,8 @@ By using this, it is possible to compare with the experimental value according t
       </div>
 
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.5.
     </div>
   </body>
 </html>

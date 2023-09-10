@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="ja">
+<html lang="ja" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>leed ソルバー &#8212; 2DMAT 2.2-dev ドキュメント</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/translations.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=f63d8bfa" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=e491ac2d" />
+    <script src="../_static/documentation_options.js?v=2a26002a"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=4dbe4bdc"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
@@ -37,7 +37,7 @@
         
         
   <section id="leed">
-<h1><code class="docutils literal notranslate"><span class="pre">leed</span></code> ソルバー<a class="headerlink" href="#leed" title="この見出しへのパーマリンク">¶</a></h1>
+<h1><code class="docutils literal notranslate"><span class="pre">leed</span></code> ソルバー<a class="headerlink" href="#leed" title="Link to this heading">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">leed</span></code> は M.A. Van Hove氏により作成された <code class="docutils literal notranslate"><span class="pre">SATLEED</span></code> を用いて、原子位置などからRocking curve を計算し、実験で得られた Rocking curve からの誤差を <span class="math notranslate nohighlight">\(f(x)\)</span> として返す <code class="docutils literal notranslate"><span class="pre">Solver</span></code> です。 <code class="docutils literal notranslate"><span class="pre">SATLEED</span></code> に関する詳細については <a class="reference internal" href="#satleed" id="id1"><span>[SATLEED]</span></a> をご覧ください。</p>
 <div role="list" class="citation-list">
 <div class="citation" id="satleed" role="doc-biblioentry">
@@ -46,7 +46,7 @@
 </div>
 </div>
 <section id="id2">
-<h2>前準備<a class="headerlink" href="#id2" title="この見出しへのパーマリンク">¶</a></h2>
+<h2>前準備<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <p>最初に <code class="docutils literal notranslate"><span class="pre">SATLEED</span></code> をインストールします。
 <a class="reference external" href="http://www.icts.hkbu.edu.hk/VanHove_files/leed/leedsatl.zip">http://www.icts.hkbu.edu.hk/VanHove_files/leed/leedsatl.zip</a> へアクセスし、zipファイルをダウンロードします。zipファイル展開後に、所定の手続きに従いコンパイルすることで、 <code class="docutils literal notranslate"><span class="pre">stal1.exe</span></code>, <code class="docutils literal notranslate"><span class="pre">satl2.exe</span></code> などの実行ファイルができます。
 <code class="docutils literal notranslate"><span class="pre">SATLED</span></code> は計算したい系の詳細によって、ソースコードのパラメータを適宜書き換える必要があります。
@@ -64,11 +64,11 @@ $ sh ./setup.sh
 <p><code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> はこれらをもちいて <code class="docutils literal notranslate"><span class="pre">satl2.exe</span></code> を実行します。</p>
 </section>
 <section id="id3">
-<h2>入力パラメータ<a class="headerlink" href="#id3" title="この見出しへのパーマリンク">¶</a></h2>
+<h2>入力パラメータ<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">solver</span></code> セクション中のサブセクション
 <code class="docutils literal notranslate"><span class="pre">config</span></code>,  <code class="docutils literal notranslate"><span class="pre">reference</span></code> を利用します。</p>
 <section id="config">
-<h3>[<code class="docutils literal notranslate"><span class="pre">config</span></code>] セクション<a class="headerlink" href="#config" title="この見出しへのパーマリンク">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">config</span></code>] セクション<a class="headerlink" href="#config" title="Link to this heading">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">path_to_solver</span></code></p>
 <p>形式: string型</p>
@@ -77,7 +77,7 @@ $ sh ./setup.sh
 </ul>
 </section>
 <section id="reference">
-<h3>[<code class="docutils literal notranslate"><span class="pre">reference</span></code>] セクション<a class="headerlink" href="#reference" title="この見出しへのパーマリンク">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">reference</span></code>] セクション<a class="headerlink" href="#reference" title="Link to this heading">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">path_to_base_dir</span></code></p>
 <p>形式: string型</p>
@@ -87,9 +87,9 @@ $ sh ./setup.sh
 </section>
 </section>
 <section id="id4">
-<h2>ソルバー用補助ファイル<a class="headerlink" href="#id4" title="この見出しへのパーマリンク">¶</a></h2>
+<h2>ソルバー用補助ファイル<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
 <section id="id5">
-<h3>ターゲット参照ファイル<a class="headerlink" href="#id5" title="この見出しへのパーマリンク">¶</a></h3>
+<h3>ターゲット参照ファイル<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
 <p>ターゲットにするデータが格納されたファイル。 [<code class="docutils literal notranslate"><span class="pre">reference</span></code>] セクションの <code class="docutils literal notranslate"><span class="pre">path_to_base_dir</span></code> 中にある <code class="docutils literal notranslate"><span class="pre">tleed4.i</span></code> を編集します。最適化したい数値を <code class="docutils literal notranslate"><span class="pre">optxxx</span></code> (xxxは000, 001, 002, ...の形式で指定する三桁の整数)として指定します。なお、xxxの数字と <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> の最適化する値を入れる変数のリストの順番・個数は一致させる必要があります。なお、IFLAG, LSFLAGを0にしない場合はsatleed側での最適化も行われます。</p>
 <p>以下、ファイル例を記載します。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span>  <span class="mi">0</span>  <span class="mi">0</span>                          <span class="n">IPR</span> <span class="n">ISTART</span> <span class="n">LRFLAG</span>
@@ -114,7 +114,7 @@ $ sh ./setup.sh
 </section>
 </section>
 <section id="id6">
-<h2>出力ファイル<a class="headerlink" href="#id6" title="この見出しへのパーマリンク">¶</a></h2>
+<h2>出力ファイル<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">leed</span></code> では、 計算時に出力されるファイルが、ランクの番号が記載されたフォルダ下に一式出力されます。</p>
 </section>
 </section>
@@ -134,8 +134,8 @@ $ sh ./setup.sh
       </div>
 
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; 著作権 2020-, 2DMAT developers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.5.
     </div>
   </body>
 </html>

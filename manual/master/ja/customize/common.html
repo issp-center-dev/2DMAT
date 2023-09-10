@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="ja">
+<html lang="ja" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>共通事項 &#8212; 2DMAT 2.2-dev ドキュメント</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/translations.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=f63d8bfa" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=e491ac2d" />
+    <script src="../_static/documentation_options.js?v=2a26002a"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=4dbe4bdc"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
@@ -37,10 +37,10 @@
         
         
   <section id="id1">
-<h1>共通事項<a class="headerlink" href="#id1" title="この見出しへのパーマリンク">¶</a></h1>
+<h1>共通事項<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">Solver</span></code> と <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> に共通する事柄について説明します。</p>
 <section id="py2dmat-info">
-<h2><code class="docutils literal notranslate"><span class="pre">py2dmat.Info</span></code><a class="headerlink" href="#py2dmat-info" title="この見出しへのパーマリンク">¶</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">py2dmat.Info</span></code><a class="headerlink" href="#py2dmat-info" title="Link to this heading">¶</a></h2>
 <p>入力パラメータを扱うためのクラスです。
 インスタンス変数として次の4つの <code class="docutils literal notranslate"><span class="pre">dict</span></code> を持ちます。</p>
 <ul>
@@ -117,7 +117,7 @@
 </ul>
 </section>
 <section id="py2dmat-message">
-<h2><code class="docutils literal notranslate"><span class="pre">py2dmat.Message</span></code><a class="headerlink" href="#py2dmat-message" title="この見出しへのパーマリンク">¶</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">py2dmat.Message</span></code><a class="headerlink" href="#py2dmat-message" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> から <code class="docutils literal notranslate"><span class="pre">Runner</span></code> を介して <code class="docutils literal notranslate"><span class="pre">Solver</span></code> に渡されるクラスです。
 次の3つのインスタンス変数を持ちます。</p>
 <ul>
@@ -147,7 +147,7 @@
 </ul>
 </section>
 <section id="py2dmat-runner">
-<h2><code class="docutils literal notranslate"><span class="pre">py2dmat.Runner</span></code><a class="headerlink" href="#py2dmat-runner" title="この見出しへのパーマリンク">¶</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">py2dmat.Runner</span></code><a class="headerlink" href="#py2dmat-runner" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> と <code class="docutils literal notranslate"><span class="pre">Solver</span></code> とをつなげるためのクラスです。
 コンストラクタ引数として <code class="docutils literal notranslate"><span class="pre">Solver</span></code> のインスタンスと <code class="docutils literal notranslate"><span class="pre">Info</span></code> のインスタンス、パラメータの変換ルーチン <code class="docutils literal notranslate"><span class="pre">mapping</span> <span class="pre">:</span> <span class="pre">Callable[[np.ndarray],</span> <span class="pre">np.ndarray]</span></code> を取ります。</p>
 <p><code class="docutils literal notranslate"><span class="pre">submit(self,</span> <span class="pre">message:</span> <span class="pre">py2dmat.Message)</span> <span class="pre">-&gt;</span> <span class="pre">float</span></code> メソッドでソルバーを実行し、結果を返します。
@@ -178,8 +178,8 @@
       </div>
 
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; 著作権 2020-, 2DMAT developers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.5.
     </div>
   </body>
 </html>

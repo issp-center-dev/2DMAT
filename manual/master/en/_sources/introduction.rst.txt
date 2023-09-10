@@ -11,7 +11,7 @@ In the future, we plan to add other direct problem solvers and search algorithms
 
 [1] As a review, see `Y. Fukaya, et al., J. Phys. D: Appl. Phys. 52, 013002 (2019) <https://iopscience.iop.org/article/10.1088/1361-6463/aadf14>`_.
 
-[2] `T. Hanada, Y. Motoyama, K. Yoshimi, and T. Hoshi, arXiv:2110.09477. <https://arxiv.org/abs/2110.09477>`_
+[2] `T. Hanada, Y. Motoyama, K. Yoshimi, and T. Hoshi, Computer Physics Communications 277, 108371 (2022). <https://doi.org/10.1016/j.cpc.2022.108371>`_
 
 [3] W. Voegeli, K. Akimoto, T. Aoyama, K. Sumitani, S. Nakatani, H. Tajiri, T. Takahashi, Y. Hisada, S. Mukainakano, X. Zhang, H. Sugiyama, H. Kawata, Applied Surface Science 252 (2006) 5259.
 
@@ -19,9 +19,9 @@ In the future, we plan to add other direct problem solvers and search algorithms
 
 [5] `K. Tanaka, T. Hoshi, I. Mochizuki, T. Hanada, A. Ichimiya, and T. Hyodo, Acta. Phys. Pol. A 137, 188 (2020) <http://przyrbwn.icm.edu.pl/APP/PDF/137/app137z2p25.pdf>`_.
 
-[6] `K. Tanaka, I. Mochizuki, T. Hanada, A. Ichimiya, T. Hyodo, and T. Hoshi, JJAP Conf. Series, in press, arXiv:2002.12165 <https://arxiv.org/abs/2002.12165>`_.
+[6] `K. Tanaka, I. Mochizuki, T. Hanada, A. Ichimiya, T. Hyodo, and T. Hoshi, JJAP Conf. Series, <https://doi.org/10.56646/jjapcp.9.0_011301>`_.
 
-[7] `Y. Motoyama, R. Tamura, K. Yoshimi, K. Terayama, T. Ueno, and K. Tsuda, arXiv:2110.07900 <https://arxiv.org/abs/2110.07900>`_
+[7] `Y. Motoyama, R. Tamura, K. Yoshimi, K. Terayama, T. Ueno, and K. Tsuda,  Computer Physics Communications 278, 108405 (2022) <http://dx.doi.org/10.1016/j.cpc.2022.108405>`_
 
 [8] `K. Hukushima and K. Nemoto, J. Phys. Soc. Japan, 65, 1604 (1996) <https://journals.jps.jp/doi/10.1143/JPSJ.65.1604>`_,  `R. Swendsen and J. Wang, Phys. Rev. Lett. 57, 2607 (1986) <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.57.2607>`_.
 
@@ -40,7 +40,22 @@ Copyright (c) <2020-> The University of Tokyo. All rights reserved.
 This software was developed with the support of "Project for advancement of software usability in materials science" of The Institute for Solid State Physics, The University of Tokyo.
 We hope that you cite the following reference when you publish the results using 2DMAT:
 
-`Kazuyuki Tanaka, Takeo Hoshi, Izumi Mochizuki, Takashi Hanada, Ayahiko Ichimiya, Toshio Hyodo, Acta. Phys. Pol. A 137(3) 188 - 192 2020 <https://doi.org/10.12693/APhysPolA.137.188>`_
+“Data-analysis software framework 2DMAT and its application to experimental measurements for two-dimensional material structures”,
+Y. Motoyama, K. Yoshimi, I. Mochizuki, H. Iwamoto, H. Ichinose, and T. Hoshi, Computer Physics Communications 280, 108465 (2022).
+
+Bibtex:
+
+@article{MOTOYAMA2022108465,
+title = {Data-analysis software framework 2DMAT and its application to experimental measurements for two-dimensional material structures},
+journal = {Computer Physics Communications},
+volume = {280},
+pages = {108465},
+year = {2022},
+issn = {0010-4655},
+doi = {https://doi.org/10.1016/j.cpc.2022.108465},
+url = {https://www.sciencedirect.com/science/article/pii/S0010465522001849},
+author = {Yuichi Motoyama and Kazuyoshi Yoshimi and Izumi Mochizuki and Harumichi Iwamoto and Hayato Ichinose and Takeo Hoshi}
+}
 
 Version Information
 ----------------------

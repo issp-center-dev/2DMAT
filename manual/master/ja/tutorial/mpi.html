@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="ja">
+<html lang="ja" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>グリッド型探索 &#8212; 2DMAT 2.2-dev ドキュメント</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/translations.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=f63d8bfa" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=e491ac2d" />
+    <script src="../_static/documentation_options.js?v=2a26002a"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=4dbe4bdc"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
     <link rel="next" title="ベイズ最適化" href="bayes.html" />
@@ -36,12 +36,12 @@
         
         
   <section id="id1">
-<h1>グリッド型探索<a class="headerlink" href="#id1" title="この見出しへのパーマリンク">¶</a></h1>
+<h1>グリッド型探索<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
 <p>ここでは、グリッド型探索を行い、回折データから原子座標を解析する方法について説明します。
 グリッド型探索はMPIに対応しています。具体的な計算手順は <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> の時と同様です。
 ただし、探索グリッドを与えるデータ <code class="docutils literal notranslate"><span class="pre">MeshData.txt</span></code> を事前に準備する必要があります。</p>
 <section id="id2">
-<h2>サンプルファイルの場所<a class="headerlink" href="#id2" title="この見出しへのパーマリンク">¶</a></h2>
+<h2>サンプルファイルの場所<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <p>サンプルファイルは <code class="docutils literal notranslate"><span class="pre">sample/sim-trhepd-rheed/mapper</span></code> にあります。
 フォルダには以下のファイルが格納されています。</p>
 <ul>
@@ -64,7 +64,7 @@
 <p>以下、これらのファイルについて説明したあと、実際の計算結果を紹介します。</p>
 </section>
 <section id="id3">
-<h2>参照ファイルの説明<a class="headerlink" href="#id3" title="この見出しへのパーマリンク">¶</a></h2>
+<h2>参照ファイルの説明<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">template.txt</span></code> , <code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code> については、
 前のチュートリアル(Nealder-Mead法による最適化)と同じものを使用します。
 ただし、計算を軽くするため <code class="docutils literal notranslate"><span class="pre">value_03</span></code> は用いずに <code class="docutils literal notranslate"><span class="pre">3.5</span></code> に固定し、
@@ -86,7 +86,7 @@
 <p>1列目が通し番号、2列目以降は <code class="docutils literal notranslate"><span class="pre">template.txt</span></code> に入る``value_0`` , <code class="docutils literal notranslate"><span class="pre">value_1</span></code> の値が順に指定されています。</p>
 </section>
 <section id="id4">
-<h2>入力ファイルの説明<a class="headerlink" href="#id4" title="この見出しへのパーマリンク">¶</a></h2>
+<h2>入力ファイルの説明<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
 <p>ここでは、メインプログラム用の入力ファイル <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> について説明します。
 <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> の詳細については入力ファイルに記載されています。
 以下は、サンプルファイルにある <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> の中身になります。</p>
@@ -150,7 +150,7 @@
 <p>その他、入力ファイルで指定可能なパラメータの詳細については入力ファイルの章をご覧ください。</p>
 </section>
 <section id="id5">
-<h2>計算実行<a class="headerlink" href="#id5" title="この見出しへのパーマリンク">¶</a></h2>
+<h2>計算実行<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
 <p>最初にサンプルファイルが置いてあるフォルダへ移動します(以下、本ソフトウェアをダウンロードしたディレクトリ直下にいることを仮定します).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">sample</span><span class="o">/</span><span class="n">sim</span><span class="o">-</span><span class="n">trhepd</span><span class="o">-</span><span class="n">rheed</span><span class="o">/</span><span class="n">mapper</span>
 </pre></div>
@@ -225,7 +225,7 @@ fi
 </div>
 </section>
 <section id="id6">
-<h2>計算結果の可視化<a class="headerlink" href="#id6" title="この見出しへのパーマリンク">¶</a></h2>
+<h2>計算結果の可視化<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">ColorMap.txt</span></code> を図示することで、<code class="docutils literal notranslate"><span class="pre">R-factor</span></code> の小さいパラメータがどこにあるかを推定することができます。
 今回の場合は、以下のコマンドをうつことで2次元パラメータ空間の図 <code class="docutils literal notranslate"><span class="pre">ColorMapFig.png</span></code> が作成されます。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">plot_colormap_2d</span><span class="o">.</span><span class="n">py</span>
@@ -235,7 +235,7 @@ fi
 <figure class="align-default" id="id7">
 <img alt="../_images/mapper.png" src="../_images/mapper.png" />
 <figcaption>
-<p><span class="caption-text">2次元パラメータ空間上での <code class="docutils literal notranslate"><span class="pre">R-factor</span></code> 。</span><a class="headerlink" href="#id7" title="この画像へのパーマリンク">¶</a></p>
+<p><span class="caption-text">2次元パラメータ空間上での <code class="docutils literal notranslate"><span class="pre">R-factor</span></code> 。</span><a class="headerlink" href="#id7" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>また、 <code class="docutils literal notranslate"><span class="pre">RockingCurve.txt</span></code> が各サブフォルダに格納されています。
@@ -258,8 +258,8 @@ fi
       </div>
 
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; 著作権 2020-, 2DMAT developers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.5.
     </div>
   </body>
 </html>

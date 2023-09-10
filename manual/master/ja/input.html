@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="ja">
+<html lang="ja" data-content_root="./">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>入力ファイル &#8212; 2DMAT 2.2-dev ドキュメント</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/haiku.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/translations.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=f63d8bfa" />
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css?v=e491ac2d" />
+    <script src="_static/documentation_options.js?v=2a26002a"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/translations.js?v=4dbe4bdc"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
@@ -37,7 +37,7 @@
         
         
   <section id="id1">
-<h1>入力ファイル<a class="headerlink" href="#id1" title="この見出しへのパーマリンク">¶</a></h1>
+<h1>入力ファイル<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
 <p>py2dmat は入力ファイルの形式に <a class="reference external" href="https://toml.io/ja/">TOML</a> を採用しています。
 入力ファイルは次の6つのセクションから構成されます。</p>
 <ul class="simple">
@@ -73,7 +73,7 @@
 </li>
 </ul>
 <section id="base">
-<h2>[<code class="docutils literal notranslate"><span class="pre">base</span></code>] セクション<a class="headerlink" href="#base" title="この見出しへのパーマリンク">¶</a></h2>
+<h2>[<code class="docutils literal notranslate"><span class="pre">base</span></code>] セクション<a class="headerlink" href="#base" title="Link to this heading">¶</a></h2>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">dimension</span></code></p>
 <p>形式: 整数型</p>
@@ -93,7 +93,7 @@
 </ul>
 </section>
 <section id="solver">
-<h2>[<code class="docutils literal notranslate"><span class="pre">solver</span></code>] セクション<a class="headerlink" href="#solver" title="この見出しへのパーマリンク">¶</a></h2>
+<h2>[<code class="docutils literal notranslate"><span class="pre">solver</span></code>] セクション<a class="headerlink" href="#solver" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">name</span></code> でソルバーの種類を決定します。各パラメータはソルバーごとに定義されています。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p>
@@ -114,7 +114,7 @@
 <p>各種ソルバーの詳細および入出力ファイルは <a class="reference internal" href="solver/index.html"><span class="doc">順問題ソルバー</span></a> を参照してください。</p>
 </section>
 <section id="algorithm">
-<span id="input-algorithm"></span><h2>[<code class="docutils literal notranslate"><span class="pre">algorithm</span></code>] セクション<a class="headerlink" href="#algorithm" title="この見出しへのパーマリンク">¶</a></h2>
+<span id="input-algorithm"></span><h2>[<code class="docutils literal notranslate"><span class="pre">algorithm</span></code>] セクション<a class="headerlink" href="#algorithm" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">name</span></code> でアルゴリズムの種類を決定します。各パラメータはアルゴリズムごとに定義されています。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p>
@@ -148,12 +148,12 @@
 <p>各種アルゴリズムの詳細および入出力ファイルは <a class="reference internal" href="algorithm/index.html"><span class="doc">探索アルゴリズム</span></a> を参照してください。</p>
 </section>
 <section id="runner">
-<h2>[<code class="docutils literal notranslate"><span class="pre">runner</span></code>] セクション<a class="headerlink" href="#runner" title="この見出しへのパーマリンク">¶</a></h2>
+<h2>[<code class="docutils literal notranslate"><span class="pre">runner</span></code>] セクション<a class="headerlink" href="#runner" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> と <code class="docutils literal notranslate"><span class="pre">Solver</span></code> を橋渡しする要素である <code class="docutils literal notranslate"><span class="pre">Runner</span></code> の設定を記述します。
 サブセクションとして <code class="docutils literal notranslate"><span class="pre">mapping</span></code> と <code class="docutils literal notranslate"><span class="pre">log</span></code> を持ちます。</p>
 </section>
 <section id="mapping">
-<h2>[<code class="docutils literal notranslate"><span class="pre">mapping</span></code>] セクション<a class="headerlink" href="#mapping" title="この見出しへのパーマリンク">¶</a></h2>
+<h2>[<code class="docutils literal notranslate"><span class="pre">mapping</span></code>] セクション<a class="headerlink" href="#mapping" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> で探索している <span class="math notranslate nohighlight">\(N\)</span> 次元のパラメータ <span class="math notranslate nohighlight">\(x\)</span> から <code class="docutils literal notranslate"><span class="pre">Solver</span></code> で使う <span class="math notranslate nohighlight">\(M\)</span> 次元のパラメータ <span class="math notranslate nohighlight">\(y\)</span> への写像を定義します。
 <span class="math notranslate nohighlight">\(N \ne M\)</span> となる場合には、 <code class="docutils literal notranslate"><span class="pre">solver</span></code> セクションにも <code class="docutils literal notranslate"><span class="pre">dimension</span></code> パラメータを指定してください。</p>
 <p>現在はアフィン写像（線形写像+平行移動） <span class="math notranslate nohighlight">\(y = Ax+b\)</span> が利用可能です。</p>
@@ -195,7 +195,7 @@
 <p>を表します。</p>
 </section>
 <section id="log">
-<h2>[<code class="docutils literal notranslate"><span class="pre">log</span></code>] セクション<a class="headerlink" href="#log" title="この見出しへのパーマリンク">¶</a></h2>
+<h2>[<code class="docutils literal notranslate"><span class="pre">log</span></code>] セクション<a class="headerlink" href="#log" title="Link to this heading">¶</a></h2>
 <p>solver 呼び出しのlogging に関する設定です。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">filename</span></code></p>
@@ -233,8 +233,8 @@
       </div>
 
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; 著作権 2020-, 2DMAT developers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.5.
     </div>
   </body>
 </html>

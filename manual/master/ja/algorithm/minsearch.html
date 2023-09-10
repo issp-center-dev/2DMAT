@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="ja">
+<html lang="ja" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Nelder-Mead 法 minsearch &#8212; 2DMAT 2.2-dev ドキュメント</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/translations.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=f63d8bfa" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=e491ac2d" />
+    <script src="../_static/documentation_options.js?v=2a26002a"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=4dbe4bdc"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
@@ -37,7 +37,7 @@
         
         
   <section id="nelder-mead-minsearch">
-<h1>Nelder-Mead 法 <code class="docutils literal notranslate"><span class="pre">minsearch</span></code><a class="headerlink" href="#nelder-mead-minsearch" title="この見出しへのパーマリンク">¶</a></h1>
+<h1>Nelder-Mead 法 <code class="docutils literal notranslate"><span class="pre">minsearch</span></code><a class="headerlink" href="#nelder-mead-minsearch" title="Link to this heading">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">minsearch</span></code> は <a class="reference external" href="https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method">Nelder-Mead 法</a> (a.k.a. downhill simplex 法) によって最適化を行います。
 Nelder-Mead 法では、 パラメータ空間の次元を <span class="math notranslate nohighlight">\(D\)</span> として、 <span class="math notranslate nohighlight">\(D+1\)</span> 個の座標点の組を、各点での目的関数の値に応じて系統的に動かすことで最適解を探索します。</p>
 <p>重要なハイパーパラメータとして、座標の初期値があります。
@@ -45,17 +45,17 @@ Nelder-Mead 法では、 パラメータ空間の次元を <span class="math not
 <p>2DMATは、SciPy の <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize(method=&quot;Nelder-Mead&quot;)</span></code> 関数を用いています。
 詳しくは <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize">公式ドキュメント</a> をご参照ください。</p>
 <section id="id2">
-<h2>前準備<a class="headerlink" href="#id2" title="この見出しへのパーマリンク">¶</a></h2>
+<h2>前準備<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <p>あらかじめ <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference">scipy</a> をインストールしておく必要があります。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">scipy</span>
 </pre></div>
 </div>
 </section>
 <section id="id3">
-<h2>入力パラメータ<a class="headerlink" href="#id3" title="この見出しへのパーマリンク">¶</a></h2>
+<h2>入力パラメータ<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <p>サブセクション <code class="docutils literal notranslate"><span class="pre">param</span></code> と <code class="docutils literal notranslate"><span class="pre">minimize</span></code> を持ちます。</p>
 <section id="param">
-<span id="minsearch-input-param"></span><h3>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] セクション<a class="headerlink" href="#param" title="この見出しへのパーマリンク">¶</a></h3>
+<span id="minsearch-input-param"></span><h3>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] セクション<a class="headerlink" href="#param" title="Link to this heading">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">initial_list</span></code></p>
 <p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
@@ -89,7 +89,7 @@ Nelder-Mead 法では、 パラメータ空間の次元を <span class="math not
 </ul>
 </section>
 <section id="minimize">
-<h3>[<code class="docutils literal notranslate"><span class="pre">minimize</span></code>] セクション<a class="headerlink" href="#minimize" title="この見出しへのパーマリンク">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">minimize</span></code>] セクション<a class="headerlink" href="#minimize" title="Link to this heading">¶</a></h3>
 <p>Nelder-Mead 法のハイパーパラメータを設定します。
 詳細は <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/optimize.minimize-neldermead.html">scipy.optimize.minimize</a> のドキュメントを参照してください。</p>
 <ul>
@@ -119,9 +119,9 @@ Nelder-Mead 法では、 パラメータ空間の次元を <span class="math not
 </section>
 </section>
 <section id="id4">
-<h2>出力ファイル<a class="headerlink" href="#id4" title="この見出しへのパーマリンク">¶</a></h2>
+<h2>出力ファイル<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
 <section id="simplexdata-txt">
-<h3><code class="docutils literal notranslate"><span class="pre">SimplexData.txt</span></code><a class="headerlink" href="#simplexdata-txt" title="この見出しへのパーマリンク">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">SimplexData.txt</span></code><a class="headerlink" href="#simplexdata-txt" title="Link to this heading">¶</a></h3>
 <p>最小値を求める途中経過に関する情報を出力します。
 1行目はヘッダー、2行目以降にstep, 入力ファイルの <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> - <code class="docutils literal notranslate"><span class="pre">[param]</span></code> セクションにある、
 <code class="docutils literal notranslate"><span class="pre">string_list</span></code> で定義された変数の値、最後に関数の値が出力されます。</p>
@@ -137,7 +137,7 @@ Nelder-Mead 法では、 パラメータ空間の次元を <span class="math not
 </div>
 </section>
 <section id="res-txt">
-<h3><code class="docutils literal notranslate"><span class="pre">res.txt</span></code><a class="headerlink" href="#res-txt" title="この見出しへのパーマリンク">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">res.txt</span></code><a class="headerlink" href="#res-txt" title="Link to this heading">¶</a></h3>
 <p>最終的に得られた目的関数の値とその時のパラメータの値を記載しています。
 最初に目的関数が、
 その後は入力ファイルの <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> - <code class="docutils literal notranslate"><span class="pre">[param]</span></code> セクションにある、
@@ -168,8 +168,8 @@ Nelder-Mead 法では、 パラメータ空間の次元を <span class="math not
       </div>
 
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; 著作権 2020-, 2DMAT developers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.5.
     </div>
   </body>
 </html>

@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Input file &#8212; 2DMAT 2.2-dev documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/haiku.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css?v=e491ac2d" />
+    <script src="_static/documentation_options.js?v=b33cbb84"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +36,7 @@
         
         
   <section id="input-file">
-<h1>Input file<a class="headerlink" href="#input-file" title="Permalink to this heading">¶</a></h1>
+<h1>Input file<a class="headerlink" href="#input-file" title="Link to this heading">¶</a></h1>
 <p>As the input file format, <a class="reference external" href="https://toml.io/ja/">TOML</a> format is used.
 The input file consists of the following six sections.</p>
 <ul class="simple">
@@ -72,7 +72,7 @@ The input file consists of the following six sections.</p>
 </li>
 </ul>
 <section id="base-section">
-<h2>[<code class="docutils literal notranslate"><span class="pre">base</span></code>] section<a class="headerlink" href="#base-section" title="Permalink to this heading">¶</a></h2>
+<h2>[<code class="docutils literal notranslate"><span class="pre">base</span></code>] section<a class="headerlink" href="#base-section" title="Link to this heading">¶</a></h2>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">dimension</span></code></p>
 <p>Format: Integer</p>
@@ -89,7 +89,7 @@ The input file consists of the following six sections.</p>
 </ul>
 </section>
 <section id="solver-section">
-<h2>[<code class="docutils literal notranslate"><span class="pre">solver</span></code>] section<a class="headerlink" href="#solver-section" title="Permalink to this heading">¶</a></h2>
+<h2>[<code class="docutils literal notranslate"><span class="pre">solver</span></code>] section<a class="headerlink" href="#solver-section" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">name</span></code> determines the type of solver. Each parameter is defined for each solver.</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p>
@@ -106,7 +106,7 @@ The input file consists of the following six sections.</p>
 <p>See <a class="reference internal" href="solver/index.html"><span class="doc">Direct Problem Solver</span></a> for details of the various solvers and their input/output files.</p>
 </section>
 <section id="algorithm-section">
-<span id="input-parameter-algorithm"></span><h2>[<code class="docutils literal notranslate"><span class="pre">algorithm</span></code>] section<a class="headerlink" href="#algorithm-section" title="Permalink to this heading">¶</a></h2>
+<span id="input-parameter-algorithm"></span><h2>[<code class="docutils literal notranslate"><span class="pre">algorithm</span></code>] section<a class="headerlink" href="#algorithm-section" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">name</span></code> determines the type of algorithm. Each parameter is defined for each algorithm.</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p>
@@ -140,12 +140,12 @@ If omitted, the initialization is done by  <a class="reference external" href="h
 <p>See <a class="reference internal" href="algorithm/index.html"><span class="doc">Search algorithms</span></a> for details of the various algorithms and their input/output files.</p>
 </section>
 <section id="runner-section">
-<h2>[<code class="docutils literal notranslate"><span class="pre">runner</span></code>] section<a class="headerlink" href="#runner-section" title="Permalink to this heading">¶</a></h2>
+<h2>[<code class="docutils literal notranslate"><span class="pre">runner</span></code>] section<a class="headerlink" href="#runner-section" title="Link to this heading">¶</a></h2>
 <p>This section sets the configuration of <code class="docutils literal notranslate"><span class="pre">Runner</span></code>, which bridges <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> and <code class="docutils literal notranslate"><span class="pre">Solver</span></code>.
 It has two subsections, <code class="docutils literal notranslate"><span class="pre">mapping</span></code> and <code class="docutils literal notranslate"><span class="pre">log</span></code> .</p>
 </section>
 <section id="mapping-section">
-<h2>[<code class="docutils literal notranslate"><span class="pre">mapping</span></code>] section<a class="headerlink" href="#mapping-section" title="Permalink to this heading">¶</a></h2>
+<h2>[<code class="docutils literal notranslate"><span class="pre">mapping</span></code>] section<a class="headerlink" href="#mapping-section" title="Link to this heading">¶</a></h2>
 <p>This section defines the mapping from an <span class="math notranslate nohighlight">\(N\)</span> dimensional parameter searched by <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code>, <span class="math notranslate nohighlight">\(x\)</span>, to an <span class="math notranslate nohighlight">\(M\)</span> dimensional parameter used in <code class="docutils literal notranslate"><span class="pre">Solver</span></code>, <span class="math notranslate nohighlight">\(y\)</span> .
 In the case of <span class="math notranslate nohighlight">\(N \ne M\)</span>, the parameter <code class="docutils literal notranslate"><span class="pre">dimension</span></code> in <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> section should be specified.</p>
 <p>In the current version, the affine mapping (linear mapping + translation) <span class="math notranslate nohighlight">\(y = Ax+b\)</span> is available.</p>
@@ -186,7 +186,7 @@ In the case of <span class="math notranslate nohighlight">\(N \ne M\)</span>, th
 \right).\end{split}\]</div>
 </section>
 <section id="log-section">
-<h2>[<code class="docutils literal notranslate"><span class="pre">log</span></code>] section<a class="headerlink" href="#log-section" title="Permalink to this heading">¶</a></h2>
+<h2>[<code class="docutils literal notranslate"><span class="pre">log</span></code>] section<a class="headerlink" href="#log-section" title="Link to this heading">¶</a></h2>
 <p>Setting parametrs related to logging of solver calls.</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">filename</span></code></p>
@@ -227,8 +227,8 @@ In the case of <span class="math notranslate nohighlight">\(N \ne M\)</span>, th
       </div>
 
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.5.
     </div>
   </body>
 </html>

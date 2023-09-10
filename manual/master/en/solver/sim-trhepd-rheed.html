@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>sim-trhepd-rheed solver &#8212; 2DMAT 2.2-dev documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=e491ac2d" />
+    <script src="../_static/documentation_options.js?v=b33cbb84"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -36,10 +36,10 @@
         
         
   <section id="sim-trhepd-rheed-solver">
-<h1><code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code> solver<a class="headerlink" href="#sim-trhepd-rheed-solver" title="Permalink to this heading">¶</a></h1>
+<h1><code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code> solver<a class="headerlink" href="#sim-trhepd-rheed-solver" title="Link to this heading">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code> is a <code class="docutils literal notranslate"><span class="pre">Solver</span></code> that uses <a class="reference external" href="https://github.com/sim-trhepd-rheed/sim-trhepd-rheed">sim-trhepd-rheed</a> to calculate the diffraction rocking curve from the atomic position <span class="math notranslate nohighlight">\(x\)</span> and returns the deviation from the experimental rocking curve as <span class="math notranslate nohighlight">\(f(x)\)</span>.</p>
 <section id="preparation">
-<h2>Preparation<a class="headerlink" href="#preparation" title="Permalink to this heading">¶</a></h2>
+<h2>Preparation<a class="headerlink" href="#preparation" title="Link to this heading">¶</a></h2>
 <p>You will need to install <a class="reference external" href="https://github.com/sim-trhepd-rheed/sim-trhepd-rheed">sim-trhepd-rheed</a> beforehand.</p>
 <ol class="arabic simple">
 <li><p>Download the source code from the official <code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code> website.</p></li>
@@ -49,10 +49,10 @@
 The <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> is called from <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code>.</p>
 </section>
 <section id="input-parameters">
-<h2>Input parameters<a class="headerlink" href="#input-parameters" title="Permalink to this heading">¶</a></h2>
+<h2>Input parameters<a class="headerlink" href="#input-parameters" title="Link to this heading">¶</a></h2>
 <p>Input parameters can be specified in subcsections <code class="docutils literal notranslate"><span class="pre">config</span></code>, <code class="docutils literal notranslate"><span class="pre">post</span></code>, <code class="docutils literal notranslate"><span class="pre">param</span></code>, <code class="docutils literal notranslate"><span class="pre">reference</span></code> in <code class="docutils literal notranslate"><span class="pre">solver</span></code> section.</p>
 <section id="config-section">
-<h3>[<code class="docutils literal notranslate"><span class="pre">config</span></code>] section<a class="headerlink" href="#config-section" title="Permalink to this heading">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">config</span></code>] section<a class="headerlink" href="#config-section" title="Link to this heading">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">surface_exec_file</span></code></p>
 <p>Format: string (default: “surf.exe”)</p>
@@ -85,7 +85,7 @@ The <code class="docutils literal notranslate"><span class="pre">surf.exe</span>
 </ul>
 </section>
 <section id="post-section">
-<h3>[<code class="docutils literal notranslate"><span class="pre">post</span></code>] section<a class="headerlink" href="#post-section" title="Permalink to this heading">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">post</span></code>] section<a class="headerlink" href="#post-section" title="Link to this heading">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">normalization</span></code></p>
 <p>Format: string (“TOTAL” or “MAX”, default: “TOTAL”)</p>
@@ -110,7 +110,7 @@ When “B” type is chosen, R-factor is defined as <span class="math notranslat
 </ul>
 </section>
 <section id="param-section">
-<h3>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] section<a class="headerlink" href="#param-section" title="Permalink to this heading">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] section<a class="headerlink" href="#param-section" title="Link to this heading">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">string_list</span></code></p>
 <p>Format: list of string. The length should match the value of dimension (default: [“value_01”, “value_02”]).</p>
@@ -123,7 +123,7 @@ When “B” type is chosen, R-factor is defined as <span class="math notranslat
 </ul>
 </section>
 <section id="reference-section">
-<h3>[<code class="docutils literal notranslate"><span class="pre">reference</span></code>] section<a class="headerlink" href="#reference-section" title="Permalink to this heading">¶</a></h3>
+<h3>[<code class="docutils literal notranslate"><span class="pre">reference</span></code>] section<a class="headerlink" href="#reference-section" title="Link to this heading">¶</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">path</span></code></p>
 <p>Format: string (default: <code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code>)</p>
@@ -141,9 +141,9 @@ When “B” type is chosen, R-factor is defined as <span class="math notranslat
 </section>
 </section>
 <section id="reference-file">
-<h2>Reference file<a class="headerlink" href="#reference-file" title="Permalink to this heading">¶</a></h2>
+<h2>Reference file<a class="headerlink" href="#reference-file" title="Link to this heading">¶</a></h2>
 <section id="input-template-file">
-<h3>Input template file<a class="headerlink" href="#input-template-file" title="Permalink to this heading">¶</a></h3>
+<h3>Input template file<a class="headerlink" href="#input-template-file" title="Link to this heading">¶</a></h3>
 <p>The input template file <code class="docutils literal notranslate"><span class="pre">template.txt</span></code> is a template for creating an input file for <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code>.
 The parameters to be moved in <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> (such as the atomic coordinates you want to find) should be replaced with the appropriate string, such as <code class="docutils literal notranslate"><span class="pre">value_*</span></code>.
 The strings to be used are specified by <code class="docutils literal notranslate"><span class="pre">string_list</span></code> in the <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> - <code class="docutils literal notranslate"><span class="pre">[param]</span></code> section of the input file for the solver.
@@ -169,7 +169,7 @@ An example template is shown below.</p>
 <p>In this case, <code class="docutils literal notranslate"><span class="pre">value_01</span></code>, <code class="docutils literal notranslate"><span class="pre">value_02</span></code>, and <code class="docutils literal notranslate"><span class="pre">value_03</span></code> are the parameters to be moved in <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code>.</p>
 </section>
 <section id="target-file">
-<h3>Target file<a class="headerlink" href="#target-file" title="Permalink to this heading">¶</a></h3>
+<h3>Target file<a class="headerlink" href="#target-file" title="Link to this heading">¶</a></h3>
 <p>This file (<code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code>) contains the data to be targeted.
 The first column contains the angle, and the second column contains the calculated value of the reflection intensity multiplied by the weight.
 An example of the file is shown below.</p>
@@ -189,7 +189,7 @@ An example of the file is shown below.</p>
 </section>
 </section>
 <section id="output-file">
-<h2>Output file<a class="headerlink" href="#output-file" title="Permalink to this heading">¶</a></h2>
+<h2>Output file<a class="headerlink" href="#output-file" title="Link to this heading">¶</a></h2>
 <p>For <code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code>, the files output by <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> will be output in the <code class="docutils literal notranslate"><span class="pre">Log%%%%%_#####</span></code> folder under the folder with the rank number.
 <code class="docutils literal notranslate"><span class="pre">%%%%%</span></code> means an index of iteration in <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> (e.g., steps in Monte Carlo),
 and <code class="docutils literal notranslate"><span class="pre">#####</span></code> means an index of group (e.g., replica index in Monte Carlo).
@@ -197,7 +197,7 @@ In large calculation, the number of these folders becomes too large to be writte
 For such a case, let <code class="docutils literal notranslate"><span class="pre">solver.post.remove_work_dir</span></code> parameter be <code class="docutils literal notranslate"><span class="pre">true</span></code> in order to remove these folders.
 This section describes the own files that are output by this solver.</p>
 <section id="stdout">
-<h3><code class="docutils literal notranslate"><span class="pre">stdout</span></code><a class="headerlink" href="#stdout" title="Permalink to this heading">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">stdout</span></code><a class="headerlink" href="#stdout" title="Link to this heading">¶</a></h3>
 <p>It contains the standard output of <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code>.
 An example is shown below.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>bulk-filename (end=e) ? :
@@ -210,7 +210,7 @@ surf-bulkP.s
 </div>
 </section>
 <section id="rockingcurve-txt">
-<h3><code class="docutils literal notranslate"><span class="pre">RockingCurve.txt</span></code><a class="headerlink" href="#rockingcurve-txt" title="Permalink to this heading">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">RockingCurve.txt</span></code><a class="headerlink" href="#rockingcurve-txt" title="Link to this heading">¶</a></h3>
 <p>This file is located in the <code class="docutils literal notranslate"><span class="pre">Log%%%%%_#####</span></code> folder.
 The first line is the header, and the second and subsequent lines are the angle, convoluted calculated/experimental values, normalized calculated/experimental values, and raw calculated values in that order.
 An example is shown below.</p>
@@ -244,8 +244,8 @@ An example is shown below.</p>
       </div>
 
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.5.
     </div>
   </body>
 </html>

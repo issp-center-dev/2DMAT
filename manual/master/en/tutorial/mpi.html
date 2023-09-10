@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Grid search &#8212; 2DMAT 2.2-dev documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=e491ac2d" />
+    <script src="../_static/documentation_options.js?v=b33cbb84"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Optimization by Bayesian Optimization" href="bayes.html" />
@@ -35,12 +35,12 @@
         
         
   <section id="grid-search">
-<h1>Grid search<a class="headerlink" href="#grid-search" title="Permalink to this heading">¶</a></h1>
+<h1>Grid search<a class="headerlink" href="#grid-search" title="Link to this heading">¶</a></h1>
 <p>In this section, we will explain how to perform a grid-type search and analyze atomic coordinates from diffraction data.
 The grid type search is compatible with MPI. The specific calculation procedure is the same as for <code class="docutils literal notranslate"><span class="pre">minsearch</span></code>.
 However, it is necessary to prepare the data <code class="docutils literal notranslate"><span class="pre">MeshData.txt</span></code> to give the search grid in advance.</p>
 <section id="location-of-the-sample-files">
-<h2>Location of the sample files<a class="headerlink" href="#location-of-the-sample-files" title="Permalink to this heading">¶</a></h2>
+<h2>Location of the sample files<a class="headerlink" href="#location-of-the-sample-files" title="Link to this heading">¶</a></h2>
 <p>The sample files are located in <code class="docutils literal notranslate"><span class="pre">sample/sim-trhepd-rheed/mapper</span></code>.
 The following files are stored in the folder</p>
 <ul>
@@ -63,7 +63,7 @@ The following files are stored in the folder</p>
 <p>Below, we will describe these files and then show the actual calculation results.</p>
 </section>
 <section id="reference-file">
-<h2>Reference file<a class="headerlink" href="#reference-file" title="Permalink to this heading">¶</a></h2>
+<h2>Reference file<a class="headerlink" href="#reference-file" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">template.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code> are the same as in the previous tutorial (Nealder-Mead optimization).
 However, to reduce the computation time, the value is fixed to <code class="docutils literal notranslate"><span class="pre">3.5</span></code> instead of <code class="docutils literal notranslate"><span class="pre">value_03</span></code>, and the grid is searched in 2D.
 The actual grid to be searched is given in <code class="docutils literal notranslate"><span class="pre">MeshData.txt</span></code>.
@@ -83,7 +83,7 @@ In the sample, the contents of <code class="docutils literal notranslate"><span 
 <p>The first column is the serial number, and the second and subsequent columns are the values of <code class="docutils literal notranslate"><span class="pre">value_0</span></code> , <code class="docutils literal notranslate"><span class="pre">value_1</span></code> that go into <code class="docutils literal notranslate"><span class="pre">template.txt</span></code>, in that order.</p>
 </section>
 <section id="input-file">
-<h2>Input file<a class="headerlink" href="#input-file" title="Permalink to this heading">¶</a></h2>
+<h2>Input file<a class="headerlink" href="#input-file" title="Link to this heading">¶</a></h2>
 <p>This section describes the input file for the main program, <code class="docutils literal notranslate"><span class="pre">input.toml</span></code>.
 The details of <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> can be found in the input file.
 The following is the content of <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> in the sample file.</p>
@@ -146,7 +146,7 @@ The following is the content of <code class="docutils literal notranslate"><span
 <p>For details on other parameters that can be specified in the input file, please see the Input File chapter.</p>
 </section>
 <section id="calculation-execution">
-<h2>Calculation execution<a class="headerlink" href="#calculation-execution" title="Permalink to this heading">¶</a></h2>
+<h2>Calculation execution<a class="headerlink" href="#calculation-execution" title="Link to this heading">¶</a></h2>
 <p>First, move to the folder where the sample files are located (we will assume that you are directly under the directory where you downloaded this software).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">sample</span><span class="o">/</span><span class="n">sim</span><span class="o">-</span><span class="n">trhepd</span><span class="o">-</span><span class="n">rheed</span><span class="o">/</span><span class="n">minsearch</span>
 </pre></div>
@@ -221,7 +221,7 @@ fi
 </div>
 </section>
 <section id="visualization-of-calculation-results">
-<h2>Visualization of calculation results<a class="headerlink" href="#visualization-of-calculation-results" title="Permalink to this heading">¶</a></h2>
+<h2>Visualization of calculation results<a class="headerlink" href="#visualization-of-calculation-results" title="Link to this heading">¶</a></h2>
 <p>By seeing <code class="docutils literal notranslate"><span class="pre">ColorMap.txt</span></code>, we can estimate the region where the small parameters of <code class="docutils literal notranslate"><span class="pre">R-factor</span></code> are located.
 In this case, the following command will create a two-dimensional parameter space diagram <code class="docutils literal notranslate"><span class="pre">ColorMapFig.png</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">plot_colormap_2d</span><span class="o">.</span><span class="n">py</span>
@@ -231,7 +231,7 @@ In this case, the following command will create a two-dimensional parameter spac
 <figure class="align-default" id="id1">
 <img alt="../_images/mapper.png" src="../_images/mapper.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 3 </span><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">R-factor</span></code> on a two-dimensional parameter space.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 3 </span><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">R-factor</span></code> on a two-dimensional parameter space.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p><code class="docutils literal notranslate"><span class="pre">RockingCurve.txt</span></code> is stored in each subfolder.
@@ -254,8 +254,8 @@ By using it, you can compare the results with the experimental values following 
       </div>
 
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.5.
     </div>
   </body>
 </html>
