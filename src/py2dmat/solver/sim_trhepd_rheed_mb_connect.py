@@ -183,8 +183,12 @@ class Solver(py2dmat.solver.SolverBase):
             info_s = info.solver
             self.run_scheme = info_s["run_scheme"]
             
-            self.surf_tempalte_width_for_fortran = 128
-            self.bulk_out_width_for_fortran = 1024
+            # NOTE:
+            # surf_tempalte_width_for_fortran: Number of strings per line of template.txt data for surf.so.
+            # bulk_out_width_for_fortran: Number of strings per line of bulkP.txt data for surf.so.
+            if self.run_scheme=="connect_so":
+                self.surf_tempalte_width_for_fortran = 128
+                self.bulk_out_width_for_fortran = 1024
             
             info_param = info_s.get("param", {})
             v = info_param.setdefault("string_list", ["value_01", "value_02"])
