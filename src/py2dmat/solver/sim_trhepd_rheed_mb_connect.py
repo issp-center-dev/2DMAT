@@ -127,6 +127,8 @@ class Solver(py2dmat.solver.SolverBase):
         n_bulk_file = len(self.input.bulk_file)
         m_bulk_file = self.input.bulk_out_width_for_fortran
         
+        # NOTE: The "20480" is related to the following directive in surf_so.f90.
+        # character(c_char), intent(inout) :: surf_out(20480)
         emp_str = ' '*20480
         self.output.surf_output = np.array([emp_str.encode()])
         self.lib.surf_so(
