@@ -61,14 +61,7 @@ class Solver(py2dmat.solver.SolverBase):
 
         self.input = Solver.Input(info,self.detail_timer)
         self.output = Solver.Output(info,self.detail_timer)
-        
-        self.input.run_scheme = self.run_scheme
-        self.output.run_scheme = self.run_scheme
-
-        self.generate_rocking_curve = info.solver.get("generate_rocking_curve", False)
-        self.input.generate_rocking_curve = self.generate_rocking_curve
-        self.output.generate_rocking_curve = self.generate_rocking_curve
-    
+         
     def set_detail_timer(self):
         # TODO: Operate log_mode with toml file. Generate txt of detail_timer.
         if self.log_mode:
@@ -184,6 +177,7 @@ class Solver(py2dmat.solver.SolverBase):
 
             info_s = info.solver
             self.run_scheme = info_s["run_scheme"]
+            self.generate_rocking_curve = info_s.get("generate_rocking_curve", False)
             
             # NOTE:
             # surf_tempalte_width_for_fortran: Number of strings per line of template.txt data for surf.so.
@@ -400,6 +394,7 @@ class Solver(py2dmat.solver.SolverBase):
 
             info_s = info.solver
             self.run_scheme = info_s["run_scheme"]
+            self.generate_rocking_curve = info_s.get("generate_rocking_curve", False)
 
             # solver.config
             info_config = info_s.get("config", {})
