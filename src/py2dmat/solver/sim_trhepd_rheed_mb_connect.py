@@ -658,7 +658,7 @@ class Solver(py2dmat.solver.SolverBase):
                     print('NOTICE: The output of rocking curve is not implemented when the following settings are made: self.normalization == "MS_NORM".')
                 else:
                     if self.log_mode : time_sta = time.perf_counter()
-                    with open("RockingCurve.txt", "w") as file_RC:
+                    with open("RockingCurve_calculated.txt", "w") as file_RC:
                         # Write headers
                         file_RC.write("#")
                         for index in range(dimension):
