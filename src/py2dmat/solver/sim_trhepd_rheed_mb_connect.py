@@ -759,7 +759,6 @@ class Solver(py2dmat.solver.SolverBase):
             # Define the array for the rocking curve data.
             # Note the components with (beam-index)=0 are the degree data
             RC_data_org = np.zeros((number_of_glancing_angles, number_of_beams+1))
-            RC_data_cnv = np.zeros((number_of_glancing_angles, number_of_beams+1))
 
             for g_angle_index in range(number_of_glancing_angles):
                 line_index = number_of_header_lines + g_angle_index
@@ -769,7 +768,6 @@ class Solver(py2dmat.solver.SolverBase):
                 data = line.split()
             #   print(data)
                 RC_data_org[g_angle_index,0]=float(data[0])
-                RC_data_cnv[g_angle_index,0]=float(data[0])
                 for beam_index in range(number_of_beams):
                     RC_data_org[g_angle_index, beam_index+1] = data[beam_index+1]
 
@@ -780,7 +778,7 @@ class Solver(py2dmat.solver.SolverBase):
             if self.log_mode : time_sta = time.perf_counter() 
             verbose_mode = False
             data_convolution = lib_make_convolution.calc(
-                    RC_data_org, RC_data_cnv, number_of_beams, number_of_glancing_angles, self.omega, verbose_mode
+                    RC_data_org, number_of_beams, number_of_glancing_angles, self.omega, verbose_mode
                         ) 
 
             self.all_convolution_I_calculated_list_normalized = []

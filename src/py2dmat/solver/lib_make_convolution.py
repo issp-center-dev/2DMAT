@@ -1,7 +1,8 @@
 import numpy as np
 import sys
+import copy
 
-def calc(RC_data_org, RC_data_cnv, number_of_beams, number_of_glancing_angles, omega, verbose_mode):
+def calc(RC_data_org, number_of_beams, number_of_glancing_angles, omega, verbose_mode):
 
     sigma = 0.5 * omega / (np.sqrt(2.0*np.log(2.0)))
 
@@ -10,12 +11,16 @@ def calc(RC_data_org, RC_data_cnv, number_of_beams, number_of_glancing_angles, o
 
         return g
 
+    RC_data_cnv = np.zeros((number_of_glancing_angles, number_of_beams+1))
+    #copy glancing angle
+    RC_data_cnv[:,0] = copy.deepcopy(RC_data_org[:,0])
+
     angle_interval = RC_data_org[1,0] - RC_data_org[0,0]
 
     if verbose_mode:
        print("RC_data_org =\n",RC_data_org) 
        print("RC_data_cnv =\n",RC_data_cnv) 
-       print('angle_ interval=', angle_interval)
+       print('angle_interval=', angle_interval)
 
     for beam_index in range(number_of_beams):
         for index in range(number_of_glancing_angles):
