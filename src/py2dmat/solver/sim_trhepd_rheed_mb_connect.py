@@ -736,6 +736,43 @@ class Solver(py2dmat.solver.SolverBase):
                 Clines = file_input.readlines()
                 file_input.close()
             
+            # Extract STR results (glancing angle and intensity) from Clines.
+            # Read the file header
+            line = Clines[0]
+           
+            if line ==  ' FILE OUTPUT for UNIT3\n':
+                alpha_lines = 1
+            else:
+                alpha_lines = 0
+            
+            number_of_lines        = int(len(Clines))
+            number_of_header_lines = 4 + alpha_lines
+            
+            line = Clines[1 + alpha_lines]
+            line = line.replace(",", "")
+            data = line.split()
+            
+            number_of_azimuth_angles  = int(data[0])
+            number_of_glancing_angles = int(data[1])
+            number_of_beams           = int(data[2])
+
+            # Define the array for the rocking curve data.
+            # Note the components with (beam-index)=0 are the degree data
+            RC_data_org = np.zeros((number_of_glancing_angles, number_of_beams+1))
+            RC_data_cnv = np.zeros((number_of_glancing_angles, number_of_beams+1))
+
+            for g_angle_index in range(number_of_glancing_angles):
+                line_index = number_of_header_lines + g_angle_index
+                line = Clines[ line_index ]
+            #   print("data line: ", line_index, g_angle_index, line)
+                line = line.replace(",", "")
+                data = line.split()
+            #   print(data)
+                RC_data_org[g_angle_index,0]=float(data[0])
+                RC_data_cnv[g_angle_index,0]=float(data[0])
+                for beam_index in range(number_of_beams):
+                    RC_data_org[g_angle_index, beam_index+1] = data[beam_index+1]
+
             if self.log_mode :
                 time_end = time.perf_counter()
                 self.detail_timer["load_STR_result"] += time_end - time_sta
@@ -743,7 +780,7 @@ class Solver(py2dmat.solver.SolverBase):
             if self.log_mode : time_sta = time.perf_counter() 
             verbose_mode = False
             data_convolution = lib_make_convolution.calc(
-                    Clines, self.omega, verbose_mode
+                    RC_data_org, RC_data_cnv, number_of_beams, number_of_glancing_angles, self.omega, verbose_mode
                         ) 
 
             self.all_convolution_I_calculated_list_normalized = []
