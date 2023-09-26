@@ -486,33 +486,34 @@ class Solver(py2dmat.solver.SolverBase):
             
             # solver.reference
             info_ref = info_s.get("reference", {})
-            reference_path = info_ref.get("path", "experiment.txt")
-
-            v = info_ref.setdefault("first", 1)
+            v = info_ref.setdefault("reference_first_line", 1)
             if not (isinstance(v, int) and v >= 0):
                 raise exception.InputError(
                     "ERROR: reference_first_line should be non-negative integer"
                 )
             firstline = v
 
-            v = info_ref.setdefault("last", 56)
-            if not (isinstance(v, int) and v >= firstline):
-                raise exception.InputError(
-                    "ERROR: reference_last_line < reference_first_line"
-                )
+            # None is dummy value
+            # If "reference_last_line" is not specified in the toml file, 
+            # the last line of the reference file is used for the R-factor calculation.
+            v = info_ref.setdefault("reference_last_line", None)
+            if v is None:
+                reference_are_read_to_final_line = True
+            else:
+                reference_are_read_to_final_line = False
+                if not (isinstance(v, int) and v >= firstline):
+                    raise exception.InputError(
+                        "ERROR: reference_last_line < reference_first_line"
+                    )
             lastline = v
 
-
-            # Read experiment data
-            if self.mpirank == 0:
-                data_e = np.loadtxt(reference_path)
-            else:
-                data_e = None
-            data_experiment = self.mpicomm.bcast(data_e,root=0)
-            
-            self.beam_number_experiment = data_experiment.shape[1]
+            reference_path = info_ref.get("path", "experiment.txt")
+            data_experiment = self.read_experiment(
+                    reference_path, firstline, lastline,
+                    reference_are_read_to_final_line              )
             self.angle_number_experiment = data_experiment.shape[0]
-
+            self.beam_number_exp_raw = data_experiment.shape[1]
+            
             v = info_ref.get("exp_number", None)
             
             if v == None :
@@ -525,7 +526,7 @@ class Solver(py2dmat.solver.SolverBase):
                     "ERROR: 'exp_number' must be a list type."
                 )
 
-            if max(v) > self.beam_number_experiment:
+            if max(v) > self.beam_number_exp_raw :
                 raise exception.InputError(
                     "ERROR: The 'exp_number' setting is wrong."
                 )
@@ -537,7 +538,9 @@ class Solver(py2dmat.solver.SolverBase):
                     )
 
             self.exp_number = v
+            self.beam_number_experiment = len(self.exp_number)
             number_ex = self.exp_number
+            
             sum_experiment = 0
             for i in number_ex:
                 sum_experiment += sum(data_experiment[::,i])
@@ -601,7 +604,38 @@ class Solver(py2dmat.solver.SolverBase):
                     ]
                     for p in self.reference_normalized:
                         self.all_reference_normalized.append(p)
-             
+
+        def read_experiment(self, ref_path, first, last, read_to_final_line):
+            # Read experiment data
+            if self.mpirank == 0:
+                file_input = open(ref_path, "r")
+                Elines = file_input.readlines()
+
+                firstline = first
+                if read_to_final_line :
+                    lastline = len(Elines)
+                else:
+                    lastline = last
+                
+                n_exp_row = lastline-firstline+1
+                
+                # get value from data
+                for row_index in range(n_exp_row) :
+                    line_index = firstline + row_index - 1
+                    line = Elines[line_index]
+                    data = line.split()
+                    # first loop
+                    if row_index == 0:
+                        n_exp_column = len(data)
+                        data_e = np.zeros((n_exp_row, n_exp_column)) #init value
+                    
+                    for column_index in range(n_exp_column):
+                        data_e[row_index, column_index] = float(data[column_index])
+            else:
+                data_e = None
+            data_exp = self.mpicomm.bcast(data_e,root=0)
+            return data_exp
+
         def prepare(self, fitted_x_list):
             self.fitted_x_list = fitted_x_list
 
