@@ -43,7 +43,9 @@ Note that among the direct problem solvers used in ``py2dmat``,
 the following solver must be installed separately:
 
 - TRHEPD forward problem solver (``sim-trhepd-rheed``)
-  
+- SXRD forward problem solver (``sxrdcalc``)
+- LEED forward problem solver (``satleed``)
+
 Please refer to the tutorials of each solver for installation details.
 
 How to run

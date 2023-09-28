@@ -74,6 +74,24 @@ and direct problem solvers (`py2dmat` also means this script).
 
 This package is distributed under GNU General Public License version 3 (GPL v3) or later.
 
+We hope that you cite the following references when you publish the results using 2DMAT:
+“Data-analysis software framework 2DMAT and its application to experimental measurements for two-dimensional material structures”, 
+Y. Motoyama, K. Yoshimi, I. Mochizuki, H. Iwamoto, H. Ichinose, and T. Hoshi, Computer Physics Communications 280, 108465 (2022).
+
+Bibtex:
+
+@article{MOTOYAMA2022108465,
+title = {Data-analysis software framework 2DMAT and its application to experimental measurements for two-dimensional material structures},
+journal = {Computer Physics Communications},
+volume = {280},
+pages = {108465},
+year = {2022},
+issn = {0010-4655},
+doi = {https://doi.org/10.1016/j.cpc.2022.108465},
+url = {https://www.sciencedirect.com/science/article/pii/S0010465522001849},
+author = {Yuichi Motoyama and Kazuyoshi Yoshimi and Izumi Mochizuki and Harumichi Iwamoto and Hayato Ichinose and Takeo Hoshi}
+}
+
 ## Copyright
 
 © *2020- The University of Tokyo. All rights reserved.*
