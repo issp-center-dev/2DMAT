@@ -26,6 +26,7 @@ import numpy as np
 import py2dmat
 import py2dmat.util.read_matrix
 import py2dmat.util.mapping
+import py2dmat.util.limitation
 from py2dmat.exception import InputError
 
 # type hints
@@ -141,6 +142,7 @@ class Runner(object):
         solver: py2dmat.solver.SolverBase,
         info: Optional[py2dmat.Info] = None,
         mapping=None,
+        limitation=None,
     ):
         """
 
@@ -178,6 +180,51 @@ class Runner(object):
             self.mapping = py2dmat.util.mapping.Affine(A=A, b=b)
         else:
             self.mapping = mapping
+        
+        self.ndim = info.base["dimension"]
+        if limitation is None:
+            info_limitation = info.runner.get("limitation",{})
+            co_a: Optional[np.ndarray] = py2dmat.util.read_matrix.read_matrix(
+                info_limitation.get("co_a", [])
+            )
+            co_b: Optional[np.ndarray] = py2dmat.util.read_matrix.read_matrix(
+                info_limitation.get("co_b", [])
+            )
+            if co_a is not None:
+                if co_a.size == 0:
+                    co_a = None
+                else:
+                    if co_a.ndim != 2:
+                        raise InputError("co_a should be a matrix")
+                    if co_a.shape[1] != self.ndim:
+                        msg ='The number of columns in co_a should be equal to'
+                        msg+='the value of "dimension" in the [base] section'
+                        raise InputError(msg)
+                    n_row_co_a = co_a.shape[0]
+            if co_b is not None:
+                if co_b.size == 0:
+                    if co_a is None:
+                        co_b = None
+                    else: # co_a is not None:
+                        msg = "ERROR: co_a is defined but co_b is not."
+                        raise InputError(msg)
+                elif co_b.ndim == 2:
+                    if co_a is not None:
+                        if co_b.shape[0] == 1 or co_b.shape[1] == 1:
+                            co_b = co_b.reshape(-1)
+                        else:
+                            raise InputError("co_b should be a vector")
+                        if co_b.size != n_row_co_a:
+                            msg ='The number of row in co_a should be equal to'
+                            msg+='the number of size in co_b'
+                            raise InputError(msg)
+                    else: # co_a is None:
+                        msg = "ERROR: co_b is defined but co_a is not."
+                        raise InputError(msg)
+
+                elif co_b.ndim > 2:
+                    raise InputError("co_b should be a vector")
+            self.limitation = py2dmat.util.limitation.Inequality(co_a, co_b)
 
     def prepare(self, proc_dir: Path):
         self.logger.prepare(proc_dir)
@@ -185,14 +232,17 @@ class Runner(object):
     def submit(
         self, message: py2dmat.Message, nprocs: int = 1, nthreads: int = 1
     ) -> float:
-        x = self.mapping(message.x)
-        message_indeed = py2dmat.Message(x, message.step, message.set)
-        self.solver.prepare(message_indeed)
-        cwd = os.getcwd()
-        os.chdir(self.solver.work_dir)
-        self.solver.run(nprocs, nthreads)
-        os.chdir(cwd)
-        result = self.solver.get_results()
+        if self.limitation.judge(message.x):
+            x = self.mapping(message.x)
+            message_indeed = py2dmat.Message(x, message.step, message.set)
+            self.solver.prepare(message_indeed)
+            cwd = os.getcwd()
+            os.chdir(self.solver.work_dir)
+            self.solver.run(nprocs, nthreads)
+            os.chdir(cwd)
+            result = self.solver.get_results()
+        else:
+            result = np.inf
         self.logger.count(message, result)
         return result
 

@@ -26,6 +26,7 @@ import pathlib
 import numpy as np
 
 import py2dmat
+import py2dmat.util.limitation
 from py2dmat import exception, mpi
 
 # for type hints
@@ -169,17 +170,38 @@ class AlgorithmBase(metaclass=ABCMeta):
         if initial_list.ndim == 1:
             initial_list = initial_list.reshape(1, -1)
         if initial_list.size == 0:
-            initial_list = min_list + (max_list - min_list) * self.rng.rand(
-                num_walkers, self.dimension
-            )
+            # Repeat until an "initial_list" is generated 
+            # that satisfies the constraint formula.
+            loop_count = 0
+            while True:
+                judge_result = []
+                initial_list = min_list + (max_list - min_list) * self.rng.rand(
+                    num_walkers, self.dimension
+                )
+                for walker_index in range(num_walkers):
+                    judge = self.runner.limitation.judge(
+                                    initial_list[walker_index,:])
+                    judge_result.append(judge)
+                if all(judge_result):
+                    break
+                else:
+                    loop_count += 1 
         if initial_list.shape[0] != num_walkers:
             raise exception.InputError(
                 f"ERROR: initial_list.shape[0] != num_walkers ({initial_list.shape[0]} != {num_walkers})"
             )
         if initial_list.shape[1] != self.dimension:
             raise exception.InputError(
-                f"ERROR: initial_list.shape[1] != dimension ({initial_list.shape[1]} != {self.dimension})"
-            )
+                f"ERROR: initial_list.shape[1] != dimension ({initial_list.shape[1]} != {self.dimension})" )
+        judge_result = []
+        for walker_index in range(num_walkers):
+            judge = self.runner.limitation.judge(
+                            initial_list[walker_index,:])
+            judge_result.append(judge)
+        if not all(judge_result):
+            raise exception.InputError(
+            "ERROR: initial_list does not satisfy the constraint formula."
+                )
         return initial_list, min_list, max_list, unit_list
 
     def _meshgrid(
