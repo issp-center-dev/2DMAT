@@ -396,47 +396,6 @@ class Solver(py2dmat.solver.SolverBase):
             self.run_scheme = info_s["run_scheme"]
             self.generate_rocking_curve = info_s.get("generate_rocking_curve", False)
 
-            # solver.config
-            info_config = info_s.get("config", {})
-            self.surface_output_file = info_config.get(
-                "surface_output_file", "surf-bulkP.s"
-            )
-
-            v = info_config.get("calculated_first_line", 5)
-            if not (isinstance(v, int) and v >= 0):
-                raise exception.InputError(
-                    "ERROR: calculated_first_line should be non-negative integer"
-                )
-            self.calculated_first_line = v
-
-            v = info_config.get("calculated_last_line", 60)
-            if not (isinstance(v, int) and v >= 0):
-                raise exception.InputError(
-                    "ERROR: calculated_last_line should be non-negative integer"
-                )
-            self.calculated_last_line = v
-
-            v = info_config.get("row_number", 8)
-            if not (isinstance(v, int) and v >= 0):
-                raise exception.InputError(
-                    "ERROR: row_number should be non-negative integer"
-                )
-            self.row_number = v
-
-            v = info_config.get("cal_number",None)
-            
-            if v == None :
-                raise exception.InputError(
-                        "ERROR: You have to set the 'cal_number'."
-                )
-            
-            if not isinstance(v, list):
-                raise exception.InputError(
-                    "ERROR: 'cal_number' must be a list type."
-                )
-            
-            self.cal_number = v
-
             # solver.post
             info_post = info_s.get("post", {})
             v = info_post.get("normalization", "TOTAL")
@@ -465,13 +424,8 @@ class Solver(py2dmat.solver.SolverBase):
                 v = info_post.get("spot_weight", None)
                 if v is None:
                     raise exception.InputError('ERROR:If normalization="MS_NORM_SET_WGT", the weight must be set in solver.post.')
-                if len(v) != len(self.cal_number):
-                    raise exception.InputError(
-                        "len('cal_number') and len('spot_weight') do not match."
-                    )
-                
                 self.spot_weight = np.array(v)/sum(v)
-            
+ 
             # solver.param
             info_param = info_s.get("param", {})
             v = info_param.setdefault("string_list", ["value_01", "value_02"])
@@ -604,6 +558,79 @@ class Solver(py2dmat.solver.SolverBase):
                     ]
                     for p in self.reference_normalized:
                         self.all_reference_normalized.append(p)
+            
+            # solver.config
+            info_config = info_s.get("config", {})
+            self.surface_output_file = info_config.get(
+                "surface_output_file", "surf-bulkP.s"
+            )
+
+            v = info_config.get("calculated_first_line", 5)
+            if not (isinstance(v, int) and v >= 0):
+                raise exception.InputError(
+                    "ERROR: calculated_first_line should be non-negative integer"
+                )
+            self.calculated_first_line = v
+
+            v = info_config.get(
+                "calculated_last_line", 
+                self.calculated_first_line + self.angle_number_experiment-1
+                                    )
+            if not (isinstance(v, int) and v >= 0):
+                raise exception.InputError(
+                    "ERROR: calculated_last_line should be non-negative integer"
+                )
+            self.calculated_last_line = v
+            
+            # Number of lines in the computation file 
+            # used for R-factor calculations.
+            self.calculated_nlines = (self.calculated_last_line - 
+                                      self.calculated_first_line + 1 )
+             
+            if self.angle_number_experiment != self.calculated_nlines :
+                raise exception.InputError(
+                    "ERROR: The number of glancing angles in the calculation data does not match the number of glancing angles in the experimental data."
+                )
+            
+            # Variable indicating whether the warning 
+            # "self.calculated_nlines does not match 
+            #  the number of glancing angles in the calculated file" 
+            # is displayed.
+            self.isWarning_calcnline = False
+            
+            v = info_config.get("calculated_info_line", 2)
+            if not (isinstance(v, int) and v >= 0):
+                raise exception.InputError(
+                    "ERROR: calculated_info_line should be non-negative integer"
+                )
+            self.calculated_info_line = v
+
+            v = info_config.get("row_number", 8)
+            if not (isinstance(v, int) and v >= 0):
+                raise exception.InputError(
+                    "ERROR: row_number should be non-negative integer"
+                )
+            self.row_number = v
+
+            v = info_config.get("cal_number",None)
+            
+            if v == None :
+                raise exception.InputError(
+                        "ERROR: You have to set the 'cal_number'."
+                )
+            
+            if not isinstance(v, list):
+                raise exception.InputError(
+                    "ERROR: 'cal_number' must be a list type."
+                )
+            
+            if self.normalization=="MS_NORM_SET_WGT":
+                if len(self.spot_weight) != len(v):
+                    raise exception.InputError(
+                        "len('cal_number') and len('spot_weight') do not match."
+                    )
+            
+            self.cal_number = v
 
         def read_experiment(self, ref_path, first, last, read_to_final_line):
             # Read experiment data
@@ -755,12 +782,14 @@ class Solver(py2dmat.solver.SolverBase):
             surface_output_file = self.surface_output_file
             calculated_first_line = self.calculated_first_line
             calculated_last_line = self.calculated_last_line
+            calculated_info_line = self.calculated_info_line
+            calculated_nlines = self.calculated_nlines
+            omega = self.omega
             row_number = self.row_number
             degree_max = self.degree_max
             degree_list = self.degree_list
 
-            nlines = calculated_last_line - calculated_first_line + 1
-            assert 0 < nlines
+            assert 0 < calculated_nlines
 
             if self.run_scheme == "connect_so":
                 Clines = self.surf_output
@@ -769,40 +798,41 @@ class Solver(py2dmat.solver.SolverBase):
                 file_input = open(self.surface_output_file, "r")
                 Clines = file_input.readlines()
                 file_input.close()
-            
-            # Extract STR results (glancing angle and intensity) from Clines.
-            # Read the file header
-            line = Clines[0]
-           
-            if line ==  ' FILE OUTPUT for UNIT3\n':
-                alpha_lines = 1
-            else:
-                alpha_lines = 0
-            
-            number_of_lines        = int(len(Clines))
-            number_of_header_lines = 4 + alpha_lines
-            
-            line = Clines[1 + alpha_lines]
+
+            # Reads the number of glancing angles and beams
+            line = Clines[calculated_info_line-1]
             line = line.replace(",", "")
             data = line.split()
             
-            number_of_azimuth_angles  = int(data[0])
-            number_of_glancing_angles = int(data[1])
-            number_of_beams           = int(data[2])
-
+            calc_number_of_g_angles_org = int(data[1])
+            calc_number_of_beams_org    = int(data[2])
+            
+            if calc_number_of_g_angles_org != calculated_nlines:
+                if self.mpirank == 0 and not self.isWarning_calcnline :
+                    msg ="WARNING:\n"
+                    msg+="The number of lines in the calculated file "
+                    msg+="that you have set up does not match "
+                    msg+="the number of glancing angles in the calculated file.\n"
+                    msg+="The number of lines (nline) in the calculated file "
+                    msg+="used for the R-factor calculation "
+                    msg+="is determined by the following values\n"
+                    msg+='nline = "calculated_last_line" - "calculated_first_line" + 1.'
+                    print(msg)
+                    self.isWarning_calcnline = True
+            calc_number_of_g_angles = calculated_nlines
+             
             # Define the array for the rocking curve data.
             # Note the components with (beam-index)=0 are the degree data
-            RC_data_org = np.zeros((number_of_glancing_angles, number_of_beams+1))
-
-            for g_angle_index in range(number_of_glancing_angles):
-                line_index = number_of_header_lines + g_angle_index
+            RC_data_org = np.zeros((calc_number_of_g_angles, calc_number_of_beams_org+1))
+            for g_angle_index in range(calc_number_of_g_angles):
+                line_index = (calculated_first_line - 1) + g_angle_index
                 line = Clines[ line_index ]
             #   print("data line: ", line_index, g_angle_index, line)
                 line = line.replace(",", "")
                 data = line.split()
             #   print(data)
                 RC_data_org[g_angle_index,0]=float(data[0])
-                for beam_index in range(number_of_beams):
+                for beam_index in range(calc_number_of_beams_org):
                     RC_data_org[g_angle_index, beam_index+1] = data[beam_index+1]
 
             if self.log_mode :
@@ -812,7 +842,11 @@ class Solver(py2dmat.solver.SolverBase):
             if self.log_mode : time_sta = time.perf_counter() 
             verbose_mode = False
             data_convolution = lib_make_convolution.calc(
-                    RC_data_org, number_of_beams, number_of_glancing_angles, self.omega, verbose_mode
+                    RC_data_org, 
+                    calc_number_of_beams_org, 
+                    calc_number_of_g_angles,
+                    omega, 
+                    verbose_mode,
                         ) 
 
             self.all_convolution_I_calculated_list_normalized = []
