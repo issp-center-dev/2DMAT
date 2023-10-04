@@ -367,7 +367,6 @@ class Solver(py2dmat.solver.SolverBase):
         Rfactor_type: str
         calculated_first_line: int
         calculated_last_line: int
-        row_number: int
         degree_max: float
         degree_list: List[float]
 
@@ -605,15 +604,7 @@ class Solver(py2dmat.solver.SolverBase):
                 )
             self.calculated_info_line = v
 
-            v = info_config.get("row_number", 8)
-            if not (isinstance(v, int) and v >= 0):
-                raise exception.InputError(
-                    "ERROR: row_number should be non-negative integer"
-                )
-            self.row_number = v
-
-            v = info_config.get("cal_number",None)
-            
+            v = info_config.get("cal_number",None)            
             if v == None :
                 raise exception.InputError(
                         "ERROR: You have to set the 'cal_number'."
@@ -785,7 +776,6 @@ class Solver(py2dmat.solver.SolverBase):
             calculated_info_line = self.calculated_info_line
             calculated_nlines = self.calculated_nlines
             omega = self.omega
-            row_number = self.row_number
             degree_max = self.degree_max
             degree_list = self.degree_list
 
