@@ -395,8 +395,12 @@ class Solver(py2dmat.solver.SolverBase):
             # solver.post
             info_post = info_s.get("post", {})
             v = info_post.get("normalization", "TOTAL")
-            if v not in ["TOTAL", "MAX", "MS_NORM", "MS_NORM_SET_WGT"]:
-                raise exception.InputError("ERROR: normalization must be MS_NORM, TOTAL or MAX")
+            if v == "MAX":
+                raise exception.InputError('ERROR: normalization == "MAX" is not available')
+            if v not in ["TOTAL", "MS_NORM", "MS_NORM_SET_WGT"]:
+                msg ="ERROR: normalization must be "
+                msg+="MS_NORM, MS_NORM_SET_WGT or TOTAL"
+                raise exception.InputError(msg)
             self.normalization = v
 
             v = info_post.get("Rfactor_type", "A")
@@ -543,14 +547,10 @@ class Solver(py2dmat.solver.SolverBase):
                             self.reference_normed[-1,:].tolist()
                         )
 
-                else:  # self.normalization == "MAX":
-                    self.reference_norm = max(self.reference) 
-                    self.reference_normalized = [
-                        I_exp / self.reference_norm for I_exp in self.reference
-                    ]
-                    for p in self.reference_normalized:
-                        self.all_reference_normalized.append(p)
-            
+                else:
+                    msg ="ERROR: normalization must be "
+                    msg+="MS_NORM, MS_NORM_SET_WGT or TOTAL"
+                    raise exception.InputError(msg)
             # solver.config
             info_config = info_s.get("config", {})
             self.surface_output_file = info_config.get(
@@ -898,13 +898,10 @@ class Solver(py2dmat.solver.SolverBase):
                     convolution_I_calculated_list_normalized = convolution_I_calculated_list_normalized_array[-1,:].copy()
                     self.calc_rocking_curve = np.copy(self.convolution_I_calculated_list_normalized_not_spotwgt_array) 
                 
-                else:  # self.normalization == "MAX"
-                    print('self.normalization == "MAX" mb対応検討中')
-                    I_calculated_norm = max(convolution_I_calculated_list)
-                    convolution_I_calculated_list_normalized = [
-                        c / I_calculated_norm for c in convolution_I_calculated_list
-                    ]
-                    self.calc_rocking_curve = np.array([copy.deepcopy(convolution_I_calculated_list_normalized)])
+                else:
+                    msg ="ERROR: normalization must be "
+                    msg+="MS_NORM, MS_NORM_SET_WGT or TOTAL"
+                    raise exception.InputError(msg)
                 
                 for h in convolution_I_calculated_list_normalized:
                     self.all_convolution_I_calculated_list_normalized.append(h)
