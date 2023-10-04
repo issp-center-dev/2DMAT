@@ -56,7 +56,7 @@ class Solver(py2dmat.solver.SolverBase):
             if not os.access(self.path_to_solver, mode=os.X_OK):
                 raise exception.InputError(f"ERROR: solver ({p2solver}) is not found")
         
-        self.log_mode = False
+        self.isLogmode = False
         self.set_detail_timer()
 
         self.input = Solver.Input(info,self.detail_timer)
@@ -64,7 +64,7 @@ class Solver(py2dmat.solver.SolverBase):
          
     def set_detail_timer(self):
         # TODO: Operate log_mode with toml file. Generate txt of detail_timer.
-        if self.log_mode:
+        if self.isLogmode:
             self.detail_timer = {}
             self.detail_timer["prepare_Log-directory"] = 0
             self.detail_timer["make_surf_input"] = 0
@@ -136,14 +136,14 @@ class Solver(py2dmat.solver.SolverBase):
         self.output.surf_output = self.output.surf_output[0].decode().splitlines()
     
     def run(self, nprocs: int = 1, nthreads: int = 1) -> None:
-        if self.log_mode : time_sta = time.perf_counter()
+        if self.isLogmode : time_sta = time.perf_counter()
         
         if self.run_scheme == "connect_so":
             self.launch_so()
         elif self.run_scheme == "subprocess":
             self._run_by_subprocess([str(self.path_to_solver)])
         
-        if self.log_mode:
+        if self.isLogmode:
             time_end = time.perf_counter()
             self.detail_timer["launch_STR"] += time_end - time_sta
              
@@ -162,9 +162,9 @@ class Solver(py2dmat.solver.SolverBase):
             self.mpirank = mpi.rank()
        
             if d_timer is None:
-                self.log_mode = False
+                self.isLogmode = False
             else:
-                self.log_mode = True
+                self.isLogmode = True
                 self.detail_timer = d_timer
 
             self.root_dir = info.base["root_dir"]
@@ -256,7 +256,7 @@ class Solver(py2dmat.solver.SolverBase):
             return bulk_f
 
         def prepare(self, message: py2dmat.Message):
-            if self.log_mode : time_sta = time.perf_counter() 
+            if self.isLogmode : time_sta = time.perf_counter() 
             
             x_list = message.x
             step = message.step
@@ -273,11 +273,11 @@ class Solver(py2dmat.solver.SolverBase):
                 fitted_value = fitted_value[: len(string_list[index])]
                 fitted_x_list.append(fitted_value)
             
-            if self.log_mode :
+            if self.isLogmode :
                 time_end = time.perf_counter() 
                 self.detail_timer["make_surf_input"] += time_end - time_sta
             
-            if self.log_mode : time_sta = time.perf_counter() 
+            if self.isLogmode : time_sta = time.perf_counter() 
             
             if self.generate_rocking_curve:
                 folder_name = self._pre_bulk(step, bulk_output_file, iset)
@@ -289,15 +289,15 @@ class Solver(py2dmat.solver.SolverBase):
                     #make workdir and copy bulk output file
                     folder_name = self._pre_bulk(step, bulk_output_file, iset)
             
-            if self.log_mode :
+            if self.isLogmode :
                 time_end = time.perf_counter() 
                 self.detail_timer["prepare_Log-directory"] += time_end - time_sta
 
-            if self.log_mode : time_sta = time.perf_counter() 
+            if self.isLogmode : time_sta = time.perf_counter() 
             
             self._replace(fitted_x_list, folder_name)
             
-            if self.log_mode :
+            if self.isLogmode :
                 time_end = time.perf_counter() 
                 self.detail_timer["make_surf_input"] += time_end - time_sta
 
@@ -378,9 +378,9 @@ class Solver(py2dmat.solver.SolverBase):
             self.mpirank = mpi.rank()
 
             if d_timer is None:
-                self.log_mode = False
+                self.isLogmode = False
             else:
-                self.log_mode = True
+                self.isLogmode = True
                 self.detail_timer = d_timer
 
             if "dimension" in info.solver:
@@ -663,7 +663,7 @@ class Solver(py2dmat.solver.SolverBase):
             os.chdir(cwd)
 
             #delete Log-directory
-            if self.log_mode : time_sta = time.perf_counter()
+            if self.isLogmode : time_sta = time.perf_counter()
             
             if self.run_scheme == "subprocess":
                 if self.remove_work_dir:
@@ -671,7 +671,7 @@ class Solver(py2dmat.solver.SolverBase):
                         print(f"WARNING: Failed to remove a working directory, {path}")
                     shutil.rmtree(work_dir, onerror=rmtree_error_handler)
             
-            if self.log_mode :
+            if self.isLogmode :
                 time_end = time.perf_counter()
                 self.detail_timer["delete_Log-directory"] += time_end - time_sta
             
@@ -687,10 +687,10 @@ class Solver(py2dmat.solver.SolverBase):
                 convolution_I_calculated_list,
             ) = self._calc_I_from_file()
             
-            if self.log_mode : time_sta = time.perf_counter()
+            if self.isLogmode : time_sta = time.perf_counter()
             
             Rfactor = self._calc_Rfactor(all_convolution_I_calculated_list_normalized)
-            if self.log_mode :
+            if self.isLogmode :
                 time_end = time.perf_counter()
                 self.detail_timer["calculate_R-factor"] += time_end - time_sta
 
@@ -701,7 +701,7 @@ class Solver(py2dmat.solver.SolverBase):
                 if self.normalization == "MS_NORM":
                     print('NOTICE: The output of rocking curve is not implemented when the following settings are made: self.normalization == "MS_NORM".')
                 else:
-                    if self.log_mode : time_sta = time.perf_counter()
+                    if self.isLogmode : time_sta = time.perf_counter()
                     with open("RockingCurve_calculated.txt", "w") as file_RC:
                         # Write headers
                         file_RC.write("#")
@@ -747,7 +747,7 @@ class Solver(py2dmat.solver.SolverBase):
                                 fmt=fmt_rc
                                 )
                     
-                if self.log_mode :
+                if self.isLogmode :
                     time_end = time.perf_counter()
                     self.detail_timer["make_RockingCurve.txt"] += time_end - time_sta
     
@@ -760,7 +760,7 @@ class Solver(py2dmat.solver.SolverBase):
             return g
 
         def _calc_I_from_file(self):
-            if self.log_mode : time_sta = time.perf_counter()
+            if self.isLogmode : time_sta = time.perf_counter()
             
             surface_output_file = self.surface_output_file
             calculated_first_line = self.calculated_first_line
@@ -815,11 +815,11 @@ class Solver(py2dmat.solver.SolverBase):
                 for beam_index in range(calc_number_of_beams_org):
                     RC_data_org[g_angle_index, beam_index+1] = data[beam_index+1]
 
-            if self.log_mode :
+            if self.isLogmode :
                 time_end = time.perf_counter()
                 self.detail_timer["load_STR_result"] += time_end - time_sta
             
-            if self.log_mode : time_sta = time.perf_counter() 
+            if self.isLogmode : time_sta = time.perf_counter() 
             verbose_mode = False
             data_convolution = lib_make_convolution.calc(
                     RC_data_org, 
@@ -830,11 +830,11 @@ class Solver(py2dmat.solver.SolverBase):
                         ) 
 
             self.all_convolution_I_calculated_list_normalized = []
-            if self.log_mode :
+            if self.isLogmode :
                 time_end = time.perf_counter()
                 self.detail_timer["convolution"] += time_end - time_sta
 
-            if self.log_mode : time_sta = time.perf_counter() 
+            if self.isLogmode : time_sta = time.perf_counter() 
             number = self.cal_number
             angle_number_convolution = data_convolution.shape[0]
             self.glancing_angle = data_convolution[:,0]
@@ -909,7 +909,7 @@ class Solver(py2dmat.solver.SolverBase):
                 for h in convolution_I_calculated_list_normalized:
                     self.all_convolution_I_calculated_list_normalized.append(h)
                 
-            if self.log_mode :
+            if self.isLogmode :
                 time_end = time.perf_counter()
                 self.detail_timer["normalize_calc_I"] += time_end - time_sta
             
