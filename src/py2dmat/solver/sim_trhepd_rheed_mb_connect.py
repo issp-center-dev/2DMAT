@@ -367,13 +367,10 @@ class Solver(py2dmat.solver.SolverBase):
         Rfactor_type: str
         calculated_first_line: int
         calculated_last_line: int
-        degree_max: float
-        degree_list: List[float]
 
         reference: List[float]
         reference_norm: float
         reference_normalized: List[float]
-        degree_list: List[float]
 
         def __init__(self, info, d_timer):
             self.mpicomm = mpi.comm()
@@ -434,9 +431,6 @@ class Solver(py2dmat.solver.SolverBase):
                 )
             self.string_list = v
 
-            v = info_param.get("degree_max", 6.0)
-            self.degree_max = v
-            
             # solver.reference
             info_ref = info_s.get("reference", {})
             v = info_ref.setdefault("reference_first_line", 1)
@@ -498,7 +492,6 @@ class Solver(py2dmat.solver.SolverBase):
             for i in number_ex:
                 sum_experiment += sum(data_experiment[::,i])
             
-            self.degree_list = (data_experiment[::,0])
             self.all_reference_normalized = []
             for index, j in enumerate(number_ex):
                 self.reference = (data_experiment[::,j])
@@ -685,7 +678,6 @@ class Solver(py2dmat.solver.SolverBase):
             return Rfactor
 
         def _post(self, fitted_x_list):
-            degree_list = self.degree_list
             I_experiment_norm = self.reference_norm
             I_experiment_list = self.reference
 
@@ -776,8 +768,6 @@ class Solver(py2dmat.solver.SolverBase):
             calculated_info_line = self.calculated_info_line
             calculated_nlines = self.calculated_nlines
             omega = self.omega
-            degree_max = self.degree_max
-            degree_list = self.degree_list
 
             assert 0 < calculated_nlines
 
