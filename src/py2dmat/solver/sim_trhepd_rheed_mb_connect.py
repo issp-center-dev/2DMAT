@@ -676,17 +676,17 @@ class Solver(py2dmat.solver.SolverBase):
             
             if self.isLogmode :
                 time_end = time.perf_counter()
-                self.detail_timer["delete_Log-directory"] += time_end - time_sta
-            
+                self.detail_timer["delete_Log-directory"] += time_end - time_sta 
             return Rfactor
 
         def _post(self, fitted_x_list):
             I_experiment_normalized_l = self.I_reference_normalized_l
             
             (
+                glancing_angle,
                 conv_number_of_g_angle,
                 conv_I_calculated_norm_l,
-                conv_I_calculated_normalized_l
+                conv_I_calculated_normalized_l,
             ) = self._calc_I_from_file()
             
             if self.isLogmode : time_sta = time.perf_counter()
@@ -698,63 +698,60 @@ class Solver(py2dmat.solver.SolverBase):
             if self.isLogmode :
                 time_end = time.perf_counter()
                 self.detail_timer["calculate_R-factor"] += time_end - time_sta
-
+            
+            #generate rocking curve
             dimension = self.dimension
             string_list = self.string_list
-            
+            cal_number = self.cal_number
+            spot_weight = self.spot_weight
             if self.generate_rocking_curve :
-                if self.normalization == "MS_NORM":
-                    print('NOTICE: The output of rocking curve is not implemented when the following settings are made: self.normalization == "MS_NORM".')
-                else:
-                    if self.isLogmode : time_sta = time.perf_counter()
-                    with open("RockingCurve_calculated.txt", "w") as file_RC:
-                        # Write headers
-                        file_RC.write("#")
-                        for index in range(dimension):
-                            file_RC.write(
-                                "{} = {} ".format(string_list[index], fitted_x_list[index])
-                            )
-                        file_RC.write("\n")
-                        file_RC.write(f"#Rfactor_type = {self.Rfactor_type}")
-                        file_RC.write("\n")
-                        file_RC.write(f"#normalization = {self.normalization}")
-                        file_RC.write("\n")
-                        file_RC.write("#R-factor = {}\n".format(Rfactor))
-                        file_RC.write("#cal_number = {}\n".format(self.cal_number))
-                        file_RC.write("#spot_weight = {}\n".format(self.spot_weight))
-                        file_RC.write("#NOTICE : Intensities are NOT multiplied by spot_weight.")
-                        file_RC.write("\n")
-                        file_RC.write("#The intensity I_(spot) for each spot is normalized as in the following equation.")
-                        file_RC.write("\n")
-                        file_RC.write("#sum( I_(spot) ) = 1")
-                        file_RC.write("\n")
-                        file_RC.write("#")
-                        file_RC.write("\n")
-                        
-                        label_column = ["glancing_angle"]
-                        fmt_rc = '%.5f'
-                        for i in range(len(self.cal_number)):
-                            label_column.append(f"cal_number={self.cal_number[i]}")
-                            fmt_rc += " %.15e"
-
-                        for i in range(len(label_column)):
-                            file_RC.write(f"# #{i} {label_column[i]}")
-                            file_RC.write("\n")
-
-                        angle_for_rc = np.array([self.glancing_angle]) 
-                        np.savetxt(
-                                file_RC,
-                                np.block(
-                                    [angle_for_rc.T, 
-                                     self.calc_rocking_curve.T]  
-                                    ),
-                                fmt=fmt_rc
-                                )
+                if self.isLogmode : time_sta = time.perf_counter()
+                with open("RockingCurve_calculated.txt", "w") as file_RC:
+                    # Write headers
+                    file_RC.write("#")
+                    for index in range(dimension):
+                        file_RC.write(
+                            "{} = {} ".format(string_list[index], fitted_x_list[index])
+                        )
+                    file_RC.write("\n")
+                    file_RC.write(f"#Rfactor_type = {self.Rfactor_type}")
+                    file_RC.write("\n")
+                    file_RC.write(f"#normalization = {self.normalization}")
+                    file_RC.write("\n")
+                    file_RC.write("#R-factor = {}\n".format(Rfactor))
+                    file_RC.write("#cal_number = {}\n".format(cal_number))
+                    file_RC.write("#spot_weight = {}\n".format(spot_weight))
+                    file_RC.write("#NOTICE : Intensities are NOT multiplied by spot_weight.")
+                    file_RC.write("\n")
+                    file_RC.write("#The intensity I_(spot) for each spot is normalized as in the following equation.")
+                    file_RC.write("\n")
+                    file_RC.write("#sum( I_(spot) ) = 1")
+                    file_RC.write("\n")
+                    file_RC.write("#")
+                    file_RC.write("\n")
                     
+                    label_column = ["glancing_angle"]
+                    fmt_rc = '%.5f'
+                    for i in range(len(cal_number)):
+                        label_column.append(f"cal_number={self.cal_number[i]}")
+                        fmt_rc += " %.15e"
+
+                    for i in range(len(label_column)):
+                        file_RC.write(f"# #{i} {label_column[i]}")
+                        file_RC.write("\n")
+                    g_angle_for_rc = np.array([glancing_angle])
+                    np.savetxt(
+                            file_RC,
+                            np.block(
+                                [g_angle_for_rc.T, 
+                                 conv_I_calculated_normalized_l.T]   
+                                ),
+                            fmt=fmt_rc
+                            )
+                
                 if self.isLogmode :
                     time_end = time.perf_counter()
-                    self.detail_timer["make_RockingCurve.txt"] += time_end - time_sta
-    
+                    self.detail_timer["make_RockingCurve.txt"] += time_end - time_sta 
             return Rfactor
 
         def _g(self, x):
@@ -846,7 +843,7 @@ class Solver(py2dmat.solver.SolverBase):
                 raise exception.InputError(
                     "ERROR: The number of glancing angles in the calculation data does not match the number of glancing angles in the experimental data."
                 )
-            self.glancing_angle = data_convolution[:,0]
+            glancing_angle = data_convolution[:,0]
             
             beam_number_reference = len(cal_number)
             for loop_index in range(beam_number_reference):
@@ -906,20 +903,18 @@ class Solver(py2dmat.solver.SolverBase):
                         conv_I_calculated_normalized_l = np.block(
                                 [[conv_I_calculated_normalized_l],
                                  [conv_I_calculated_normalized]]
-                                )
-
-                    self.calc_rocking_curve = np.copy(conv_I_calculated_normalized_l) 
-                
+                                ) 
                 else:
                     msg ="ERROR: normalization must be "
                     msg+="MS_NORM, MS_NORM_SET_WGT or TOTAL"
                     raise exception.InputError(msg)
-                self.calc_rocking_curve = conv_I_calculated_normalized_l 
             
             if self.isLogmode :
                 time_end = time.perf_counter()
                 self.detail_timer["normalize_calc_I"] += time_end - time_sta
+           
             return (
+                glancing_angle,
                 angle_number_convolution,
                 conv_I_calculated_norm_l,
                 conv_I_calculated_normalized_l
