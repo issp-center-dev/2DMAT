@@ -396,22 +396,61 @@ class Solver(py2dmat.solver.SolverBase):
             # solver.post
             info_post = info_s.get("post", {})
             v = info_post.get("normalization", "TOTAL")
+            available_normalization = ["TOTAL", "MULTI_SPOT"]
             if v == "MAX":
                 raise exception.InputError('ERROR: normalization == "MAX" is not available')
-            if v not in ["TOTAL", "MS_NORM", "MS_NORM_SET_WGT"]:
+            if v not in available_normalization:
                 msg ="ERROR: normalization must be "
-                msg+="MS_NORM, MS_NORM_SET_WGT or TOTAL"
+                msg+="MULTI_SPOT or TOTAL"
                 raise exception.InputError(msg)
             self.normalization = v
+
+            v = info_post.get("weight_type", None)
+            available_weight_type = ["calc", "manual"]
+            if self.normalization == "MULTI_SPOT":
+                if v is None :
+                    msg ='ERROR: If normalization = "MULTI_SPOT", '
+                    msg+='"weight_type" must be set in [solver.post].'
+                    raise exception.InputError(msg)
+                elif v not in available_weight_type:
+                    msg ="ERROR: weight_type must be "
+                    msg+="calc or manual"
+                    raise exception.InputError(msg)
+            else:
+                if v is not None :
+                    if self.mpirank == 0:
+                        msg ='NOTICE: If normalization = "MULTI_SPOT" is not set, '
+                        msg+='"weight_type" is NOT considered in the calculation.'
+                        print(msg)    
+                    self.weight_type = None
+            self.weight_type = v
+
+            v = info_post.get("spot_weight", [])
+            if self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
+                if v == [] :
+                    msg ='ERROR: With normalization="MULTI_SPOT" and '
+                    msg+='weight_type=="manual", the "spot_weight" option '
+                    msg+='must be set in [solver.post].'
+                    raise exception.InputError(msg)
+                self.spot_weight = np.array(v)/sum(v)
+            else:
+                if v != []:
+                    if self.mpirank == 0:
+                        msg ='NOTICE: With the specified "normalization" option, '
+                        msg+='the "spot_weight" you specify in the toml file is ignored, '
+                        msg+='since the spot_weight is automatically calculated within the program.'
+                        print(msg)
+                if self.normalization== "TOTAL":
+                    self.spot_weight = np.array([1])
 
             v = info_post.get("Rfactor_type", "A")
             if v not in ["A", "B", "A2"]:
                 raise exception.InputError("ERROR: Rfactor_type must be A, A2 or B")
-            if self.normalization=="MS_NORM_SET_WGT":
+            if self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
                 if (v!="A") and (v!="A2") :
-                    raise exception.InputError(
-                            'ERROR: When normalization="MS_NORM_SET_WGT" is set, only Rfactor_type="A" or Rfactor_type="A2" is valid.'
-                            )
+                    msg ='With normalization="MULTI_SPOT" and weight_type=="manual", '
+                    msg+='only Rfactor_type="A" or Rfactor_type="A2" is valid.'
+                    raise exception.InputError(msg)
             self.Rfactor_type = v
 
             v = info_post.get("omega", 0.5)
@@ -421,22 +460,6 @@ class Solver(py2dmat.solver.SolverBase):
             
             self.remove_work_dir = info_post.get("remove_work_dir", False)
             
-            v = info_post.get("spot_weight", [])
-            if self.normalization=="MS_NORM_SET_WGT":
-                if v == [] :
-                    msg ='ERROR:If normalization="MS_NORM_SET_WGT", '
-                    msg+='"spot_weight" option must be set in solver.post.'
-                    raise exception.InputError(msg)
-                self.spot_weight = np.array(v)/sum(v)
-            else:
-                if v != []:
-                    if self.mpirank == 0:
-                        msg ='NOTICE: With the specified "normalization", '
-                        msg+='the "spot_weight" you specify in the toml file is ignored, '
-                        msg+='since the spot_weight is automatically calculated within the program.'
-                        print(msg)
-                if self.normalization== "TOTAL":
-                    self.spot_weight = np.array([1])
  
             # solver.param
             info_param = info_s.get("param", {})
@@ -494,7 +517,7 @@ class Solver(py2dmat.solver.SolverBase):
                     "ERROR: The 'exp_number' setting is wrong."
                 )
 
-            if self.normalization=="MS_NORM_SET_WGT":
+            if self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
                 if len(v) != len(self.spot_weight):
                     raise exception.InputError(
                     "ERROR:len('exp_number') and len('spot_weight') do not match."
@@ -518,7 +541,7 @@ class Solver(py2dmat.solver.SolverBase):
                     I_reference_normalized = I_reference/I_reference_norm
                     I_reference_norm_l = np.array([I_reference_norm])
                     self.I_reference_normalized_l = np.array([I_reference_normalized])
-                elif self.normalization == "MS_NORM":
+                elif self.normalization=="MULTI_SPOT" and self.weight_type=="calc":
                     I_reference_norm = np.sum(I_reference)
                     I_reference_normalized = I_reference/I_reference_norm
                     if loop_index == 0: #first loop
@@ -532,7 +555,7 @@ class Solver(py2dmat.solver.SolverBase):
                                 [[self.I_reference_normalized_l],
                                  [I_reference_normalized]] 
                                     )
-                elif self.normalization == "MS_NORM_SET_WGT":
+                elif self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
                     I_reference_norm = np.sum(I_reference)
                     I_reference_normalized = I_reference/I_reference_norm
                     if loop_index == 0: #first loop
@@ -548,7 +571,7 @@ class Solver(py2dmat.solver.SolverBase):
                                     )
                 else:
                     msg ="ERROR: normalization must be "
-                    msg+="MS_NORM, MS_NORM_SET_WGT or TOTAL"
+                    msg+="MULTI_SPOT or TOTAL"
                     raise exception.InputError(msg)
             # solver.config
             info_config = info_s.get("config", {})
@@ -607,7 +630,7 @@ class Solver(py2dmat.solver.SolverBase):
                     "ERROR: 'cal_number' must be a list type."
                 )
             
-            if self.normalization=="MS_NORM_SET_WGT":
+            if self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
                 if len(self.spot_weight) != len(v):
                     raise exception.InputError(
                         "len('cal_number') and len('spot_weight') do not match."
@@ -704,6 +727,7 @@ class Solver(py2dmat.solver.SolverBase):
             string_list = self.string_list
             cal_number = self.cal_number
             spot_weight = self.spot_weight
+            weight_type = self.weight_type 
             if self.generate_rocking_curve :
                 if self.isLogmode : time_sta = time.perf_counter()
                 with open("RockingCurve_calculated.txt", "w") as file_RC:
@@ -718,6 +742,8 @@ class Solver(py2dmat.solver.SolverBase):
                     file_RC.write("\n")
                     file_RC.write(f"#normalization = {self.normalization}")
                     file_RC.write("\n")
+                    if weight_type is not None:
+                        file_RC.write(f"#weight_type = {weight_type}\n")
                     file_RC.write("#R-factor = {}\n".format(Rfactor))
                     file_RC.write("#cal_number = {}\n".format(cal_number))
                     file_RC.write("#spot_weight = {}\n".format(spot_weight))
@@ -858,7 +884,7 @@ class Solver(py2dmat.solver.SolverBase):
                     conv_I_calculated_normalized_l = np.array(
                             [conv_I_calculated_normalized]
                                 )
-                elif self.normalization == "MS_NORM":
+                elif self.normalization=="MULTI_SPOT" and self.weight_type=="calc":
                     conv_I_calculated_norm = np.sum(conv_I_calculated)
                     conv_I_calculated_normalized = conv_I_calculated/conv_I_calculated_norm
                     if loop_index == 0: #first loop
@@ -885,7 +911,7 @@ class Solver(py2dmat.solver.SolverBase):
                             #                / sum(conv_I_c_norm_l_power2) )
                             self.spot_weight = ( conv_I_calculated_norm_l 
                                              / sum(conv_I_calculated_norm_l) )**2
-                elif self.normalization == "MS_NORM_SET_WGT":
+                elif self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
                     conv_I_calculated_norm = np.sum(conv_I_calculated)
                     conv_I_calculated_normalized = conv_I_calculated/conv_I_calculated_norm
                     if loop_index == 0: #first loop
@@ -906,7 +932,7 @@ class Solver(py2dmat.solver.SolverBase):
                                 ) 
                 else:
                     msg ="ERROR: normalization must be "
-                    msg+="MS_NORM, MS_NORM_SET_WGT or TOTAL"
+                    msg+="MULTI_SPOT or TOTAL"
                     raise exception.InputError(msg)
             
             if self.isLogmode :
