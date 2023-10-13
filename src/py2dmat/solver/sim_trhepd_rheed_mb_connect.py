@@ -56,7 +56,7 @@ class Solver(py2dmat.solver.SolverBase):
             if not os.access(self.path_to_solver, mode=os.X_OK):
                 raise exception.InputError(f"ERROR: solver ({p2solver}) is not found")
         
-        self.log_mode = False
+        self.isLogmode = False
         self.set_detail_timer()
 
         self.input = Solver.Input(info,self.detail_timer)
@@ -64,7 +64,7 @@ class Solver(py2dmat.solver.SolverBase):
          
     def set_detail_timer(self):
         # TODO: Operate log_mode with toml file. Generate txt of detail_timer.
-        if self.log_mode:
+        if self.isLogmode:
             self.detail_timer = {}
             self.detail_timer["prepare_Log-directory"] = 0
             self.detail_timer["make_surf_input"] = 0
@@ -101,7 +101,8 @@ class Solver(py2dmat.solver.SolverBase):
         return self.output.get_results(self.work_dir)
     
     def load_so(self):
-        self.lib = np.ctypeslib.load_library("surf.so",os.path.dirname(__file__) )
+        self.lib = np.ctypeslib.load_library("surf.so",
+                                             os.path.dirname(__file__))
         self.lib.surf_so.argtypes = (
                 ctypes.POINTER(ctypes.c_int),
                 ctypes.POINTER(ctypes.c_int),
@@ -136,14 +137,14 @@ class Solver(py2dmat.solver.SolverBase):
         self.output.surf_output = self.output.surf_output[0].decode().splitlines()
     
     def run(self, nprocs: int = 1, nthreads: int = 1) -> None:
-        if self.log_mode : time_sta = time.perf_counter()
+        if self.isLogmode : time_sta = time.perf_counter()
         
         if self.run_scheme == "connect_so":
             self.launch_so()
         elif self.run_scheme == "subprocess":
             self._run_by_subprocess([str(self.path_to_solver)])
         
-        if self.log_mode:
+        if self.isLogmode:
             time_end = time.perf_counter()
             self.detail_timer["launch_STR"] += time_end - time_sta
              
@@ -162,9 +163,9 @@ class Solver(py2dmat.solver.SolverBase):
             self.mpirank = mpi.rank()
        
             if d_timer is None:
-                self.log_mode = False
+                self.isLogmode = False
             else:
-                self.log_mode = True
+                self.isLogmode = True
                 self.detail_timer = d_timer
 
             self.root_dir = info.base["root_dir"]
@@ -256,7 +257,7 @@ class Solver(py2dmat.solver.SolverBase):
             return bulk_f
 
         def prepare(self, message: py2dmat.Message):
-            if self.log_mode : time_sta = time.perf_counter() 
+            if self.isLogmode : time_sta = time.perf_counter() 
             
             x_list = message.x
             step = message.step
@@ -273,11 +274,11 @@ class Solver(py2dmat.solver.SolverBase):
                 fitted_value = fitted_value[: len(string_list[index])]
                 fitted_x_list.append(fitted_value)
             
-            if self.log_mode :
+            if self.isLogmode :
                 time_end = time.perf_counter() 
                 self.detail_timer["make_surf_input"] += time_end - time_sta
             
-            if self.log_mode : time_sta = time.perf_counter() 
+            if self.isLogmode : time_sta = time.perf_counter() 
             
             if self.generate_rocking_curve:
                 folder_name = self._pre_bulk(step, bulk_output_file, iset)
@@ -289,15 +290,15 @@ class Solver(py2dmat.solver.SolverBase):
                     #make workdir and copy bulk output file
                     folder_name = self._pre_bulk(step, bulk_output_file, iset)
             
-            if self.log_mode :
+            if self.isLogmode :
                 time_end = time.perf_counter() 
                 self.detail_timer["prepare_Log-directory"] += time_end - time_sta
 
-            if self.log_mode : time_sta = time.perf_counter() 
+            if self.isLogmode : time_sta = time.perf_counter() 
             
             self._replace(fitted_x_list, folder_name)
             
-            if self.log_mode :
+            if self.isLogmode :
                 time_end = time.perf_counter() 
                 self.detail_timer["make_surf_input"] += time_end - time_sta
 
@@ -367,14 +368,10 @@ class Solver(py2dmat.solver.SolverBase):
         Rfactor_type: str
         calculated_first_line: int
         calculated_last_line: int
-        row_number: int
-        degree_max: float
-        degree_list: List[float]
 
-        reference: List[float]
-        reference_norm: float
-        reference_normalized: List[float]
-        degree_list: List[float]
+        I_reference: List[float]
+        I_reference_norm: float
+        I_reference_normalized: List[float]
 
         def __init__(self, info, d_timer):
             self.mpicomm = mpi.comm()
@@ -382,9 +379,9 @@ class Solver(py2dmat.solver.SolverBase):
             self.mpirank = mpi.rank()
 
             if d_timer is None:
-                self.log_mode = False
+                self.isLogmode = False
             else:
-                self.log_mode = True
+                self.isLogmode = True
                 self.detail_timer = d_timer
 
             if "dimension" in info.solver:
@@ -396,62 +393,64 @@ class Solver(py2dmat.solver.SolverBase):
             self.run_scheme = info_s["run_scheme"]
             self.generate_rocking_curve = info_s.get("generate_rocking_curve", False)
 
-            # solver.config
-            info_config = info_s.get("config", {})
-            self.surface_output_file = info_config.get(
-                "surface_output_file", "surf-bulkP.s"
-            )
-
-            v = info_config.get("calculated_first_line", 5)
-            if not (isinstance(v, int) and v >= 0):
-                raise exception.InputError(
-                    "ERROR: calculated_first_line should be non-negative integer"
-                )
-            self.calculated_first_line = v
-
-            v = info_config.get("calculated_last_line", 60)
-            if not (isinstance(v, int) and v >= 0):
-                raise exception.InputError(
-                    "ERROR: calculated_last_line should be non-negative integer"
-                )
-            self.calculated_last_line = v
-
-            v = info_config.get("row_number", 8)
-            if not (isinstance(v, int) and v >= 0):
-                raise exception.InputError(
-                    "ERROR: row_number should be non-negative integer"
-                )
-            self.row_number = v
-
-            v = info_config.get("cal_number",None)
-            
-            if v == None :
-                raise exception.InputError(
-                        "ERROR: You have to set the 'cal_number'."
-                )
-            
-            if not isinstance(v, list):
-                raise exception.InputError(
-                    "ERROR: 'cal_number' must be a list type."
-                )
-            
-            self.cal_number = v
-
             # solver.post
             info_post = info_s.get("post", {})
             v = info_post.get("normalization", "TOTAL")
-            if v not in ["TOTAL", "MAX", "MS_NORM", "MS_NORM_SET_WGT"]:
-                raise exception.InputError("ERROR: normalization must be MS_NORM, TOTAL or MAX")
+            available_normalization = ["TOTAL", "MULTI_SPOT"]
+            if v == "MAX":
+                raise exception.InputError('ERROR: normalization == "MAX" is not available')
+            if v not in available_normalization:
+                msg ="ERROR: normalization must be "
+                msg+="MULTI_SPOT or TOTAL"
+                raise exception.InputError(msg)
             self.normalization = v
+
+            v = info_post.get("weight_type", None)
+            available_weight_type = ["calc", "manual"]
+            if self.normalization == "MULTI_SPOT":
+                if v is None :
+                    msg ='ERROR: If normalization = "MULTI_SPOT", '
+                    msg+='"weight_type" must be set in [solver.post].'
+                    raise exception.InputError(msg)
+                elif v not in available_weight_type:
+                    msg ="ERROR: weight_type must be "
+                    msg+="calc or manual"
+                    raise exception.InputError(msg)
+            else:
+                if v is not None :
+                    if self.mpirank == 0:
+                        msg ='NOTICE: If normalization = "MULTI_SPOT" is not set, '
+                        msg+='"weight_type" is NOT considered in the calculation.'
+                        print(msg)    
+                    self.weight_type = None
+            self.weight_type = v
+
+            v = info_post.get("spot_weight", [])
+            if self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
+                if v == [] :
+                    msg ='ERROR: With normalization="MULTI_SPOT" and '
+                    msg+='weight_type=="manual", the "spot_weight" option '
+                    msg+='must be set in [solver.post].'
+                    raise exception.InputError(msg)
+                self.spot_weight = np.array(v)/sum(v)
+            else:
+                if v != []:
+                    if self.mpirank == 0:
+                        msg ='NOTICE: With the specified "normalization" option, '
+                        msg+='the "spot_weight" you specify in the toml file is ignored, '
+                        msg+='since the spot_weight is automatically calculated within the program.'
+                        print(msg)
+                if self.normalization== "TOTAL":
+                    self.spot_weight = np.array([1])
 
             v = info_post.get("Rfactor_type", "A")
             if v not in ["A", "B", "A2"]:
                 raise exception.InputError("ERROR: Rfactor_type must be A, A2 or B")
-            if self.normalization=="MS_NORM_SET_WGT":
+            if self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
                 if (v!="A") and (v!="A2") :
-                    raise exception.InputError(
-                            'ERROR: When normalization="MS_NORM_SET_WGT" is set, only Rfactor_type="A" or Rfactor_type="A2" is valid.'
-                            )
+                    msg ='With normalization="MULTI_SPOT" and weight_type=="manual", '
+                    msg+='only Rfactor_type="A" or Rfactor_type="A2" is valid.'
+                    raise exception.InputError(msg)
             self.Rfactor_type = v
 
             v = info_post.get("omega", 0.5)
@@ -461,17 +460,7 @@ class Solver(py2dmat.solver.SolverBase):
             
             self.remove_work_dir = info_post.get("remove_work_dir", False)
             
-            if self.normalization=="MS_NORM_SET_WGT":
-                v = info_post.get("spot_weight", None)
-                if v is None:
-                    raise exception.InputError('ERROR:If normalization="MS_NORM_SET_WGT", the weight must be set in solver.post.')
-                if len(v) != len(self.cal_number):
-                    raise exception.InputError(
-                        "len('cal_number') and len('spot_weight') do not match."
-                    )
-                
-                self.spot_weight = np.array(v)/sum(v)
-            
+ 
             # solver.param
             info_param = info_s.get("param", {})
             v = info_param.setdefault("string_list", ["value_01", "value_02"])
@@ -481,9 +470,6 @@ class Solver(py2dmat.solver.SolverBase):
                 )
             self.string_list = v
 
-            v = info_param.get("degree_max", 6.0)
-            self.degree_max = v
-            
             # solver.reference
             info_ref = info_s.get("reference", {})
             v = info_ref.setdefault("reference_first_line", 1)
@@ -531,79 +517,130 @@ class Solver(py2dmat.solver.SolverBase):
                     "ERROR: The 'exp_number' setting is wrong."
                 )
 
-            if self.normalization=="MS_NORM_SET_WGT":
+            if self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
                 if len(v) != len(self.spot_weight):
                     raise exception.InputError(
-                        "len('exp_number') and len('spot_weight') do not match."
+                    "ERROR:len('exp_number') and len('spot_weight') do not match."
                     )
 
+            if self.normalization=="TOTAL" and len(v)!=1:
+                msg ='When normalization=="TOTAL" is specified, '
+                msg+='only one beam data can be specified with '
+                msg+='"exp_number" option.' 
+                raise exception.InputError(msg)
+
             self.exp_number = v
+            
+            #Normalization of reference data
             self.beam_number_experiment = len(self.exp_number)
-            number_ex = self.exp_number
-            
-            sum_experiment = 0
-            for i in number_ex:
-                sum_experiment += sum(data_experiment[::,i])
-            
-            self.degree_list = (data_experiment[::,0])
-            self.all_reference_normalized = []
-            for index, j in enumerate(number_ex):
-                self.reference = (data_experiment[::,j])
-                
-                self.reference_norm = 0.0
+            for loop_index in range(self.beam_number_experiment):
+                exp_index = self.exp_number[loop_index]
+                I_reference = data_experiment[:,exp_index]
                 if self.normalization == "TOTAL":
-                    self.reference_norm = sum_experiment
-                    self.reference_normalized = [
-                        I_exp / self.reference_norm for I_exp in self.reference
-                    ]
-                    for p in self.reference_normalized:
-                        self.all_reference_normalized.append(p)
-
-                elif self.normalization == "MS_NORM":
-                    if j == number_ex[0]: #first loop
-                        self.reference_norm_1st = np.array([np.sum(self.reference)])
-                        self.reference_1st_normed = np.array([self.reference/self.reference_norm_1st[-1]])
+                    I_reference_norm = np.sum(I_reference)
+                    I_reference_normalized = I_reference/I_reference_norm
+                    I_reference_norm_l = np.array([I_reference_norm])
+                    self.I_reference_normalized_l = np.array([I_reference_normalized])
+                elif self.normalization=="MULTI_SPOT" and self.weight_type=="calc":
+                    I_reference_norm = np.sum(I_reference)
+                    I_reference_normalized = I_reference/I_reference_norm
+                    if loop_index == 0: #first loop
+                        I_reference_norm_l = np.array([I_reference_norm])
+                        self.I_reference_normalized_l = np.array([I_reference_normalized])
                     else : # N-th loop
-                        self.reference_norm_1st = np.block([self.reference_norm_1st, np.sum(self.reference)])
-                        self.reference_1st_normed = np.block([[self.reference_1st_normed],[self.reference/self.reference_norm_1st[-1]]])
-                
-                elif self.normalization == "MS_NORM_SET_WGT":
-                    if index == 0: #first loop
-                        self.reference_norm_l = np.array(
-                            [np.sum(self.reference)]
-                            )
-                        self.reference_normed_not_sptwgt = np.array(
-                            [self.reference/self.reference_norm_l[-1]]
-                            ) 
-                        self.reference_normed = self._multiply_spot_weight(
-                            self.reference_normed_not_sptwgt,    
-                            self.spot_weight[index])
+                        I_reference_norm_l = np.block(
+                                [I_reference_norm_l, I_reference_norm]
+                                    )
+                        self.I_reference_normalized_l = np.block(
+                                [[self.I_reference_normalized_l],
+                                 [I_reference_normalized]] 
+                                    )
+                elif self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
+                    I_reference_norm = np.sum(I_reference)
+                    I_reference_normalized = I_reference/I_reference_norm
+                    if loop_index == 0: #first loop
+                        I_reference_norm_l = np.array([I_reference_norm])
+                        self.I_reference_normalized_l = np.array([I_reference_normalized])
                     else : # N-th loop
-                        self.reference_norm_l = np.block(
-                            [self.reference_norm_l,
-                            np.sum(self.reference)]
-                            )
-                        self.reference_normed_not_sptwgt = np.block(
-                            [[self.reference_normed_not_sptwgt],
-                             [self.reference/self.reference_norm_l[-1]]]
-                            )
-                        self.reference_normed = np.block(
-                            [[self.reference_normed],
-                             [self._multiply_spot_weight(
-                                self.reference_normed_not_sptwgt[-1,:],
-                                self.spot_weight[index]) ] ]
-                            )
-                    self.all_reference_normalized.extend(
-                            self.reference_normed[-1,:].tolist()
-                        )
+                        I_reference_norm_l = np.block(
+                            [I_reference_norm_l, I_reference_norm]
+                                    )
+                        self.I_reference_normalized_l = np.block(
+                                [[self.I_reference_normalized_l],
+                                 [I_reference_normalized]] 
+                                    )
+                else:
+                    msg ="ERROR: normalization must be "
+                    msg+="MULTI_SPOT or TOTAL"
+                    raise exception.InputError(msg)
+            # solver.config
+            info_config = info_s.get("config", {})
+            self.surface_output_file = info_config.get(
+                "surface_output_file", "surf-bulkP.s"
+            )
 
-                else:  # self.normalization == "MAX":
-                    self.reference_norm = max(self.reference) 
-                    self.reference_normalized = [
-                        I_exp / self.reference_norm for I_exp in self.reference
-                    ]
-                    for p in self.reference_normalized:
-                        self.all_reference_normalized.append(p)
+            v = info_config.get("calculated_first_line", 5)
+            if not (isinstance(v, int) and v >= 0):
+                raise exception.InputError(
+                    "ERROR: calculated_first_line should be non-negative integer"
+                )
+            self.calculated_first_line = v
+
+            v = info_config.get(
+                "calculated_last_line", 
+                self.calculated_first_line + self.angle_number_experiment-1
+                                    )
+            if not (isinstance(v, int) and v >= 0):
+                raise exception.InputError(
+                    "ERROR: calculated_last_line should be non-negative integer"
+                )
+            self.calculated_last_line = v
+            
+            # Number of lines in the computation file 
+            # used for R-factor calculations.
+            self.calculated_nlines = (self.calculated_last_line - 
+                                      self.calculated_first_line + 1 )
+             
+            if self.angle_number_experiment != self.calculated_nlines :
+                raise exception.InputError(
+                    "ERROR: The number of glancing angles in the calculation data does not match the number of glancing angles in the experimental data."
+                )
+            
+            # Variable indicating whether the warning 
+            # "self.calculated_nlines does not match 
+            #  the number of glancing angles in the calculated file" 
+            # is displayed.
+            self.isWarning_calcnline = False
+            
+            v = info_config.get("calculated_info_line", 2)
+            if not (isinstance(v, int) and v >= 0):
+                raise exception.InputError(
+                    "ERROR: calculated_info_line should be non-negative integer"
+                )
+            self.calculated_info_line = v
+
+            v = info_config.get("cal_number",None)            
+            if v == None :
+                raise exception.InputError(
+                        "ERROR: You have to set the 'cal_number'."
+                )
+            
+            if not isinstance(v, list):
+                raise exception.InputError(
+                    "ERROR: 'cal_number' must be a list type."
+                )
+            
+            if self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
+                if len(self.spot_weight) != len(v):
+                    raise exception.InputError(
+                        "len('cal_number') and len('spot_weight') do not match."
+                    )
+            if self.normalization=="TOTAL" and len(v)!=1:
+                msg ='When normalization=="TOTAL" is specified, '
+                msg+='only one beam data can be specified with '
+                msg+='"cal_number" option.' 
+                raise exception.InputError(msg)
+            self.cal_number = v
 
         def read_experiment(self, ref_path, first, last, read_to_final_line):
             # Read experiment data
@@ -652,7 +689,7 @@ class Solver(py2dmat.solver.SolverBase):
             os.chdir(cwd)
 
             #delete Log-directory
-            if self.log_mode : time_sta = time.perf_counter()
+            if self.isLogmode : time_sta = time.perf_counter()
             
             if self.run_scheme == "subprocess":
                 if self.remove_work_dir:
@@ -660,87 +697,87 @@ class Solver(py2dmat.solver.SolverBase):
                         print(f"WARNING: Failed to remove a working directory, {path}")
                     shutil.rmtree(work_dir, onerror=rmtree_error_handler)
             
-            if self.log_mode :
+            if self.isLogmode :
                 time_end = time.perf_counter()
-                self.detail_timer["delete_Log-directory"] += time_end - time_sta
-            
+                self.detail_timer["delete_Log-directory"] += time_end - time_sta 
             return Rfactor
 
         def _post(self, fitted_x_list):
-            degree_list = self.degree_list
-            I_experiment_norm = self.reference_norm
-            I_experiment_list = self.reference
-
+            I_experiment_normalized_l = self.I_reference_normalized_l
+            
             (
-                all_convolution_I_calculated_list_normalized,
-                I_calculated_norm,
-                convolution_I_calculated_list,
+                glancing_angle,
+                conv_number_of_g_angle,
+                conv_I_calculated_norm_l,
+                conv_I_calculated_normalized_l,
             ) = self._calc_I_from_file()
             
-            if self.log_mode : time_sta = time.perf_counter()
-            
-            Rfactor = self._calc_Rfactor(all_convolution_I_calculated_list_normalized)
-            if self.log_mode :
+            if self.isLogmode : time_sta = time.perf_counter()
+            Rfactor = self._calc_Rfactor(
+                        conv_number_of_g_angle,
+                        conv_I_calculated_normalized_l,
+                        I_experiment_normalized_l,
+                            )
+            if self.isLogmode :
                 time_end = time.perf_counter()
                 self.detail_timer["calculate_R-factor"] += time_end - time_sta
-
+            
+            #generate rocking curve
             dimension = self.dimension
             string_list = self.string_list
-            
+            cal_number = self.cal_number
+            spot_weight = self.spot_weight
+            weight_type = self.weight_type 
             if self.generate_rocking_curve :
-                if self.normalization == "MS_NORM":
-                    print('NOTICE: The output of rocking curve is not implemented when the following settings are made: self.normalization == "MS_NORM".')
-                else:
-                    if self.log_mode : time_sta = time.perf_counter()
-                    with open("RockingCurve_calculated.txt", "w") as file_RC:
-                        # Write headers
-                        file_RC.write("#")
-                        for index in range(dimension):
-                            file_RC.write(
-                                "{} = {} ".format(string_list[index], fitted_x_list[index])
-                            )
-                        file_RC.write("\n")
-                        file_RC.write(f"#Rfactor_type = {self.Rfactor_type}")
-                        file_RC.write("\n")
-                        file_RC.write(f"#normalization = {self.normalization}")
-                        file_RC.write("\n")
-                        file_RC.write("#R-factor = {}\n".format(Rfactor))
-                        file_RC.write("#cal_number = {}\n".format(self.cal_number))
-                        if self.normalization == "MS_NORM_SET_WGT" :
-                            file_RC.write("#spot_weight = {}\n".format(self.spot_weight))
-                            file_RC.write("#NOTICE : The listed intensities are NOT multiplied by spot_weight.")
-                            file_RC.write("\n")
-                        file_RC.write("#The intensity I_(spot) for each spot is normalized as in the following equation.")
-                        file_RC.write("\n")
-                        file_RC.write("#sum( I_(spot) ) = 1")
-                        file_RC.write("\n")
-                        file_RC.write("#")
-                        file_RC.write("\n")
-                        
-                        label_column = ["glancing_angle"]
-                        fmt_rc = '%.5f'
-                        for i in range(len(self.cal_number)):
-                            label_column.append(f"cal_number={self.cal_number[i]}")
-                            fmt_rc += " %.15e"
-
-                        for i in range(len(label_column)):
-                            file_RC.write(f"# #{i} {label_column[i]}")
-                            file_RC.write("\n")
-
-                        angle_for_rc = np.array([self.glancing_angle]) 
-                        np.savetxt(
-                                file_RC,
-                                np.block(
-                                    [angle_for_rc.T, 
-                                     self.calc_rocking_curve.T]  
-                                    ),
-                                fmt=fmt_rc
-                                )
+                if self.isLogmode : time_sta = time.perf_counter()
+                with open("RockingCurve_calculated.txt", "w") as file_RC:
+                    # Write headers
+                    file_RC.write("#")
+                    for index in range(dimension):
+                        file_RC.write(
+                            "{} = {} ".format(string_list[index], fitted_x_list[index])
+                        )
+                    file_RC.write("\n")
+                    file_RC.write(f"#Rfactor_type = {self.Rfactor_type}")
+                    file_RC.write("\n")
+                    file_RC.write(f"#normalization = {self.normalization}")
+                    file_RC.write("\n")
+                    if weight_type is not None:
+                        file_RC.write(f"#weight_type = {weight_type}\n")
+                    file_RC.write("#R-factor = {}\n".format(Rfactor))
+                    file_RC.write("#cal_number = {}\n".format(cal_number))
+                    file_RC.write("#spot_weight = {}\n".format(spot_weight))
+                    file_RC.write("#NOTICE : Intensities are NOT multiplied by spot_weight.")
+                    file_RC.write("\n")
+                    file_RC.write("#The intensity I_(spot) for each spot is normalized as in the following equation.")
+                    file_RC.write("\n")
+                    file_RC.write("#sum( I_(spot) ) = 1")
+                    file_RC.write("\n")
+                    file_RC.write("#")
+                    file_RC.write("\n")
                     
-                if self.log_mode :
+                    label_column = ["glancing_angle"]
+                    fmt_rc = '%.5f'
+                    for i in range(len(cal_number)):
+                        label_column.append(f"cal_number={self.cal_number[i]}")
+                        fmt_rc += " %.15e"
+
+                    for i in range(len(label_column)):
+                        file_RC.write(f"# #{i} {label_column[i]}")
+                        file_RC.write("\n")
+                    g_angle_for_rc = np.array([glancing_angle])
+                    np.savetxt(
+                            file_RC,
+                            np.block(
+                                [g_angle_for_rc.T, 
+                                 conv_I_calculated_normalized_l.T]   
+                                ),
+                            fmt=fmt_rc
+                            )
+                
+                if self.isLogmode :
                     time_end = time.perf_counter()
-                    self.detail_timer["make_RockingCurve.txt"] += time_end - time_sta
-    
+                    self.detail_timer["make_RockingCurve.txt"] += time_end - time_sta 
             return Rfactor
 
         def _g(self, x):
@@ -750,17 +787,18 @@ class Solver(py2dmat.solver.SolverBase):
             return g
 
         def _calc_I_from_file(self):
-            if self.log_mode : time_sta = time.perf_counter()
+            if self.isLogmode : time_sta = time.perf_counter()
             
             surface_output_file = self.surface_output_file
             calculated_first_line = self.calculated_first_line
             calculated_last_line = self.calculated_last_line
-            row_number = self.row_number
-            degree_max = self.degree_max
-            degree_list = self.degree_list
+            calculated_info_line = self.calculated_info_line
+            calculated_nlines = self.calculated_nlines
+            omega = self.omega
 
-            nlines = calculated_last_line - calculated_first_line + 1
-            assert 0 < nlines
+            cal_number = self.cal_number
+
+            assert 0 < calculated_nlines
 
             if self.run_scheme == "connect_so":
                 Clines = self.surf_output
@@ -769,173 +807,182 @@ class Solver(py2dmat.solver.SolverBase):
                 file_input = open(self.surface_output_file, "r")
                 Clines = file_input.readlines()
                 file_input.close()
-            
-            # Extract STR results (glancing angle and intensity) from Clines.
-            # Read the file header
-            line = Clines[0]
-           
-            if line ==  ' FILE OUTPUT for UNIT3\n':
-                alpha_lines = 1
-            else:
-                alpha_lines = 0
-            
-            number_of_lines        = int(len(Clines))
-            number_of_header_lines = 4 + alpha_lines
-            
-            line = Clines[1 + alpha_lines]
+
+            # Reads the number of glancing angles and beams
+            line = Clines[calculated_info_line-1]
             line = line.replace(",", "")
             data = line.split()
             
-            number_of_azimuth_angles  = int(data[0])
-            number_of_glancing_angles = int(data[1])
-            number_of_beams           = int(data[2])
-
+            calc_number_of_g_angles_org = int(data[1])
+            calc_number_of_beams_org    = int(data[2])
+            
+            if calc_number_of_g_angles_org != calculated_nlines:
+                if self.mpirank == 0 and not self.isWarning_calcnline :
+                    msg ="WARNING:\n"
+                    msg+="The number of lines in the calculated file "
+                    msg+="that you have set up does not match "
+                    msg+="the number of glancing angles in the calculated file.\n"
+                    msg+="The number of lines (nline) in the calculated file "
+                    msg+="used for the R-factor calculation "
+                    msg+="is determined by the following values\n"
+                    msg+='nline = "calculated_last_line" - "calculated_first_line" + 1.'
+                    print(msg)
+                    self.isWarning_calcnline = True
+            calc_number_of_g_angles = calculated_nlines
+             
             # Define the array for the rocking curve data.
             # Note the components with (beam-index)=0 are the degree data
-            RC_data_org = np.zeros((number_of_glancing_angles, number_of_beams+1))
-
-            for g_angle_index in range(number_of_glancing_angles):
-                line_index = number_of_header_lines + g_angle_index
+            RC_data_org = np.zeros((calc_number_of_g_angles, calc_number_of_beams_org+1))
+            for g_angle_index in range(calc_number_of_g_angles):
+                line_index = (calculated_first_line - 1) + g_angle_index
                 line = Clines[ line_index ]
             #   print("data line: ", line_index, g_angle_index, line)
                 line = line.replace(",", "")
                 data = line.split()
             #   print(data)
                 RC_data_org[g_angle_index,0]=float(data[0])
-                for beam_index in range(number_of_beams):
+                for beam_index in range(calc_number_of_beams_org):
                     RC_data_org[g_angle_index, beam_index+1] = data[beam_index+1]
 
-            if self.log_mode :
+            if self.isLogmode :
                 time_end = time.perf_counter()
                 self.detail_timer["load_STR_result"] += time_end - time_sta
             
-            if self.log_mode : time_sta = time.perf_counter() 
+            if self.isLogmode : time_sta = time.perf_counter() 
             verbose_mode = False
             data_convolution = lib_make_convolution.calc(
-                    RC_data_org, number_of_beams, number_of_glancing_angles, self.omega, verbose_mode
+                    RC_data_org, 
+                    calc_number_of_beams_org, 
+                    calc_number_of_g_angles,
+                    omega, 
+                    verbose_mode,
                         ) 
-
-            self.all_convolution_I_calculated_list_normalized = []
-            if self.log_mode :
+ 
+            if self.isLogmode :
                 time_end = time.perf_counter()
                 self.detail_timer["convolution"] += time_end - time_sta
 
-            if self.log_mode : time_sta = time.perf_counter() 
-            number = self.cal_number
-            angle_number_convolution = data_convolution.shape[0]
-            self.glancing_angle = data_convolution[:,0]
+            if self.isLogmode : time_sta = time.perf_counter() 
             
+            angle_number_convolution = data_convolution.shape[0]
             if self.angle_number_experiment !=angle_number_convolution:
                 raise exception.InputError(
                     "ERROR: The number of glancing angles in the calculation data does not match the number of glancing angles in the experimental data."
                 )
-                
-            self.beam_number_convolution = data_convolution.shape[1]
-            sum_convolution = np.sum(data_convolution[:,number])
-
-            for i in range(len(number)):
-                convolution_I_calculated_list = data_convolution[:,number[i]]
-
+            glancing_angle = data_convolution[:,0]
+            
+            beam_number_reference = len(cal_number)
+            for loop_index in range(beam_number_reference):
+                cal_index = cal_number[loop_index]
+                conv_I_calculated = data_convolution[:,cal_index]
                 if self.normalization == "TOTAL":
-                    I_calculated_norm = sum_convolution
-                    convolution_I_calculated_list_normalized = [
-                        c / I_calculated_norm for c in convolution_I_calculated_list
-                    ]
-                    self.calc_rocking_curve = np.array([copy.deepcopy(convolution_I_calculated_list_normalized)])
-             
-                elif self.normalization == "MS_NORM":
-                    if i == 0: 
-                        self.reference_2nd_normed = copy.deepcopy(self.reference_1st_normed)
-                        self.all_reference_normalized = []
-                    I_calculated_norm = sum_convolution
-                    convolution_I_calculated_list_normalized = [
-                        c / I_calculated_norm for c in convolution_I_calculated_list
-                    ]
-                    I_calc_norm_sum_spot = sum(convolution_I_calculated_list_normalized)
-                    self.reference_2nd_normed[i,:] *= I_calc_norm_sum_spot 
-                    self.all_reference_normalized.extend(self.reference_2nd_normed[i,:].tolist())
-
-                elif self.normalization == "MS_NORM_SET_WGT":
-                    if i == 0: #first loop
-                        I_calculated_norm = np.array(
-                            [np.sum(convolution_I_calculated_list)]
-                            )
-                        self.convolution_I_calculated_list_normalized_not_spotwgt_array = np.array(
-                            [convolution_I_calculated_list/I_calculated_norm[-1]]
-                            ) 
-                        convolution_I_calculated_list_normalized_array = self._multiply_spot_weight(
-                                self.convolution_I_calculated_list_normalized_not_spotwgt_array,
-                                self.spot_weight[i])
+                    conv_I_calculated_norm = np.sum(conv_I_calculated)
+                    conv_I_calculated_normalized = conv_I_calculated/conv_I_calculated_norm
+                    conv_I_calculated_norm_l = np.array(
+                            [conv_I_calculated_norm]
+                                )
+                    conv_I_calculated_normalized_l = np.array(
+                            [conv_I_calculated_normalized]
+                                )
+                elif self.normalization=="MULTI_SPOT" and self.weight_type=="calc":
+                    conv_I_calculated_norm = np.sum(conv_I_calculated)
+                    conv_I_calculated_normalized = conv_I_calculated/conv_I_calculated_norm
+                    if loop_index == 0: #first loop
+                        conv_I_calculated_norm_l = np.array(
+                                [conv_I_calculated_norm]
+                                    )
+                        conv_I_calculated_normalized_l = np.array(
+                                [conv_I_calculated_normalized]
+                                    )
                     else: # N-th loop
-                        I_calculated_norm = np.block(
-                            [I_calculated_norm,
-                            np.sum(convolution_I_calculated_list)]
-                            )
-                        self.convolution_I_calculated_list_normalized_not_spotwgt_array = np.block(
-                            [[self.convolution_I_calculated_list_normalized_not_spotwgt_array],
-                             [convolution_I_calculated_list/I_calculated_norm[-1]]] 
-                            )
-                        convolution_I_calculated_list_normalized_array = np.block(
-                            [[convolution_I_calculated_list_normalized_array],
-                             [ self._multiply_spot_weight(
-                                 self.convolution_I_calculated_list_normalized_not_spotwgt_array[-1,:],
-                                 self.spot_weight[i]) ] ]
-                            )
-                    convolution_I_calculated_list_normalized = convolution_I_calculated_list_normalized_array[-1,:].copy()
-                    self.calc_rocking_curve = np.copy(self.convolution_I_calculated_list_normalized_not_spotwgt_array) 
-                
-                else:  # self.normalization == "MAX"
-                    print('self.normalization == "MAX" mb対応検討中')
-                    I_calculated_norm = max(convolution_I_calculated_list)
-                    convolution_I_calculated_list_normalized = [
-                        c / I_calculated_norm for c in convolution_I_calculated_list
-                    ]
-                    self.calc_rocking_curve = np.array([copy.deepcopy(convolution_I_calculated_list_normalized)])
-                
-                for h in convolution_I_calculated_list_normalized:
-                    self.all_convolution_I_calculated_list_normalized.append(h)
-                
-            if self.log_mode :
+                        conv_I_calculated_norm_l = np.block(
+                                [conv_I_calculated_norm_l,
+                                 conv_I_calculated_norm]
+                                    )
+                        conv_I_calculated_normalized_l = np.block(
+                                [[conv_I_calculated_normalized_l],
+                                 [conv_I_calculated_normalized]]
+                                )
+                        if loop_index == beam_number_reference-1: #first loop
+                            #conv_I_c_norm_l_power2 = conv_I_calculated_norm_l**2
+                            #self.spot_weight = conv_I_c_norm_l_power2
+                            #self.spot_weight = (conv_I_c_norm_l_power2
+                            #                / sum(conv_I_calculated_norm_l)**2)
+                            #                / sum(conv_I_c_norm_l_power2) )
+                            self.spot_weight = ( conv_I_calculated_norm_l 
+                                             / sum(conv_I_calculated_norm_l) )**2
+                elif self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
+                    conv_I_calculated_norm = np.sum(conv_I_calculated)
+                    conv_I_calculated_normalized = conv_I_calculated/conv_I_calculated_norm
+                    if loop_index == 0: #first loop
+                        conv_I_calculated_norm_l = np.array(
+                                [conv_I_calculated_norm]
+                                    )
+                        conv_I_calculated_normalized_l = np.array(
+                                [conv_I_calculated_normalized]
+                                    )
+                    else: # N-th loop
+                        conv_I_calculated_norm_l = np.block(
+                                [conv_I_calculated_norm_l,
+                                 conv_I_calculated_norm]
+                                    )
+                        conv_I_calculated_normalized_l = np.block(
+                                [[conv_I_calculated_normalized_l],
+                                 [conv_I_calculated_normalized]]
+                                ) 
+                else:
+                    msg ="ERROR: normalization must be "
+                    msg+="MULTI_SPOT or TOTAL"
+                    raise exception.InputError(msg)
+            
+            if self.isLogmode :
                 time_end = time.perf_counter()
                 self.detail_timer["normalize_calc_I"] += time_end - time_sta
-            
+           
             return (
-                self.all_convolution_I_calculated_list_normalized,
-                I_calculated_norm,
-                convolution_I_calculated_list,
-            )
+                glancing_angle,
+                angle_number_convolution,
+                conv_I_calculated_norm_l,
+                conv_I_calculated_normalized_l
+            ) 
         
-        
-        def _calc_Rfactor(self, calc_result):
-            I_experiment_list_normalized = self.all_reference_normalized
+        def _calc_Rfactor(self, n_g_angle, calc_result, exp_result):
+            spot_weight = self.spot_weight
+            n_spot = len(spot_weight)
             if self.Rfactor_type == "A":
                 R = 0.0
-                for I_exp, I_calc in zip(I_experiment_list_normalized, calc_result):
-                    R += (I_exp - I_calc) ** 2
+                for spot_index in range(n_spot):
+                    R_spot = 0.0
+                    for angle_index in range(n_g_angle):
+                        R_spot += (exp_result[spot_index, angle_index] 
+                                - calc_result[spot_index, angle_index] )**2
+                    R_spot = spot_weight[spot_index] * R_spot
+                    R += R_spot 
                 R = np.sqrt(R)
-
             elif self.Rfactor_type == "A2":
                 R = 0.0
-                for I_exp, I_calc in zip(I_experiment_list_normalized, calc_result):
-                    R += (I_exp - I_calc) ** 2
-            
+                for spot_index in range(n_spot):
+                    R_spot = 0.0
+                    for angle_index in range(n_g_angle):
+                        R_spot += (exp_result[spot_index, angle_index] 
+                                - calc_result[spot_index, angle_index] )**2
+                    R_spot = spot_weight[spot_index] * R_spot
+                    R += R_spot 
             else:  # self.Rfactor_type == "B"
+                all_exp_result  = []
+                all_calc_result = []
+                for spot_index in range(n_spot):
+                    for angle_index in range(n_g_angle):
+                        all_exp_result.append(
+                            exp_result[spot_index, angle_index])
+                        all_calc_result.append(
+                            calc_result[spot_index, angle_index])
                 y1 = 0.0
                 y2 = 0.0
                 y3 = 0.0
-                for I_exp, I_calc in zip(I_experiment_list_normalized, calc_result):
+                for I_exp, I_calc in zip(all_exp_result, all_calc_result):
                     y1 += (I_exp - I_calc) ** 2
                     y2 += I_exp ** 2
                     y3 += I_calc ** 2
                 R = y1 / (y2 + y3)
             return R
-         
-        def _multiply_spot_weight(self,I_not_multiplied_spotwgt,s_weight):
-            if (self.Rfactor_type=="A") or (self.Rfactor_type=="A2") :
-                I_multiplied = np.sqrt(s_weight)*I_not_multiplied_spotwgt
-            
-            else:
-                raise exception.InputError(
-                        'ERROR: When normalization="MS_NORM_SET_WGT" is set, only Rfactor_type="A" or Rfactor_type="A2" is valid.'
-                        )
-            return I_multiplied
