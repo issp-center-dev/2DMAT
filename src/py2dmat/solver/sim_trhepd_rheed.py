@@ -826,10 +826,8 @@ class Solver(py2dmat.solver.SolverBase):
             for g_angle_index in range(calc_number_of_g_angles):
                 line_index = (calculated_first_line - 1) + g_angle_index
                 line = Clines[ line_index ]
-            #   print("data line: ", line_index, g_angle_index, line)
                 line = line.replace(",", "")
                 data = line.split()
-            #   print(data)
                 RC_data_org[g_angle_index,0]=float(data[0])
                 for beam_index in range(calc_number_of_beams_org):
                     RC_data_org[g_angle_index, beam_index+1] = data[beam_index+1]
@@ -894,11 +892,6 @@ class Solver(py2dmat.solver.SolverBase):
                                  [conv_I_calculated_normalized]]
                                 )
                         if loop_index == beam_number_reference-1: #first loop
-                            #conv_I_c_norm_l_power2 = conv_I_calculated_norm_l**2
-                            #self.spot_weight = conv_I_c_norm_l_power2
-                            #self.spot_weight = (conv_I_c_norm_l_power2
-                            #                / sum(conv_I_calculated_norm_l)**2)
-                            #                / sum(conv_I_c_norm_l_power2) )
                             self.spot_weight = ( conv_I_calculated_norm_l 
                                              / sum(conv_I_calculated_norm_l) )**2
                 elif self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
