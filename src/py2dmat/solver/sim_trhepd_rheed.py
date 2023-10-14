@@ -776,12 +776,6 @@ class Solver(py2dmat.solver.SolverBase):
                     self.detail_timer["make_RockingCurve.txt"] += time_end - time_sta 
             return Rfactor
 
-        def _g(self, x):
-            g = (0.939437 / self.omega) * np.exp(
-                -2.77259 * (x ** 2.0 / self.omega ** 2.0)
-            )
-            return g
-
         def _calc_I_from_file(self):
             if self.isLogmode : time_sta = time.perf_counter()
             
