@@ -446,9 +446,9 @@ class Solver(py2dmat.solver.SolverBase):
             v = info_post.get("Rfactor_type", "A")
             if v not in ["A", "B", "A2"]:
                 raise exception.InputError("ERROR: Rfactor_type must be A, A2 or B")
-            if self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
+            if self.normalization=="MULTI_SPOT":
                 if (v!="A") and (v!="A2") :
-                    msg ='With normalization="MULTI_SPOT" and weight_type=="manual", '
+                    msg ='With normalization="MULTI_SPOT", '
                     msg+='only Rfactor_type="A" or Rfactor_type="A2" is valid.'
                     raise exception.InputError(msg)
             self.Rfactor_type = v
