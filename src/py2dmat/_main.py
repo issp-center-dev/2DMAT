@@ -74,8 +74,6 @@ def main():
         from .solver.leed import Solver
     elif solvername == "analytical":
         from .solver.analytical import Solver
-    elif solvername == "sim-trhepd-rheed-mb_connect":
-        from .solver.sim_trhepd_rheed_mb_connect import Solver
     else:
         print(f"ERROR: Unknown solver ({solvername})")
         exit(1)
