@@ -728,6 +728,8 @@ class Solver(py2dmat.solver.SolverBase):
             cal_number = self.cal_number
             spot_weight = self.spot_weight
             weight_type = self.weight_type 
+            Rfactor_type = self.Rfactor_type
+            normalization = self.normalization
             if self.generate_rocking_curve :
                 if self.isLogmode : time_sta = time.perf_counter()
                 with open("RockingCurve_calculated.txt", "w") as file_RC:
@@ -738,23 +740,17 @@ class Solver(py2dmat.solver.SolverBase):
                             "{} = {} ".format(string_list[index], fitted_x_list[index])
                         )
                     file_RC.write("\n")
-                    file_RC.write(f"#Rfactor_type = {self.Rfactor_type}")
-                    file_RC.write("\n")
-                    file_RC.write(f"#normalization = {self.normalization}")
-                    file_RC.write("\n")
+                    file_RC.write("#Rfactor_type = {}\n".format(Rfactor_type))
+                    file_RC.write("#normalization = {}\n".format(normalization))
                     if weight_type is not None:
-                        file_RC.write(f"#weight_type = {weight_type}\n")
-                    file_RC.write("#R-factor = {}\n".format(Rfactor))
+                        file_RC.write("#weight_type = {}\n".format(weight_type))
+                    file_RC.write("#fx(x) = {}\n".format(Rfactor))
                     file_RC.write("#cal_number = {}\n".format(cal_number))
                     file_RC.write("#spot_weight = {}\n".format(spot_weight))
-                    file_RC.write("#NOTICE : Intensities are NOT multiplied by spot_weight.")
-                    file_RC.write("\n")
-                    file_RC.write("#The intensity I_(spot) for each spot is normalized as in the following equation.")
-                    file_RC.write("\n")
-                    file_RC.write("#sum( I_(spot) ) = 1")
-                    file_RC.write("\n")
-                    file_RC.write("#")
-                    file_RC.write("\n")
+                    file_RC.write("#NOTICE : Intensities are NOT multiplied by spot_weight.\n")
+                    file_RC.write("#The intensity I_(spot) for each spot is normalized as in the following equation.\n")
+                    file_RC.write("#sum( I_(spot) ) = 1\n")
+                    file_RC.write("#\n")
                     
                     label_column = ["glancing_angle"]
                     fmt_rc = '%.5f'
