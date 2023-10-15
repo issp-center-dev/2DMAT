@@ -446,9 +446,9 @@ class Solver(py2dmat.solver.SolverBase):
             v = info_post.get("Rfactor_type", "A")
             if v not in ["A", "B", "A2"]:
                 raise exception.InputError("ERROR: Rfactor_type must be A, A2 or B")
-            if self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
+            if self.normalization=="MULTI_SPOT":
                 if (v!="A") and (v!="A2") :
-                    msg ='With normalization="MULTI_SPOT" and weight_type=="manual", '
+                    msg ='With normalization="MULTI_SPOT", '
                     msg+='only Rfactor_type="A" or Rfactor_type="A2" is valid.'
                     raise exception.InputError(msg)
             self.Rfactor_type = v
@@ -728,6 +728,8 @@ class Solver(py2dmat.solver.SolverBase):
             cal_number = self.cal_number
             spot_weight = self.spot_weight
             weight_type = self.weight_type 
+            Rfactor_type = self.Rfactor_type
+            normalization = self.normalization
             if self.generate_rocking_curve :
                 if self.isLogmode : time_sta = time.perf_counter()
                 with open("RockingCurve_calculated.txt", "w") as file_RC:
@@ -738,23 +740,17 @@ class Solver(py2dmat.solver.SolverBase):
                             "{} = {} ".format(string_list[index], fitted_x_list[index])
                         )
                     file_RC.write("\n")
-                    file_RC.write(f"#Rfactor_type = {self.Rfactor_type}")
-                    file_RC.write("\n")
-                    file_RC.write(f"#normalization = {self.normalization}")
-                    file_RC.write("\n")
+                    file_RC.write("#Rfactor_type = {}\n".format(Rfactor_type))
+                    file_RC.write("#normalization = {}\n".format(normalization))
                     if weight_type is not None:
-                        file_RC.write(f"#weight_type = {weight_type}\n")
-                    file_RC.write("#R-factor = {}\n".format(Rfactor))
+                        file_RC.write("#weight_type = {}\n".format(weight_type))
+                    file_RC.write("#fx(x) = {}\n".format(Rfactor))
                     file_RC.write("#cal_number = {}\n".format(cal_number))
                     file_RC.write("#spot_weight = {}\n".format(spot_weight))
-                    file_RC.write("#NOTICE : Intensities are NOT multiplied by spot_weight.")
-                    file_RC.write("\n")
-                    file_RC.write("#The intensity I_(spot) for each spot is normalized as in the following equation.")
-                    file_RC.write("\n")
-                    file_RC.write("#sum( I_(spot) ) = 1")
-                    file_RC.write("\n")
-                    file_RC.write("#")
-                    file_RC.write("\n")
+                    file_RC.write("#NOTICE : Intensities are NOT multiplied by spot_weight.\n")
+                    file_RC.write("#The intensity I_(spot) for each spot is normalized as in the following equation.\n")
+                    file_RC.write("#sum( I_(spot) ) = 1\n")
+                    file_RC.write("#\n")
                     
                     label_column = ["glancing_angle"]
                     fmt_rc = '%.5f'
@@ -779,12 +775,6 @@ class Solver(py2dmat.solver.SolverBase):
                     time_end = time.perf_counter()
                     self.detail_timer["make_RockingCurve.txt"] += time_end - time_sta 
             return Rfactor
-
-        def _g(self, x):
-            g = (0.939437 / self.omega) * np.exp(
-                -2.77259 * (x ** 2.0 / self.omega ** 2.0)
-            )
-            return g
 
         def _calc_I_from_file(self):
             if self.isLogmode : time_sta = time.perf_counter()
@@ -836,10 +826,8 @@ class Solver(py2dmat.solver.SolverBase):
             for g_angle_index in range(calc_number_of_g_angles):
                 line_index = (calculated_first_line - 1) + g_angle_index
                 line = Clines[ line_index ]
-            #   print("data line: ", line_index, g_angle_index, line)
                 line = line.replace(",", "")
                 data = line.split()
-            #   print(data)
                 RC_data_org[g_angle_index,0]=float(data[0])
                 for beam_index in range(calc_number_of_beams_org):
                     RC_data_org[g_angle_index, beam_index+1] = data[beam_index+1]
@@ -904,11 +892,6 @@ class Solver(py2dmat.solver.SolverBase):
                                  [conv_I_calculated_normalized]]
                                 )
                         if loop_index == beam_number_reference-1: #first loop
-                            #conv_I_c_norm_l_power2 = conv_I_calculated_norm_l**2
-                            #self.spot_weight = conv_I_c_norm_l_power2
-                            #self.spot_weight = (conv_I_c_norm_l_power2
-                            #                / sum(conv_I_calculated_norm_l)**2)
-                            #                / sum(conv_I_c_norm_l_power2) )
                             self.spot_weight = ( conv_I_calculated_norm_l 
                                              / sum(conv_I_calculated_norm_l) )**2
                 elif self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
