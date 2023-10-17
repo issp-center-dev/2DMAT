@@ -302,7 +302,17 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         x_old = copy.copy(self.x)
         if self.iscontinuous:
             self.x = self.propose(x_old)
-            in_range = ((self.xmin <= self.x) & (self.x <= self.xmax)).all(axis=1)
+            #judgement of "in_range"
+            in_range_xmin = self.xmin <= self.x
+            in_range_xmax = self.x <= self.xmax
+            in_range_limitation = np.full(self.nwalkers, False)
+            for index_walker in range(self.nwalkers):
+                in_range_limitation[index_walker] = self.runner.limitation.judge(
+                                                        self.x[index_walker]
+                                                            )
+
+            in_range = (in_range_xmin & in_range_xmax).all(axis=1) \
+                       &in_range_limitation 
         else:
             i_old = copy.copy(self.inode)
             self.inode = self.propose(self.inode)
@@ -313,7 +323,7 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         fx_old = self.fx.copy()
         self._evaluate(in_range)
         self._write_result(file_trial, extra_info_to_write=extra_info_to_write)
-
+        
         fdiff = self.fx - fx_old
 
         # Ignore an overflow warning in np.exp(x) for x >~ 710
@@ -322,9 +332,9 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         # old_setting = np.seterr(over="ignore")
         old_setting = np.seterr(all="ignore")
         probs = np.exp(-beta * fdiff)
-        # probs[np.isnan(probs)] = 0.0
+        #probs[np.isnan(probs)] = 0.0
         np.seterr(**old_setting)
-
+        
         if not self.iscontinuous:
             probs *= self.ncandidates[i_old] / self.ncandidates[self.inode]
         tocheck = in_range & (probs < 1.0)

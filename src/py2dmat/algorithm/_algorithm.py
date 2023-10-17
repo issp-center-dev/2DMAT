@@ -170,22 +170,28 @@ class AlgorithmBase(metaclass=ABCMeta):
         if initial_list.ndim == 1:
             initial_list = initial_list.reshape(1, -1)
         if initial_list.size == 0:
-            # Repeat until an "initial_list" is generated 
-            # that satisfies the constraint formula.
+            initial_list = min_list + (max_list - min_list) * self.rng.rand(
+                num_walkers, self.dimension
+            )
+            # Repeat until an "initial_list" is generated
+            # that satisfies the constraint expression.
+            # If "co_a" and "co_b" are not set in [runner.limitation], 
+            # all(isOK_judge) = true and do not repeat.
             loop_count = 0
+            isOK_judge = np.full(num_walkers, False)
             while True:
-                judge_result = []
-                initial_list = min_list + (max_list - min_list) * self.rng.rand(
-                    num_walkers, self.dimension
-                )
-                for walker_index in range(num_walkers):
-                    judge = self.runner.limitation.judge(
-                                    initial_list[walker_index,:])
-                    judge_result.append(judge)
-                if all(judge_result):
+                for index in np.where(~isOK_judge)[0]:
+                    isOK_judge[index] = self.runner.limitation.judge(
+                                            initial_list[index,:]
+                                            )
+                if np.all(isOK_judge):
                     break
                 else:
-                    loop_count += 1 
+                    initial_list[~isOK_judge] = (
+                            min_list + (max_list - min_list) * self.rng.rand(
+                                np.count_nonzero(~isOK_judge), self.dimension
+                                    )   )
+                    loop_count += 1   
         if initial_list.shape[0] != num_walkers:
             raise exception.InputError(
                 f"ERROR: initial_list.shape[0] != num_walkers ({initial_list.shape[0]} != {num_walkers})"
