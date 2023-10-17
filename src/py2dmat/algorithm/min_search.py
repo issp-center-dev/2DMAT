@@ -91,6 +91,14 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                         )
                     )
                     out_of_range = True
+            
+            if not self.runner.limitation.judge(x_list):
+                msg ="Warning: "
+                msg+="Variables do not satisfy the constraint formula.\n"
+                for index in range(dimension):
+                    msg+="{} = {}\n".format(label_list[index],x_list[index])
+                print(msg,end="")
+                out_of_range = True
 
             for index in range(dimension):
                 x_list[index] /= unit_list[index]
