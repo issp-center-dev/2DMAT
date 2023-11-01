@@ -159,10 +159,10 @@ def soloplot():
         
         cb = fig.colorbar(hst2d[3])
         
-        temp_for_title = decimal.Decimal(Tvalue[l]).quantize(
-                decimal.Decimal('0.001'), rounding=decimal.ROUND_HALF_UP
+        temp_for_title = decimal.Decimal(1/Tvalue[l]).quantize(
+                decimal.Decimal('0.00001'), rounding=decimal.ROUND_HALF_UP
                     )
-        figtitlestr = f'τ = {temp_for_title}'
+        figtitlestr = f'beta = {temp_for_title}'
 
         ax.set_title(figtitlestr)
         
@@ -178,7 +178,7 @@ def soloplot():
         ax.set_ylim(x2_min,x2_max)
         ax.set_aspect('equal')
         #軸サイズ設定と図の保存
-        fig.savefig(f'{dirname}/{l}_T_{temp_for_title}_burn_in_{burn_in}.png',dpi=300)             
+        fig.savefig(f'{dirname}/{l}_beta_{temp_for_title}_burn_in_{burn_in}.png',dpi=300)             
         l+= 1
 
 
