@@ -395,21 +395,21 @@ class Solver(py2dmat.solver.SolverBase):
 
             # solver.post
             info_post = info_s.get("post", {})
-            v = info_post.get("normalization", "TOTAL")
-            available_normalization = ["TOTAL", "MULTI_SPOT"]
+            v = info_post.get("normalization", "")
+            available_normalization = ["TOTAL", "MANY_BEAM"]
             if v == "MAX":
                 raise exception.InputError('ERROR: normalization == "MAX" is not available')
             if v not in available_normalization:
                 msg ="ERROR: normalization must be "
-                msg+="MULTI_SPOT or TOTAL"
+                msg+="MANY_BEAM or TOTAL"
                 raise exception.InputError(msg)
             self.normalization = v
 
             v = info_post.get("weight_type", None)
             available_weight_type = ["calc", "manual"]
-            if self.normalization == "MULTI_SPOT":
+            if self.normalization == "MANY_BEAM":
                 if v is None :
-                    msg ='ERROR: If normalization = "MULTI_SPOT", '
+                    msg ='ERROR: If normalization = "MANY_BEAM", '
                     msg+='"weight_type" must be set in [solver.post].'
                     raise exception.InputError(msg)
                 elif v not in available_weight_type:
@@ -419,16 +419,16 @@ class Solver(py2dmat.solver.SolverBase):
             else:
                 if v is not None :
                     if self.mpirank == 0:
-                        msg ='NOTICE: If normalization = "MULTI_SPOT" is not set, '
+                        msg ='NOTICE: If normalization = "MANY_BEAM" is not set, '
                         msg+='"weight_type" is NOT considered in the calculation.'
                         print(msg)    
                     self.weight_type = None
             self.weight_type = v
 
             v = info_post.get("spot_weight", [])
-            if self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
+            if self.normalization=="MANY_BEAM" and self.weight_type=="manual":
                 if v == [] :
-                    msg ='ERROR: With normalization="MULTI_SPOT" and '
+                    msg ='ERROR: With normalization="MANY_BEAM" and '
                     msg+='weight_type=="manual", the "spot_weight" option '
                     msg+='must be set in [solver.post].'
                     raise exception.InputError(msg)
@@ -446,9 +446,9 @@ class Solver(py2dmat.solver.SolverBase):
             v = info_post.get("Rfactor_type", "A")
             if v not in ["A", "B", "A2"]:
                 raise exception.InputError("ERROR: Rfactor_type must be A, A2 or B")
-            if self.normalization=="MULTI_SPOT":
+            if self.normalization=="MANY_BEAM":
                 if (v!="A") and (v!="A2") :
-                    msg ='With normalization="MULTI_SPOT", '
+                    msg ='With normalization="MANY_BEAM", '
                     msg+='only Rfactor_type="A" or Rfactor_type="A2" is valid.'
                     raise exception.InputError(msg)
             self.Rfactor_type = v
@@ -517,7 +517,7 @@ class Solver(py2dmat.solver.SolverBase):
                     "ERROR: The 'exp_number' setting is wrong."
                 )
 
-            if self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
+            if self.normalization=="MANY_BEAM" and self.weight_type=="manual":
                 if len(v) != len(self.spot_weight):
                     raise exception.InputError(
                     "ERROR:len('exp_number') and len('spot_weight') do not match."
@@ -541,7 +541,7 @@ class Solver(py2dmat.solver.SolverBase):
                     I_reference_normalized = I_reference/I_reference_norm
                     I_reference_norm_l = np.array([I_reference_norm])
                     self.I_reference_normalized_l = np.array([I_reference_normalized])
-                elif self.normalization=="MULTI_SPOT" and self.weight_type=="calc":
+                elif self.normalization=="MANY_BEAM" and self.weight_type=="calc":
                     I_reference_norm = np.sum(I_reference)
                     I_reference_normalized = I_reference/I_reference_norm
                     if loop_index == 0: #first loop
@@ -555,7 +555,7 @@ class Solver(py2dmat.solver.SolverBase):
                                 [[self.I_reference_normalized_l],
                                  [I_reference_normalized]] 
                                     )
-                elif self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
+                elif self.normalization=="MANY_BEAM" and self.weight_type=="manual":
                     I_reference_norm = np.sum(I_reference)
                     I_reference_normalized = I_reference/I_reference_norm
                     if loop_index == 0: #first loop
@@ -571,7 +571,7 @@ class Solver(py2dmat.solver.SolverBase):
                                     )
                 else:
                     msg ="ERROR: normalization must be "
-                    msg+="MULTI_SPOT or TOTAL"
+                    msg+="MANY_BEAM or TOTAL"
                     raise exception.InputError(msg)
             # solver.config
             info_config = info_s.get("config", {})
@@ -630,7 +630,7 @@ class Solver(py2dmat.solver.SolverBase):
                     "ERROR: 'cal_number' must be a list type."
                 )
             
-            if self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
+            if self.normalization=="MANY_BEAM" and self.weight_type=="manual":
                 if len(self.spot_weight) != len(v):
                     raise exception.InputError(
                         "len('cal_number') and len('spot_weight') do not match."
@@ -872,7 +872,7 @@ class Solver(py2dmat.solver.SolverBase):
                     conv_I_calculated_normalized_l = np.array(
                             [conv_I_calculated_normalized]
                                 )
-                elif self.normalization=="MULTI_SPOT" and self.weight_type=="calc":
+                elif self.normalization=="MANY_BEAM" and self.weight_type=="calc":
                     conv_I_calculated_norm = np.sum(conv_I_calculated)
                     conv_I_calculated_normalized = conv_I_calculated/conv_I_calculated_norm
                     if loop_index == 0: #first loop
@@ -894,7 +894,7 @@ class Solver(py2dmat.solver.SolverBase):
                         if loop_index == beam_number_reference-1: #first loop
                             self.spot_weight = ( conv_I_calculated_norm_l 
                                              / sum(conv_I_calculated_norm_l) )**2
-                elif self.normalization=="MULTI_SPOT" and self.weight_type=="manual":
+                elif self.normalization=="MANY_BEAM" and self.weight_type=="manual":
                     conv_I_calculated_norm = np.sum(conv_I_calculated)
                     conv_I_calculated_normalized = conv_I_calculated/conv_I_calculated_norm
                     if loop_index == 0: #first loop
@@ -915,7 +915,7 @@ class Solver(py2dmat.solver.SolverBase):
                                 ) 
                 else:
                     msg ="ERROR: normalization must be "
-                    msg+="MULTI_SPOT or TOTAL"
+                    msg+="MANY_BEAM or TOTAL"
                     raise exception.InputError(msg)
             
             if self.isLogmode :
