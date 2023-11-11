@@ -1,27 +1,34 @@
-from typing import List
 import itertools
 import os
 import os.path
 import shutil
-from pathlib import Path
 import subprocess
 import time
-from . import lib_make_convolution
+import ctypes
+import copy
 
 import numpy as np
 
 import py2dmat
 from py2dmat import exception, mpi
+from . import lib_make_convolution
 
-import ctypes
+#for type hints
+from pathlib import Path
+from typing import List, Dict, Optional, TYPE_CHECKING
 
-from typing import TYPE_CHECKING
-
-import copy
+if TYPE_CHECKING:
+    from mpi4py import MPI
 
 class Solver(py2dmat.solver.SolverBase):
+    mpicomm: Optional["MPI.Comm"]
+    mpisize: int
+    mpirank: int
+    run_scheme: List[str]
+    isLogmode: bool
+    detail_timer: Optional[Dict[str, float]]
     path_to_solver: Path
-
+    
     def __init__(self, info: py2dmat.Info):
         super().__init__(info)
         self.mpicomm = mpi.comm()
@@ -62,7 +69,7 @@ class Solver(py2dmat.solver.SolverBase):
         self.input = Solver.Input(info,self.detail_timer)
         self.output = Solver.Output(info,self.detail_timer)
          
-    def set_detail_timer(self):
+    def set_detail_timer(self) -> None:
         # TODO: Operate log_mode with toml file. Generate txt of detail_timer.
         if self.isLogmode:
             self.detail_timer = {}
@@ -78,7 +85,7 @@ class Solver(py2dmat.solver.SolverBase):
         else:
             self.detail_timer = None
 
-    def default_run_scheme(self):
+    def default_run_scheme(self) -> str:
         """
         Return
         -------
@@ -100,7 +107,7 @@ class Solver(py2dmat.solver.SolverBase):
     def get_results(self) -> float:
         return self.output.get_results(self.work_dir)
     
-    def load_so(self):
+    def load_so(self) -> None:
         self.lib = np.ctypeslib.load_library("surf.so",
                                              os.path.dirname(__file__))
         self.lib.surf_so.argtypes = (
@@ -114,7 +121,7 @@ class Solver(py2dmat.solver.SolverBase):
                 )
         self.lib.surf_so.restype = ctypes.c_void_p
     
-    def launch_so(self):
+    def launch_so(self) -> None:
        
         n_template_file = len(self.input.template_file)
         m_template_file = self.input.surf_tempalte_width_for_fortran
@@ -149,13 +156,20 @@ class Solver(py2dmat.solver.SolverBase):
             self.detail_timer["launch_STR"] += time_end - time_sta
              
     class Input(object):
+        mpicomm: Optional["MPI.Comm"]
+        mpisize: int
+        mpirank: int
+
         root_dir: Path
         output_dir: Path
         dimension: int
+        run_scheme: str
+        generate_rocking_curve: bool
         string_list: List[str]
         bulk_output_file: Path
         surface_input_file: Path
         surface_template_file: Path
+        template_file_origin: Optional[List[str]]
 
         def __init__(self, info, d_timer):
             self.mpicomm = mpi.comm()
@@ -240,7 +254,7 @@ class Solver(py2dmat.solver.SolverBase):
                         f"ERROR: bulk_output_file ({self.bulk_output_file}) does not exist"
                     )
 
-        def load_surface_template_file(self, filename):
+        def load_surface_template_file(self, filename) :
             template_file = []
             with open(self.surface_template_file) as f:
                 for line in f:
@@ -361,18 +375,30 @@ class Solver(py2dmat.solver.SolverBase):
         """
         Output manager.
         """
+        mpicomm: Optional["MPI.Comm"]
+        mpisize: int
+        mpirank: int
 
+        run_scheme: str
+        generate_rocking_curve: bool
         dimension: int
-        string_list: List[str]
-        surface_output_file: str
         normalization: str
+        weight_type: Optional[str]
+        spot_weight: List
         Rfactor_type: str
+        omega: float
+        remove_work_dir: bool
+        string_list: List[str]
+        reference_first_line: int
+        reference_last_line: Optional[int]
+        reference_path: str
+        exp_number: Optional[List[int]]
+        I_reference_normalized_l: np.ndarray
+        surface_output_file: str
         calculated_first_line: int
         calculated_last_line: int
-
-        I_reference: List[float]
-        I_reference_norm: float
-        I_reference_normalized: List[float]
+        calculated_info_line: int
+        cal_number: Optional[List[int]]
 
         def __init__(self, info, d_timer):
             self.mpicomm = mpi.comm()
