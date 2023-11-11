@@ -175,7 +175,8 @@ class Solver(py2dmat.solver.SolverBase):
                 self.dimension = info.solver["dimension"]
             else:
                 self.dimension = info.base["dimension"]
-
+            
+            #read info
             info_s = info.solver
             self.run_scheme = info_s["run_scheme"]
             self.generate_rocking_curve = info_s.get("generate_rocking_curve", False)
@@ -573,6 +574,7 @@ class Solver(py2dmat.solver.SolverBase):
                     msg ="ERROR: normalization must be "
                     msg+="MANY_BEAM or TOTAL"
                     raise exception.InputError(msg)
+
             # solver.config
             info_config = info_s.get("config", {})
             self.surface_output_file = info_config.get(
@@ -722,7 +724,7 @@ class Solver(py2dmat.solver.SolverBase):
                 time_end = time.perf_counter()
                 self.detail_timer["calculate_R-factor"] += time_end - time_sta
             
-            #generate rocking curve
+            #generate RockingCurve_calculated.txt 
             dimension = self.dimension
             string_list = self.string_list
             cal_number = self.cal_number
@@ -820,8 +822,7 @@ class Solver(py2dmat.solver.SolverBase):
                     self.isWarning_calcnline = True
             calc_number_of_g_angles = calculated_nlines
              
-            # Define the array for the rocking curve data.
-            # Note the components with (beam-index)=0 are the degree data
+            # Define the array for the original calculated data.
             RC_data_org = np.zeros((calc_number_of_g_angles, calc_number_of_beams_org+1))
             for g_angle_index in range(calc_number_of_g_angles):
                 line_index = (calculated_first_line - 1) + g_angle_index
@@ -838,6 +839,7 @@ class Solver(py2dmat.solver.SolverBase):
             
             if self.isLogmode : time_sta = time.perf_counter() 
             verbose_mode = False
+            # convolution
             data_convolution = lib_make_convolution.calc(
                     RC_data_org, 
                     calc_number_of_beams_org, 
@@ -860,6 +862,8 @@ class Solver(py2dmat.solver.SolverBase):
             glancing_angle = data_convolution[:,0]
             
             beam_number_reference = len(cal_number)
+
+            # Normalization of calculated data.
             for loop_index in range(beam_number_reference):
                 cal_index = cal_number[loop_index]
                 conv_I_calculated = data_convolution[:,cal_index]
@@ -892,6 +896,7 @@ class Solver(py2dmat.solver.SolverBase):
                                  [conv_I_calculated_normalized]]
                                 )
                         if loop_index == beam_number_reference-1: #first loop
+                            #calculate spot_weight
                             self.spot_weight = ( conv_I_calculated_norm_l 
                                              / sum(conv_I_calculated_norm_l) )**2
                 elif self.normalization=="MANY_BEAM" and self.weight_type=="manual":
