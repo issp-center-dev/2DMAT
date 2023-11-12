@@ -24,9 +24,9 @@ class Solver(py2dmat.solver.SolverBase):
     mpicomm: Optional["MPI.Comm"]
     mpisize: int
     mpirank: int
-    run_scheme: List[str]
+    run_scheme: str
     isLogmode: bool
-    detail_timer: Optional[Dict[str, float]]
+    detail_timer: Dict
     path_to_solver: Path
     
     def __init__(self, info: py2dmat.Info):
@@ -37,7 +37,7 @@ class Solver(py2dmat.solver.SolverBase):
         
         self._name = "sim_trhepd_rheed_mb_connect"
 
-        self.run_scheme = info.solver.get("run_scheme",None)
+        self.run_scheme = info.solver.get("run_scheme","")
         scheme_list = ["subprocess","connect_so"]
         scheme_judge = [i == self.run_scheme for i in scheme_list]
 
@@ -66,8 +66,8 @@ class Solver(py2dmat.solver.SolverBase):
         self.isLogmode = False
         self.set_detail_timer()
 
-        self.input = Solver.Input(info,self.detail_timer)
-        self.output = Solver.Output(info,self.detail_timer)
+        self.input = Solver.Input(info,self.isLogmode,self.detail_timer)
+        self.output = Solver.Output(info,self.isLogmode,self.detail_timer)
          
     def set_detail_timer(self) -> None:
         # TODO: Operate log_mode with toml file. Generate txt of detail_timer.
@@ -83,7 +83,7 @@ class Solver(py2dmat.solver.SolverBase):
             self.detail_timer["make_RockingCurve.txt"] = 0
             self.detail_timer["delete_Log-directory"] = 0
         else:
-            self.detail_timer = None
+            self.detail_timer = {}
 
     def default_run_scheme(self) -> str:
         """
@@ -169,18 +169,15 @@ class Solver(py2dmat.solver.SolverBase):
         bulk_output_file: Path
         surface_input_file: Path
         surface_template_file: Path
-        template_file_origin: Optional[List[str]]
+        template_file_origin: List[str]
 
-        def __init__(self, info, d_timer):
+        def __init__(self, info, isLogmode, detail_timer):
             self.mpicomm = mpi.comm()
             self.mpisize = mpi.size()
             self.mpirank = mpi.rank()
        
-            if d_timer is None:
-                self.isLogmode = False
-            else:
-                self.isLogmode = True
-                self.detail_timer = d_timer
+            self.isLogmode = isLogmode
+            self.detail_timer = detail_timer
 
             self.root_dir = info.base["root_dir"]
             self.output_dir = info.base["output_dir"]
@@ -392,24 +389,21 @@ class Solver(py2dmat.solver.SolverBase):
         reference_first_line: int
         reference_last_line: Optional[int]
         reference_path: str
-        exp_number: Optional[List[int]]
+        exp_number: List
         I_reference_normalized_l: np.ndarray
         surface_output_file: str
         calculated_first_line: int
         calculated_last_line: int
         calculated_info_line: int
-        cal_number: Optional[List[int]]
+        cal_number: List
 
-        def __init__(self, info, d_timer):
+        def __init__(self, info, isLogmode, detail_timer):
             self.mpicomm = mpi.comm()
             self.mpisize = mpi.size()
             self.mpirank = mpi.rank()
 
-            if d_timer is None:
-                self.isLogmode = False
-            else:
-                self.isLogmode = True
-                self.detail_timer = d_timer
+            self.isLogmode = isLogmode
+            self.detail_timer = detail_timer
 
             if "dimension" in info.solver:
                 self.dimension = info.solver["dimension"]
@@ -418,6 +412,10 @@ class Solver(py2dmat.solver.SolverBase):
 
             info_s = info.solver
             self.run_scheme = info_s["run_scheme"]
+            
+            #If self.run_scheme == "connect_so",
+            #the contnts of surface_output_file are retailned in self.surf_output.
+            self.surf_output = np.array([])
             self.generate_rocking_curve = info_s.get("generate_rocking_curve", False)
 
             # solver.post
@@ -527,9 +525,9 @@ class Solver(py2dmat.solver.SolverBase):
             self.angle_number_experiment = data_experiment.shape[0]
             self.beam_number_exp_raw = data_experiment.shape[1]
             
-            v = info_ref.get("exp_number", None)
+            v = info_ref.get("exp_number", [])
             
-            if v == None :
+            if len(v) == 0 :
                 raise exception.InputError(
                     "ERROR: You have to set the 'exp_number'."
                 )
@@ -647,8 +645,8 @@ class Solver(py2dmat.solver.SolverBase):
                 )
             self.calculated_info_line = v
 
-            v = info_config.get("cal_number",None)            
-            if v == None :
+            v = info_config.get("cal_number",[])            
+            if len(v) == 0 :
                 raise exception.InputError(
                         "ERROR: You have to set the 'cal_number'."
                 )
