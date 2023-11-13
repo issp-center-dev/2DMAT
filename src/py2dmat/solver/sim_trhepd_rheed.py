@@ -1,27 +1,34 @@
-from typing import List
 import itertools
 import os
 import os.path
 import shutil
-from pathlib import Path
 import subprocess
 import time
-from . import lib_make_convolution
+import ctypes
+import copy
 
 import numpy as np
 
 import py2dmat
 from py2dmat import exception, mpi
+from . import lib_make_convolution
 
-import ctypes
+#for type hints
+from pathlib import Path
+from typing import List, Dict, Optional, TYPE_CHECKING
 
-from typing import TYPE_CHECKING
-
-import copy
+if TYPE_CHECKING:
+    from mpi4py import MPI
 
 class Solver(py2dmat.solver.SolverBase):
+    mpicomm: Optional["MPI.Comm"]
+    mpisize: int
+    mpirank: int
+    run_scheme: str
+    isLogmode: bool
+    detail_timer: Dict
     path_to_solver: Path
-
+    
     def __init__(self, info: py2dmat.Info):
         super().__init__(info)
         self.mpicomm = mpi.comm()
@@ -30,7 +37,7 @@ class Solver(py2dmat.solver.SolverBase):
         
         self._name = "sim_trhepd_rheed_mb_connect"
 
-        self.run_scheme = info.solver.get("run_scheme",None)
+        self.run_scheme = info.solver.get("run_scheme","")
         scheme_list = ["subprocess","connect_so"]
         scheme_judge = [i == self.run_scheme for i in scheme_list]
 
@@ -59,10 +66,10 @@ class Solver(py2dmat.solver.SolverBase):
         self.isLogmode = False
         self.set_detail_timer()
 
-        self.input = Solver.Input(info,self.detail_timer)
-        self.output = Solver.Output(info,self.detail_timer)
+        self.input = Solver.Input(info,self.isLogmode,self.detail_timer)
+        self.output = Solver.Output(info,self.isLogmode,self.detail_timer)
          
-    def set_detail_timer(self):
+    def set_detail_timer(self) -> None:
         # TODO: Operate log_mode with toml file. Generate txt of detail_timer.
         if self.isLogmode:
             self.detail_timer = {}
@@ -76,9 +83,9 @@ class Solver(py2dmat.solver.SolverBase):
             self.detail_timer["make_RockingCurve.txt"] = 0
             self.detail_timer["delete_Log-directory"] = 0
         else:
-            self.detail_timer = None
+            self.detail_timer = {}
 
-    def default_run_scheme(self):
+    def default_run_scheme(self) -> str:
         """
         Return
         -------
@@ -100,7 +107,7 @@ class Solver(py2dmat.solver.SolverBase):
     def get_results(self) -> float:
         return self.output.get_results(self.work_dir)
     
-    def load_so(self):
+    def load_so(self) -> None:
         self.lib = np.ctypeslib.load_library("surf.so",
                                              os.path.dirname(__file__))
         self.lib.surf_so.argtypes = (
@@ -114,7 +121,7 @@ class Solver(py2dmat.solver.SolverBase):
                 )
         self.lib.surf_so.restype = ctypes.c_void_p
     
-    def launch_so(self):
+    def launch_so(self) -> None:
        
         n_template_file = len(self.input.template_file)
         m_template_file = self.input.surf_tempalte_width_for_fortran
@@ -149,24 +156,28 @@ class Solver(py2dmat.solver.SolverBase):
             self.detail_timer["launch_STR"] += time_end - time_sta
              
     class Input(object):
+        mpicomm: Optional["MPI.Comm"]
+        mpisize: int
+        mpirank: int
+
         root_dir: Path
         output_dir: Path
         dimension: int
+        run_scheme: str
+        generate_rocking_curve: bool
         string_list: List[str]
         bulk_output_file: Path
         surface_input_file: Path
         surface_template_file: Path
+        template_file_origin: List[str]
 
-        def __init__(self, info, d_timer):
+        def __init__(self, info, isLogmode, detail_timer):
             self.mpicomm = mpi.comm()
             self.mpisize = mpi.size()
             self.mpirank = mpi.rank()
        
-            if d_timer is None:
-                self.isLogmode = False
-            else:
-                self.isLogmode = True
-                self.detail_timer = d_timer
+            self.isLogmode = isLogmode
+            self.detail_timer = detail_timer
 
             self.root_dir = info.base["root_dir"]
             self.output_dir = info.base["output_dir"]
@@ -175,7 +186,8 @@ class Solver(py2dmat.solver.SolverBase):
                 self.dimension = info.solver["dimension"]
             else:
                 self.dimension = info.base["dimension"]
-
+            
+            #read info
             info_s = info.solver
             self.run_scheme = info_s["run_scheme"]
             self.generate_rocking_curve = info_s.get("generate_rocking_curve", False)
@@ -239,7 +251,7 @@ class Solver(py2dmat.solver.SolverBase):
                         f"ERROR: bulk_output_file ({self.bulk_output_file}) does not exist"
                     )
 
-        def load_surface_template_file(self, filename):
+        def load_surface_template_file(self, filename) :
             template_file = []
             with open(self.surface_template_file) as f:
                 for line in f:
@@ -360,29 +372,38 @@ class Solver(py2dmat.solver.SolverBase):
         """
         Output manager.
         """
+        mpicomm: Optional["MPI.Comm"]
+        mpisize: int
+        mpirank: int
 
+        run_scheme: str
+        generate_rocking_curve: bool
         dimension: int
-        string_list: List[str]
-        surface_output_file: str
         normalization: str
+        weight_type: Optional[str]
+        spot_weight: List
         Rfactor_type: str
+        omega: float
+        remove_work_dir: bool
+        string_list: List[str]
+        reference_first_line: int
+        reference_last_line: Optional[int]
+        reference_path: str
+        exp_number: List
+        I_reference_normalized_l: np.ndarray
+        surface_output_file: str
         calculated_first_line: int
         calculated_last_line: int
+        calculated_info_line: int
+        cal_number: List
 
-        I_reference: List[float]
-        I_reference_norm: float
-        I_reference_normalized: List[float]
-
-        def __init__(self, info, d_timer):
+        def __init__(self, info, isLogmode, detail_timer):
             self.mpicomm = mpi.comm()
             self.mpisize = mpi.size()
             self.mpirank = mpi.rank()
 
-            if d_timer is None:
-                self.isLogmode = False
-            else:
-                self.isLogmode = True
-                self.detail_timer = d_timer
+            self.isLogmode = isLogmode
+            self.detail_timer = detail_timer
 
             if "dimension" in info.solver:
                 self.dimension = info.solver["dimension"]
@@ -391,6 +412,10 @@ class Solver(py2dmat.solver.SolverBase):
 
             info_s = info.solver
             self.run_scheme = info_s["run_scheme"]
+            
+            #If self.run_scheme == "connect_so",
+            #the contnts of surface_output_file are retailned in self.surf_output.
+            self.surf_output = np.array([])
             self.generate_rocking_curve = info_s.get("generate_rocking_curve", False)
 
             # solver.post
@@ -500,9 +525,9 @@ class Solver(py2dmat.solver.SolverBase):
             self.angle_number_experiment = data_experiment.shape[0]
             self.beam_number_exp_raw = data_experiment.shape[1]
             
-            v = info_ref.get("exp_number", None)
+            v = info_ref.get("exp_number", [])
             
-            if v == None :
+            if len(v) == 0 :
                 raise exception.InputError(
                     "ERROR: You have to set the 'exp_number'."
                 )
@@ -573,6 +598,7 @@ class Solver(py2dmat.solver.SolverBase):
                     msg ="ERROR: normalization must be "
                     msg+="MANY_BEAM or TOTAL"
                     raise exception.InputError(msg)
+
             # solver.config
             info_config = info_s.get("config", {})
             self.surface_output_file = info_config.get(
@@ -619,8 +645,8 @@ class Solver(py2dmat.solver.SolverBase):
                 )
             self.calculated_info_line = v
 
-            v = info_config.get("cal_number",None)            
-            if v == None :
+            v = info_config.get("cal_number",[])            
+            if len(v) == 0 :
                 raise exception.InputError(
                         "ERROR: You have to set the 'cal_number'."
                 )
@@ -722,7 +748,7 @@ class Solver(py2dmat.solver.SolverBase):
                 time_end = time.perf_counter()
                 self.detail_timer["calculate_R-factor"] += time_end - time_sta
             
-            #generate rocking curve
+            #generate RockingCurve_calculated.txt 
             dimension = self.dimension
             string_list = self.string_list
             cal_number = self.cal_number
@@ -820,8 +846,7 @@ class Solver(py2dmat.solver.SolverBase):
                     self.isWarning_calcnline = True
             calc_number_of_g_angles = calculated_nlines
              
-            # Define the array for the rocking curve data.
-            # Note the components with (beam-index)=0 are the degree data
+            # Define the array for the original calculated data.
             RC_data_org = np.zeros((calc_number_of_g_angles, calc_number_of_beams_org+1))
             for g_angle_index in range(calc_number_of_g_angles):
                 line_index = (calculated_first_line - 1) + g_angle_index
@@ -838,6 +863,7 @@ class Solver(py2dmat.solver.SolverBase):
             
             if self.isLogmode : time_sta = time.perf_counter() 
             verbose_mode = False
+            # convolution
             data_convolution = lib_make_convolution.calc(
                     RC_data_org, 
                     calc_number_of_beams_org, 
@@ -860,6 +886,8 @@ class Solver(py2dmat.solver.SolverBase):
             glancing_angle = data_convolution[:,0]
             
             beam_number_reference = len(cal_number)
+
+            # Normalization of calculated data.
             for loop_index in range(beam_number_reference):
                 cal_index = cal_number[loop_index]
                 conv_I_calculated = data_convolution[:,cal_index]
@@ -892,6 +920,7 @@ class Solver(py2dmat.solver.SolverBase):
                                  [conv_I_calculated_normalized]]
                                 )
                         if loop_index == beam_number_reference-1: #first loop
+                            #calculate spot_weight
                             self.spot_weight = ( conv_I_calculated_norm_l 
                                              / sum(conv_I_calculated_norm_l) )**2
                 elif self.normalization=="MANY_BEAM" and self.weight_type=="manual":
