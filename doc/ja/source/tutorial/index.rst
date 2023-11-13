@@ -38,6 +38,7 @@ TRHEPDでは原子座標を与えた場合に、回折データがシミュレ�
 の5つのアルゴリズムが用意されています。
 本チュートリアルでは、最初に順問題プログラム ``sim_trhepd_rheed`` の実行方法、
 その後に ``minsearch`` , ``mapper_mpi``, ``bayes``, ``exchange``, ``pamc`` の実行方法について順に説明します。
+また、制約式を用いて探索範囲を制限出来る ``[runner.limitation]`` セクションを使用した実行方法も説明しています。
 最後に、自分で順問題ソルバーを定義する簡単な例について説明します。
 
 .. toctree::
@@ -48,6 +49,7 @@ TRHEPDでは原子座標を与えた場合に、回折データがシミュレ�
    mpi
    bayes
    exchange
+   limitation
    pamc
    solver_simple
    
