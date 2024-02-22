@@ -172,7 +172,7 @@ py2dmat は入力ファイルの形式に `TOML <https://toml.io/ja/>`_ を採�
 
 ``Algorithm`` で探索している :math:`N` 次元のパラメータ :math:`x` に、制約条件を課すことが出来ます。
 ``Algorithm`` ごとに定義する探索範囲（例：``exchange`` の ``min_list`` や ``max_list`` ） に加えて課すことが出来ます。
-現在は :math:`M` 行 :math:`N` 列の行列Aと :math:`M` 次元の縦ベクトルbから定義される :math:`Ax+b>0` の制約式が利用可能です。具体的に
+現在は :math:`M` 行 :math:`N` 列の行列:math:`A` と :math:`M` 次元の縦ベクトル:math:`b` から定義される :math:`Ax+b>0` の制約式が利用可能です。具体的に
 
 .. math::
 

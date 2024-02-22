@@ -428,7 +428,7 @@ class Solver(py2dmat.solver.SolverBase):
             available_normalization = ["TOTAL", "MANY_BEAM"]
             if v == "MAX":
                 raise exception.InputError(
-                    'ERROR: normalization == "MAX" is not available'
+                    'ERROR: normalization == "MAX" is no longer available'
                 )
             if v not in available_normalization:
                 msg = "ERROR: normalization must be "
