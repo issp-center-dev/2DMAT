@@ -38,10 +38,9 @@ class Solver(py2dmat.solver.SolverBase):
 
         self.run_scheme = info.solver.get("run_scheme", "")
         scheme_list = ["subprocess", "connect_so"]
-        scheme_judge = [i == self.run_scheme for i in scheme_list]
 
-        if not any(scheme_judge):
-            raise exception.InputError("ERROR : Input scheme is incorrect.")
+        if self.run_scheme not in scheme_list:
+            raise exception.InputError("ERROR : solver.run_scheme should be 'subprocess' or 'connect_so'.")
 
         if self.run_scheme == "connect_so":
             self.load_so()
@@ -428,10 +427,10 @@ class Solver(py2dmat.solver.SolverBase):
             available_normalization = ["TOTAL", "MANY_BEAM"]
             if v == "MAX":
                 raise exception.InputError(
-                    'ERROR: normalization == "MAX" is no longer available'
+                    'ERROR: solver.post.normalization == "MAX" is no longer available'
                 )
             if v not in available_normalization:
-                msg = "ERROR: normalization must be "
+                msg = "ERROR: solver.post.normalization must be "
                 msg += "MANY_BEAM or TOTAL"
                 raise exception.InputError(msg)
             self.normalization = v
@@ -440,18 +439,18 @@ class Solver(py2dmat.solver.SolverBase):
             available_weight_type = ["calc", "manual"]
             if self.normalization == "MANY_BEAM":
                 if v is None:
-                    msg = 'ERROR: If normalization = "MANY_BEAM", '
+                    msg = 'ERROR: If solver.post.normalization = "MANY_BEAM", '
                     msg += '"weight_type" must be set in [solver.post].'
                     raise exception.InputError(msg)
                 elif v not in available_weight_type:
-                    msg = "ERROR: weight_type must be "
+                    msg = "ERROR: solver.post.weight_type must be "
                     msg += "calc or manual"
                     raise exception.InputError(msg)
             else:
                 if v is not None:
                     if self.mpirank == 0:
-                        msg = 'NOTICE: If normalization = "MANY_BEAM" is not set, '
-                        msg += '"weight_type" is NOT considered in the calculation.'
+                        msg = 'NOTICE: If solver.post.normalization = "MANY_BEAM" is not set, '
+                        msg += '"solver.post.weight_type" is NOT considered in the calculation.'
                         print(msg)
                     self.weight_type = None
             self.weight_type = v
@@ -459,15 +458,15 @@ class Solver(py2dmat.solver.SolverBase):
             v = info_post.get("spot_weight", [])
             if self.normalization == "MANY_BEAM" and self.weight_type == "manual":
                 if v == []:
-                    msg = 'ERROR: With normalization="MANY_BEAM" and '
-                    msg += 'weight_type=="manual", the "spot_weight" option '
+                    msg = 'ERROR: With solver.post.normalization="MANY_BEAM" and '
+                    msg += 'solver.post.weight_type=="manual", the "spot_weight" option '
                     msg += "must be set in [solver.post]."
                     raise exception.InputError(msg)
                 self.spot_weight = np.array(v) / sum(v)
             else:
                 if v != []:
                     if self.mpirank == 0:
-                        msg = 'NOTICE: With the specified "normalization" option, '
+                        msg = 'NOTICE: With the specified "solver.post.normalization" option, '
                         msg += 'the "spot_weight" you specify in the toml file is ignored, '
                         msg += "since the spot_weight is automatically calculated within the program."
                         print(msg)
@@ -476,11 +475,11 @@ class Solver(py2dmat.solver.SolverBase):
 
             v = info_post.get("Rfactor_type", "A")
             if v not in ["A", "B", "A2"]:
-                raise exception.InputError("ERROR: Rfactor_type must be A, A2 or B")
+                raise exception.InputError("ERROR: solver.post.Rfactor_type must be A, A2 or B")
             if self.normalization == "MANY_BEAM":
                 if (v != "A") and (v != "A2"):
-                    msg = 'With normalization="MANY_BEAM", '
-                    msg += 'only Rfactor_type="A" or Rfactor_type="A2" is valid.'
+                    msg = 'With solver.post.normalization="MANY_BEAM", '
+                    msg += 'only solver.post.Rfactor_type="A" or "A2" is valid.'
                     raise exception.InputError(msg)
             self.Rfactor_type = v
 
@@ -533,24 +532,24 @@ class Solver(py2dmat.solver.SolverBase):
             v = info_ref.get("exp_number", [])
 
             if len(v) == 0:
-                raise exception.InputError("ERROR: You have to set the 'exp_number'.")
+                raise exception.InputError("ERROR: You have to set the 'solver.reference.exp_number'.")
 
             if not isinstance(v, list):
-                raise exception.InputError("ERROR: 'exp_number' must be a list type.")
+                raise exception.InputError("ERROR: 'solver.reference.exp_number' must be a list type.")
 
             if max(v) > self.beam_number_exp_raw:
-                raise exception.InputError("ERROR: The 'exp_number' setting is wrong.")
+                raise exception.InputError("ERROR: The 'solver.reference.exp_number' setting is wrong.")
 
             if self.normalization == "MANY_BEAM" and self.weight_type == "manual":
                 if len(v) != len(self.spot_weight):
                     raise exception.InputError(
-                        "ERROR:len('exp_number') and len('spot_weight') do not match."
+                        "ERROR:len('solver.reference.exp_number') and len('solver.post.spot_weight') do not match."
                     )
 
             if self.normalization == "TOTAL" and len(v) != 1:
-                msg = 'When normalization=="TOTAL" is specified, '
+                msg = 'When solver.post.normalization=="TOTAL" is specified, '
                 msg += "only one beam data can be specified with "
-                msg += '"exp_number" option.'
+                msg += '"solver.reference.exp_number" option.'
                 raise exception.InputError(msg)
 
             self.exp_number = v
@@ -596,7 +595,7 @@ class Solver(py2dmat.solver.SolverBase):
                             [[self.I_reference_normalized_l], [I_reference_normalized]]
                         )
                 else:
-                    msg = "ERROR: normalization must be "
+                    msg = "ERROR: solver.post.normalization must be "
                     msg += "MANY_BEAM or TOTAL"
                     raise exception.InputError(msg)
 
@@ -609,7 +608,7 @@ class Solver(py2dmat.solver.SolverBase):
             v = info_config.get("calculated_first_line", 5)
             if not (isinstance(v, int) and v >= 0):
                 raise exception.InputError(
-                    "ERROR: calculated_first_line should be non-negative integer"
+                    "ERROR: solver.config.calculated_first_line should be non-negative integer"
                 )
             self.calculated_first_line = v
 
@@ -619,7 +618,7 @@ class Solver(py2dmat.solver.SolverBase):
             )
             if not (isinstance(v, int) and v >= 0):
                 raise exception.InputError(
-                    "ERROR: calculated_last_line should be non-negative integer"
+                    "ERROR: solver.config.calculated_last_line should be non-negative integer"
                 )
             self.calculated_last_line = v
 
@@ -643,26 +642,26 @@ class Solver(py2dmat.solver.SolverBase):
             v = info_config.get("calculated_info_line", 2)
             if not (isinstance(v, int) and v >= 0):
                 raise exception.InputError(
-                    "ERROR: calculated_info_line should be non-negative integer"
+                    "ERROR: solver.config.calculated_info_line should be non-negative integer"
                 )
             self.calculated_info_line = v
 
             v = info_config.get("cal_number", [])
             if len(v) == 0:
-                raise exception.InputError("ERROR: You have to set the 'cal_number'.")
+                raise exception.InputError("ERROR: You have to set the 'solver.config.cal_number'.")
 
             if not isinstance(v, list):
-                raise exception.InputError("ERROR: 'cal_number' must be a list type.")
+                raise exception.InputError("ERROR: 'solver.config.cal_number' must be a list type.")
 
             if self.normalization == "MANY_BEAM" and self.weight_type == "manual":
                 if len(self.spot_weight) != len(v):
                     raise exception.InputError(
-                        "len('cal_number') and len('spot_weight') do not match."
+                        "len('solver.config.cal_number') and len('solver.post.spot_weight') do not match."
                     )
             if self.normalization == "TOTAL" and len(v) != 1:
-                msg = 'When normalization=="TOTAL" is specified, '
+                msg = 'When solver.post.normalization=="TOTAL" is specified, '
                 msg += "only one beam data can be specified with "
-                msg += '"cal_number" option.'
+                msg += '"solver.config.cal_number" option.'
                 raise exception.InputError(msg)
             self.cal_number = v
 
@@ -957,7 +956,7 @@ class Solver(py2dmat.solver.SolverBase):
                             ]
                         )
                 else:
-                    msg = "ERROR: normalization must be "
+                    msg = "ERROR: solver.post.normalization must be "
                     msg += "MANY_BEAM or TOTAL"
                     raise exception.InputError(msg)
 
