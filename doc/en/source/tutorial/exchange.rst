@@ -6,7 +6,7 @@ This tutorial subscribes how to estimate atomic positions from the experimental 
 Sample files
 ~~~~~~~~~~~~~~~~~~
 
-Sample files are available from ``sample/sim-trhepd-rheed/exchange`` .
+Sample files are available from ``sample/sim-trhepd-rheed/single_beam/exchange`` .
 This directory includes the following files:
 
 - ``bulk.txt``
@@ -126,14 +126,14 @@ First, move to the folder where the sample file is located (hereinafter, it is a
 
 .. code-block::
 
-    cd sample/sim-trhepd-rheed/exchange
+    cd sample/sim-trhepd-rheed/single_beam/exchange
 
 Copy ``bulk.exe`` and ``surf.exe`` as the tutorial for the direct problem.
 
 .. code-block::
 
-    cp ../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
-    cp ../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
+    cp ../../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
+    cp ../../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
 
 Execute ``bulk.exe`` to generate ``bulkP.b`` .
 
@@ -145,7 +145,7 @@ Then, run the main program (it takes a few secondes)
 
 .. code-block::
 
-    mpiexec -np 4 python3 ../../../src/py2dmat_main.py input.toml | tee log.txt
+    mpiexec -np 4 python3 ../../../../src/py2dmat_main.py input.toml | tee log.txt
 
 
 Here, the calculation is performed using MPI parallel with 4 processes.
@@ -187,7 +187,7 @@ I will omit the explanation below, but I will post the contents.
 
   ./bulk.exe
 
-  time mpiexec --oversubscribe -np 4 python3 ../../../src/py2dmat_main.py input.toml
+  time mpiexec --oversubscribe -np 4 python3 ../../../../src/py2dmat_main.py input.toml
 
   echo diff best_result.txt ref.txt
   res=0
@@ -207,7 +207,7 @@ The ``result.txt`` in each rank folder records the data sampled by each replica,
 
 .. code-block::
 
-  python3 ../../../script/separateT.py
+  python3 ../../../../script/separateT.py
 
 
 The data reorganized for each temperature point is written to ``result_T%.txt`` (``%`` is the index of the temperature point).
