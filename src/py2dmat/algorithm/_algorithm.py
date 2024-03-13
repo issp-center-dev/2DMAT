@@ -248,10 +248,6 @@ class AlgorithmBase(metaclass=ABCMeta):
             )
             if data.ndim == 1:
                 data = data.reshape(1, -1)
-            if data.shape[1] != self.dimension+1:
-                raise exception.InputError(
-                    f"ERROR: data.shape[1] != dimension+1 ({data.shape[1]} != {self.dimension}+1)"
-                )
             grid = data
         else:
             if "min_list" not in info_param:
