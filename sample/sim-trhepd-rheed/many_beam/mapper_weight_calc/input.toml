@@ -3,37 +3,26 @@ dimension = 9
 output_dir = "output"
 
 [solver]
-name = "sim-trhepd-rheed-mb_connect"
+name = "sim-trhepd-rheed"
 run_scheme = "subprocess"
 generate_rocking_curve = false
 
 [solver.config]
-#calculated_first_line =5
-#calculated_last_line = 65
-#row_number = 2
-surface_exec_file = "~/tool/sim-trhepd-rheed/src/surf.exe"
-bulk_output_file = "bulkP.b"
-surface_template_file = "template.txt"
 cal_number = [1, 2, 4, 6, 8]
 
-
 [solver.post]
-normalization = "MS_NORM"   #"TOTAL" for Integration or "MAX" for MAX value
-Rfactor_type = "A2"        #"A" for Ichimiya's or "B" for Pendry's or "A2" for squared Weight + Ichimiya's
+normalization = "MANY_BEAM"
+weight_type = "calc"
+Rfactor_type = "A2"
 omega = 0.5
 remove_work_dir = false
 
 [solver.param]
 string_list = ["value_01", "value_02","value_03", "value_04","value_05", "value_06", "value_07","value_08", "value_09"]
-#degree_max = 6.5
-
 
 [solver.reference]
 path = "experiment.txt"
 exp_number = [1, 2, 4, 6, 8]
-#first =1
-#last = 63
-
 
 [algorithm]
 name = "mapper"
