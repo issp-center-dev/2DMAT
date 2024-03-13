@@ -7,7 +7,7 @@
 サンプルファイルの場所
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-サンプルファイルは ``sample/sim-trhepd-rheed/pamc`` にあります。
+サンプルファイルは ``sample/sim-trhepd-rheed/single_beam/pamc`` にあります。
 フォルダには以下のファイルが格納されています。
 
 - ``bulk.txt``
@@ -127,8 +127,8 @@
 
 .. code-block::
 
-    cp ../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
-    cp ../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
+    cp ../../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
+    cp ../../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
 
 最初に ``bulk.exe`` を実行し、``bulkP.b`` を作成します。
 
@@ -140,7 +140,7 @@
 
 .. code-block::
 
-    mpiexec -np 4 python3 ../../../src/py2dmat_main.py input.toml | tee log.txt
+    mpiexec -np 4 python3 ../../../../src/py2dmat_main.py input.toml | tee log.txt
 
 ここではプロセス数4のMPI並列を用いた計算を行っています。
 (Open MPI を用いる場合で、使えるコア数よりも要求プロセス数の方が多い時には、
@@ -202,7 +202,7 @@
 
   ./bulk.exe
 
-  time mpiexec --oversubscribe -np 4 python3 ../../../src/py2dmat_main.py input.toml
+  time mpiexec --oversubscribe -np 4 python3 ../../../../src/py2dmat_main.py input.toml
 
   echo diff output/fx.txt ref.txt
   res=0

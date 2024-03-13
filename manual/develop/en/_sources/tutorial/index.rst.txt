@@ -44,5 +44,6 @@ In this tutorial, we will first introduce how to run the sequential problem prog
    mpi
    bayes
    exchange
+   limitation
    pamc
    solver_simple

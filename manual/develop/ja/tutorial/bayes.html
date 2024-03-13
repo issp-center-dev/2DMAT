@@ -42,7 +42,7 @@
 グリッド探索と同様に、探索グリッドを与えるデータ <code class="docutils literal notranslate"><span class="pre">MeshData.txt</span></code> を事前に準備する必要があります。</p>
 <section id="id2">
 <h2>サンプルファイルの場所<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
-<p>サンプルファイルは <code class="docutils literal notranslate"><span class="pre">sample/sim-trhepd-rheed/bayes</span></code> にあります。
+<p>サンプルファイルは <code class="docutils literal notranslate"><span class="pre">sample/sim-trhepd-rheed/single_beam/bayes</span></code> にあります。
 フォルダには以下のファイルが格納されています。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">bulk.txt</span></code></p>
@@ -173,8 +173,8 @@
 </pre></div>
 </div>
 <p>順問題の時と同様に、 <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> と <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code> をコピーします。</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="o">../../../../</span><span class="n">sim</span><span class="o">-</span><span class="n">trhepd</span><span class="o">-</span><span class="n">rheed</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">TRHEPD</span><span class="o">/</span><span class="n">bulk</span><span class="o">.</span><span class="n">exe</span> <span class="o">.</span>
-<span class="n">cp</span> <span class="o">../../../../</span><span class="n">sim</span><span class="o">-</span><span class="n">trhepd</span><span class="o">-</span><span class="n">rheed</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">TRHEPD</span><span class="o">/</span><span class="n">surf</span><span class="o">.</span><span class="n">exe</span> <span class="o">.</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="o">../../../../../</span><span class="n">sim</span><span class="o">-</span><span class="n">trhepd</span><span class="o">-</span><span class="n">rheed</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">TRHEPD</span><span class="o">/</span><span class="n">bulk</span><span class="o">.</span><span class="n">exe</span> <span class="o">.</span>
+<span class="n">cp</span> <span class="o">../../../../../</span><span class="n">sim</span><span class="o">-</span><span class="n">trhepd</span><span class="o">-</span><span class="n">rheed</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">TRHEPD</span><span class="o">/</span><span class="n">surf</span><span class="o">.</span><span class="n">exe</span> <span class="o">.</span>
 </pre></div>
 </div>
 <p>最初に <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> を実行し、 <code class="docutils literal notranslate"><span class="pre">bulkP.b</span></code> を作成します。</p>
@@ -182,7 +182,7 @@
 </pre></div>
 </div>
 <p>そのあとに、メインプログラムを実行します(計算時間は通常のPCで数秒程度で終わります)。</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">../../../</span><span class="n">src</span><span class="o">/</span><span class="n">py2dmat_main</span><span class="o">.</span><span class="n">py</span> <span class="nb">input</span><span class="o">.</span><span class="n">toml</span> <span class="o">|</span> <span class="n">tee</span> <span class="n">log</span><span class="o">.</span><span class="n">txt</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">../../../../</span><span class="n">src</span><span class="o">/</span><span class="n">py2dmat_main</span><span class="o">.</span><span class="n">py</span> <span class="nb">input</span><span class="o">.</span><span class="n">toml</span> <span class="o">|</span> <span class="n">tee</span> <span class="n">log</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
 <p>実行すると、各ランクのフォルダが作成されます。
@@ -250,7 +250,7 @@
 
 ./bulk.exe
 
-time python3 ../../../src/py2dmat_main.py input.toml
+time python3 ../../../../src/py2dmat_main.py input.toml
 
 echo diff BayesData.txt ref_BayesData.txt
 res=0

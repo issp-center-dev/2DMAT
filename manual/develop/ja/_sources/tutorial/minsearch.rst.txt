@@ -24,7 +24,7 @@ Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference
 サンプルファイルの場所
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-サンプルファイルは ``sample/py2dmat/sim-threpd-rheed/minsearch`` にあります。
+サンプルファイルは ``sample/py2dmat/sim-threpd-rheed/single_beam/minsearch`` にあります。
 フォルダには以下のファイルが格納されています。
 
 - ``bulk.txt``
@@ -187,14 +187,14 @@ Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference
 
 .. code-block::
 
-    cd sample/sim-trhepd-rheed/minsearch
+    cd sample/sim-trhepd-rheed/single_beam/minsearch
 
 順問題の時と同様に、``bulk.exe`` と ``surf.exe`` をコピーします。
 
 .. code-block::
 
-    cp ../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
-    cp ../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
+    cp ../../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
+    cp ../../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
 
 最初に ``bulk.exe`` を実行し、``bulkP.b`` を作成します。
 
@@ -206,7 +206,7 @@ Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference
 
 .. code-block::
 
-    python3 ../../../src/py2dmat_main.py input.toml | tee log.txt
+    python3 ../../../../src/py2dmat_main.py input.toml | tee log.txt
 
 実行すると、以下の様な出力がされます。
 
@@ -254,7 +254,7 @@ Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference
 
   ./bulk.exe
 
-  time python3 ../../../src/py2dmat_main.py input.toml | tee log.txt
+  time python3 ../../../../src/py2dmat_main.py input.toml | tee log.txt
 
   echo diff res.txt ref.txt
   res=0
@@ -278,7 +278,7 @@ Nelder-Mead法 (`scipy.optimize.fmin <https://docs.scipy.org/doc/scipy/reference
 
     cp 0/Log00000001_00000001/RockingCurve.txt RockingCurve_ini.txt
     cp 0/Log00000062_00000001/RockingCurve.txt RockingCurve_con.txt
-    cp ../../../script/draw_RC_double.py .
+    cp ../../../../script/draw_RC_double.py .
     python draw_RC_double.py
 
 上記を実行することで、``RC_double.png`` が出力されます。
