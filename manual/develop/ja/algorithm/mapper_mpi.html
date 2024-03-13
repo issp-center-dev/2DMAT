@@ -82,10 +82,11 @@ MPI 実行した場合、候補点の集合を等分割して各プロセスに�
 <section id="id4">
 <h3>メッシュ定義ファイル<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
 <p>本ファイルで探索するグリッド空間を定義します。
+1 + <code class="docutils literal notranslate"><span class="pre">dimension</span></code> 列のテキストファイルで、
 1列目にメッシュのインデックス、
-2列目以降は <code class="docutils literal notranslate"><span class="pre">[solver.param]</span></code> セクションにある、
-<code class="docutils literal notranslate"><span class="pre">string_list</span></code> で定義された変数に入る値が入ります。</p>
-<p>以下、サンプルを記載します。</p>
+2列目以降は探索パラメータ <span class="math notranslate nohighlight">\(x\)</span> に対応する値を記載します。
+また、 <code class="docutils literal notranslate"><span class="pre">#</span></code> から始まる行はコメントとして無視されます。</p>
+<p>以下、2次元パラメータ空間探索のサンプルを記載します。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span> <span class="mf">6.000000</span> <span class="mf">6.000000</span>
 <span class="mi">2</span> <span class="mf">6.000000</span> <span class="mf">5.750000</span>
 <span class="mi">3</span> <span class="mf">6.000000</span> <span class="mf">5.500000</span>

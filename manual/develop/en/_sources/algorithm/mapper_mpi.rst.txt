@@ -58,9 +58,10 @@ Mesh definition file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Define the grid space to be explored in this file.
-The first column is the index of the mesh, and the second and subsequent columns are the values of variables defined in ``string_list`` in the ``[solver.param]`` section.
+1 + ``dimension`` columns are required.
+The first column is the index of the mesh, and the second and subsequent columns are the values of parameter.
 
-Below, a sample file is shown.
+A sample file for two dimensions is shown below.
 
 .. code-block::
 
