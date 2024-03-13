@@ -77,22 +77,25 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
                 print("mesh after:", mesh)
 
-            fx_order = np.argsort(fx_list)
-            minimum_point = []
-            print("mesh_list[fx_order[0]]:")
-            print(self.mesh_list[fx_order[0]])
-            for index in range(1, dimension + 1):
-                minimum_point.append(self.mesh_list[fx_order[0]][index])
+            if iterations > 0:
+                fx_order = np.argsort(fx_list)
+                minimum_point = []
+                print("mesh_list[fx_order[0]]:")
+                print(self.mesh_list[fx_order[0]])
+                for index in range(1, dimension + 1):
+                    minimum_point.append(self.mesh_list[fx_order[0]][index])
 
-            time_sta = time.perf_counter()
-            file_CM.write("#Minimum point :")
-            for value in minimum_point:
-                file_CM.write(" {:8f}".format(value))
-            file_CM.write("\n")
-            file_CM.write("#R-factor : {:8f}\n".format(fx_list[fx_order[0]]))
-            file_CM.write("#see Log{}\n".format(round(self.mesh_list[fx_order[0]][0])))
-            time_end = time.perf_counter()
-            self.timer["run"]["file_CM"] += time_end - time_sta
+                time_sta = time.perf_counter()
+                file_CM.write("#Minimum point :")
+                for value in minimum_point:
+                    file_CM.write(" {:8f}".format(value))
+                file_CM.write("\n")
+                file_CM.write("#R-factor : {:8f}\n".format(fx_list[fx_order[0]]))
+                file_CM.write("#see Log{}\n".format(round(self.mesh_list[fx_order[0]][0])))
+                time_end = time.perf_counter()
+                self.timer["run"]["file_CM"] += time_end - time_sta
+            else:
+                file_CM.write("# No mesh point\n")
 
         print(
             "complete main process : rank {:08d}/{:08d}".format(
