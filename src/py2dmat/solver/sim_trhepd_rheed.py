@@ -36,7 +36,7 @@ class Solver(py2dmat.solver.SolverBase):
 
         self._name = "sim_trhepd_rheed_mb_connect"
 
-        self.run_scheme = info.solver.get("run_scheme", "")
+        self.run_scheme = info.solver.get("run_scheme", "subprocess")
         scheme_list = ["subprocess", "connect_so"]
 
         if self.run_scheme not in scheme_list:
