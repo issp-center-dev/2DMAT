@@ -3,20 +3,20 @@ dimension = 3
 
 [solver]
 name = "sim-trhepd-rheed"
+run_scheme = "subprocess"
 
 [solver.config]
-calculated_first_line = 5
-calculated_last_line = 74
-row_number = 2
+cal_number = [1]
 
 [solver.param]
 string_list = ["value_01", "value_02", "value_03" ]
-degree_max = 7.0
 
 [solver.reference]
 path = "experiment.txt"
-first = 1
-last = 70
+exp_number = [1]
+
+[solver.post]
+normalization = "TOTAL"
 
 [algorithm]
 name = "minsearch"

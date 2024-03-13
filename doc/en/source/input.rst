@@ -24,6 +24,10 @@ The input file consists of the following six sections.
 
   - Define the mapping from a parameter searched by ``Algorithm`` .
 
+- ``limitation``
+
+  - Define the limitation (constration) of parameter searched by ``Algorithm`` .
+
 - ``log``
 
   - Specify parameters related to logging of solver calls.
@@ -156,6 +160,52 @@ mean
   0 & 1
   \end{matrix}
   \right).
+
+
+[``limitation``] section
+*************************
+
+This section defines the limitation (constraint) in an :math:`N` dimensional parameter searched by ``Algorithm``, :math:`x`, in addition of ``min_list`` and ``max_list``.
+
+In the current version, a linear inequation with the form :math:`Ax+b>0` is available.
+
+- ``co_a``
+
+  Format: List of list of float, or a string (default: ``[]``)
+
+  Description: :math:`N \times M` matrix :math:`A`. An empty list ``[]`` is a shorthand of an identity matrix.
+               If you want to set it by a string, arrange the elements of the matrix separated with spaces and newlines (see the example).
+
+
+- ``co_b``
+
+  Format: List of float, or a string (default: ``[]``)
+
+  Description: :math:`M` dimensional vector :math:`b`. An empty list ``[]`` is a shorthand of a zero vector.
+               If you want to set it by a string, arrange the elements of the vector separated with spaces.
+
+For example, both ::
+
+  A = [[1,1], [0,1]]
+
+and ::
+
+  A = """
+  1 1
+  0 1
+  """
+
+mean
+
+.. math::
+
+  A = \left(
+  \begin{matrix}
+  1 & 1 \\
+  0 & 1
+  \end{matrix}
+  \right).
+
 
 [``log``] section
 ************************

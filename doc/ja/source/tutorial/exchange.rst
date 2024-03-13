@@ -7,7 +7,7 @@
 サンプルファイルの場所
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-サンプルファイルは ``sample/sim-threpd-rheed/exchange`` にあります。
+サンプルファイルは ``sample/sim-threpd-rheed/single_beam/exchange`` にあります。
 フォルダには以下のファイルが格納されています。
 
 - ``bulk.txt``
@@ -116,14 +116,14 @@
 
 .. code-block::
 
-    cd sample/sim-trhepd-rheed/exchange
+    cd sample/sim-trhepd-rheed/single_beam/exchange
 
 順問題の時と同様に、 ``bulk.exe`` と ``surf.exe`` をコピーします。
 
 .. code-block::
 
-    cp ../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
-    cp ../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
+    cp ../../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
+    cp ../../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
 
 最初に ``bulk.exe`` を実行し、``bulkP.b`` を作成します。
 
@@ -135,7 +135,7 @@
 
 .. code-block::
 
-    mpiexec -np 4 python3 ../../../src/py2dmat_main.py input.toml | tee log.txt
+    mpiexec -np 4 python3 ../../../../src/py2dmat_main.py input.toml | tee log.txt
 
 ここではプロセス数4のMPI並列を用いた計算を行っています。
 (Open MPI を用いる場合で、使えるコア数よりも要求プロセス数の方が多い時には、
@@ -177,7 +177,7 @@
 
   ./bulk.exe
 
-  time mpiexec --oversubscribe -np 4 python3 ../../../src/py2dmat_main.py input.toml
+  time mpiexec --oversubscribe -np 4 python3 ../../../../src/py2dmat_main.py input.toml
 
   echo diff best_result.txt ref.txt
   res=0
@@ -198,7 +198,7 @@ Py2DMat の実装では同一レプリカが様々な温度のサンプルを保
 
 .. code-block::
 
-  python3 ../../../script/separateT.py
+  python3 ../../../../script/separateT.py
 
 ``result_T%.txt`` に各温度点ごとにまとめなおされたデータが書き込まれます(``%`` は温度点のindex)。
 1列目がステップ、2列めがランク、3列目が目的関数の値、4列目以降がパラメータです。

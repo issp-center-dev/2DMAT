@@ -7,7 +7,7 @@ This tutorial subscribes how to estimate atomic positions from the experimental 
 Sample files
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Sample files are available from ``sample/sim-trhepd-rheed/bayes`` .
+Sample files are available from ``sample/sim-trhepd-rheed/single_beam/bayes`` .
 This directory includes the following files:
 
 - ``bulk.txt``
@@ -123,14 +123,14 @@ First, move to the folder where the sample file is located (hereinafter, it is a
 
 .. code-block::
 
-    cd sample/sim-trhepd-rheed/bayes
+    cd sample/sim-trhepd-rheed/single_beam/bayes
 
 Copy ``bulk.exe`` and ``surf.exe`` as the tutorial for the direct problem.
 
 .. code-block::
 
-    cp ../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
-    cp ../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
+    cp ../../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
+    cp ../../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
 
 Execute ``bulk.exe`` to generate ``bulkP.b`` .
 
@@ -142,7 +142,7 @@ Then, run the main program (it takes a few secondes)
 
 .. code-block::
 
-   python3 ../../../src/py2dmat_main.py input.toml | tee log.txt
+   python3 ../../../../src/py2dmat_main.py input.toml | tee log.txt
 
 This makes a directory with the name of ``0`` .
 The following standard output will be shown:
@@ -216,7 +216,7 @@ I will omit the explanation below, but I will post the contents.
 
     ./bulk.exe
 
-    time python3 ../../../src/py2dmat_main.py input.toml
+    time python3 ../../../../src/py2dmat_main.py input.toml
 
     echo diff BayesData.txt ref_BayesData.txt
     res=0

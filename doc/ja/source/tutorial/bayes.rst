@@ -8,7 +8,7 @@
 サンプルファイルの場所
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-サンプルファイルは ``sample/sim-trhepd-rheed/bayes`` にあります。
+サンプルファイルは ``sample/sim-trhepd-rheed/single_beam/bayes`` にあります。
 フォルダには以下のファイルが格納されています。
 
 - ``bulk.txt``
@@ -166,8 +166,8 @@
 
 .. code-block::
 
-    cp ../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
-    cp ../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
+    cp ../../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
+    cp ../../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
 
 最初に ``bulk.exe`` を実行し、 ``bulkP.b`` を作成します。
 
@@ -179,7 +179,7 @@
 
 .. code-block::
 
-   python3 ../../../src/py2dmat_main.py input.toml | tee log.txt
+   python3 ../../../../src/py2dmat_main.py input.toml | tee log.txt
 
 実行すると、各ランクのフォルダが作成されます。
 以下の様な標準出力がされます。
@@ -255,7 +255,7 @@
 
     ./bulk.exe
 
-    time python3 ../../../src/py2dmat_main.py input.toml
+    time python3 ../../../../src/py2dmat_main.py input.toml
 
     echo diff BayesData.txt ref_BayesData.txt
     res=0
