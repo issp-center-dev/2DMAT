@@ -246,6 +246,8 @@ class AlgorithmBase(metaclass=ABCMeta):
             data = np.loadtxt(
                 mesh_path, comments=comments, delimiter=delimiter, skiprows=skiprows,
             )
+            if data.ndim == 1:
+                data = data.reshape(1, -1)
             grid = data
         else:
             if "min_list" not in info_param:
