@@ -530,7 +530,8 @@ class Solver(py2dmat.solver.SolverBase):
             self.beam_number_exp_raw = data_experiment.shape[1]
 
             v = info_ref.get("exp_number", [])
-
+            if isinstance(v, int):
+                v = [v]
             if len(v) == 0:
                 raise exception.InputError("ERROR: You have to set the 'solver.reference.exp_number'.")
 
@@ -647,6 +648,8 @@ class Solver(py2dmat.solver.SolverBase):
             self.calculated_info_line = v
 
             v = info_config.get("cal_number", [])
+            if isinstance(v, int):
+                v = [v]
             if len(v) == 0:
                 raise exception.InputError("ERROR: You have to set the 'solver.config.cal_number'.")
 

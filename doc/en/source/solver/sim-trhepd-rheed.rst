@@ -62,26 +62,20 @@ Input parameters can be specified in subsections ``config``, ``post``, ``param``
 
   Format: integer (default: 5)
 
-  Description: One of the parameters that specifies the range of output files to be read, calculated by the solver. This parameter specifies the first line to be read.
-
-- ``calculated_last_line``
-
-  Format: integer (default: 60)
-
-  Description: One of the parameters that specifies the range of output files to be read, calculated by the solver. This parameter specifies the last line to be read.
+  Description: In the output file, the first line to be read as D(x).
+  The last line is automatically calculated from the number of the reference data.
 
 - ``calculated_info_line``
 
   Format: integer (default: 2)
 
-  Description: One of the parameters that specifies the range of output files to be read, calculated by the solver.
-  This parameter specifies the line to be read, which contains the number of glancing angles (second column) and the number of beams (third column).
+  Description: In the output file, the line contains the information of the calculated data -- the number of glancing angles (second column) and the number of beams (third column).
   
 - ``cal_number``
 
-  Format: List of integers
+  Format: Integer or List of integers
 
-  Description: Columns of dataset to be read. Multiple columns can be specified (many-beam condition).
+  Description: In the output file, the columns to be read as D(x). Multiple columns can be specified (many-beam condition).
 
 
 [``solver.post``] subsection
@@ -188,25 +182,25 @@ This subsection is used to the postprocess -- to specify how to calculate the ob
 
   Format: string (default: ``experiment.txt``)
 
-  Description: Path to the experimental data file.
+  Description: Path to the reference data file.
   
 - ``reference_first_line``
 
-  Format: integer (default: 1)
+  Format: integer
 
-  Description: One of the parameters that specify the range of experimental data files to be read. This parameter specifies the first line of the experimental file to be read.
+  Description: In the reference data file, the first line to be read as Dexp. The default value is 1, that is, the first line of the file.
 
 - ``reference_last_line``
 
-  Format: integer (default: 56)
+  Format: integer
 
-  Description: One of the parameters that specify the range of experimental data files to be read. This parameter specifies the last line of the experimental file to be read.
+  Description: In the reference data file, the last line to be read as Dexp. If omitted, all lines from the first line to the end of the file will be read.
 
 - ``exp_number``
 
-  Format: List of integers
+  Format: Integer or List of integers
 
-  Description: Columns of dataset to be read. Multiple columns can be specified (many-beam condition).
+  Description: In the reference data file, the column numbers to be read. Multiple columns can be specified (many-beam condition).
 
 
 Reference file
