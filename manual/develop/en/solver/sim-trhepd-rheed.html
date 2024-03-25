@@ -83,20 +83,16 @@ Note that if <code class="docutils literal notranslate"><span class="pre">remove
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">calculated_first_line</span></code></p>
 <p>Format: integer (default: 5)</p>
-<p>Description: One of the parameters that specifies the range of output files to be read, calculated by the solver. This parameter specifies the first line to be read.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">calculated_last_line</span></code></p>
-<p>Format: integer (default: 60)</p>
-<p>Description: One of the parameters that specifies the range of output files to be read, calculated by the solver. This parameter specifies the last line to be read.</p>
+<p>Description: In the output file, the first line to be read as D(x).
+The last line is automatically calculated from the number of the reference data.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">calculated_info_line</span></code></p>
 <p>Format: integer (default: 2)</p>
-<p>Description: One of the parameters that specifies the range of output files to be read, calculated by the solver.
-This parameter specifies the line to be read, which contains the number of glancing angles (second column) and the number of beams (third column).</p>
+<p>Description: In the output file, the line contains the information of the calculated data – the number of glancing angles (second column) and the number of beams (third column).</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cal_number</span></code></p>
-<p>Format: List of integers</p>
-<p>Description: Columns of dataset to be read. Multiple columns can be specified (many-beam condition).</p>
+<p>Format: Integer or List of integers</p>
+<p>Description: In the output file, the columns to be read as D(x). Multiple columns can be specified (many-beam condition).</p>
 </li>
 </ul>
 </section>
@@ -190,19 +186,19 @@ For example, [3,2,1] means <span class="math notranslate nohighlight">\(w^{(1)}=
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">path</span></code></p>
 <p>Format: string (default: <code class="docutils literal notranslate"><span class="pre">experiment.txt</span></code>)</p>
-<p>Description: Path to the experimental data file.</p>
+<p>Description: Path to the reference data file.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">reference_first_line</span></code></p>
-<p>Format: integer (default: 1)</p>
-<p>Description: One of the parameters that specify the range of experimental data files to be read. This parameter specifies the first line of the experimental file to be read.</p>
+<p>Format: integer</p>
+<p>Description: In the reference data file, the first line to be read as Dexp. The default value is 1, that is, the first line of the file.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">reference_last_line</span></code></p>
-<p>Format: integer (default: 56)</p>
-<p>Description: One of the parameters that specify the range of experimental data files to be read. This parameter specifies the last line of the experimental file to be read.</p>
+<p>Format: integer</p>
+<p>Description: In the reference data file, the last line to be read as Dexp. If omitted, all lines from the first line to the end of the file will be read.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">exp_number</span></code></p>
-<p>Format: List of integers</p>
-<p>Description: Columns of dataset to be read. Multiple columns can be specified (many-beam condition).</p>
+<p>Format: Integer or List of integers</p>
+<p>Description: In the reference data file, the column numbers to be read. Multiple columns can be specified (many-beam condition).</p>
 </li>
 </ul>
 </section>

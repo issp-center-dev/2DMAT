@@ -84,19 +84,15 @@
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">calculated_first_line</span></code></p>
 <p>形式: 整数型 (default: 5)</p>
-<p>説明: ソルバーにより計算された出力ファイルを読み込む範囲を指定するパラメータ。読み込む最初の行を指定。</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">calculated_last_line</span></code></p>
-<p>形式: 整数型 (default: 5 + [<code class="docutils literal notranslate"><span class="pre">reference</span></code>] セクション（サブセクション）にて指定した実験データファイルの視写角数 - 1)</p>
-<p>説明: ソルバーにより計算された出力ファイルを読み込む範囲を指定するパラメータ。読み込む最後の行を指定。</p>
+<p>説明: <code class="docutils literal notranslate"><span class="pre">surface_output_file</span></code> ファイル中, D(x) として読み込む最初の行。 なお、最終行は実験データとして読み込んだ行数から自動計算されます。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">calculated_info_line</span></code></p>
 <p>形式: 整数型 (default: 2)</p>
-<p>説明: ソルバーにより計算された出力ファイルの行を指定するパラメータ。出力ファイル内に記されているglancing angle数やbeam数が記してある行を指定。</p>
+<p>説明: <code class="docutils literal notranslate"><span class="pre">surface_output_file</span></code> ファイル中, glancing angle数やbeam数が記してある行番号。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cal_number</span></code></p>
 <p>形式: 整数型のリスト (設定必須)</p>
-<p>説明: ソルバーにより計算された出力ファイルを読み込む範囲を指定するパラメータ。読み込むデータ列を指定。複数指定が可能。設定した値は、後述の <code class="docutils literal notranslate"><span class="pre">exp_number</span></code> （[<code class="docutils literal notranslate"><span class="pre">reference</span></code>] セクション）の値とリストの長さを一致させる必要があります。</p>
+<p>説明: <code class="docutils literal notranslate"><span class="pre">surface_output_file</span></code> ファイル中, データとして読み出す列番号。複数指定が可能。設定した値は、後述の <code class="docutils literal notranslate"><span class="pre">exp_number</span></code> （[<code class="docutils literal notranslate"><span class="pre">reference</span></code>] セクション）の値とリストの長さを一致させる必要があります。</p>
 </li>
 </ul>
 </section>
@@ -190,16 +186,16 @@
 <p>説明: 実験データファイルへのパス。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">reference_first_line</span></code></p>
-<p>形式: 整数型 (default: 1)</p>
-<p>説明: 実験データファイルを読み込む範囲を指定するパラメータ。実験ファイルを読み込む最初の行を指定。</p>
+<p>形式: 整数型</p>
+<p>説明: 実験データファイル中、実験データを読み出す最初の行の番号。省略時は1, すなわち先頭行から読み出します。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">reference_last_line</span></code></p>
 <p>形式: 整数型 (default: 実験データファイルの最後の行の行数)</p>
-<p>説明: 実験データファイルを読み込む範囲を指定するパラメータ。実験ファイルを読み込む最後の行を指定。</p>
+<p>説明: 実験データファイル中、実験データを読み出す最後の行の番号。省略時は最終行まで読み出します。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">exp_number</span></code></p>
-<p>形式: 整数型のリスト (default: []、設定必須)</p>
-<p>説明: 実験データファイルを読み込む範囲を指定するパラメータ。読み込むデータ列を指定。複数指定が可能。設定した値は、前述の <code class="docutils literal notranslate"><span class="pre">cal_number</span></code> （[<code class="docutils literal notranslate"><span class="pre">config</span></code>] セクション）の値とリストの長さを一致させる必要があります。</p>
+<p>形式: 整数型のリスト</p>
+<p>説明: 実験データファイル中、実験データとして読み出す列番号。複数指定が可能。設定した値は、前述の <code class="docutils literal notranslate"><span class="pre">cal_number</span></code> （[<code class="docutils literal notranslate"><span class="pre">config</span></code>] セクション）の値とリストの長さを一致させる必要があります。</p>
 </li>
 </ul>
 </section>
