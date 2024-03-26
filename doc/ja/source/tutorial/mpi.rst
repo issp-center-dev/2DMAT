@@ -8,7 +8,7 @@
 サンプルファイルの場所
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-サンプルファイルは ``sample/sim-trhepd-rheed/mapper`` にあります。
+サンプルファイルは ``sample/sim-trhepd-rheed/single_beam/mapper`` にあります。
 フォルダには以下のファイルが格納されています。
 
 - ``bulk.txt``
@@ -141,14 +141,14 @@
 
 .. code-block::
 
-    cd sample/sim-trhepd-rheed/mapper
+    cd sample/sim-trhepd-rheed/single_beam/mapper
 
 順問題の時と同様に、``bulk.exe`` と ``surf.exe`` をコピーします。
 
 .. code-block::
 
-    cp ../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
-    cp ../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
+    cp ../../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
+    cp ../../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
 
 最初に ``bulk.exe`` を実行し、``bulkP.b`` を作成します。
 
@@ -160,7 +160,7 @@
 
 .. code-block::
 
-    mpiexec -np 2 python3 ../../../src/py2dmat_main.py input.toml | tee log.txt
+    mpiexec -np 2 python3 ../../../../src/py2dmat_main.py input.toml | tee log.txt
 
 ここではプロセス数2のMPI並列を用いた計算を行っています。
 実行すると、各ランクのフォルダが作成され、その下に更にグリッドのidがついたサブフォルダ ``Log%%%%%``  ( ``%%%%%`` がグリッドのid)が作成されます
@@ -210,7 +210,7 @@
 
     ./bulk.exe
 
-    time mpiexec -np 2 python3 ../../../src/py2dmat_main.py input.toml
+    time mpiexec -np 2 python3 ../../../../src/py2dmat_main.py input.toml
 
     echo diff ColorMap.txt ref_ColorMap.txt
     res=0

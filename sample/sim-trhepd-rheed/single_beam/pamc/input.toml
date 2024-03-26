@@ -2,6 +2,23 @@
 dimension = 2
 output_dir = "output"
 
+[solver]
+name = "sim-trhepd-rheed"
+run_scheme = "subprocess"
+
+[solver.config]
+cal_number = [1]
+
+[solver.param]
+string_list = ["value_01", "value_02" ]
+
+[solver.post]
+normalization = "TOTAL"
+
+[solver.reference]
+path = "experiment.txt"
+exp_number = [1]
+
 [algorithm]
 name = "pamc"
 label_list = ["z1", "z2"]
@@ -20,19 +37,3 @@ Tnum = 21
 Tlogspace = false
 nreplica_per_proc = 10
 
-[solver]
-name = "sim-trhepd-rheed"
-
-[solver.config]
-calculated_first_line = 5
-calculated_last_line = 74
-row_number = 2
-
-[solver.param]
-string_list = ["value_01", "value_02" ]
-degree_max = 7.0
-
-[solver.reference]
-path = "experiment.txt"
-first = 1
-last = 70

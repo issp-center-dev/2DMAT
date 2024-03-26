@@ -22,7 +22,7 @@ In the main program, the Nelder-Mead method (using `scipy.optimize.fmin <https:/
 Location of the sample files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The sample files are located in ``sample/py2dmat/sim-trhepd-rheed/minsearch``.
+The sample files are located in ``sample/py2dmat/sim-trhepd-rheed/single_beam/minsearch``.
 The following files are stored in the folder.
 
 - ``bulk.txt``
@@ -182,14 +182,14 @@ First, move to the folder where the sample files are located (we will assume tha
 
 .. code-block::
 
-    cd sample/sim-trhepd-rheed/minsearch
+    cd sample/sim-trhepd-rheed/single_beam/minsearch
 
 Copy ``bulk.exe`` and ``surf.exe``.
 
 .. code-block::
 
-    cp ../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
-    cp ../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
+    cp ../../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
+    cp ../../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
 
 First, run ``bulk.exe`` to create ``bulkP.b``.
 
@@ -201,7 +201,7 @@ After that, run the main program (the computation time takes only a few seconds 
 
 .. code-block::
 
-    python3 ../../../src/py2dmat_main.py input.toml | tee log.txt
+    python3 ../../../../src/py2dmat_main.py input.toml | tee log.txt
 
 Then, the standard output will be seen as follows.
 
@@ -250,7 +250,7 @@ Here is what it does, without further explanation.
 
   ./bulk.exe
 
-  time python3 ../../../src/py2dmat_main.py input.toml | tee log.txt
+  time python3 ../../../../src/py2dmat_main.py input.toml | tee log.txt
 
   echo diff res.txt ref.txt
   res=0
@@ -274,7 +274,7 @@ In this section, we will use this tool to visualize the results.
 
     cp 0/Log00000001_00000001/RockingCurve.txt RockingCurve_ini.txt
     cp 0/Log00000062_00000001/RockingCurve.txt RockingCurve_con.txt
-    cp ../../../script/draw_RC_double.py .
+    cp ../../../../script/draw_RC_double.py .
     python draw_RC_double.py
 
 Running the above will output ``RC_double.png``.

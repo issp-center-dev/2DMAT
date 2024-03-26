@@ -1,81 +1,182 @@
-# 2DMAT -- Data-analysis software of quantum beam diffraction experiments for 2D material structure
-# Copyright (C) 2020- The University of Tokyo
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see http://www.gnu.org/licenses/.
-
-from typing import List
 import itertools
 import os
 import os.path
 import shutil
-import subprocess
-from pathlib import Path
+import time
+import ctypes
 
 import numpy as np
 
 import py2dmat
-from py2dmat import exception
+from py2dmat import exception, mpi
+from . import lib_make_convolution
+
+# for type hints
+from pathlib import Path
+from typing import List, Dict, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from mpi4py import MPI
 
 
 class Solver(py2dmat.solver.SolverBase):
+    mpicomm: Optional["MPI.Comm"]
+    mpisize: int
+    mpirank: int
+    run_scheme: str
+    isLogmode: bool
+    detail_timer: Dict
     path_to_solver: Path
 
     def __init__(self, info: py2dmat.Info):
         super().__init__(info)
+        self.mpicomm = mpi.comm()
+        self.mpisize = mpi.size()
+        self.mpirank = mpi.rank()
 
-        self._name = "sim_trhepd_rheed"
-        p2solver = info.solver["config"].get("surface_exec_file", "surf.exe")
-        if os.path.dirname(p2solver) != "":
-            # ignore ENV[PATH]
-            self.path_to_solver = self.root_dir / Path(p2solver).expanduser()
+        self._name = "sim_trhepd_rheed_mb_connect"
+
+        self.run_scheme = info.solver.get("run_scheme", "subprocess")
+        scheme_list = ["subprocess", "connect_so"]
+
+        if self.run_scheme not in scheme_list:
+            raise exception.InputError("ERROR : solver.run_scheme should be 'subprocess' or 'connect_so'.")
+
+        if self.run_scheme == "connect_so":
+            self.load_so()
+
+        elif self.run_scheme == "subprocess":
+            # path to surf.exe
+            p2solver = info.solver["config"].get("surface_exec_file", "surf.exe")
+            if os.path.dirname(p2solver) != "":
+                # ignore ENV[PATH]
+                self.path_to_solver = self.root_dir / Path(p2solver).expanduser()
+            else:
+                for P in itertools.chain(
+                    [self.root_dir], os.environ["PATH"].split(":")
+                ):
+                    self.path_to_solver = Path(P) / p2solver
+                    if os.access(self.path_to_solver, mode=os.X_OK):
+                        break
+            if not os.access(self.path_to_solver, mode=os.X_OK):
+                raise exception.InputError(f"ERROR: solver ({p2solver}) is not found")
+
+        self.isLogmode = False
+        self.set_detail_timer()
+
+        self.input = Solver.Input(info, self.isLogmode, self.detail_timer)
+        self.output = Solver.Output(info, self.isLogmode, self.detail_timer)
+
+    def set_detail_timer(self) -> None:
+        # TODO: Operate log_mode with toml file. Generate txt of detail_timer.
+        if self.isLogmode:
+            self.detail_timer = {}
+            self.detail_timer["prepare_Log-directory"] = 0
+            self.detail_timer["make_surf_input"] = 0
+            self.detail_timer["launch_STR"] = 0
+            self.detail_timer["load_STR_result"] = 0
+            self.detail_timer["convolution"] = 0
+            self.detail_timer["normalize_calc_I"] = 0
+            self.detail_timer["calculate_R-factor"] = 0
+            self.detail_timer["make_RockingCurve.txt"] = 0
+            self.detail_timer["delete_Log-directory"] = 0
         else:
-            for P in itertools.chain([self.root_dir], os.environ["PATH"].split(":")):
-                self.path_to_solver = Path(P) / p2solver
-                if os.access(self.path_to_solver, mode=os.X_OK):
-                    break
-        if not os.access(self.path_to_solver, mode=os.X_OK):
-            raise exception.InputError(f"ERROR: solver ({p2solver}) is not found")
-        info_config = info.solver.get("config", {})
+            self.detail_timer = {}
 
-        self.input = Solver.Input(info)
-        self.output = Solver.Output(info)
-        self.result = None
+    def default_run_scheme(self) -> str:
+        """
+        Return
+        -------
+        str
+            run_scheme.
+        """
+        return self.run_scheme
+
+    def command(self) -> List[str]:
+        """Command to invoke solver"""
+        return [str(self.path_to_solver)]
 
     def prepare(self, message: py2dmat.Message) -> None:
         fitted_x_list, subdir = self.input.prepare(message)
         self.work_dir = self.proc_dir / Path(subdir)
-        self.output.prepare(fitted_x_list)
-        self.result = None
 
-    def run(self, nprocs: int = 1, nthreads: int = 1) -> None:
-        self._run_by_subprocess([str(self.path_to_solver)])
+        self.output.prepare(fitted_x_list)
 
     def get_results(self) -> float:
-        if self.result is None:
-            self.result = self.output.get_results(self.work_dir)
-        return self.result
+        return self.output.get_results(self.work_dir)
+
+    def load_so(self) -> None:
+        self.lib = np.ctypeslib.load_library("surf.so", os.path.dirname(__file__))
+        self.lib.surf_so.argtypes = (
+            ctypes.POINTER(ctypes.c_int),
+            ctypes.POINTER(ctypes.c_int),
+            np.ctypeslib.ndpointer(),
+            ctypes.POINTER(ctypes.c_int),
+            ctypes.POINTER(ctypes.c_int),
+            np.ctypeslib.ndpointer(),
+            np.ctypeslib.ndpointer(),
+        )
+        self.lib.surf_so.restype = ctypes.c_void_p
+
+    def launch_so(self) -> None:
+
+        n_template_file = len(self.input.template_file)
+        m_template_file = self.input.surf_template_width_for_fortran
+        n_bulk_file = len(self.input.bulk_file)
+        m_bulk_file = self.input.bulk_out_width_for_fortran
+
+        # NOTE: The "20480" is related to the following directive in surf_so.f90.
+        # character(c_char), intent(inout) :: surf_out(20480)
+        emp_str = " " * 20480
+        self.output.surf_output = np.array([emp_str.encode()])
+        self.lib.surf_so(
+            ctypes.byref(ctypes.c_int(n_template_file)),
+            ctypes.byref(ctypes.c_int(m_template_file)),
+            self.input.template_file,
+            ctypes.byref(ctypes.c_int(n_bulk_file)),
+            ctypes.byref(ctypes.c_int(m_bulk_file)),
+            self.input.bulk_file,
+            self.output.surf_output,
+        )
+        self.output.surf_output = self.output.surf_output[0].decode().splitlines()
+
+    def run(self, nprocs: int = 1, nthreads: int = 1) -> None:
+        if self.isLogmode:
+            time_sta = time.perf_counter()
+
+        if self.run_scheme == "connect_so":
+            self.launch_so()
+        elif self.run_scheme == "subprocess":
+            self._run_by_subprocess([str(self.path_to_solver)])
+
+        if self.isLogmode:
+            time_end = time.perf_counter()
+            self.detail_timer["launch_STR"] += time_end - time_sta
 
     class Input(object):
+        mpicomm: Optional["MPI.Comm"]
+        mpisize: int
+        mpirank: int
+
         root_dir: Path
         output_dir: Path
         dimension: int
+        run_scheme: str
+        generate_rocking_curve: bool
         string_list: List[str]
         bulk_output_file: Path
         surface_input_file: Path
         surface_template_file: Path
+        template_file_origin: List[str]
 
-        def __init__(self, info):
+        def __init__(self, info, isLogmode, detail_timer):
+            self.mpicomm = mpi.comm()
+            self.mpisize = mpi.size()
+            self.mpirank = mpi.rank()
+
+            self.isLogmode = isLogmode
+            self.detail_timer = detail_timer
+
             self.root_dir = info.base["root_dir"]
             self.output_dir = info.base["output_dir"]
 
@@ -84,7 +185,17 @@ class Solver(py2dmat.solver.SolverBase):
             else:
                 self.dimension = info.base["dimension"]
 
+            # read info
             info_s = info.solver
+            self.run_scheme = info_s["run_scheme"]
+            self.generate_rocking_curve = info_s.get("generate_rocking_curve", False)
+
+            # NOTE:
+            # surf_template_width_for_fortran: Number of strings per line of template.txt data for surf.so.
+            # bulk_out_width_for_fortran: Number of strings per line of bulkP.txt data for surf.so.
+            if self.run_scheme == "connect_so":
+                self.surf_template_width_for_fortran = 128
+                self.bulk_out_width_for_fortran = 1024
 
             info_param = info_s.get("param", {})
             v = info_param.setdefault("string_list", ["value_01", "value_02"])
@@ -107,17 +218,58 @@ class Solver(py2dmat.solver.SolverBase):
                     f"ERROR: surface_template_file ({self.surface_template_file}) does not exist"
                 )
 
-            self._check_template()
+            if self.mpirank == 0:
+                self._check_template()
+                temp_origin = self.load_surface_template_file(filename)
+            else:
+                temp_origin = None
+            self.template_file_origin = self.mpicomm.bcast(temp_origin, root=0)
 
-            filename = info_config.get("bulk_output_file", "bulkP.b")
-            filename = Path(filename).expanduser().resolve()
-            self.bulk_output_file = self.root_dir / filename
-            if not self.bulk_output_file.exists():
-                raise exception.InputError(
-                    f"ERROR: bulk_output_file ({self.bulk_output_file}) does not exist"
-                )
+            if self.run_scheme == "connect_so":
+                filename = info_config.get("bulk_output_file", "bulkP.txt")
+                filename = Path(filename).expanduser().resolve()
+                self.bulk_output_file = self.root_dir / filename
+                if not self.bulk_output_file.exists():
+                    raise exception.InputError(
+                        f"ERROR: bulk_output_file ({self.bulk_output_file}) does not exist"
+                    )
+
+                if self.mpirank == 0:
+                    bulk_f = self.load_bulk_output_file(filename)
+                else:
+                    bulk_f = None
+                self.bulk_file = self.mpicomm.bcast(bulk_f, root=0)
+
+            else:
+                filename = info_config.get("bulk_output_file", "bulkP.b")
+                filename = Path(filename).expanduser().resolve()
+                self.bulk_output_file = self.root_dir / filename
+                if not self.bulk_output_file.exists():
+                    raise exception.InputError(
+                        f"ERROR: bulk_output_file ({self.bulk_output_file}) does not exist"
+                    )
+
+        def load_surface_template_file(self, filename):
+            template_file = []
+            with open(self.surface_template_file) as f:
+                for line in f:
+                    template_file.append(line)
+            return template_file
+
+        def load_bulk_output_file(self, filename):
+            bulk_file = []
+            with open(self.bulk_output_file) as f:
+                for line in f:
+                    line = line.replace("\t", " ").replace("\n", " ")
+                    line = line.encode().ljust(self.bulk_out_width_for_fortran)
+                    bulk_file.append(line)
+            bulk_f = np.array(bulk_file)
+            return bulk_f
 
         def prepare(self, message: py2dmat.Message):
+            if self.isLogmode:
+                time_sta = time.perf_counter()
+
             x_list = message.x
             step = message.step
             iset = message.set
@@ -132,24 +284,76 @@ class Solver(py2dmat.solver.SolverBase):
                 fitted_value += format(x_list[index], ".8f")
                 fitted_value = fitted_value[: len(string_list[index])]
                 fitted_x_list.append(fitted_value)
-            for index in range(dimension):
-                print(string_list[index], "=", fitted_x_list[index])
-            folder_name = self._pre_bulk(step, bulk_output_file, iset)
+
+            if self.isLogmode:
+                time_end = time.perf_counter()
+                self.detail_timer["make_surf_input"] += time_end - time_sta
+
+            if self.isLogmode:
+                time_sta = time.perf_counter()
+
+            folder_name = "."
+            if self.generate_rocking_curve:
+                folder_name = self._pre_bulk(step, bulk_output_file, iset)
+            else:
+                if self.run_scheme == "connect_so":
+                    folder_name = "."
+
+                elif self.run_scheme == "subprocess":
+                    # make workdir and copy bulk output file
+                    folder_name = self._pre_bulk(step, bulk_output_file, iset)
+
+            if self.isLogmode:
+                time_end = time.perf_counter()
+                self.detail_timer["prepare_Log-directory"] += time_end - time_sta
+
+            if self.isLogmode:
+                time_sta = time.perf_counter()
+
             self._replace(fitted_x_list, folder_name)
+
+            if self.isLogmode:
+                time_end = time.perf_counter()
+                self.detail_timer["make_surf_input"] += time_end - time_sta
+
             return fitted_x_list, folder_name
 
+        def _pre_bulk(self, Log_number, bulk_output_file, iset):
+            folder_name = "Log{:08d}_{:08d}".format(Log_number, iset)
+            os.makedirs(folder_name, exist_ok=True)
+            if self.run_scheme == "connect_so":
+                pass
+            else:  # self.run_scheme == "subprocess":
+                shutil.copy(
+                    bulk_output_file, os.path.join(folder_name, bulk_output_file.name)
+                )
+            return folder_name
+
         def _replace(self, fitted_x_list, folder_name):
-            with open(self.surface_template_file, "r") as file_input, open(
-                os.path.join(folder_name, self.surface_input_file), "w"
-            ) as file_output:
-                for line in file_input:
-                    for index in range(self.dimension):
-                        if line.find(self.string_list[index]) != -1:
-                            line = line.replace(
-                                self.string_list[index],
-                                fitted_x_list[index],
-                            )
+            template_file = []
+            if self.run_scheme == "subprocess":
+                file_output = open(
+                    os.path.join(folder_name, self.surface_input_file), "w"
+                )
+            for line in self.template_file_origin:
+                for index in range(self.dimension):
+                    if line.find(self.string_list[index]) != -1:
+                        line = line.replace(
+                            self.string_list[index], fitted_x_list[index]
+                        )
+
+                if self.run_scheme == "connect_so":
+                    line = line.replace("\t", " ").replace("\n", " ")
+                    line = line.encode().ljust(self.surf_template_width_for_fortran)
+                    template_file.append(line)
+
+                elif self.run_scheme == "subprocess":
                     file_output.write(line)
+
+            if self.run_scheme == "connect_so":
+                self.template_file = np.array(template_file)
+            elif self.run_scheme == "subprocess":
+                file_output.close()
 
         def _check_template(self) -> None:
             found = [False] * self.dimension
@@ -166,81 +370,117 @@ class Solver(py2dmat.solver.SolverBase):
                         msg += label
                 raise exception.InputError(msg)
 
-        def _pre_bulk(self, Log_number, bulk_output_file, iset):
-            folder_name = "Log{:08d}_{:08d}".format(Log_number, iset)
-            os.makedirs(folder_name, exist_ok=True)
-            shutil.copy(
-                bulk_output_file, os.path.join(folder_name, bulk_output_file.name)
-            )
-            return folder_name
-
     class Output(object):
         """
         Output manager.
         """
 
+        mpicomm: Optional["MPI.Comm"]
+        mpisize: int
+        mpirank: int
+
+        run_scheme: str
+        generate_rocking_curve: bool
         dimension: int
-        string_list: List[str]
-        surface_output_file: str
         normalization: str
+        weight_type: Optional[str]
+        spot_weight: List
         Rfactor_type: str
+        omega: float
+        remove_work_dir: bool
+        string_list: List[str]
+        reference_first_line: int
+        reference_last_line: Optional[int]
+        reference_path: str
+        exp_number: List
+        I_reference_normalized_l: np.ndarray
+        surface_output_file: str
         calculated_first_line: int
         calculated_last_line: int
-        row_number: int
-        degree_max: float
-        degree_list: List[float]
+        calculated_info_line: int
+        cal_number: List
 
-        reference: List[float]
-        reference_norm: float
-        reference_normalized: List[float]
-        degree_list: List[float]
+        def __init__(self, info, isLogmode, detail_timer):
+            self.mpicomm = mpi.comm()
+            self.mpisize = mpi.size()
+            self.mpirank = mpi.rank()
 
-        def __init__(self, info):
+            self.isLogmode = isLogmode
+            self.detail_timer = detail_timer
+
             if "dimension" in info.solver:
                 self.dimension = info.solver["dimension"]
             else:
                 self.dimension = info.base["dimension"]
 
             info_s = info.solver
+            self.run_scheme = info_s["run_scheme"]
 
-            # solver.config
-            info_config = info_s.get("config", {})
-            self.surface_output_file = info_config.get(
-                "surface_output_file", "surf-bulkP.s"
-            )
-
-            v = info_config.get("calculated_first_line", 5)
-            if not (isinstance(v, int) and v >= 0):
-                raise exception.InputError(
-                    "ERROR: calculated_first_line should be non-negative integer"
-                )
-            self.calculated_first_line = v
-
-            v = info_config.get("calculated_last_line", 60)
-            if not (isinstance(v, int) and v >= 0):
-                raise exception.InputError(
-                    "ERROR: calculated_last_line should be non-negative integer"
-                )
-            self.calculated_last_line = v
-
-            v = info_config.get("row_number", 8)
-            if not (isinstance(v, int) and v >= 0):
-                raise exception.InputError(
-                    "ERROR: row_number should be non-negative integer"
-                )
-            self.row_number = v
+            # If self.run_scheme == "connect_so",
+            # the contents of surface_output_file are retailned in self.surf_output.
+            self.surf_output = np.array([])
+            self.generate_rocking_curve = info_s.get("generate_rocking_curve", False)
 
             # solver.post
             info_post = info_s.get("post", {})
-
-            v = info_post.get("normalization", "TOTAL")
-            if v not in ["TOTAL", "MAX"]:
-                raise exception.InputError("ERROR: normalization must be TOTAL or MAX")
+            v = info_post.get("normalization", "")
+            available_normalization = ["TOTAL", "MANY_BEAM"]
+            if v == "MAX":
+                raise exception.InputError(
+                    'ERROR: solver.post.normalization == "MAX" is no longer available'
+                )
+            if v not in available_normalization:
+                msg = "ERROR: solver.post.normalization must be "
+                msg += "MANY_BEAM or TOTAL"
+                raise exception.InputError(msg)
             self.normalization = v
 
+            v = info_post.get("weight_type", None)
+            available_weight_type = ["calc", "manual"]
+            if self.normalization == "MANY_BEAM":
+                if v is None:
+                    msg = 'ERROR: If solver.post.normalization = "MANY_BEAM", '
+                    msg += '"weight_type" must be set in [solver.post].'
+                    raise exception.InputError(msg)
+                elif v not in available_weight_type:
+                    msg = "ERROR: solver.post.weight_type must be "
+                    msg += "calc or manual"
+                    raise exception.InputError(msg)
+            else:
+                if v is not None:
+                    if self.mpirank == 0:
+                        msg = 'NOTICE: If solver.post.normalization = "MANY_BEAM" is not set, '
+                        msg += '"solver.post.weight_type" is NOT considered in the calculation.'
+                        print(msg)
+                    self.weight_type = None
+            self.weight_type = v
+
+            v = info_post.get("spot_weight", [])
+            if self.normalization == "MANY_BEAM" and self.weight_type == "manual":
+                if v == []:
+                    msg = 'ERROR: With solver.post.normalization="MANY_BEAM" and '
+                    msg += 'solver.post.weight_type=="manual", the "spot_weight" option '
+                    msg += "must be set in [solver.post]."
+                    raise exception.InputError(msg)
+                self.spot_weight = np.array(v) / sum(v)
+            else:
+                if v != []:
+                    if self.mpirank == 0:
+                        msg = 'NOTICE: With the specified "solver.post.normalization" option, '
+                        msg += 'the "spot_weight" you specify in the toml file is ignored, '
+                        msg += "since the spot_weight is automatically calculated within the program."
+                        print(msg)
+                if self.normalization == "TOTAL":
+                    self.spot_weight = np.array([1])
+
             v = info_post.get("Rfactor_type", "A")
-            if v not in ["A", "B"]:
-                raise exception.InputError("ERROR: Rfactor_type must be A or B")
+            if v not in ["A", "B", "A2"]:
+                raise exception.InputError("ERROR: solver.post.Rfactor_type must be A, A2 or B")
+            if self.normalization == "MANY_BEAM":
+                if (v != "A") and (v != "A2"):
+                    msg = 'With solver.post.normalization="MANY_BEAM", '
+                    msg += 'only solver.post.Rfactor_type="A" or "A2" is valid.'
+                    raise exception.InputError(msg)
             self.Rfactor_type = v
 
             v = info_post.get("omega", 0.5)
@@ -259,49 +499,205 @@ class Solver(py2dmat.solver.SolverBase):
                 )
             self.string_list = v
 
-            v = info_param.get("degree_max", 6.0)
-            self.degree_max = v
-
             # solver.reference
             info_ref = info_s.get("reference", {})
-            reference_path = info_ref.get("path", "experiment.txt")
-
-            v = info_ref.setdefault("first", 1)
+            v = info_ref.setdefault("reference_first_line", 1)
             if not (isinstance(v, int) and v >= 0):
                 raise exception.InputError(
                     "ERROR: reference_first_line should be non-negative integer"
                 )
             firstline = v
 
-            v = info_ref.setdefault("last", 56)
-            if not (isinstance(v, int) and v >= firstline):
-                raise exception.InputError(
-                    "ERROR: reference_last_line < reference_first_line"
-                )
+            # None is dummy value
+            # If "reference_last_line" is not specified in the toml file,
+            # the last line of the reference file is used for the R-factor calculation.
+            v = info_ref.setdefault("reference_last_line", None)
+            if v is None:
+                reference_are_read_to_final_line = True
+            else:
+                reference_are_read_to_final_line = False
+                if not (isinstance(v, int) and v >= firstline):
+                    raise exception.InputError(
+                        "ERROR: reference_last_line < reference_first_line"
+                    )
             lastline = v
 
-            # Read experiment-data
-            nline = lastline - firstline + 1
-            self.degree_list = []
-            self.reference = []
-            with open(reference_path, "r") as fp:
-                for _ in range(firstline - 1):
-                    fp.readline()
-                for _ in range(nline):
-                    line = fp.readline()
-                    words = line.split()
-                    self.degree_list.append(float(words[0]))
-                    self.reference.append(float(words[1]))
+            reference_path = info_ref.get("path", "experiment.txt")
+            data_experiment = self.read_experiment(
+                reference_path, firstline, lastline, reference_are_read_to_final_line
+            )
+            self.angle_number_experiment = data_experiment.shape[0]
+            self.beam_number_exp_raw = data_experiment.shape[1]
 
-            self.reference_norm = 0.0
-            if self.normalization == "TOTAL":
-                self.reference_norm = sum(self.reference)
-            else:  # self.normalization == "MAX":
-                self.reference_norm = max(self.reference)
+            v = info_ref.get("exp_number", [])
+            if isinstance(v, int):
+                v = [v]
+            if len(v) == 0:
+                raise exception.InputError("ERROR: You have to set the 'solver.reference.exp_number'.")
 
-            self.reference_normalized = [
-                I_exp / self.reference_norm for I_exp in self.reference
-            ]
+            if not isinstance(v, list):
+                raise exception.InputError("ERROR: 'solver.reference.exp_number' must be a list type.")
+
+            if max(v) > self.beam_number_exp_raw:
+                raise exception.InputError("ERROR: The 'solver.reference.exp_number' setting is wrong.")
+
+            if self.normalization == "MANY_BEAM" and self.weight_type == "manual":
+                if len(v) != len(self.spot_weight):
+                    raise exception.InputError(
+                        "ERROR:len('solver.reference.exp_number') and len('solver.post.spot_weight') do not match."
+                    )
+
+            if self.normalization == "TOTAL" and len(v) != 1:
+                msg = 'When solver.post.normalization=="TOTAL" is specified, '
+                msg += "only one beam data can be specified with "
+                msg += '"solver.reference.exp_number" option.'
+                raise exception.InputError(msg)
+
+            self.exp_number = v
+
+            # Normalization of reference data
+            self.beam_number_experiment = len(self.exp_number)
+            for loop_index in range(self.beam_number_experiment):
+                exp_index = self.exp_number[loop_index]
+                I_reference = data_experiment[:, exp_index]
+                if self.normalization == "TOTAL":
+                    I_reference_norm = np.sum(I_reference)
+                    I_reference_normalized = I_reference / I_reference_norm
+                    I_reference_norm_l = np.array([I_reference_norm])
+                    self.I_reference_normalized_l = np.array([I_reference_normalized])
+                elif self.normalization == "MANY_BEAM" and self.weight_type == "calc":
+                    I_reference_norm = np.sum(I_reference)
+                    I_reference_normalized = I_reference / I_reference_norm
+                    if loop_index == 0:  # first loop
+                        I_reference_norm_l = np.array([I_reference_norm])
+                        self.I_reference_normalized_l = np.array(
+                            [I_reference_normalized]
+                        )
+                    else:  # N-th loop
+                        I_reference_norm_l = np.block(
+                            [I_reference_norm_l, I_reference_norm]
+                        )
+                        self.I_reference_normalized_l = np.block(
+                            [[self.I_reference_normalized_l], [I_reference_normalized]]
+                        )
+                elif self.normalization == "MANY_BEAM" and self.weight_type == "manual":
+                    I_reference_norm = np.sum(I_reference)
+                    I_reference_normalized = I_reference / I_reference_norm
+                    if loop_index == 0:  # first loop
+                        I_reference_norm_l = np.array([I_reference_norm])
+                        self.I_reference_normalized_l = np.array(
+                            [I_reference_normalized]
+                        )
+                    else:  # N-th loop
+                        I_reference_norm_l = np.block(
+                            [I_reference_norm_l, I_reference_norm]
+                        )
+                        self.I_reference_normalized_l = np.block(
+                            [[self.I_reference_normalized_l], [I_reference_normalized]]
+                        )
+                else:
+                    msg = "ERROR: solver.post.normalization must be "
+                    msg += "MANY_BEAM or TOTAL"
+                    raise exception.InputError(msg)
+
+            # solver.config
+            info_config = info_s.get("config", {})
+            self.surface_output_file = info_config.get(
+                "surface_output_file", "surf-bulkP.s"
+            )
+
+            v = info_config.get("calculated_first_line", 5)
+            if not (isinstance(v, int) and v >= 0):
+                raise exception.InputError(
+                    "ERROR: solver.config.calculated_first_line should be non-negative integer"
+                )
+            self.calculated_first_line = v
+
+            v = info_config.get(
+                "calculated_last_line",
+                self.calculated_first_line + self.angle_number_experiment - 1,
+            )
+            if not (isinstance(v, int) and v >= 0):
+                raise exception.InputError(
+                    "ERROR: solver.config.calculated_last_line should be non-negative integer"
+                )
+            self.calculated_last_line = v
+
+            # Number of lines in the computation file
+            # used for R-factor calculations.
+            self.calculated_nlines = (
+                self.calculated_last_line - self.calculated_first_line + 1
+            )
+
+            if self.angle_number_experiment != self.calculated_nlines:
+                raise exception.InputError(
+                    "ERROR: The number of glancing angles in the calculation data does not match the number of glancing angles in the experimental data."
+                )
+
+            # Variable indicating whether the warning
+            # "self.calculated_nlines does not match
+            #  the number of glancing angles in the calculated file"
+            # is displayed.
+            self.isWarning_calcnline = False
+
+            v = info_config.get("calculated_info_line", 2)
+            if not (isinstance(v, int) and v >= 0):
+                raise exception.InputError(
+                    "ERROR: solver.config.calculated_info_line should be non-negative integer"
+                )
+            self.calculated_info_line = v
+
+            v = info_config.get("cal_number", [])
+            if isinstance(v, int):
+                v = [v]
+            if len(v) == 0:
+                raise exception.InputError("ERROR: You have to set the 'solver.config.cal_number'.")
+
+            if not isinstance(v, list):
+                raise exception.InputError("ERROR: 'solver.config.cal_number' must be a list type.")
+
+            if self.normalization == "MANY_BEAM" and self.weight_type == "manual":
+                if len(self.spot_weight) != len(v):
+                    raise exception.InputError(
+                        "len('solver.config.cal_number') and len('solver.post.spot_weight') do not match."
+                    )
+            if self.normalization == "TOTAL" and len(v) != 1:
+                msg = 'When solver.post.normalization=="TOTAL" is specified, '
+                msg += "only one beam data can be specified with "
+                msg += '"solver.config.cal_number" option.'
+                raise exception.InputError(msg)
+            self.cal_number = v
+
+        def read_experiment(self, ref_path, first, last, read_to_final_line):
+            # Read experiment data
+            if self.mpirank == 0:
+                file_input = open(ref_path, "r")
+                Elines = file_input.readlines()
+
+                firstline = first
+                if read_to_final_line:
+                    lastline = len(Elines)
+                else:
+                    lastline = last
+
+                n_exp_row = lastline - firstline + 1
+
+                # get value from data
+                for row_index in range(n_exp_row):
+                    line_index = firstline + row_index - 1
+                    line = Elines[line_index]
+                    data = line.split()
+                    # first loop
+                    if row_index == 0:
+                        n_exp_column = len(data)
+                        data_e = np.zeros((n_exp_row, n_exp_column))  # init value
+
+                    for column_index in range(n_exp_column):
+                        data_e[row_index, column_index] = float(data[column_index])
+            else:
+                data_e = None
+            data_exp = self.mpicomm.bcast(data_e, root=0)
+            return data_exp
 
         def prepare(self, fitted_x_list):
             self.fitted_x_list = fitted_x_list
@@ -309,166 +705,314 @@ class Solver(py2dmat.solver.SolverBase):
         def get_results(self, work_dir) -> float:
             """
             Get Rfactor obtained by the solver program.
-
             Returns
             -------
             """
-
-            cwd = os.getcwd()
             # Calculate Rfactor and Output numerical results
+            cwd = os.getcwd()
             os.chdir(work_dir)
             Rfactor = self._post(self.fitted_x_list)
             os.chdir(cwd)
-            if self.remove_work_dir:
 
-                def rmtree_error_handler(function, path, excinfo):
-                    print(f"WARNING: Failed to remove a working directory, {path}")
+            # delete Log-directory
+            if self.isLogmode:
+                time_sta = time.perf_counter()
 
-                shutil.rmtree(work_dir, onerror=rmtree_error_handler)
+            if self.run_scheme == "subprocess":
+                if self.remove_work_dir:
+
+                    def rmtree_error_handler(function, path, excinfo):
+                        print(f"WARNING: Failed to remove a working directory, {path}")
+
+                    shutil.rmtree(work_dir, onerror=rmtree_error_handler)
+
+            if self.isLogmode:
+                time_end = time.perf_counter()
+                self.detail_timer["delete_Log-directory"] += time_end - time_sta
             return Rfactor
 
         def _post(self, fitted_x_list):
-            degree_list = self.degree_list
-            I_experiment_norm = self.reference_norm
-            I_experiment_list = self.reference
+            I_experiment_normalized_l = self.I_reference_normalized_l
 
             (
-                convolution_I_calculated_list_normalized,
-                I_calculated_norm,
-                I_calculated_list,
-                convolution_I_calculated_list,
+                glancing_angle,
+                conv_number_of_g_angle,
+                conv_I_calculated_norm_l,
+                conv_I_calculated_normalized_l,
             ) = self._calc_I_from_file()
 
-            Rfactor = self._calc_Rfactor(convolution_I_calculated_list_normalized)
+            if self.isLogmode:
+                time_sta = time.perf_counter()
+            Rfactor = self._calc_Rfactor(
+                conv_number_of_g_angle,
+                conv_I_calculated_normalized_l,
+                I_experiment_normalized_l,
+            )
+            if self.isLogmode:
+                time_end = time.perf_counter()
+                self.detail_timer["calculate_R-factor"] += time_end - time_sta
 
-            print("R-factor =", Rfactor)
-
+            # generate RockingCurve_calculated.txt
             dimension = self.dimension
             string_list = self.string_list
-
-            with open("RockingCurve.txt", "w") as file_RC:
-                I_experiment_list_normalized = self.reference_normalized
-                # Write headers
-                file_RC.write("#")
-                for index in range(dimension):
-                    file_RC.write(
-                        "{} = {} ".format(string_list[index], fitted_x_list[index])
-                    )
-                file_RC.write("\n")
-                file_RC.write("#R-factor = {}\n".format(Rfactor))
-                if self.normalization == "TOTAL":
-                    file_RC.write("#I_calculated_total={}\n".format(I_calculated_norm))
-                    file_RC.write("#I_experiment_total={}\n".format(I_experiment_norm))
-                else:  # self.normalization == "MAX"
-                    file_RC.write("#I_calculated_max={}\n".format(I_calculated_norm))
-                    file_RC.write("#I_experiment_max={}\n".format(I_experiment_norm))
-                file_RC.write("#")
-                for xname in (
-                    "degree",
-                    "convolution_I_calculated",
-                    "I_experiment",
-                    "convolution_I_calculated(normalized)",
-                    "I_experiment(normalized)",
-                    "I_calculated",
-                ):
-                    file_RC.write(xname)
-                    file_RC.write(" ")
-                file_RC.write("\n")
-
-                # Write rocking curve
-                for index in range(len(degree_list)):
-                    file_RC.write(
-                        "{} {} {} {} {} {}\n".format(
-                            degree_list[index],
-                            convolution_I_calculated_list[index],
-                            I_experiment_list[index],
-                            convolution_I_calculated_list_normalized[index],
-                            I_experiment_list_normalized[index],
-                            I_calculated_list[index],
+            cal_number = self.cal_number
+            spot_weight = self.spot_weight
+            weight_type = self.weight_type
+            Rfactor_type = self.Rfactor_type
+            normalization = self.normalization
+            if self.generate_rocking_curve:
+                if self.isLogmode:
+                    time_sta = time.perf_counter()
+                with open("RockingCurve_calculated.txt", "w") as file_RC:
+                    # Write headers
+                    file_RC.write("#")
+                    for index in range(dimension):
+                        file_RC.write(
+                            "{} = {} ".format(string_list[index], fitted_x_list[index])
                         )
+                    file_RC.write("\n")
+                    file_RC.write("#Rfactor_type = {}\n".format(Rfactor_type))
+                    file_RC.write("#normalization = {}\n".format(normalization))
+                    if weight_type is not None:
+                        file_RC.write("#weight_type = {}\n".format(weight_type))
+                    file_RC.write("#fx(x) = {}\n".format(Rfactor))
+                    file_RC.write("#cal_number = {}\n".format(cal_number))
+                    file_RC.write("#spot_weight = {}\n".format(spot_weight))
+                    file_RC.write(
+                        "#NOTICE : Intensities are NOT multiplied by spot_weight.\n"
                     )
+                    file_RC.write(
+                        "#The intensity I_(spot) for each spot is normalized as in the following equation.\n"
+                    )
+                    file_RC.write("#sum( I_(spot) ) = 1\n")
+                    file_RC.write("#\n")
+
+                    label_column = ["glancing_angle"]
+                    fmt_rc = "%.5f"
+                    for i in range(len(cal_number)):
+                        label_column.append(f"cal_number={self.cal_number[i]}")
+                        fmt_rc += " %.15e"
+
+                    for i in range(len(label_column)):
+                        file_RC.write(f"# #{i} {label_column[i]}")
+                        file_RC.write("\n")
+                    g_angle_for_rc = np.array([glancing_angle])
+                    np.savetxt(
+                        file_RC,
+                        np.block([g_angle_for_rc.T, conv_I_calculated_normalized_l.T]),
+                        fmt=fmt_rc,
+                    )
+
+                if self.isLogmode:
+                    time_end = time.perf_counter()
+                    self.detail_timer["make_RockingCurve.txt"] += time_end - time_sta
             return Rfactor
 
-        def _g(self, x):
-            g = (0.939437 / self.omega) * np.exp(
-                -2.77259 * (x ** 2.0 / self.omega ** 2.0)
-            )
-            return g
-
         def _calc_I_from_file(self):
+            if self.isLogmode:
+                time_sta = time.perf_counter()
+
             surface_output_file = self.surface_output_file
             calculated_first_line = self.calculated_first_line
             calculated_last_line = self.calculated_last_line
-            row_number = self.row_number
-            degree_max = self.degree_max
-            degree_list = self.degree_list
+            calculated_info_line = self.calculated_info_line
+            calculated_nlines = self.calculated_nlines
+            omega = self.omega
 
-            nlines = calculated_last_line - calculated_first_line + 1
-            # TODO: handling error
-            assert 0 < nlines
+            cal_number = self.cal_number
 
-            # TODO: nlines == len(degree_list) ?
-            # assert nlines == len(degree_list)
+            assert 0 < calculated_nlines
 
-            I_calculated_list = []
-            with open(surface_output_file, "r") as file_result:
-                for _ in range(calculated_first_line - 1):
-                    file_result.readline()
-                for _ in range(nlines):
-                    line = file_result.readline()
-                    words = line.replace(",", "").split()
-                    I_calculated_list.append(float(words[row_number - 1]))
-                # TODO: degree_calc == degree_exp should be checked for every line?
-                degree_last = round(float(words[0]), 1)
-                if degree_last != degree_max:
-                    print(
-                        "WARNING : degree in lastline = {}, but {} expected".format(
-                            degree_last, degree_max
-                        )
+            if self.run_scheme == "connect_so":
+                Clines = self.surf_output
+
+            elif self.run_scheme == "subprocess":
+                file_input = open(self.surface_output_file, "r")
+                Clines = file_input.readlines()
+                file_input.close()
+
+            # Reads the number of glancing angles and beams
+            line = Clines[calculated_info_line - 1]
+            line = line.replace(",", "")
+            data = line.split()
+
+            calc_number_of_g_angles_org = int(data[1])
+            calc_number_of_beams_org = int(data[2])
+
+            if calc_number_of_g_angles_org != calculated_nlines:
+                if self.mpirank == 0 and not self.isWarning_calcnline:
+                    msg = "WARNING:\n"
+                    msg += "The number of lines in the calculated file "
+                    msg += "that you have set up does not match "
+                    msg += "the number of glancing angles in the calculated file.\n"
+                    msg += "The number of lines (nline) in the calculated file "
+                    msg += "used for the R-factor calculation "
+                    msg += "is determined by the following values\n"
+                    msg += (
+                        'nline = "calculated_last_line" - "calculated_first_line" + 1.'
                     )
+                    print(msg)
+                    self.isWarning_calcnline = True
+            calc_number_of_g_angles = calculated_nlines
 
-            ##### convolution #####
-            convolution_I_calculated_list = []
-            for index in range(len(I_calculated_list)):
-                integral = 0.0
-                degree_org = degree_list[index]
-                for index2 in range(len(I_calculated_list)):
-                    integral += (
-                        I_calculated_list[index2]
-                        * self._g(degree_org - degree_list[index2])
-                        * 0.1
-                    )
-                convolution_I_calculated_list.append(integral)
+            # Define the array for the original calculated data.
+            RC_data_org = np.zeros(
+                (calc_number_of_g_angles, calc_number_of_beams_org + 1)
+            )
+            for g_angle_index in range(calc_number_of_g_angles):
+                line_index = (calculated_first_line - 1) + g_angle_index
+                line = Clines[line_index]
+                line = line.replace(",", "")
+                data = line.split()
+                RC_data_org[g_angle_index, 0] = float(data[0])
+                for beam_index in range(calc_number_of_beams_org):
+                    RC_data_org[g_angle_index, beam_index + 1] = data[beam_index + 1]
 
-            if self.normalization == "TOTAL":
-                I_calculated_norm = sum(convolution_I_calculated_list)
-            else:  # self.normalization == "MAX"
-                I_calculated_norm = max(convolution_I_calculated_list)
-            convolution_I_calculated_list_normalized = [
-                c / I_calculated_norm for c in convolution_I_calculated_list
-            ]
-            return (
-                convolution_I_calculated_list_normalized,
-                I_calculated_norm,
-                I_calculated_list,
-                convolution_I_calculated_list,
+            if self.isLogmode:
+                time_end = time.perf_counter()
+                self.detail_timer["load_STR_result"] += time_end - time_sta
+
+            if self.isLogmode:
+                time_sta = time.perf_counter()
+            verbose_mode = False
+            # convolution
+            data_convolution = lib_make_convolution.calc(
+                RC_data_org,
+                calc_number_of_beams_org,
+                calc_number_of_g_angles,
+                omega,
+                verbose_mode,
             )
 
-        def _calc_Rfactor(self, calc_result):
-            I_experiment_list_normalized = self.reference_normalized
+            if self.isLogmode:
+                time_end = time.perf_counter()
+                self.detail_timer["convolution"] += time_end - time_sta
+
+            if self.isLogmode:
+                time_sta = time.perf_counter()
+
+            angle_number_convolution = data_convolution.shape[0]
+            if self.angle_number_experiment != angle_number_convolution:
+                raise exception.InputError(
+                    "ERROR: The number of glancing angles in the calculation data does not match the number of glancing angles in the experimental data."
+                )
+            glancing_angle = data_convolution[:, 0]
+
+            beam_number_reference = len(cal_number)
+
+            # Normalization of calculated data.
+            for loop_index in range(beam_number_reference):
+                cal_index = cal_number[loop_index]
+                conv_I_calculated = data_convolution[:, cal_index]
+                if self.normalization == "TOTAL":
+                    conv_I_calculated_norm = np.sum(conv_I_calculated)
+                    conv_I_calculated_normalized = (
+                        conv_I_calculated / conv_I_calculated_norm
+                    )
+                    conv_I_calculated_norm_l = np.array([conv_I_calculated_norm])
+                    conv_I_calculated_normalized_l = np.array(
+                        [conv_I_calculated_normalized]
+                    )
+                elif self.normalization == "MANY_BEAM" and self.weight_type == "calc":
+                    conv_I_calculated_norm = np.sum(conv_I_calculated)
+                    conv_I_calculated_normalized = (
+                        conv_I_calculated / conv_I_calculated_norm
+                    )
+                    if loop_index == 0:  # first loop
+                        conv_I_calculated_norm_l = np.array([conv_I_calculated_norm])
+                        conv_I_calculated_normalized_l = np.array(
+                            [conv_I_calculated_normalized]
+                        )
+                    else:  # N-th loop
+                        conv_I_calculated_norm_l = np.block(
+                            [conv_I_calculated_norm_l, conv_I_calculated_norm]
+                        )
+                        conv_I_calculated_normalized_l = np.block(
+                            [
+                                [conv_I_calculated_normalized_l],
+                                [conv_I_calculated_normalized],
+                            ]
+                        )
+                        if loop_index == beam_number_reference - 1:  # first loop
+                            # calculate spot_weight
+                            self.spot_weight = (
+                                conv_I_calculated_norm_l / sum(conv_I_calculated_norm_l)
+                            ) ** 2
+                elif self.normalization == "MANY_BEAM" and self.weight_type == "manual":
+                    conv_I_calculated_norm = np.sum(conv_I_calculated)
+                    conv_I_calculated_normalized = (
+                        conv_I_calculated / conv_I_calculated_norm
+                    )
+                    if loop_index == 0:  # first loop
+                        conv_I_calculated_norm_l = np.array([conv_I_calculated_norm])
+                        conv_I_calculated_normalized_l = np.array(
+                            [conv_I_calculated_normalized]
+                        )
+                    else:  # N-th loop
+                        conv_I_calculated_norm_l = np.block(
+                            [conv_I_calculated_norm_l, conv_I_calculated_norm]
+                        )
+                        conv_I_calculated_normalized_l = np.block(
+                            [
+                                [conv_I_calculated_normalized_l],
+                                [conv_I_calculated_normalized],
+                            ]
+                        )
+                else:
+                    msg = "ERROR: solver.post.normalization must be "
+                    msg += "MANY_BEAM or TOTAL"
+                    raise exception.InputError(msg)
+
+            if self.isLogmode:
+                time_end = time.perf_counter()
+                self.detail_timer["normalize_calc_I"] += time_end - time_sta
+
+            return (
+                glancing_angle,
+                angle_number_convolution,
+                conv_I_calculated_norm_l,
+                conv_I_calculated_normalized_l,
+            )
+
+        def _calc_Rfactor(self, n_g_angle, calc_result, exp_result):
+            spot_weight = self.spot_weight
+            n_spot = len(spot_weight)
             if self.Rfactor_type == "A":
                 R = 0.0
-                for I_exp, I_calc in zip(I_experiment_list_normalized, calc_result):
-                    R += (I_exp - I_calc) ** 2
+                for spot_index in range(n_spot):
+                    R_spot = 0.0
+                    for angle_index in range(n_g_angle):
+                        R_spot += (
+                            exp_result[spot_index, angle_index]
+                            - calc_result[spot_index, angle_index]
+                        ) ** 2
+                    R_spot = spot_weight[spot_index] * R_spot
+                    R += R_spot
                 R = np.sqrt(R)
+            elif self.Rfactor_type == "A2":
+                R = 0.0
+                for spot_index in range(n_spot):
+                    R_spot = 0.0
+                    for angle_index in range(n_g_angle):
+                        R_spot += (
+                            exp_result[spot_index, angle_index]
+                            - calc_result[spot_index, angle_index]
+                        ) ** 2
+                    R_spot = spot_weight[spot_index] * R_spot
+                    R += R_spot
             else:  # self.Rfactor_type == "B"
-                # Pendry's R-factor
+                all_exp_result = []
+                all_calc_result = []
+                for spot_index in range(n_spot):
+                    for angle_index in range(n_g_angle):
+                        all_exp_result.append(exp_result[spot_index, angle_index])
+                        all_calc_result.append(calc_result[spot_index, angle_index])
                 y1 = 0.0
                 y2 = 0.0
                 y3 = 0.0
-                for I_exp, I_calc in zip(I_experiment_list_normalized, calc_result):
+                for I_exp, I_calc in zip(all_exp_result, all_calc_result):
                     y1 += (I_exp - I_calc) ** 2
-                    y2 += I_exp ** 2
-                    y3 += I_calc ** 2
+                    y2 += I_exp**2
+                    y3 += I_calc**2
                 R = y1 / (y2 + y3)
             return R
