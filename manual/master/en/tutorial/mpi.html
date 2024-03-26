@@ -5,10 +5,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Grid search &#8212; 2DMAT 2.2-dev documentation</title>
+    <title>Grid search &#8212; 2DMAT 2.2.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=e491ac2d" />
-    <script src="../_static/documentation_options.js?v=b33cbb84"></script>
+    <script src="../_static/documentation_options.js?v=b21de401"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -17,7 +17,7 @@
     <link rel="prev" title="Optimization by Nelder-Mead method" href="minsearch.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
-          <span>2DMAT 2.2-dev documentation</span></a></h1>
+          <span>2DMAT 2.2.0 documentation</span></a></h1>
         <h2 class="heading"><span>Grid search</span></h2>
       </div>
       <div class="topnav" role="navigation" aria-label="top navigation">
@@ -41,7 +41,7 @@ The grid type search is compatible with MPI. The specific calculation procedure 
 However, it is necessary to prepare the data <code class="docutils literal notranslate"><span class="pre">MeshData.txt</span></code> to give the search grid in advance.</p>
 <section id="location-of-the-sample-files">
 <h2>Location of the sample files<a class="headerlink" href="#location-of-the-sample-files" title="Link to this heading">¶</a></h2>
-<p>The sample files are located in <code class="docutils literal notranslate"><span class="pre">sample/sim-trhepd-rheed/mapper</span></code>.
+<p>The sample files are located in <code class="docutils literal notranslate"><span class="pre">sample/sim-trhepd-rheed/single_beam/mapper</span></code>.
 The following files are stored in the folder</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">bulk.txt</span></code></p>
@@ -148,12 +148,12 @@ The following is the content of <code class="docutils literal notranslate"><span
 <section id="calculation-execution">
 <h2>Calculation execution<a class="headerlink" href="#calculation-execution" title="Link to this heading">¶</a></h2>
 <p>First, move to the folder where the sample files are located (we will assume that you are directly under the directory where you downloaded this software).</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">sample</span><span class="o">/</span><span class="n">sim</span><span class="o">-</span><span class="n">trhepd</span><span class="o">-</span><span class="n">rheed</span><span class="o">/</span><span class="n">minsearch</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">sample</span><span class="o">/</span><span class="n">sim</span><span class="o">-</span><span class="n">trhepd</span><span class="o">-</span><span class="n">rheed</span><span class="o">/</span><span class="n">single_beam</span><span class="o">/</span><span class="n">minsearch</span>
 </pre></div>
 </div>
 <p>Copy <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> and <code class="docutils literal notranslate"><span class="pre">surf.exe</span></code>.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="o">../../../../</span><span class="n">sim</span><span class="o">-</span><span class="n">trhepd</span><span class="o">-</span><span class="n">rheed</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">TRHEPD</span><span class="o">/</span><span class="n">bulk</span><span class="o">.</span><span class="n">exe</span> <span class="o">.</span>
-<span class="n">cp</span> <span class="o">../../../../</span><span class="n">sim</span><span class="o">-</span><span class="n">trhepd</span><span class="o">-</span><span class="n">rheed</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">TRHEPD</span><span class="o">/</span><span class="n">surf</span><span class="o">.</span><span class="n">exe</span> <span class="o">.</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="o">../../../../../</span><span class="n">sim</span><span class="o">-</span><span class="n">trhepd</span><span class="o">-</span><span class="n">rheed</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">TRHEPD</span><span class="o">/</span><span class="n">bulk</span><span class="o">.</span><span class="n">exe</span> <span class="o">.</span>
+<span class="n">cp</span> <span class="o">../../../../../</span><span class="n">sim</span><span class="o">-</span><span class="n">trhepd</span><span class="o">-</span><span class="n">rheed</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">TRHEPD</span><span class="o">/</span><span class="n">surf</span><span class="o">.</span><span class="n">exe</span> <span class="o">.</span>
 </pre></div>
 </div>
 <p>First, run <code class="docutils literal notranslate"><span class="pre">bulk.exe</span></code> to create <code class="docutils literal notranslate"><span class="pre">bulkP.b</span></code>.</p>
@@ -161,7 +161,7 @@ The following is the content of <code class="docutils literal notranslate"><span
 </pre></div>
 </div>
 <p>After that, run the main program (the computation time takes only a few seconds on a normal PC).</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mpiexec</span> <span class="o">-</span><span class="n">np</span> <span class="mi">2</span> <span class="n">python3</span> <span class="o">../../../</span><span class="n">src</span><span class="o">/</span><span class="n">py2dmat_main</span><span class="o">.</span><span class="n">py</span> <span class="nb">input</span><span class="o">.</span><span class="n">toml</span> <span class="o">|</span> <span class="n">tee</span> <span class="n">log</span><span class="o">.</span><span class="n">txt</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mpiexec</span> <span class="o">-</span><span class="n">np</span> <span class="mi">2</span> <span class="n">python3</span> <span class="o">../../../../</span><span class="n">src</span><span class="o">/</span><span class="n">py2dmat_main</span><span class="o">.</span><span class="n">py</span> <span class="nb">input</span><span class="o">.</span><span class="n">toml</span> <span class="o">|</span> <span class="n">tee</span> <span class="n">log</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
 <p>Here, the calculation using MPI parallel with 2 processes will be done.
@@ -205,7 +205,7 @@ Here is what it does, without further explanation.</p>
 
 ./bulk.exe
 
-time mpiexec -np 2 python3 ../../../src/py2dmat_main.py input.toml
+time mpiexec -np 2 python3 ../../../../src/py2dmat_main.py input.toml
 
 echo diff ColorMap.txt ref_ColorMap.txt
 res=0
@@ -255,7 +255,7 @@ By using it, you can compare the results with the experimental values following 
 
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.5.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

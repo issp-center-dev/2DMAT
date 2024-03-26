@@ -8,7 +8,7 @@ However, it is necessary to prepare the data ``MeshData.txt`` to give the search
 Location of the sample files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The sample files are located in ``sample/sim-trhepd-rheed/mapper``.
+The sample files are located in ``sample/sim-trhepd-rheed/single_beam/mapper``.
 The following files are stored in the folder
 
 - ``bulk.txt``
@@ -139,14 +139,14 @@ First, move to the folder where the sample files are located (we will assume tha
 
 .. code-block::
 
-    cd sample/sim-trhepd-rheed/minsearch
+    cd sample/sim-trhepd-rheed/single_beam/minsearch
 
 Copy ``bulk.exe`` and ``surf.exe``.
 
 .. code-block::
 
-    cp ../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
-    cp ../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
+    cp ../../../../../sim-trhepd-rheed/src/TRHEPD/bulk.exe .
+    cp ../../../../../sim-trhepd-rheed/src/TRHEPD/surf.exe .
 
 First, run ``bulk.exe`` to create ``bulkP.b``.
 
@@ -158,7 +158,7 @@ After that, run the main program (the computation time takes only a few seconds 
 
 .. code-block::
 
-    mpiexec -np 2 python3 ../../../src/py2dmat_main.py input.toml | tee log.txt
+    mpiexec -np 2 python3 ../../../../src/py2dmat_main.py input.toml | tee log.txt
 
 Here, the calculation using MPI parallel with 2 processes will be done.
 When executed, a folder for each rank will be created, and a subfolder ``Log%%%%%`` (where ``%%%%%`` is the grid id) will be created under it.
@@ -208,7 +208,7 @@ Here is what it does, without further explanation.
 
     ./bulk.exe
 
-    time mpiexec -np 2 python3 ../../../src/py2dmat_main.py input.toml
+    time mpiexec -np 2 python3 ../../../../src/py2dmat_main.py input.toml
 
     echo diff ColorMap.txt ref_ColorMap.txt
     res=0
