@@ -109,11 +109,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                 message = py2dmat.Message(x_list, step[0], set)
                 y = run.submit(message)
                 if not extra_data:
-                    callback = step
-                    for index in range(dimension):
-                        callback.append(x_list[index])
-                    callback.append(y)
-                    callback_list.append(callback)
+                    callback_list.append([step[0], *x_list, y])
             return y
 
         time_sta = time.perf_counter()
