@@ -80,9 +80,9 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
         super().__init__(info=info, runner=runner, nwalkers=nwalkers)
 
-        if self.mpicomm is None:
-            msg = "ERROR: algorithm.exchange requires mpi4py, but mpi4py cannot be imported"
-            raise ImportError(msg)
+        # if self.mpicomm is None:
+        #     msg = "ERROR: algorithm.exchange requires mpi4py, but mpi4py cannot be imported"
+        #     raise ImportError(msg)
 
         self.nreplica = self.mpisize * self.nwalkers
         self.betas = self.read_Ts(info_exchange, numT=self.nreplica)
@@ -126,7 +126,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             # Exchange
             if self.istep % self.numsteps_exchange == 0:
                 time_sta = time.perf_counter()
-                self._exchange(exchange_direction)
+                if self.nreplica > 1:
+                    self._exchange(exchange_direction)
                 if self.nreplica > 2:
                     exchange_direction = not exchange_direction
                 time_end = time.perf_counter()
@@ -148,7 +149,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             self.__exchange_multi_walker(direction)
 
     def __exchange_single_walker(self, direction: bool) -> None:
-        self.mpicomm.Barrier()
+        if self.mpisize > 1:
+            self.mpicomm.Barrier()
         if direction:
             if self.Tindex[0] % 2 == 0:
                 other_index = self.Tindex[0] + 1
