@@ -223,7 +223,10 @@ class Solver(py2dmat.solver.SolverBase):
                 temp_origin = self.load_surface_template_file(filename)
             else:
                 temp_origin = None
-            self.template_file_origin = self.mpicomm.bcast(temp_origin, root=0)
+            if self.mpisize > 1:
+                self.template_file_origin = self.mpicomm.bcast(temp_origin, root=0)
+            else:
+                self.template_file_origin = temp_origin
 
             if self.run_scheme == "connect_so":
                 filename = info_config.get("bulk_output_file", "bulkP.txt")
@@ -238,8 +241,10 @@ class Solver(py2dmat.solver.SolverBase):
                     bulk_f = self.load_bulk_output_file(filename)
                 else:
                     bulk_f = None
-                self.bulk_file = self.mpicomm.bcast(bulk_f, root=0)
-
+                if self.mpisize > 1:
+                    self.bulk_file = self.mpicomm.bcast(bulk_f, root=0)
+                else:
+                    self.bulk_file = bulk_f
             else:
                 filename = info_config.get("bulk_output_file", "bulkP.b")
                 filename = Path(filename).expanduser().resolve()
@@ -696,7 +701,10 @@ class Solver(py2dmat.solver.SolverBase):
                         data_e[row_index, column_index] = float(data[column_index])
             else:
                 data_e = None
-            data_exp = self.mpicomm.bcast(data_e, root=0)
+            if self.mpisize > 1:
+                data_exp = self.mpicomm.bcast(data_e, root=0)
+            else:
+                data_exp = data_e
             return data_exp
 
         def prepare(self, fitted_x_list):
