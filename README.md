@@ -11,8 +11,8 @@ In the future, we plan to add other direct problem solvers and search algorithms
 
 | Branch |                Build status                 |                                       Documentation                                       |
 | :----: | :-----------------------------------------: | :---------------------------------------------------------------------------------------: |
-| [master][source/master] (latest) | [![master][ci/master/badge]][ci/master/uri] |        [![doc_en][doc/en/badge]][doc/en/uri] [![doc_ja][doc/ja/badge]][doc/ja/uri]        |
-| [v2.2.0][source/stable] (latest stable) |                     --                      | [![doc_en][doc/en/badge]][doc/stable/en/uri] [![doc_ja][doc/ja/badge]][doc/stable/ja/uri] |
+| [master][source/master] (latest, stable) | [![master][ci/master/badge]][ci/master/uri] |        [![doc_en][doc/en/badge]][doc/master/en/uri] [![doc_ja][doc/ja/badge]][doc/master/ja/uri]        |
+| [develop][source/develop] (latest, unstable) |                     --                      | [![doc_en][doc/en/badge]][doc/develop/en/uri] [![doc_ja][doc/ja/badge]][doc/develop/ja/uri] |
 
 ## py2dmat
 
@@ -39,7 +39,6 @@ and direct problem solvers (`py2dmat` also means this script).
 - From PyPI (Recommended)
   - `python3 -m pip install -U py2dmat`
     - If you install them locally, use `--user` option like `python3 -m pip install -U --user`
-    - [`pipx`](https://pipxproject.github.io/pipx/) may help you from the dependency hell :p
 - From Source (For developers)
   1. update `pip >= 19` by `python3 -m pip install -U pip`
   2. `python3 -m pip install 2DMAT_ROOT_DIRECTORY` to install `py2dmat` package and `py2dmat` command
@@ -98,12 +97,12 @@ author = {Yuichi Motoyama and Kazuyoshi Yoshimi and Izumi Mochizuki and Harumich
 This software was developed with the support of "*Project for advancement of software usability in materials science*" of The Institute for Solid State Physics, The University of Tokyo.
 
 [source/master]: https://github.com/issp-center-dev/2DMAT/
-[source/stable]: https://github.com/issp-center-dev/2DMAT/tree/v2.2.0
+[source/develop]: https://github.com/issp-center-dev/2DMAT/tree/develop
 [ci/master/badge]: https://github.com/issp-center-dev/2DMAT/workflows/Test/badge.svg?branch=master
 [ci/master/uri]: https://github.com/issp-center-dev/2DMAT/actions?query=branch%3Amaster
 [doc/en/badge]: https://img.shields.io/badge/doc-English-blue.svg
-[doc/en/uri]: https://issp-center-dev.github.io/2DMAT/manual/master/en/index.html
 [doc/ja/badge]: https://img.shields.io/badge/doc-Japanese-blue.svg
-[doc/ja/uri]: https://issp-center-dev.github.io/2DMAT/manual/master/ja/index.html
-[doc/stable/en/uri]: https://issp-center-dev.github.io/2DMAT/manual/v2.2.0/en/index.html
-[doc/stable/ja/uri]: https://issp-center-dev.github.io/2DMAT/manual/v2.2.0/ja/index.html
+[doc/master/en/uri]: https://issp-center-dev.github.io/2DMAT/manual/master/en/index.html
+[doc/master/ja/uri]: https://issp-center-dev.github.io/2DMAT/manual/master/ja/index.html
+[doc/develop/en/uri]: https://issp-center-dev.github.io/2DMAT/manual/develop/en/index.html
+[doc/develop/ja/uri]: https://issp-center-dev.github.io/2DMAT/manual/develop/ja/index.html
