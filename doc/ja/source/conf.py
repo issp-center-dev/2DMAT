@@ -21,8 +21,9 @@ project = '2DMAT'
 copyright = '2020-, 2DMAT developers'
 author = '2DMAT developers'
 
+version = '2.3'
 # The full version, including alpha/beta/rc tags
-release = '2.2.0'
+release = '2.3-dev'
 
 # -- General configuration ---------------------------------------------------
 
