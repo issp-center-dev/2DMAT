@@ -14,12 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
-from typing import List
+from typing import Dict, List
 import itertools
 import os
 import os.path
 import shutil
 from pathlib import Path
+import subprocess
 
 import numpy as np
 
@@ -27,13 +28,34 @@ import py2dmat
 from py2dmat import exception
 
 
-class Solver(py2dmat.solver.SolverBase):
+class Solver:
+    #-----
+    root_dir: Path
+    output_dir: Path
+    proc_dir: Path
+    work_dir: Path
+    _name: str
+    dimension: int
+    timer: Dict[str, Dict]
+    #-----
     path_to_solver: Path
 
     dimension: int
 
     def __init__(self, info: py2dmat.Info):
-        super().__init__(info)
+        #-----
+        #super().__init__(info)
+        self.root_dir = info.base["root_dir"]
+        self.output_dir = info.base["output_dir"]
+        self.proc_dir = self.output_dir / str(py2dmat.mpi.rank())
+        self.work_dir = self.proc_dir
+        self._name = ""
+        self.timer = {"prepare": {}, "run": {}, "post": {}}
+        if "dimension" in info.solver:
+            self.dimension = info.solver["dimension"]
+        else:
+            self.dimension = info.base["dimension"]
+        #-----
 
         self._name = "sxrd"
         info_s = info.solver
@@ -96,6 +118,10 @@ class Solver(py2dmat.solver.SolverBase):
         self.path_to_bulk = info_s["config"]["bulk_struc_in_file"]
         self.input = Solver.Input(info)
 
+    @property
+    def name(self) -> str:
+        return self._name
+
     def prepare(self, message: py2dmat.Message) -> None:
         self.work_dir = self.proc_dir
         self.input.prepare(message)
@@ -108,6 +134,15 @@ class Solver(py2dmat.solver.SolverBase):
 
     def run(self, nprocs: int = 1, nthreads: int = 1) -> None:
         self._run_by_subprocess([str(self.path_to_solver), "lsfit.in"])
+
+    def _run_by_subprocess(self, command: List[str]) -> None:
+        with open("stdout", "w") as fi:
+            subprocess.run(
+                command,
+                stdout=fi,
+                stderr=subprocess.STDOUT,
+                check=True,
+            )
 
     def get_results(self) -> float:
         # Get R-factor
