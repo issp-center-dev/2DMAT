@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Callable, Optional, Dict
 
 
-class Solver(py2dmat.solver.SolverBase):
+class Solver:
     #-----
     root_dir: Path
     output_dir: Path
