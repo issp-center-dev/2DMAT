@@ -75,4 +75,4 @@ class Info:
                 inp = mpi.comm().bcast(inp, root=0)
             return cls(inp)
         else:
-            raise TypeError("unsupported file format: {}".format(file_name))
+            raise ValueError("unsupported file format: {}".format(file_name))
