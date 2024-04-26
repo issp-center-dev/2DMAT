@@ -65,13 +65,17 @@ def main():
                 'WARNING: solver name "surface" is deprecated and will be unavailable in future.'
                 ' Use "sim-trhepd-rheed" instead.'
             )
-        from .solver.sim_trhepd_rheed import Solver
+        #from .solver.sim_trhepd_rheed import Solver
+        from sim_trhepd_rheed import Solver
     elif solvername == "sim-trhepd-rheed":
-        from .solver.sim_trhepd_rheed import Solver
+        #from .solver.sim_trhepd_rheed import Solver
+        from sim_trhepd_rheed import Solver
     elif solvername == "sxrd":
-        from .solver.sxrd import Solver
+        #from .solver.sxrd import Solver
+        from sxrd import Solver
     elif solvername == "leed":
-        from .solver.leed import Solver
+        #from .solver.leed import Solver
+        from leed import Solver
     elif solvername == "analytical":
         from .solver.analytical import Solver
     else:
