@@ -58,22 +58,25 @@ class Affine:
     @classmethod
     def from_dict(cls, d):
         A: Optional[np.ndarray] = read_matrix(d.get("A", []))
-        b: Optional[np.ndarray] = read_vector(d.get("b", []))
+        b: Optional[np.ndarray] = read_matrix(d.get("b", []))
 
-        if A is not None:
-            if A.size == 0:
-                A = None
-            elif A.ndim != 2:
+        if A is None:
+            pass
+        elif A.size == 0:
+            A = None
+        else:
+            if not A.ndim == 2:
                 raise ValueError("A should be a matrix")
-        if b is not None:
-            if b.size == 0:
-                b = None
-            elif b.ndim == 2:
-                if b.shape[1] == 1:
-                    b = b.reshape(-1)
-                else:
-                    raise ValueError("b should be a vector")
-            elif b.ndim > 2:
-                raise ValueError("b should be a vector")
+
+        if b is None:
+            pass
+        elif b.size == 0:
+            b = None
+        else:
+            if not (b.ndim == 2 and b.shape[1] == 1):
+                raise ValueError("b should be a column vector")
+            if not (A is not None and b.shape[0] == A.shape[0]):
+                raise ValueError("shape of A and b does not match")
+            b = b.reshape(-1)
 
         return cls(A, b)
