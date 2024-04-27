@@ -85,57 +85,13 @@ class Runner(object):
         
         self.ndim = info.base["dimension"]
 
-        if limitation is None:
-            info_limitation = info.runner.get("limitation",{})
-            co_a: np.ndarray = py2dmat.util.read_matrix.read_matrix(
-                info_limitation.get("co_a", [])
-            )
-            co_b: np.ndarray = py2dmat.util.read_matrix.read_matrix(
-                info_limitation.get("co_b", [])
-            )
-            if co_a.size == 0:
-                is_set_co_a = False
-            else:
-                is_set_co_a = True
-                if co_a.ndim != 2:
-                    raise InputError("co_a should be a matrix")
-                if co_a.shape[1] != self.ndim:
-                    msg ='The number of columns in co_a should be equal to'
-                    msg+='the value of "dimension" in the [base] section'
-                    raise InputError(msg)
-                n_row_co_a = co_a.shape[0]
-            if co_b.size == 0:
-                if not is_set_co_a :
-                    is_set_co_b = False
-                else: # is_set_co_a is True
-                    msg = "ERROR: co_a is defined but co_b is not."
-                    raise InputError(msg)
-            elif co_b.ndim == 2:
-                if is_set_co_a:
-                    if co_b.shape[0] == 1 or co_b.shape[1] == 1:
-                        is_set_co_b = True
-                        co_b = co_b.reshape(-1)
-                    else:
-                        raise InputError("co_b should be a vector")
-                    if co_b.size != n_row_co_a:
-                        msg ='The number of row in co_a should be equal to'
-                        msg+='the number of size in co_b'
-                        raise InputError(msg)
-                else: # not is_set_co_a:
-                    msg = "ERROR: co_b is defined but co_a is not."
-                    raise InputError(msg)
-            elif co_b.ndim > 2:
-                raise InputError("co_b should be a vector")
-            
-            if is_set_co_a and is_set_co_b:
-                is_limitation = True
-            elif (not is_set_co_a) and (not is_set_co_b):
-                is_limitation = False
-            else:
-                msg = "ERROR: Both co_a and co_b must be defined."
-                raise InputError(msg)
-
-            self.limitation = py2dmat.util.limitation.Inequality(co_a, co_b, is_limitation)
+        if limitation is not None:
+            self.limitation = limitation
+        elif "limitation" in info.runner:
+            info_limitation = info.runner["limitation"]
+            self.limitation = py2dmat.util.limitation.Inequality.from_dict(info_limitation, self.ndim)
+        else:
+            self.limitation = py2dmat.util.limitation.Unlimited()
 
     def prepare(self, proc_dir: Path):
         self.logger.prepare(proc_dir)
