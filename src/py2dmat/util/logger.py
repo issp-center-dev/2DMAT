@@ -23,6 +23,14 @@ import py2dmat
 from pathlib import Path
 from typing import List, Optional
 
+# Parameters
+# ----------
+# [runner.log]
+#   interval
+#   filename
+#   write_input
+#   write_result
+
 class Logger:
     logfile: Path
     buffer_index: int
@@ -66,9 +74,9 @@ class Logger:
             f.write("# $3: elapsed_time_from_start\n")
             if self.to_write_result:
                 f.write("# $4: result\n")
-                i = 4
-            else:
                 i = 5
+            else:
+                i = 4
             if self.to_write_x:
                 f.write(f"# ${i}-: input\n")
             f.write("\n")
