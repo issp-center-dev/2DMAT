@@ -106,8 +106,8 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             if not out_of_range:
                 step[0] += 1
                 set = 1 if extra_data else 0
-                message = py2dmat.Message(x_list, step[0], set)
-                y = run.submit(message)
+                args = (step[0], set)
+                y = run.submit(x_list, args)
                 if not extra_data:
                     callback_list.append([step[0], *x_list, y])
             return y

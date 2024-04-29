@@ -95,21 +95,14 @@ class Runner(object):
         self.logger.prepare(proc_dir)
 
     def submit(
-        self, message: py2dmat.Message, nprocs: int = 1, nthreads: int = 1
+            self, x: np.ndarray, args = (), nprocs: int = 1, nthreads: int = 1
     ) -> float:
-        if self.limitation.judge(message.x):
-            x = self.mapping(message.x)
-            message_indeed = py2dmat.Message(x, message.step, message.set)
-            # self.solver.prepare(message_indeed)
-            # cwd = os.getcwd()
-            # os.chdir(self.solver.work_dir)
-            # self.solver.run(nprocs, nthreads)
-            # os.chdir(cwd)
-            # result = self.solver.get_results()
-            result = self.solver.evaluate(message_indeed)
+        if self.limitation.judge(x):
+            xp = self.mapping(x)
+            result = self.solver.evaluate(xp, args)
         else:
             result = np.inf
-        self.logger.count(message, result)
+        self.logger.count(x, args, result)
         return result
 
     def post(self) -> None:

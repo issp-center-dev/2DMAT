@@ -65,8 +65,8 @@ class Solver:
     def name(self) -> str:
         return self._name
 
-    def evaluate(self, message: py2dmat.Message, nprocs: int = 1, nthreads: int = 1) -> float:
-        self.prepare(message)
+    def evaluate(self, x: np.ndarray, args = (), nprocs: int = 1, nthreads: int = 1) -> float:
+        self.prepare(x, args)
         cwd = os.getcwd()
         os.chdir(self.work_dir)
         self.run(nprocs, nthreads)
@@ -74,8 +74,8 @@ class Solver:
         result = self.get_results()
         return result
 
-    def prepare(self, message: py2dmat.Message) -> None:
-        self.x = message.x
+    def prepare(self, x: np.ndarray, args = ()) -> None:
+        self.x = x
 
     def run(self, nprocs: int = 1, nthreads: int = 1) -> None:
         if self._func is None:
