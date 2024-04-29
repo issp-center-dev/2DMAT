@@ -122,8 +122,8 @@ class Solver:
         """Command to invoke solver"""
         return [str(self.path_to_solver)]
 
-    def evaluate(self, message: py2dmat.Message, nprocs: int = 1, nthreads: int = 1) -> float:
-        self.prepare(message)
+    def evaluate(self, x: np.ndarray, args = (), nprocs: int = 1, nthreads: int = 1) -> float:
+        self.prepare(x, args)
         cwd = os.getcwd()
         os.chdir(self.work_dir)
         self.run(nprocs, nthreads)
@@ -131,8 +131,9 @@ class Solver:
         result = self.get_results()
         return result
 
-    def prepare(self, message: py2dmat.Message) -> None:
-        fitted_x_list, subdir = self.input.prepare(message)
+    def prepare(self, x: np.ndarray, args) -> None:
+        # fitted_x_list, subdir = self.input.prepare(message)
+        fitted_x_list, subdir = self.input.prepare(x, args)
         self.work_dir = self.proc_dir / Path(subdir)
 
         self.output.prepare(fitted_x_list)
@@ -315,13 +316,15 @@ class Solver:
             bulk_f = np.array(bulk_file)
             return bulk_f
 
-        def prepare(self, message: py2dmat.Message):
+        def prepare(self, x: np.ndarray, args):
             if self.isLogmode:
                 time_sta = time.perf_counter()
 
-            x_list = message.x
-            step = message.step
-            iset = message.set
+            # x_list = message.x
+            # step = message.step
+            # iset = message.set
+            x_list = x
+            step, iset = args
 
             dimension = self.dimension
             string_list = self.string_list
