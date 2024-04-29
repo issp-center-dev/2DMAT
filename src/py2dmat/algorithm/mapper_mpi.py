@@ -60,7 +60,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                 self.timer["run"]["file_CM"] += time_end - time_sta
 
                 # update information
-                args = (int(mesh[0]),)
+                args = (int(mesh[0]), 0)
                 x = mesh[1:]
 
                 time_sta = time.perf_counter()
