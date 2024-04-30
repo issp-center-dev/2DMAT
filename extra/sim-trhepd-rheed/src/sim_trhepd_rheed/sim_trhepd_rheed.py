@@ -122,6 +122,15 @@ class Solver:
         """Command to invoke solver"""
         return [str(self.path_to_solver)]
 
+    def evaluate(self, message: py2dmat.Message, nprocs: int = 1, nthreads: int = 1) -> float:
+        self.prepare(message)
+        cwd = os.getcwd()
+        os.chdir(self.work_dir)
+        self.run(nprocs, nthreads)
+        os.chdir(cwd)
+        result = self.get_results()
+        return result
+
     def prepare(self, message: py2dmat.Message) -> None:
         fitted_x_list, subdir = self.input.prepare(message)
         self.work_dir = self.proc_dir / Path(subdir)
