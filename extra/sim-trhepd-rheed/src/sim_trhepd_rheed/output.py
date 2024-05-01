@@ -312,29 +312,39 @@ class Output(object):
     def read_experiment(self, ref_path, first, last, read_to_final_line):
         # Read experiment data
         if self.mpirank == 0:
-            file_input = open(ref_path, "r")
-            Elines = file_input.readlines()
+            # file_input = open(ref_path, "r")
+            # Elines = file_input.readlines()
 
-            firstline = first
+            # firstline = first
+            # if read_to_final_line:
+            #     lastline = len(Elines)
+            # else:
+            #     lastline = last
+
+            # n_exp_row = lastline - firstline + 1
+
+            # # get value from data
+            # for row_index in range(n_exp_row):
+            #     line_index = firstline + row_index - 1
+            #     line = Elines[line_index]
+            #     data = line.split()
+            #     # first loop
+            #     if row_index == 0:
+            #         n_exp_column = len(data)
+            #         data_e = np.zeros((n_exp_row, n_exp_column))  # init value
+
+            #     for column_index in range(n_exp_column):
+            #         data_e[row_index, column_index] = float(data[column_index])
+
+            assert first > 0
+
             if read_to_final_line:
-                lastline = len(Elines)
+                nlines = None
             else:
-                lastline = last
+                nlines = last - first + 1
 
-            n_exp_row = lastline - firstline + 1
+            data_e = np.loadtxt(ref_path, skiprows=first-1, max_rows=nlines)
 
-            # get value from data
-            for row_index in range(n_exp_row):
-                line_index = firstline + row_index - 1
-                line = Elines[line_index]
-                data = line.split()
-                # first loop
-                if row_index == 0:
-                    n_exp_column = len(data)
-                    data_e = np.zeros((n_exp_row, n_exp_column))  # init value
-
-                for column_index in range(n_exp_column):
-                    data_e[row_index, column_index] = float(data[column_index])
         else:
             data_e = None
         if self.mpisize > 1:
