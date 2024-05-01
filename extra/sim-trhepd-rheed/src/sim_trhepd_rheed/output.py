@@ -622,41 +622,57 @@ class Output(object):
         spot_weight = self.spot_weight
         n_spot = len(spot_weight)
         if self.Rfactor_type == "A":
-            R = 0.0
-            for spot_index in range(n_spot):
-                R_spot = 0.0
-                for angle_index in range(n_g_angle):
-                    R_spot += (
-                        exp_result[spot_index, angle_index]
-                        - calc_result[spot_index, angle_index]
-                    ) ** 2
-                R_spot = spot_weight[spot_index] * R_spot
-                R += R_spot
+            # R = 0.0
+            # for spot_index in range(n_spot):
+            #     R_spot = 0.0
+            #     for angle_index in range(n_g_angle):
+            #         R_spot += (
+            #             exp_result[spot_index, angle_index]
+            #             - calc_result[spot_index, angle_index]
+            #         ) ** 2
+            #     R_spot = spot_weight[spot_index] * R_spot
+            #     R += R_spot
+            # R = np.sqrt(R)
+
+            R = np.sum(spot_weight * np.sum((exp_result - calc_result)**2, axis=1))
             R = np.sqrt(R)
+
         elif self.Rfactor_type == "A2":
-            R = 0.0
-            for spot_index in range(n_spot):
-                R_spot = 0.0
-                for angle_index in range(n_g_angle):
-                    R_spot += (
-                        exp_result[spot_index, angle_index]
-                        - calc_result[spot_index, angle_index]
-                    ) ** 2
-                R_spot = spot_weight[spot_index] * R_spot
-                R += R_spot
-        else:  # self.Rfactor_type == "B"
-            all_exp_result = []
-            all_calc_result = []
-            for spot_index in range(n_spot):
-                for angle_index in range(n_g_angle):
-                    all_exp_result.append(exp_result[spot_index, angle_index])
-                    all_calc_result.append(calc_result[spot_index, angle_index])
-            y1 = 0.0
-            y2 = 0.0
-            y3 = 0.0
-            for I_exp, I_calc in zip(all_exp_result, all_calc_result):
-                y1 += (I_exp - I_calc) ** 2
-                y2 += I_exp**2
-                y3 += I_calc**2
-            R = y1 / (y2 + y3)
+            # R = 0.0
+            # for spot_index in range(n_spot):
+            #     R_spot = 0.0
+            #     for angle_index in range(n_g_angle):
+            #         R_spot += (
+            #             exp_result[spot_index, angle_index]
+            #             - calc_result[spot_index, angle_index]
+            #         ) ** 2
+            #     R_spot = spot_weight[spot_index] * R_spot
+            #     R += R_spot
+
+            R = np.sum(spot_weight * np.sum((exp_result - calc_result)**2, axis=1))
+
+        elif self.Rfactor_type == "B":
+            # all_exp_result = []
+            # all_calc_result = []
+            # for spot_index in range(n_spot):
+            #     for angle_index in range(n_g_angle):
+            #         all_exp_result.append(exp_result[spot_index, angle_index])
+            #         all_calc_result.append(calc_result[spot_index, angle_index])
+            # y1 = 0.0
+            # y2 = 0.0
+            # y3 = 0.0
+            # for I_exp, I_calc in zip(all_exp_result, all_calc_result):
+            #     y1 += (I_exp - I_calc) ** 2
+            #     y2 += I_exp**2
+            #     y3 += I_calc**2
+            # R = y1 / (y2 + y3)
+            assert(n_spot == 1)
+
+            v_exp = exp_result.flatten()
+            v_cal = calc_result.flatten()
+            R = np.sum((v_exp - v_cal)**2) / (np.sum(v_exp**2) + np.sum(v_cal**2))
+
+        else:
+            raise ValueError("invalid Rfactor_type {}".format(self.Rfactor_type))
+
         return R
