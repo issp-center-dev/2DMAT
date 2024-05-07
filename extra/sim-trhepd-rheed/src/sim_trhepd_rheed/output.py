@@ -197,49 +197,66 @@ class Output(object):
         self.exp_number = v
 
         # Normalization of reference data
-        self.beam_number_experiment = len(self.exp_number)
-        for loop_index in range(self.beam_number_experiment):
-            exp_index = self.exp_number[loop_index]
-            I_reference = data_experiment[:, exp_index]
-            if self.normalization == "TOTAL":
-                I_reference_norm = np.sum(I_reference)
-                I_reference_normalized = I_reference / I_reference_norm
-                I_reference_norm_l = np.array([I_reference_norm])
-                self.I_reference_normalized_l = np.array([I_reference_normalized])
-            elif self.normalization == "MANY_BEAM" and self.weight_type == "calc":
-                I_reference_norm = np.sum(I_reference)
-                I_reference_normalized = I_reference / I_reference_norm
-                if loop_index == 0:  # first loop
-                    I_reference_norm_l = np.array([I_reference_norm])
-                    self.I_reference_normalized_l = np.array(
-                        [I_reference_normalized]
-                    )
-                else:  # N-th loop
-                    I_reference_norm_l = np.block(
-                        [I_reference_norm_l, I_reference_norm]
-                    )
-                    self.I_reference_normalized_l = np.block(
-                        [[self.I_reference_normalized_l], [I_reference_normalized]]
-                    )
-            elif self.normalization == "MANY_BEAM" and self.weight_type == "manual":
-                I_reference_norm = np.sum(I_reference)
-                I_reference_normalized = I_reference / I_reference_norm
-                if loop_index == 0:  # first loop
-                    I_reference_norm_l = np.array([I_reference_norm])
-                    self.I_reference_normalized_l = np.array(
-                        [I_reference_normalized]
-                    )
-                else:  # N-th loop
-                    I_reference_norm_l = np.block(
-                        [I_reference_norm_l, I_reference_norm]
-                    )
-                    self.I_reference_normalized_l = np.block(
-                        [[self.I_reference_normalized_l], [I_reference_normalized]]
-                    )
-            else:
-                msg = "ERROR: solver.post.normalization must be "
-                msg += "MANY_BEAM or TOTAL"
-                raise exception.InputError(msg)
+
+        if self.normalization == "TOTAL":
+            data = data_experiment[:, -1]
+            norm = np.sum(data)
+            data_normalized = data / norm
+            self.I_reference_normalized_l = data_normalized
+
+        elif self.normalization == "MANY_BEAM":
+            data = data_experiment[:,self.exp_number]
+            norm = np.sum(data, axis=0)
+            data_normalized = data / norm
+            self.I_reference_normalized_l = data_normalized.transpose()
+
+        else:
+            raise ValueError("normalization must be MANY_BEAM or TOTAL")
+
+
+        # self.beam_number_experiment = len(self.exp_number)
+        # for loop_index in range(self.beam_number_experiment):
+        #     exp_index = self.exp_number[loop_index]
+        #     I_reference = data_experiment[:, exp_index]
+        #     if self.normalization == "TOTAL":
+        #         I_reference_norm = np.sum(I_reference)
+        #         I_reference_normalized = I_reference / I_reference_norm
+        #         I_reference_norm_l = np.array([I_reference_norm])
+        #         self.I_reference_normalized_l = np.array([I_reference_normalized])
+        #     elif self.normalization == "MANY_BEAM" and self.weight_type == "calc":
+        #         I_reference_norm = np.sum(I_reference)
+        #         I_reference_normalized = I_reference / I_reference_norm
+        #         if loop_index == 0:  # first loop
+        #             I_reference_norm_l = np.array([I_reference_norm])
+        #             self.I_reference_normalized_l = np.array(
+        #                 [I_reference_normalized]
+        #             )
+        #         else:  # N-th loop
+        #             I_reference_norm_l = np.block(
+        #                 [I_reference_norm_l, I_reference_norm]
+        #             )
+        #             self.I_reference_normalized_l = np.block(
+        #                 [[self.I_reference_normalized_l], [I_reference_normalized]]
+        #             )
+        #     elif self.normalization == "MANY_BEAM" and self.weight_type == "manual":
+        #         I_reference_norm = np.sum(I_reference)
+        #         I_reference_normalized = I_reference / I_reference_norm
+        #         if loop_index == 0:  # first loop
+        #             I_reference_norm_l = np.array([I_reference_norm])
+        #             self.I_reference_normalized_l = np.array(
+        #                 [I_reference_normalized]
+        #             )
+        #         else:  # N-th loop
+        #             I_reference_norm_l = np.block(
+        #                 [I_reference_norm_l, I_reference_norm]
+        #             )
+        #             self.I_reference_normalized_l = np.block(
+        #                 [[self.I_reference_normalized_l], [I_reference_normalized]]
+        #             )
+        #     else:
+        #         msg = "ERROR: solver.post.normalization must be "
+        #         msg += "MANY_BEAM or TOTAL"
+        #         raise exception.InputError(msg)
 
         # solver.config
         info_config = info_s.get("config", {})
@@ -397,6 +414,7 @@ class Output(object):
 
         if self.isLogmode:
             time_sta = time.perf_counter()
+
         Rfactor = self._calc_Rfactor(
             conv_number_of_g_angle,
             conv_I_calculated_normalized_l,
@@ -552,70 +570,89 @@ class Output(object):
             )
         glancing_angle = data_convolution[:, 0]
 
-        beam_number_reference = len(cal_number)
+        if self.normalization == "TOTAL":
+            data = data_convolution[:, -1]
+            norm = np.sum(data)
+            data_normalized = data / norm
 
-        # Normalization of calculated data.
-        for loop_index in range(beam_number_reference):
-            cal_index = cal_number[loop_index]
-            conv_I_calculated = data_convolution[:, cal_index]
-            if self.normalization == "TOTAL":
-                conv_I_calculated_norm = np.sum(conv_I_calculated)
-                conv_I_calculated_normalized = (
-                    conv_I_calculated / conv_I_calculated_norm
-                )
-                conv_I_calculated_norm_l = np.array([conv_I_calculated_norm])
-                conv_I_calculated_normalized_l = np.array(
-                    [conv_I_calculated_normalized]
-                )
-            elif self.normalization == "MANY_BEAM" and self.weight_type == "calc":
-                conv_I_calculated_norm = np.sum(conv_I_calculated)
-                conv_I_calculated_normalized = (
-                    conv_I_calculated / conv_I_calculated_norm
-                )
-                if loop_index == 0:  # first loop
-                    conv_I_calculated_norm_l = np.array([conv_I_calculated_norm])
-                    conv_I_calculated_normalized_l = np.array(
-                        [conv_I_calculated_normalized]
-                    )
-                else:  # N-th loop
-                    conv_I_calculated_norm_l = np.block(
-                        [conv_I_calculated_norm_l, conv_I_calculated_norm]
-                    )
-                    conv_I_calculated_normalized_l = np.block(
-                        [
-                            [conv_I_calculated_normalized_l],
-                            [conv_I_calculated_normalized],
-                        ]
-                    )
-                    if loop_index == beam_number_reference - 1:  # first loop
-                        # calculate spot_weight
-                        self.spot_weight = (
-                            conv_I_calculated_norm_l / sum(conv_I_calculated_norm_l)
-                        ) ** 2
-            elif self.normalization == "MANY_BEAM" and self.weight_type == "manual":
-                conv_I_calculated_norm = np.sum(conv_I_calculated)
-                conv_I_calculated_normalized = (
-                    conv_I_calculated / conv_I_calculated_norm
-                )
-                if loop_index == 0:  # first loop
-                    conv_I_calculated_norm_l = np.array([conv_I_calculated_norm])
-                    conv_I_calculated_normalized_l = np.array(
-                        [conv_I_calculated_normalized]
-                    )
-                else:  # N-th loop
-                    conv_I_calculated_norm_l = np.block(
-                        [conv_I_calculated_norm_l, conv_I_calculated_norm]
-                    )
-                    conv_I_calculated_normalized_l = np.block(
-                        [
-                            [conv_I_calculated_normalized_l],
-                            [conv_I_calculated_normalized],
-                        ]
-                    )
+        elif self.normalization == "MANY_BEAM":
+            data = data_convolution[:, cal_number]
+            norm = np.sum(data, axis=0)
+            data_normalized = data / norm
+
+            if self.weight_type == "calc":
+                self.spot_weight = (norm / np.sum(norm))**2
+            elif self.weight_type == "manual":
+                pass
             else:
-                msg = "ERROR: solver.post.normalization must be "
-                msg += "MANY_BEAM or TOTAL"
-                raise exception.InputError(msg)
+                raise ValueError("unsupported weight type {}".format(self.weight_type))
+        else:
+            raise ValueError("unsupported normalization {}".format(self.normalization))
+
+        # beam_number_reference = len(cal_number)
+
+        # # Normalization of calculated data.
+        # for loop_index in range(beam_number_reference):
+        #     cal_index = cal_number[loop_index]
+        #     conv_I_calculated = data_convolution[:, cal_index]
+        #     if self.normalization == "TOTAL":
+        #         conv_I_calculated_norm = np.sum(conv_I_calculated)
+        #         conv_I_calculated_normalized = (
+        #             conv_I_calculated / conv_I_calculated_norm
+        #         )
+        #         conv_I_calculated_norm_l = np.array([conv_I_calculated_norm])
+        #         conv_I_calculated_normalized_l = np.array(
+        #             [conv_I_calculated_normalized]
+        #         )
+        #     elif self.normalization == "MANY_BEAM" and self.weight_type == "calc":
+        #         conv_I_calculated_norm = np.sum(conv_I_calculated)
+        #         conv_I_calculated_normalized = (
+        #             conv_I_calculated / conv_I_calculated_norm
+        #         )
+        #         if loop_index == 0:  # first loop
+        #             conv_I_calculated_norm_l = np.array([conv_I_calculated_norm])
+        #             conv_I_calculated_normalized_l = np.array(
+        #                 [conv_I_calculated_normalized]
+        #             )
+        #         else:  # N-th loop
+        #             conv_I_calculated_norm_l = np.block(
+        #                 [conv_I_calculated_norm_l, conv_I_calculated_norm]
+        #             )
+        #             conv_I_calculated_normalized_l = np.block(
+        #                 [
+        #                     [conv_I_calculated_normalized_l],
+        #                     [conv_I_calculated_normalized],
+        #                 ]
+        #             )
+        #             if loop_index == beam_number_reference - 1:  # first loop
+        #                 # calculate spot_weight
+        #                 self.spot_weight = (
+        #                     conv_I_calculated_norm_l / sum(conv_I_calculated_norm_l)
+        #                 ) ** 2
+        #     elif self.normalization == "MANY_BEAM" and self.weight_type == "manual":
+        #         conv_I_calculated_norm = np.sum(conv_I_calculated)
+        #         conv_I_calculated_normalized = (
+        #             conv_I_calculated / conv_I_calculated_norm
+        #         )
+        #         if loop_index == 0:  # first loop
+        #             conv_I_calculated_norm_l = np.array([conv_I_calculated_norm])
+        #             conv_I_calculated_normalized_l = np.array(
+        #                 [conv_I_calculated_normalized]
+        #             )
+        #         else:  # N-th loop
+        #             conv_I_calculated_norm_l = np.block(
+        #                 [conv_I_calculated_norm_l, conv_I_calculated_norm]
+        #             )
+        #             conv_I_calculated_normalized_l = np.block(
+        #                 [
+        #                     [conv_I_calculated_normalized_l],
+        #                     [conv_I_calculated_normalized],
+        #                 ]
+        #             )
+        #     else:
+        #         msg = "ERROR: solver.post.normalization must be "
+        #         msg += "MANY_BEAM or TOTAL"
+        #         raise exception.InputError(msg)
 
         if self.isLogmode:
             time_end = time.perf_counter()
@@ -624,13 +661,20 @@ class Output(object):
         return (
             glancing_angle,
             angle_number_convolution,
-            conv_I_calculated_norm_l,
-            conv_I_calculated_normalized_l,
+            # conv_I_calculated_norm_l,
+            # conv_I_calculated_normalized_l,
+            norm,
+            data_normalized.transpose(),
         )
 
     def _calc_Rfactor(self, n_g_angle, calc_result, exp_result):
         spot_weight = self.spot_weight
         n_spot = len(spot_weight)
+
+        spot = spot_weight[:n_spot]
+        expr = exp_result[:n_spot, :n_g_angle]
+        calc = calc_result[:n_spot, :n_g_angle]
+
         if self.Rfactor_type == "A":
             # R = 0.0
             # for spot_index in range(n_spot):
@@ -644,7 +688,8 @@ class Output(object):
             #     R += R_spot
             # R = np.sqrt(R)
 
-            R = np.sum(spot_weight * np.sum((exp_result - calc_result)**2, axis=1))
+            #R = np.sum(spot_weight * np.sum((exp_result - calc_result)**2, axis=1))
+            R = np.sum(spot * np.sum((expr - calc)**2, axis=1))
             R = np.sqrt(R)
 
         elif self.Rfactor_type == "A2":
@@ -659,7 +704,8 @@ class Output(object):
             #     R_spot = spot_weight[spot_index] * R_spot
             #     R += R_spot
 
-            R = np.sum(spot_weight * np.sum((exp_result - calc_result)**2, axis=1))
+            #R = np.sum(spot_weight * np.sum((exp_result - calc_result)**2, axis=1))
+            R = np.sum(spot * np.sum((expr - calc)**2, axis=1))
 
         elif self.Rfactor_type == "B":
             # all_exp_result = []
@@ -678,8 +724,10 @@ class Output(object):
             # R = y1 / (y2 + y3)
             assert(n_spot == 1)
 
-            v_exp = exp_result.flatten()
-            v_cal = calc_result.flatten()
+            # v_exp = exp_result.flatten()
+            # v_cal = calc_result.flatten()
+            v_exp = expr.flatten()
+            v_cal = calc.flatten()
             R = np.sum((v_exp - v_cal)**2) / (np.sum(v_exp**2) + np.sum(v_cal**2))
 
         else:
