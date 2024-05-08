@@ -556,10 +556,10 @@ class Output(object):
         # convolution
         data_convolution = lib_make_convolution.calc(
             RC_data_org,
-            calc_number_of_beams_org,
-            calc_number_of_g_angles,
+            #calc_number_of_beams_org,
+            #calc_number_of_g_angles,
             omega,
-            verbose_mode,
+            #verbose_mode,
         )
 
         if self.isLogmode:

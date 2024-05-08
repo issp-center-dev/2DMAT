@@ -1,24 +1,22 @@
 import numpy as np
-import copy
+#import copy
 
 
-def calc(RC_data_org, number_of_beams, number_of_glancing_angles, omega, verbose_mode):
-
+#def calc(data, number_of_beams, number_of_glancing_angles, omega, verbose_mode):
+def calc(data, omega):
     sigma = 0.5 * omega / (np.sqrt(2.0 * np.log(2.0)))
 
     def g(x):
-        g = (1.0 / (sigma * np.sqrt(2.0 * np.pi))) * np.exp(
-            -0.5 * x**2.0 / sigma**2.0
-        )
+        g = (1.0 / (sigma * np.sqrt(2.0 * np.pi))) * np.exp(-0.5 * x**2 / sigma**2)
         return g
 
-    RC_data_cnv = np.zeros((number_of_glancing_angles, number_of_beams + 1))
+    conv = np.zeros(data.shape)
     # # copy glancing angle
-    # RC_data_cnv[:, 0] = copy.deepcopy(RC_data_org[:, 0])
+    # RC_data_cnv[:, 0] = copy.deepcopy(data[:, 0])
 
-    if verbose_mode:
-        print("RC_data_org =\n", RC_data_org)
-        print("RC_data_cnv =\n", RC_data_cnv)
+    # if verbose_mode:
+    #     print("data =\n", data)
+    #     print("conv =\n", conv)
 
     # for beam_index in range(number_of_beams):
     #     for index in range(number_of_glancing_angles):
@@ -42,8 +40,8 @@ def calc(RC_data_org, number_of_beams, number_of_glancing_angles, omega, verbose
     #                 )
     #         RC_data_cnv[index, beam_index + 1] = integral
 
-    xs = np.array(RC_data_org[:,0])
-    vs = RC_data_org[:,1:]
+    xs = np.array(data[:,0])
+    vs = data[:,1:]
 
     dxs = np.roll(xs,-1) - xs
     dxs[-1] = dxs[-2]
@@ -53,11 +51,11 @@ def calc(RC_data_org, number_of_beams, number_of_glancing_angles, omega, verbose
     for idx in range(xs.shape[0]):
         ys[idx] = np.einsum('ik,i,i->k', vs, g(xs-xs[idx]), dxs)
 
-    RC_data_cnv[:,0] = xs
-    RC_data_cnv[:,1:] = ys
+    conv[:,0] = xs
+    conv[:,1:] = ys
 
-    if verbose_mode:
-        print("RC_data_cnv =\n", RC_data_cnv)
+    # if verbose_mode:
+    #     print("conv =\n", conv)
 
-    return RC_data_cnv
+    return conv
 
