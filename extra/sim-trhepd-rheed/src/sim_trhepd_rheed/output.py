@@ -199,10 +199,10 @@ class Output(object):
         # Normalization of reference data
 
         if self.normalization == "TOTAL":
-            data = data_experiment[:, -1]
+            data = data_experiment[:, [-1]]
             norm = np.sum(data)
             data_normalized = data / norm
-            self.I_reference_normalized_l = data_normalized
+            self.I_reference_normalized_l = data_normalized.transpose()
 
         elif self.normalization == "MANY_BEAM":
             data = data_experiment[:,self.exp_number]
@@ -571,14 +571,14 @@ class Output(object):
         glancing_angle = data_convolution[:, 0]
 
         if self.normalization == "TOTAL":
-            data = data_convolution[:, -1]
+            data = data_convolution[:, [-1]]
             norm = np.sum(data)
-            data_normalized = data / norm
+            data_normalized = (data / norm).transpose()
 
         elif self.normalization == "MANY_BEAM":
             data = data_convolution[:, cal_number]
             norm = np.sum(data, axis=0)
-            data_normalized = data / norm
+            data_normalized = (data / norm).transpose()
 
             if self.weight_type == "calc":
                 self.spot_weight = (norm / np.sum(norm))**2
@@ -664,7 +664,7 @@ class Output(object):
             # conv_I_calculated_norm_l,
             # conv_I_calculated_normalized_l,
             norm,
-            data_normalized.transpose(),
+            data_normalized,
         )
 
     def _calc_Rfactor(self, n_g_angle, calc_result, exp_result):
