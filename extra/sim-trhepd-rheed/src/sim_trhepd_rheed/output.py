@@ -724,11 +724,17 @@ class Output(object):
             # R = y1 / (y2 + y3)
             assert(n_spot == 1)
 
-            # v_exp = exp_result.flatten()
-            # v_cal = calc_result.flatten()
-            v_exp = expr.flatten()
-            v_cal = calc.flatten()
-            R = np.sum((v_exp - v_cal)**2) / (np.sum(v_exp**2) + np.sum(v_cal**2))
+            # # v_exp = exp_result.flatten()
+            # # v_cal = calc_result.flatten()
+            # v_exp = expr.flatten()
+            # v_cal = calc.flatten()
+            # R = np.sum((v_exp - v_cal)**2) / (np.sum(v_exp**2) + np.sum(v_cal**2))
+
+            vd = np.sum((v_exp - v_cal)**2, axis=1)
+            ve = np.sum(v_exp**2, axis=1)
+            vc = np.sum(v_cal**2, axis=1)
+            R = np.sum(vd /(ve + vc))
+            #R = np.sum(spot * vd /(ve + vc))
 
         else:
             raise ValueError("invalid Rfactor_type {}".format(self.Rfactor_type))
