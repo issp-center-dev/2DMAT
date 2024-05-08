@@ -424,6 +424,12 @@ class Output(object):
             time_end = time.perf_counter()
             self.detail_timer["calculate_R-factor"] += time_end - time_sta
 
+        if self.generate_rocking_curve:
+            self._generate_rocking_curve(fitted_x_list, glancing_angle, conv_I_calculated_normalized_l, Rfactor)
+
+        return Rfactor
+
+    def _generate_rocking_curve(self, fitted_x_list, glancing_angle, conv_I_calculated_normalized_l, Rfactor):
         # generate RockingCurve_calculated.txt
         dimension = self.dimension
         string_list = self.string_list
@@ -432,53 +438,53 @@ class Output(object):
         weight_type = self.weight_type
         Rfactor_type = self.Rfactor_type
         normalization = self.normalization
-        if self.generate_rocking_curve:
-            if self.isLogmode:
-                time_sta = time.perf_counter()
-            with open("RockingCurve_calculated.txt", "w") as file_RC:
-                # Write headers
-                file_RC.write("#")
-                for index in range(dimension):
-                    file_RC.write(
-                        "{} = {} ".format(string_list[index], fitted_x_list[index])
-                    )
-                file_RC.write("\n")
-                file_RC.write("#Rfactor_type = {}\n".format(Rfactor_type))
-                file_RC.write("#normalization = {}\n".format(normalization))
-                if weight_type is not None:
-                    file_RC.write("#weight_type = {}\n".format(weight_type))
-                file_RC.write("#fx(x) = {}\n".format(Rfactor))
-                file_RC.write("#cal_number = {}\n".format(cal_number))
-                file_RC.write("#spot_weight = {}\n".format(spot_weight))
-                file_RC.write(
-                    "#NOTICE : Intensities are NOT multiplied by spot_weight.\n"
-                )
-                file_RC.write(
-                    "#The intensity I_(spot) for each spot is normalized as in the following equation.\n"
-                )
-                file_RC.write("#sum( I_(spot) ) = 1\n")
-                file_RC.write("#\n")
 
-                label_column = ["glancing_angle"]
-                fmt_rc = "%.5f"
-                for i in range(len(cal_number)):
-                    label_column.append(f"cal_number={self.cal_number[i]}")
-                    fmt_rc += " %.15e"
+        if self.isLogmode:
+            time_sta = time.perf_counter()
 
-                for i in range(len(label_column)):
-                    file_RC.write(f"# #{i} {label_column[i]}")
-                    file_RC.write("\n")
-                g_angle_for_rc = np.array([glancing_angle])
-                np.savetxt(
-                    file_RC,
-                    np.block([g_angle_for_rc.T, conv_I_calculated_normalized_l.T]),
-                    fmt=fmt_rc,
+        with open("RockingCurve_calculated.txt", "w") as fp:
+            # Write headers
+            fp.write("#")
+            for index in range(dimension):
+                fp.write(
+                    "{} = {} ".format(string_list[index], fitted_x_list[index])
                 )
+            fp.write("\n")
+            fp.write("#Rfactor_type = {}\n".format(Rfactor_type))
+            fp.write("#normalization = {}\n".format(normalization))
+            if weight_type is not None:
+                fp.write("#weight_type = {}\n".format(weight_type))
+            fp.write("#fx(x) = {}\n".format(Rfactor))
+            fp.write("#cal_number = {}\n".format(cal_number))
+            fp.write("#spot_weight = {}\n".format(spot_weight))
+            fp.write(
+                "#NOTICE : Intensities are NOT multiplied by spot_weight.\n"
+            )
+            fp.write(
+                "#The intensity I_(spot) for each spot is normalized as in the following equation.\n"
+            )
+            fp.write("#sum( I_(spot) ) = 1\n")
+            fp.write("#\n")
 
-            if self.isLogmode:
-                time_end = time.perf_counter()
-                self.detail_timer["make_RockingCurve.txt"] += time_end - time_sta
-        return Rfactor
+            label_column = ["glancing_angle"]
+            fmt_rc = "%.5f"
+            for i in range(len(cal_number)):
+                label_column.append(f"cal_number={self.cal_number[i]}")
+                fmt_rc += " %.15e"
+
+            for i in range(len(label_column)):
+                fp.write(f"# #{i} {label_column[i]}")
+                fp.write("\n")
+            g_angle_for_rc = np.array([glancing_angle])
+            np.savetxt(
+                fp,
+                np.block([g_angle_for_rc.T, conv_I_calculated_normalized_l.T]),
+                fmt=fmt_rc,
+            )
+
+        if self.isLogmode:
+            time_end = time.perf_counter()
+            self.detail_timer["make_RockingCurve.txt"] += time_end - time_sta
 
     def _calc_I_from_file(self):
         if self.isLogmode:
