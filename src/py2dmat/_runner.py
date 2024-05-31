@@ -162,7 +162,7 @@ class Runner(object):
             self.mapping = py2dmat.util.mapping.Affine.from_dict(info_mapping)
         else:
             # trivial mapping
-            self.mapping = lambda xs: xs
+            self.mapping = py2dmat.util.mapping.TrivialMapping()
         
         self.ndim = info.base["dimension"]
 

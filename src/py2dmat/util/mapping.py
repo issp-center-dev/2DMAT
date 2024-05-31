@@ -24,7 +24,23 @@ from .read_matrix import read_matrix, read_vector
 # type hints
 from typing import Optional
 
-class Affine:
+class MappingBase:
+    def __init__(self):
+        pass
+
+    def __call__(self, x: np.ndarray) -> np.ndarray:
+        raise NotImplemented
+
+
+class TrivialMapping(MappingBase):
+    def __init__(self):
+        super().__init__()
+
+    def __call__(self, x: np.ndarray) -> np.ndarray:
+        return x
+
+
+class Affine(MappingBase):
     A: Optional[np.ndarray]
     b: Optional[np.ndarray]
 
