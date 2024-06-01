@@ -72,33 +72,22 @@ class AlgorithmBase(metaclass=ABCMeta):
         self.timer["init"]["total"] = 0.0
         self.status = AlgorithmStatus.INIT
 
-        if "dimension" not in info.base:
-            raise exception.InputError(
-                "ERROR: base.dimension is not defined in the input"
-            )
-        try:
-            self.dimension = int(str(info.base["dimension"]))
-        except ValueError:
-            raise exception.InputError(
-                "ERROR: base.dimension should be positive integer"
-            )
-        if self.dimension < 1:
-            raise exception.InputError(
-                "ERROR: base.dimension should be positive integer"
-            )
+        self.dimension = info.algorithm.get("dimension") or info.base.get("dimension")
+        if not self.dimension:
+            raise ValueError("ERROR: dimension is not defined")
 
         if "label_list" in info.algorithm:
             label = info.algorithm["label_list"]
             if len(label) != self.dimension:
-                raise exception.InputError(
-                    f"ERROR: len(label_list) != dimension ({len(label)} != {self.dimension})"
-                )
+                raise ValueError(f"ERROR: length of label_list and dimension do not match ({len(label)} != {self.dimension})")
             self.label_list = label
         else:
             self.label_list = [f"x{d+1}" for d in range(self.dimension)]
 
+        # initialize random number generator
         self.__init_rng(info)
 
+        # directories
         self.root_dir = info.base["root_dir"]
         self.output_dir = info.base["output_dir"]
         self.proc_dir = self.output_dir / str(self.mpirank)
@@ -109,6 +98,8 @@ class AlgorithmBase(metaclass=ABCMeta):
             time.sleep(0.1)
         if self.mpisize > 1:
             self.mpicomm.Barrier()
+
+        # runner
         if runner is not None:
             self.set_runner(runner)
 
