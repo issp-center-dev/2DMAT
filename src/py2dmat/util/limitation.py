@@ -8,7 +8,7 @@ from .read_matrix import read_matrix, read_vector
 class LimitationBase(metaclass=ABCMeta):
     @abstractmethod
     def __init__(self, is_limitary: bool):
-        self.islimitary = is_limitary
+        self.is_limitary = is_limitary
 
     @abstractmethod
     def judge(self, x: np.ndarray) -> bool:
@@ -23,14 +23,14 @@ class Unlimited(LimitationBase):
 class Inequality(LimitationBase):
     def __init__(self, a: np.ndarray, b: np.ndarray, is_limitary: bool):
         super().__init__(is_limitary)
-        if self.islimitary:
+        if self.is_limitary:
             self.a = a
             self.minusb = -b
             self.n_formura = a.shape[0]
             self.ndim = a.shape[1]
 
     def judge(self, x: np.ndarray) -> bool:
-        if self.islimitary:
+        if self.is_limitary:
             Ax = np.einsum("ij,j->i", self.a, x)
             judge_result = all(Ax > self.minusb)
         else:
@@ -62,11 +62,11 @@ class Inequality(LimitationBase):
                 raise ValueError("co_b should be a column vector of size equal to number of constraints")
 
         if is_set_co_a and is_set_co_b:
-            is_limitation = True
+            is_limitary = True
         elif (not is_set_co_a) and (not is_set_co_b):
-            is_limitation = False
+            is_limitary = False
         else:
             msg = "ERROR: Both co_a and co_b must be defined."
             raise ValueError(msg)
 
-        return cls(co_a, co_b.reshape(-1), is_limitation)
+        return cls(co_a, co_b.reshape(-1), is_limitary)
