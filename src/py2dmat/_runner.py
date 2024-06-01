@@ -83,13 +83,11 @@ class Runner(object):
             # trivial mapping
             self.mapping = py2dmat.util.mapping.TrivialMapping()
         
-        self.ndim = info.base["dimension"]
-
         if limitation is not None:
             self.limitation = limitation
         elif "limitation" in info.runner:
             info_limitation = info.runner["limitation"]
-            self.limitation = py2dmat.util.limitation.Inequality.from_dict(info_limitation, self.ndim)
+            self.limitation = py2dmat.util.limitation.Inequality.from_dict(info_limitation)
         else:
             self.limitation = py2dmat.util.limitation.Unlimited()
 

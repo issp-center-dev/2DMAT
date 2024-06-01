@@ -38,7 +38,7 @@ class Inequality(LimitationBase):
         return judge_result
 
     @classmethod
-    def from_dict(cls, d, dimension):
+    def from_dict(cls, d):
         co_a: np.ndarray = read_matrix(d.get("co_a", []))
         co_b: np.ndarray = read_matrix(d.get("co_b", []))
 
@@ -48,7 +48,7 @@ class Inequality(LimitationBase):
         if co_a.size == 0:
             is_set_co_a = False
         else:
-            if co_a.ndim == 2 and co_a.shape[1] == dimension:
+            if co_a.ndim == 2:
                 is_set_co_a = True
             else:
                 raise ValueError("co_a should be a matrix of size equal to number of constraints times dimension")
