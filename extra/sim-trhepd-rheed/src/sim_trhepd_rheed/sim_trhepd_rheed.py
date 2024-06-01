@@ -4,6 +4,7 @@ import os.path
 import shutil
 import time
 import ctypes
+import subprocess
 
 import numpy as np
 
@@ -19,7 +20,16 @@ if TYPE_CHECKING:
     from mpi4py import MPI
 
 
-class Solver(py2dmat.solver.SolverBase):
+class Solver:
+    #-----
+    root_dir: Path
+    output_dir: Path
+    proc_dir: Path
+    work_dir: Path
+    _name: str
+    dimension: int
+    timer: Dict[str, Dict]
+    #-----
     mpicomm: Optional["MPI.Comm"]
     mpisize: int
     mpirank: int
@@ -29,7 +39,19 @@ class Solver(py2dmat.solver.SolverBase):
     path_to_solver: Path
 
     def __init__(self, info: py2dmat.Info):
-        super().__init__(info)
+        #-----
+        # super().__init__(info)
+        self.root_dir = info.base["root_dir"]
+        self.output_dir = info.base["output_dir"]
+        self.proc_dir = self.output_dir / str(py2dmat.mpi.rank())
+        self.work_dir = self.proc_dir
+        self._name = ""
+        self.timer = {"prepare": {}, "run": {}, "post": {}}
+        if "dimension" in info.solver:
+            self.dimension = info.solver["dimension"]
+        else:
+            self.dimension = info.base["dimension"]
+        #-----
         self.mpicomm = mpi.comm()
         self.mpisize = mpi.size()
         self.mpirank = mpi.rank()
@@ -66,6 +88,10 @@ class Solver(py2dmat.solver.SolverBase):
 
         self.input = Solver.Input(info, self.isLogmode, self.detail_timer)
         self.output = Solver.Output(info, self.isLogmode, self.detail_timer)
+
+    @property
+    def name(self) -> str:
+        return self._name
 
     def set_detail_timer(self) -> None:
         # TODO: Operate log_mode with toml file. Generate txt of detail_timer.
@@ -139,6 +165,15 @@ class Solver(py2dmat.solver.SolverBase):
             self.output.surf_output,
         )
         self.output.surf_output = self.output.surf_output[0].decode().splitlines()
+
+    def _run_by_subprocess(self, command: List[str]) -> None:
+        with open("stdout", "w") as fi:
+            subprocess.run(
+                command,
+                stdout=fi,
+                stderr=subprocess.STDOUT,
+                check=True,
+            )
 
     def run(self, nprocs: int = 1, nthreads: int = 1) -> None:
         if self.isLogmode:
