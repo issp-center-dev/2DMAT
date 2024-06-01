@@ -734,6 +734,8 @@ class Output(object):
             # # v_cal = calc_result.flatten()
             # v_exp = expr.flatten()
             # v_cal = calc.flatten()
+            v_exp = expr
+            v_cal = calc
             # R = np.sum((v_exp - v_cal)**2) / (np.sum(v_exp**2) + np.sum(v_cal**2))
 
             vd = np.sum((v_exp - v_cal)**2, axis=1)
