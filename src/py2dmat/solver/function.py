@@ -14,8 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
+import os
 import numpy as np
-
 import py2dmat
 
 # type hints
@@ -64,6 +64,15 @@ class Solver:
     @property
     def name(self) -> str:
         return self._name
+
+    def evaluate(self, message: py2dmat.Message, nprocs: int = 1, nthreads: int = 1) -> float:
+        self.prepare(message)
+        cwd = os.getcwd()
+        os.chdir(self.work_dir)
+        self.run(nprocs, nthreads)
+        os.chdir(cwd)
+        result = self.get_results()
+        return result
 
     def prepare(self, message: py2dmat.Message) -> None:
         self.x = message.x

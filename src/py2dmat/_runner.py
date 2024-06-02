@@ -243,12 +243,13 @@ class Runner(object):
         if self.limitation.judge(message.x):
             x = self.mapping(message.x)
             message_indeed = py2dmat.Message(x, message.step, message.set)
-            self.solver.prepare(message_indeed)
-            cwd = os.getcwd()
-            os.chdir(self.solver.work_dir)
-            self.solver.run(nprocs, nthreads)
-            os.chdir(cwd)
-            result = self.solver.get_results()
+            # self.solver.prepare(message_indeed)
+            # cwd = os.getcwd()
+            # os.chdir(self.solver.work_dir)
+            # self.solver.run(nprocs, nthreads)
+            # os.chdir(cwd)
+            # result = self.solver.get_results()
+            result = self.solver.evaluate(message_indeed)
         else:
             result = np.inf
         self.logger.count(message, result)
