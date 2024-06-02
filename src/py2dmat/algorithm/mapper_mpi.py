@@ -48,7 +48,6 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             self.timer["run"]["file_CM"] = time_end - time_sta
             self.timer["run"]["submit"] = 0.0
 
-            message = py2dmat.Message([], 0, 0)
             iterations = len(self.mesh_list)
             for iteration_count, mesh in enumerate(self.mesh_list):
                 print("Iteration : {}/{}".format(iteration_count + 1, iterations))
@@ -61,11 +60,11 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                 self.timer["run"]["file_CM"] += time_end - time_sta
 
                 # update information
-                message.step = int(mesh[0])
-                message.x = mesh[1:]
+                args = (int(mesh[0]), 0)
+                x = mesh[1:]
 
                 time_sta = time.perf_counter()
-                fx = run.submit(message)
+                fx = run.submit(x, args)
                 time_end = time.perf_counter()
                 self.timer["run"]["submit"] += time_end - time_sta
 

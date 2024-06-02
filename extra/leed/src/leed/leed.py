@@ -106,8 +106,8 @@ class Solver:
     def name(self) -> str:
         return self._name
 
-    def evaluate(self, message: py2dmat.Message, nprocs: int = 1, nthreads: int = 1) -> float:
-        self.prepare(message)
+    def evaluate(self, x: np.ndarray, args = (), nprocs: int = 1, nthreads: int = 1) -> float:
+        self.prepare(x, args)
         cwd = os.getcwd()
         os.chdir(self.work_dir)
         self.run(nprocs, nthreads)
@@ -115,11 +115,11 @@ class Solver:
         result = self.get_results()
         return result
 
-    def prepare(self, message: py2dmat.Message) -> None:
+    def prepare(self, x: np.ndarray, args) -> None:
         self.work_dir = self.proc_dir
         for dir in [self.path_to_base_dir]:
             copy_tree(os.path.join(self.root_dir, dir), os.path.join(self.work_dir))
-        self.input.prepare(message)
+        self.input.prepare(x, args)
 
     def run(self, nprocs: int = 1, nthreads: int = 1) -> None:
         self._run_by_subprocess([str(self.path_to_solver)])
@@ -158,10 +158,11 @@ class Solver:
             self.root_dir = info.base["root_dir"]
             self.output_dir = info.base["output_dir"]
 
-        def prepare(self, message: py2dmat.Message):
-            x_list = message.x
-            step = message.step
-            extra = message.set > 0
+        def prepare(self, x: np.ndarray, args):
+            x_list = x
+            #step, iset = args
+            #extra = iset > 0
+
             # Delete output files
             delete_files = ["search.s", "gleed.o"]
             for file in delete_files:

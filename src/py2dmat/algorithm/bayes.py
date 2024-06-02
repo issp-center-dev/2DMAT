@@ -86,8 +86,9 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         class simulator:
             def __call__(self, action: np.ndarray) -> float:
                 a = int(action[0])
-                message = py2dmat.Message(mesh_list[a, 1:], a, 0)
-                fx = runner.submit(message)
+                args = (a, 0)
+                x = mesh_list[a, 1:]
+                fx = runner.submit(x, args)
                 fx_list.append(fx)
                 param_list.append(mesh_list[a])
                 return -fx

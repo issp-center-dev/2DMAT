@@ -122,8 +122,8 @@ class Solver:
     def name(self) -> str:
         return self._name
 
-    def evaluate(self, message: py2dmat.Message, nprocs: int = 1, nthreads: int = 1) -> float:
-        self.prepare(message)
+    def evaluate(self, x: np.ndarray, args = (), nprocs: int = 1, nthreads: int = 1) -> float:
+        self.prepare(x, args)
         cwd = os.getcwd()
         os.chdir(self.work_dir)
         self.run(nprocs, nthreads)
@@ -131,9 +131,9 @@ class Solver:
         result = self.get_results()
         return result
 
-    def prepare(self, message: py2dmat.Message) -> None:
+    def prepare(self, x: np.ndarray, args) -> None:
         self.work_dir = self.proc_dir
-        self.input.prepare(message)
+        self.input.prepare(x, args)
         import shutil
 
         for file in ["lsfit.in", self.path_to_f_in, self.path_to_bulk]:
@@ -189,10 +189,10 @@ class Solver:
                 info_s["config"], info_s["reference"], info_s["param"]["domain"]
             )
 
-        def prepare(self, message: py2dmat.Message):
-            x_list = message.x
-            step = message.step
-            extra = message.set > 0
+        def prepare(self, x: np.ndarray, args):
+            x_list = x
+            #step, iset = args
+            #extra = iset > 0
 
             # Generate fit file
             # Add variables by numpy array.(Variables are updated in optimization process).

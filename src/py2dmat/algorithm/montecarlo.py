@@ -247,10 +247,10 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         for iwalker in range(self.nwalkers):
             x = self.x[iwalker, :]
             if in_range is None or in_range[iwalker]:
-                message = py2dmat.Message(x, self.istep, iwalker)
+                args = (self.istep, iwalker)
 
                 time_sta = time.perf_counter()
-                self.fx[iwalker] = self.runner.submit(message)
+                self.fx[iwalker] = self.runner.submit(x, args)
                 time_end = time.perf_counter()
                 self.timer["run"]["submit"] += time_end - time_sta
             else:

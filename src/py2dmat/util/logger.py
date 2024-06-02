@@ -18,10 +18,11 @@
 
 import time
 import py2dmat
+import numpy as np
 
 # type hints
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Dict, Any, Optional
 
 # Parameters
 # ----------
@@ -33,77 +34,87 @@ from typing import List, Optional
 
 class Logger:
     logfile: Path
-    buffer_index: int
     buffer_size: int
     buffer: List[str]
     num_calls: int
     time_start: float
     time_previous: float
     to_write_result: bool
-    to_write_x: bool
+    to_write_input: bool
 
-    def __init__(self, info: Optional[py2dmat.Info] = None) -> None:
-        if info is None:
-            self.buffer_size = 0
-            return
-        info_log = info.runner.get("log", {})
-        self.buffer_size = info_log.get("interval", 0)
-        if self.buffer_size <= 0:
-            return
-        self.filename = info_log.get("filename", "runner.log")
+    def __init__(self, info: Optional[py2dmat.Info] = None,
+                 *,
+                 buffer_size: int = 0,
+                 filename: str = "runner.log",
+                 write_input: bool = False,
+                 write_result: bool = False,
+                 params: Optional[Dict[str,Any]] = None,
+                 **rest) -> None:
+
+        if info is not None:
+            info_log = info.runner.get("log", {})
+        else:
+            info_log = params
+
+        self.buffer_size = info_log.get("interval", buffer_size)
+        self.filename = info_log.get("filename", filename)
+        self.to_write_input = info_log.get("write_input", write_input)
+        self.to_write_result = info_log.get("write_result", write_result)
+
         self.time_start = time.perf_counter()
         self.time_previous = self.time_start
         self.num_calls = 0
-        self.buffer_index = 0
-        self.buffer = [""] * self.buffer_size
-        self.to_write_result = info_log.get("write_result", False)
-        self.to_write_x = info_log.get("write_input", False)
+        self.buffer = []
 
-    def disabled(self) -> bool:
-        return self.buffer_size <= 0
+    def is_active(self) -> bool:
+        return self.buffer_size > 0
 
     def prepare(self, proc_dir: Path) -> None:
-        if self.disabled():
+        if not self.is_active():
             return
+
         self.logfile = proc_dir / self.filename
         if self.logfile.exists():
             self.logfile.unlink()
+
         with open(self.logfile, "w") as f:
             f.write("# $1: num_calls\n")
-            f.write("# $2: elapsed_time_from_last_call\n")
-            f.write("# $3: elapsed_time_from_start\n")
+            f.write("# $2: elapsed time from last call\n")
+            f.write("# $3: elapsed time from start\n")
             if self.to_write_result:
                 f.write("# $4: result\n")
-                i = 5
-            else:
-                i = 4
-            if self.to_write_x:
-                f.write(f"# ${i}-: input\n")
+            if self.to_write_input:
+                f.write("# ${}-: input\n".format(5 if self.to_write_result else 4))
             f.write("\n")
 
-    def count(self, message: py2dmat.Message, result: float) -> None:
-        if self.disabled():
+    def count(self, x: np.ndarray, args, result: float) -> None:
+        if not self.is_active():
             return
+
         self.num_calls += 1
+
         t = time.perf_counter()
-        fields = [self.num_calls, t - self.time_previous, t - self.time_start]
+
+        fields = []
+        fields.append(str(self.num_calls).ljust(6))
+        fields.append("{:.6f}".format(t - self.time_previous))
+        fields.append("{:.6f}".format(t - self.time_start))
         if self.to_write_result:
             fields.append(result)
-        if self.to_write_x:
-            for x in message.x:
-                fields.append(x)
-        fields.append("\n")
-        self.buffer[self.buffer_index] = " ".join(map(str, fields))
+        if self.to_write_input:
+            for val in x:
+                fields.append(val)
+        self.buffer.append(" ".join(map(str, fields)) + "\n")
+
         self.time_previous = t
-        self.buffer_index += 1
-        if self.buffer_index == self.buffer_size:
+
+        if len(self.buffer) >= self.buffer_size:
             self.write()
 
     def write(self) -> None:
-        if self.disabled():
+        if not self.is_active():
             return
         with open(self.logfile, "a") as f:
-            for i in range(self.buffer_index):
-                f.write(self.buffer[i])
-        self.buffer_index = 0
-
+            for w in self.buffer:
+                f.write(w)
+        self.buffer.clear()
