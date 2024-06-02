@@ -18,7 +18,10 @@
 
 from typing import MutableMapping, Optional
 from pathlib import Path
+from fnmatch import fnmatch
 
+from .util import toml
+from . import mpi
 from . import exception
 
 
@@ -61,3 +64,15 @@ class Info:
         self.algorithm = {}
         self.solver = {}
         self.runner = {}
+
+    @classmethod
+    def from_file(cls, file_name, fmt="", **kwargs):
+        if fmt == "toml" or fnmatch(file_name.lower(), "*.toml"):
+            inp = {}
+            if mpi.rank() == 0:
+                inp = toml.load(file_name)
+            if mpi.size() > 1:
+                inp = mpi.comm().bcast(inp, root=0)
+            return cls(inp)
+        else:
+            raise ValueError("unsupported file format: {}".format(file_name))
