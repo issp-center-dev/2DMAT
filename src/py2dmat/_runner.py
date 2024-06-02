@@ -52,7 +52,7 @@ class Run(metaclass=ABCMeta):
         self.comm = comm
 
     @abstractmethod
-    def submit(self, solver: py2dmat.solver.SolverBase):
+    def submit(self, solver):
         pass
 
 
@@ -134,12 +134,12 @@ class Logger:
 
 
 class Runner(object):
-    solver: "py2dmat.solver.SolverBase"
+    #solver: "py2dmat.solver.SolverBase"
     logger: Logger
 
     def __init__(
         self,
-        solver: py2dmat.solver.SolverBase,
+        solver, #: py2dmat.solver.SolverBase,
         info: Optional[py2dmat.Info] = None,
         mapping=None,
         limitation=None,
