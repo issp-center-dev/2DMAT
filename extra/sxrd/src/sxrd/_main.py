@@ -20,6 +20,7 @@ import py2dmat
 import py2dmat.mpi
 import py2dmat.util.toml
 
+from sxrd import Solver
 
 def main():
     import argparse
@@ -45,44 +46,23 @@ def main():
 
     algname = info.algorithm["name"]
     if algname == "mapper":
-        from .algorithm.mapper_mpi import Algorithm
+        from py2dmat.algorithm.mapper_mpi import Algorithm
     elif algname == "minsearch":
-        from .algorithm.min_search import Algorithm
+        from py2dmat.algorithm.min_search import Algorithm
     elif algname == "exchange":
-        from .algorithm.exchange import Algorithm
+        from py2dmat.algorithm.exchange import Algorithm
     elif algname == "pamc":
-        from .algorithm.pamc import Algorithm
+        from py2dmat.algorithm.pamc import Algorithm
     elif algname == "bayes":
-        from .algorithm.bayes import Algorithm
+        from py2dmat.algorithm.bayes import Algorithm
     else:
         print(f"ERROR: Unknown algorithm ({algname})")
-        exit(1)
-
-    solvername = info.solver["name"]
-    if solvername == "surface":
-        if py2dmat.mpi.rank() == 0:
-            print(
-                'WARNING: solver name "surface" is deprecated and will be unavailable in future.'
-                ' Use "sim-trhepd-rheed" instead.'
-            )
-        #from .solver.sim_trhepd_rheed import Solver
-        from sim_trhepd_rheed import Solver
-    elif solvername == "sim-trhepd-rheed":
-        #from .solver.sim_trhepd_rheed import Solver
-        from sim_trhepd_rheed import Solver
-    elif solvername == "sxrd":
-        #from .solver.sxrd import Solver
-        from sxrd import Solver
-    elif solvername == "leed":
-        #from .solver.leed import Solver
-        from leed import Solver
-    elif solvername == "analytical":
-        from .solver.analytical import Solver
-    else:
-        print(f"ERROR: Unknown solver ({solvername})")
         exit(1)
 
     solver = Solver(info)
     runner = py2dmat.Runner(solver, info)
     alg = Algorithm(info, runner)
     alg.main()
+
+if __name__ == "__main__":
+    main()
