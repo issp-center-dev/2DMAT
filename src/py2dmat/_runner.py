@@ -73,34 +73,18 @@ class Runner(object):
         self.solver_name = solver.name
         self.logger = Logger(info)
 
-        if mapping is None:
-            info_mapping = info.runner.get("mapping", {})
-            A: Optional[np.ndarray] = py2dmat.util.read_matrix.read_matrix(
-                info_mapping.get("A", [])
-            )
-            b: Optional[np.ndarray] = py2dmat.util.read_matrix.read_matrix(
-                info_mapping.get("b", [])
-            )
-            if A is not None:
-                if A.size == 0:
-                    A = None
-                elif A.ndim != 2:
-                    raise InputError("A should be a matrix")
-            if b is not None:
-                if b.size == 0:
-                    b = None
-                elif b.ndim == 2:
-                    if b.shape[1] == 1:
-                        b = b.reshape(-1)
-                    else:
-                        raise InputError("b should be a vector")
-                elif b.ndim > 2:
-                    raise InputError("b should be a vector")
-            self.mapping = py2dmat.util.mapping.Affine(A=A, b=b)
-        else:
+        if mapping is not None:
             self.mapping = mapping
+        elif "mapping" in info.runner:
+            info_mapping = info.runner["mapping"]
+            # N.B.: only Affine mapping is supported at present
+            self.mapping = py2dmat.util.mapping.Affine.from_dict(info_mapping)
+        else:
+            # trivial mapping
+            self.mapping = py2dmat.util.mapping.TrivialMapping()
         
         self.ndim = info.base["dimension"]
+
         if limitation is None:
             info_limitation = info.runner.get("limitation",{})
             co_a: np.ndarray = py2dmat.util.read_matrix.read_matrix(
