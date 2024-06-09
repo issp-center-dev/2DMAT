@@ -1,0 +1,115 @@
+# 2DMAT -- Data-analysis software of quantum beam diffraction experiments for 2D material structure
+# Copyright (C) 2020- The University of Tokyo
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see http://www.gnu.org/licenses/.
+
+from typing import List, Dict, Union, Any
+
+from pathlib import Path
+import numpy as np
+
+import py2dmat
+from ._domain import DomainBase
+
+class Region(DomainBase):
+    min_list: np.array
+    max_list: np.array
+    unit_list: np.array
+    initial_list: np.array
+
+    def __init__(self, info: py2dmat.Info = None,
+                 *,
+                 param: Dict[str, Any] = None,
+                 num_walkers: int = 1):
+        super().__init__(info)
+
+        if info:
+            if "param" in info.algorithm:
+                self._setup(info.algorithm["param"], num_walkers)
+            else:
+                raise ValueError("ERROR: algorithm.param not defined")
+        elif param:
+            self._setup(param, num_walkers)
+        else:
+            pass
+    
+
+    def _setup(self, info_param, num_walkers: int = 1):
+        self.num_walkers = num_walkers
+        
+        if "min_list" not in info_param:
+            raise ValueError("ERROR: algorithm.param.min_list is not defined in the input")
+        min_list = np.array(info_param["min_list"])
+
+        if "max_list" not in info_param:
+            raise ValueError("ERROR: algorithm.param.max_list is not defined in the input")
+        max_list = np.array(info_param["max_list"])
+
+        if len(min_list) != len(max_list):
+            raise ValueError("ERROR: lengths of min_list and max_list do not match")
+
+        self.dimension = len(min_list)
+        
+        unit_list = np.array(info_param.get("unit_list", [1.0] * self.dimension))
+
+        self.min_list = min_list
+        self.max_list = max_list
+        self.unit_list = unit_list
+
+        initial_list = np.array(info_param.get("initial_list", []))
+        if initial_list.ndim == 1:
+            initial_list = initial_list.reshape(1, -1)
+
+        if initial_list.size > 0:
+            if initial_list.shape != (num_walkers, self.dimension):
+                raise ValueError("ERROR: shape of initial_list do not match number of walkers times dimension")
+
+        self.initial_list = initial_list
+
+    def initialize(self,
+                   rng=np.random,
+                   limitation=py2dmat.util.limitation.Unlimited()):
+        if self.initial_list.size > 0:
+            pass
+        else:
+            self._init_random(rng=rng, limitation=limitation)
+
+    def _init_random(self,
+                     rng=np.random,
+                     limitation=py2dmat.util.limitation.Unlimited(),
+                     max_count=100):
+        initial_list = np.zeros((self.num_walkers, self.dimension), dtype=float)
+        is_ok = np.full(self.num_walkers, False)
+        count = 0
+        while (not np.all(is_ok)):
+            count += 1
+            initial_list[~is_ok] = self.min_list + (self.max_list - self.min_list) * rng.rand(np.count_nonzero(~is_ok), self.dimension)
+            is_ok = np.array([limitation.judge(v) for v in initial_list])
+            if count >= max_count:
+                raise RuntimeError("ERROR: init_random: trial count exceeds {}".format(max_count))
+        self.initial_list = initial_list
+
+
+if __name__ == "__main__":
+    reg = Region(param={
+        "min_list": [0.0, 0.0, 0.0],
+        "max_list": [1.0, 1.0, 1.0],
+    }, num_walkers=4)
+
+    #lim = py2dmat.util.limitation.Unlimited()
+    lim = py2dmat.util.limitation.Inequality(a=np.array([[1,0,0],[-1,-1,-1]]),b=np.array([0,1]),is_limitary=True)
+    
+    reg.init_random(np.random, lim)
+    
+    print(reg.min_list, reg.max_list, reg.unit_list, reg.initial_list)
