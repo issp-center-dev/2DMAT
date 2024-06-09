@@ -21,6 +21,7 @@ import numpy as np
 from scipy.optimize import minimize
 
 import py2dmat
+import py2dmat.domain
 
 
 class Algorithm(py2dmat.algorithm.AlgorithmBase):
@@ -46,16 +47,22 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
     fx_for_simplex_list: List[float]
     callback_list: List[List[int]]
 
-    def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
+    def __init__(self, info: py2dmat.Info,
+                 runner: py2dmat.Runner = None,
+                 domain = None) -> None:
         super().__init__(info=info, runner=runner)
 
-        (
-            self.initial_list,
-            self.min_list,
-            self.max_list,
-            self.unit_list,
-        ) = self._read_param(info)
-        self.initial_list = self.initial_list.flatten()
+        if domain and isinstance(domain, py2dmat.domain.Region):
+            self.domain = domain
+        else:
+            self.domain = py2dmat.domain.Region(info, num_walkers=self.mpisize)
+
+        self.min_list = self.domain.min_list
+        self.max_list = self.domain.max_list
+        self.unit_list = self.domain.unit_list
+
+        self.domain.initialize(rng=self.rng, limitation=runner.limitation)
+        self.initial_list = self.domain.initial_list[self.mpirank]
 
         info_minimize = info.algorithm.get("minimize", {})
         self.initial_scale_list = info_minimize.get(

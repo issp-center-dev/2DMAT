@@ -18,13 +18,14 @@ import typing
 from typing import TextIO, Union, List, Tuple
 import copy
 import time
-import pathlib
+from pathlib import Path
 
 import numpy as np
 
 import py2dmat
 from py2dmat.util.neighborlist import load_neighbor_list
 import py2dmat.util.graph
+import py2dmat.domain
 
 
 class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
@@ -91,46 +92,48 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
     ntrial: int
     naccepted: int
 
-    def __init__(
-        self, info: py2dmat.Info, runner: py2dmat.Runner = None, nwalkers: int = 1
+    def __init__(self, info: py2dmat.Info,
+                 runner: py2dmat.Runner = None,
+                 domain = None,
+                 nwalkers: int = 1
     ) -> None:
         time_sta = time.perf_counter()
         super().__init__(info=info, runner=runner)
         self.nwalkers = nwalkers
-        info_param = info.algorithm["param"]
-        if "mesh_path" in info_param:
-            self.iscontinuous = False
-            self.node_coordinates = self._meshgrid(info)[0][:, 1:]
+
+        if domain:
+            if isinstance(domain, py2dmat.domain.MeshGrid):
+                self.iscontinuous = False
+            elif isinstance(domain, py2dmat.domain.Region):
+                self.iscontinuous = True
+            else:
+                raise ValueError("ERROR: unsupoorted domain type {}".format(type(domain)))
+            self.domain = domain
+        else:
+            info_param = info.algorithm["param"]
+            if "mesh_path" in info_param:
+                self.iscontinuous = False
+                self.domain = py2dmat.domain.MeshGrid(info)
+
+            else:
+                self.iscontinuous = True
+                self.domain = py2dmat.domain.Region(info, num_walkers=nwalkers)
+
+        if self.iscontinuous:
+            self.domain.initialize(rng=self.rng, limitation=self.runner.limitation)
+            self.x = self.domain.initial_list
+            self.xmin = self.domain.min_list
+            self.xmax = self.domain.max_list
+            self.xunit = self.domain.unit_list
+
+        else:
+            self.node_coordinates = np.array(self.domain.grid)[:, 1:]
             self.nnodes = self.node_coordinates.shape[0]
             self.inode = self.rng.randint(self.nnodes, size=self.nwalkers)
             self.x = self.node_coordinates[self.inode, :]
 
-            if "neighborlist_path" not in info_param:
-                msg = (
-                    "ERROR: Parameter algorithm.param.neighborlist_path does not exist."
-                )
-                raise RuntimeError(msg)
-            nn_path = (
-                self.root_dir
-                / pathlib.Path(info_param["neighborlist_path"]).expanduser()
-            )
-            self.neighbor_list = load_neighbor_list(nn_path, nnodes=self.nnodes)
-            if not py2dmat.util.graph.is_connected(self.neighbor_list):
-                msg = "ERROR: The transition graph made from neighbor list is not connected."
-                msg += "\nHINT: Increase neighborhood radius."
-                raise RuntimeError(msg)
-            if not py2dmat.util.graph.is_bidirectional(self.neighbor_list):
-                msg = "ERROR: The transition graph made from neighbor list is not bidirectional."
-                raise RuntimeError(msg)
-            self.ncandidates = np.array(
-                [len(ns) - 1 for ns in self.neighbor_list], dtype=np.int64
-            )
+            self._setup_neighbour(info_param)
 
-        else:
-            self.iscontinuous = True
-            self.x, self.xmin, self.xmax, self.xunit = self._read_param(
-                info, num_walkers=nwalkers
-            )
         self.fx = np.zeros(self.nwalkers)
         self.best_fx = 0.0
         self.best_istep = 0
@@ -141,6 +144,29 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         self.input_as_beta = False
         self.naccepted = 0
         self.ntrial = 0
+
+    def _setup_neighbour(self, info_param):
+        if "neighborlist_path" in info_param:
+            nn_path = self.root_dir / Path(info_param["neighborlist_path"]).expanduser()
+            self.neighbor_list = load_neighbor_list(nn_path, nnodes=self.nnodes)
+
+            # checks
+            if not py2dmat.util.graph.is_connected(self.neighbor_list):
+                raise RuntimeError(
+                    "ERROR: The transition graph made from neighbor list is not connected."
+                    "\nHINT: Increase neighborhood radius."
+                )
+            if not py2dmat.util.graph.is_bidirectional(self.neighbor_list):
+                raise RuntimeError(
+                    "ERROR: The transition graph made from neighbor list is not bidirectional."
+                )
+
+            self.ncandidates = np.array([len(ns) - 1 for ns in self.neighbor_list], dtype=np.int64)
+        else:
+            raise ValueError(
+                "ERROR: Parameter algorithm.param.neighborlist_path does not exist."
+            )
+            # otherwise find neighbourlist
 
     def read_Ts(self, info: dict, numT: int = None) -> np.ndarray:
         """

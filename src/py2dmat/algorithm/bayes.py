@@ -21,6 +21,7 @@ import physbo
 import numpy as np
 
 import py2dmat
+import py2dmat.domain
 
 
 class Algorithm(py2dmat.algorithm.AlgorithmBase):
@@ -43,7 +44,9 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
     fx_list: List[float]
     param_list: List[np.ndarray]
 
-    def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
+    def __init__(self, info: py2dmat.Info,
+                 runner: py2dmat.Runner = None,
+                 domain = None) -> None:
         super().__init__(info=info, runner=runner)
 
         info_param = info.algorithm.get("param", {})
@@ -67,7 +70,13 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         print(f"interval = {self.interval}")
         print(f"num_rand_basis = {self.num_rand_basis}")
 
-        self.mesh_list, actions = self._meshgrid(info, split=False)
+        #self.mesh_list, actions = self._meshgrid(info, split=False)
+        if domain and isinstance(domain, py2dmat.domain.MeshGrid):
+            self.domain = domain
+        else:
+            self.domain = py2dmat.domain.MeshGrid(info)
+        self.mesh_list = np.array(self.domain.grid)
+
         X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
         comm = self.mpicomm if self.mpisize > 1 else None
         self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
