@@ -24,15 +24,16 @@ class Inequality(LimitationBase):
     def __init__(self, a: np.ndarray, b: np.ndarray, is_limitary: bool):
         super().__init__(is_limitary)
         if self.is_limitary:
-            self.a = a
-            self.minusb = -b
-            self.n_formura = a.shape[0]
+            self.a = np.array(a)
+            self.b = np.array(b)
+            self.minusb = -np.array(b)
+            self.n_formula = a.shape[0]
             self.ndim = a.shape[1]
 
     def judge(self, x: np.ndarray) -> bool:
         if self.is_limitary:
-            Ax = np.einsum("ij,j->i", self.a, x)
-            judge_result = all(Ax > self.minusb)
+            Ax_b = np.dot(self.a, x) + self.b
+            judge_result = np.all(Ax_b > 0)
         else:
             judge_result = True
         return judge_result
