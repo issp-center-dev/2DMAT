@@ -55,14 +55,14 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         if domain and isinstance(domain, py2dmat.domain.Region):
             self.domain = domain
         else:
-            self.domain = py2dmat.domain.Region(info, num_walkers=self.mpisize)
+            self.domain = py2dmat.domain.Region(info)
 
         self.min_list = self.domain.min_list
         self.max_list = self.domain.max_list
         self.unit_list = self.domain.unit_list
 
         self.domain.initialize(rng=self.rng, limitation=runner.limitation)
-        self.initial_list = self.domain.initial_list[self.mpirank]
+        self.initial_list = self.domain.initial_list[0]
 
         info_minimize = info.algorithm.get("minimize", {})
         self.initial_scale_list = info_minimize.get(
