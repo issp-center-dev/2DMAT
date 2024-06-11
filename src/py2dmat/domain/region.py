@@ -30,24 +30,21 @@ class Region(DomainBase):
 
     def __init__(self, info: py2dmat.Info = None,
                  *,
-                 param: Dict[str, Any] = None,
-                 num_walkers: int = 1):
+                 param: Dict[str, Any] = None):
         super().__init__(info)
 
         if info:
             if "param" in info.algorithm:
-                self._setup(info.algorithm["param"], num_walkers)
+                self._setup(info.algorithm["param"])
             else:
                 raise ValueError("ERROR: algorithm.param not defined")
         elif param:
-            self._setup(param, num_walkers)
+            self._setup(param)
         else:
             pass
     
 
-    def _setup(self, info_param, num_walkers: int = 1):
-        self.num_walkers = num_walkers
-        
+    def _setup(self, info_param):
         if "min_list" not in info_param:
             raise ValueError("ERROR: algorithm.param.min_list is not defined in the input")
         min_list = np.array(info_param["min_list"])
@@ -72,15 +69,22 @@ class Region(DomainBase):
             initial_list = initial_list.reshape(1, -1)
 
         if initial_list.size > 0:
-            if initial_list.shape != (num_walkers, self.dimension):
-                raise ValueError("ERROR: shape of initial_list do not match number of walkers times dimension")
+            if initial_list.shape[1] != self.dimension:
+                raise ValueError("ERROR: dimension of initial_list is incorrect")
+            self.num_walkers = initial_list.shape[0]
+        else:
+            self.num_walkers = 0
 
         self.initial_list = initial_list
 
     def initialize(self,
                    rng=np.random,
-                   limitation=py2dmat.util.limitation.Unlimited()):
-        if self.initial_list.size > 0:
+                   limitation=py2dmat.util.limitation.Unlimited(),
+                   num_walkers: int = 1):
+        if num_walkers > self.num_walkers:
+            self.num_walkers = num_walkers
+
+        if self.initial_list.size > 0 and self.initial_list.shape[0] >= num_walkers:
             pass
         else:
             self._init_random(rng=rng, limitation=limitation)
@@ -91,6 +95,12 @@ class Region(DomainBase):
                      max_count=100):
         initial_list = np.zeros((self.num_walkers, self.dimension), dtype=float)
         is_ok = np.full(self.num_walkers, False)
+
+        if self.initial_list.size > 0:
+            nitem = min(self.num_walkers, self.initial_list.shape[0])
+            initial_list[0:nitem] = self.initial_list[0:nitem]
+            is_ok[0:nitem] = True
+
         count = 0
         while (not np.all(is_ok)):
             count += 1
@@ -105,11 +115,17 @@ if __name__ == "__main__":
     reg = Region(param={
         "min_list": [0.0, 0.0, 0.0],
         "max_list": [1.0, 1.0, 1.0],
-    }, num_walkers=4)
+        "initial_list": [[0.1, 0.2, 0.3],
+                         [0.2, 0.3, 0.1],
+                         [0.3, 0.1, 0.2],
+                         [0.2, 0.1, 0.3],
+                         [0.1, 0.3, 0.2],
+                         ],
+    })
 
     #lim = py2dmat.util.limitation.Unlimited()
     lim = py2dmat.util.limitation.Inequality(a=np.array([[1,0,0],[-1,-1,-1]]),b=np.array([0,1]),is_limitary=True)
     
-    reg.init_random(np.random, lim)
+    reg.initialize(np.random, lim, 8)
     
-    print(reg.min_list, reg.max_list, reg.unit_list, reg.initial_list)
+    print(reg.min_list, reg.max_list, reg.unit_list, reg.initial_list, reg.num_walkers)

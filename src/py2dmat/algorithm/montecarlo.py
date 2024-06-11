@@ -117,10 +117,10 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
 
             else:
                 self.iscontinuous = True
-                self.domain = py2dmat.domain.Region(info, num_walkers=nwalkers)
+                self.domain = py2dmat.domain.Region(info)
 
         if self.iscontinuous:
-            self.domain.initialize(rng=self.rng, limitation=self.runner.limitation)
+            self.domain.initialize(rng=self.rng, limitation=self.runner.limitation, num_walkers=nwalkers)
             self.x = self.domain.initial_list
             self.xmin = self.domain.min_list
             self.xmax = self.domain.max_list
