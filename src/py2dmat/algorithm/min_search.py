@@ -62,8 +62,8 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         self.max_list = self.domain.max_list
         self.unit_list = self.domain.unit_list
 
-        self.domain.initialize(rng=self.rng, limitation=runner.limitation)
-        self.initial_list = self.domain.initial_list[0]
+        self.domain.initialize(rng=self.rng, limitation=runner.limitation, num_walkers=self.mpisize)
+        self.initial_list = self.domain.initial_list[self.mpirank]
 
         info_minimize = info.algorithm.get("minimize", {})
         self.initial_scale_list = info_minimize.get(
@@ -147,6 +147,11 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         self.iter_history = iter_history
         self.fev_history = fev_history
 
+        self._output_results()
+
+        if self.mpisize > 1:
+            self.mpicomm.barrier()
+
     def _prepare(self):
         # make initial simplex
         #   [ v0, v0+a_1*e_1, v0+a_2*e_2, ... v0+a_d*e_d ]
@@ -155,7 +160,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         a = np.array(self.initial_scale_list)
         self.initial_simplex_list = np.vstack((v, v + np.diag(a)))
 
-    def _post(self):
+    def _output_results(self):
         label_list = self.label_list
 
         with open("SimplexData.txt", "w") as fp:
@@ -168,14 +173,34 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             for i, v in enumerate(self.fev_history):
                 fp.write(" ".join(map(str,v)) + "\n")
 
-        print("Current function value:", self.fopt)
-        print("Iterations:", self.itera)
-        print("Function evaluations:", self.funcalls)
-        print("Solution:")
-        for x, y in zip(label_list, self.xopt):
-            print(f"{x} = {y}")
-
         with open("res.txt", "w") as fp:
             fp.write(f"fx = {self.fopt}\n")
             for x, y in zip(label_list, self.xopt):
                 fp.write(f"{x} = {y}\n")
+            fp.write(f"iterations = {self.itera}\n")
+            fp.write(f"function_evaluations = {self.funcalls}\n")
+
+    def _post(self):
+        result = {"x0": self.initial_list,
+                  "x": self.xopt,
+                  "fx": self.fopt,}
+
+        if self.mpisize > 1:
+            results = self.mpicomm.allgather(result)
+        else:
+            results = [result]
+
+        if self.mpirank == 0:
+            label_list = self.label_list
+            x0s = [v["x0"] for v in results]
+            xs = [v["x"] for v in results]
+            fxs = [v["fx"] for v in results]
+            idx = np.argmin(fxs)
+            with open("res.txt", "w") as fp:
+                fp.write(f"fx = {fxs[idx]}\n")
+                for x, y in zip(label_list, xs[idx]):
+                    fp.write(f"{x} = {y}\n")
+                fp.write(f"index = {idx}\n")
+                for x, y in zip(label_list, x0s[idx]):
+                    fp.write(f"initial {x} = {y}\n")
+
