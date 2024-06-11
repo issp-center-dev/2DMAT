@@ -48,83 +48,90 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         label_list = self.label_list
         dimension = self.dimension
         run = self.runner
-        print("Make ColorMap")
-        with open("ColorMap.txt", "w") as file_CM:
-            fx_list = []
+
+        fx_list = []
+        self.timer["run"]["submit"] = 0.0
+
+        iterations = len(self.mesh_list)
+        for iteration_count, mesh in enumerate(self.mesh_list):
+            print("Iteration : {}/{}".format(iteration_count + 1, iterations))
+            # print("mesh before:", mesh)
+
+            # update information
+            args = (int(mesh[0]), 0)
+            x = np.array(mesh[1:])
+
             time_sta = time.perf_counter()
-            file_CM.write("#")
-            for label in label_list:
-                file_CM.write(f"{label} ")
-            file_CM.write("fval\n")
+            fx = run.submit(x, args)
             time_end = time.perf_counter()
+            self.timer["run"]["submit"] += time_end - time_sta
 
-            self.timer["run"]["file_CM"] = time_end - time_sta
-            self.timer["run"]["submit"] = 0.0
+            fx_list.append(fx)
+            # print("mesh after:", mesh)
 
-            iterations = len(self.mesh_list)
-            for iteration_count, mesh in enumerate(self.mesh_list):
-                print("Iteration : {}/{}".format(iteration_count + 1, iterations))
-                # print("mesh before:", mesh)
+        self.fx_list = fx_list
 
-                time_sta = time.perf_counter()
-                for value in mesh[1:]:
-                    file_CM.write("{:8f} ".format(value))
-                time_end = time.perf_counter()
-                self.timer["run"]["file_CM"] += time_end - time_sta
+        if iterations > 0:
+            fx_order = np.argsort(fx_list)
+            # minimum_point = []
+            # print("mesh_list[fx_order[0]]:")
+            # print(self.mesh_list[fx_order[0]])
+            # for index in range(1, dimension + 1):
+            #     minimum_point.append(self.mesh_list[fx_order[0]][index])
+            opt_index = fx_order[0]
+            self.opt_fx = fx_list[opt_index]
+            self.opt_mesh = np.array(self.mesh_list[opt_index])
 
-                # update information
-                args = (int(mesh[0]), 0)
-                x = np.array(mesh[1:])
+            print("minimum_point: {}".format(self.opt_mesh))
+            print("minimum_value: {}".format(self.opt_fx))
 
-                time_sta = time.perf_counter()
-                fx = run.submit(x, args)
-                time_end = time.perf_counter()
-                self.timer["run"]["submit"] += time_end - time_sta
+        self._output_results()
 
-                fx_list.append(fx)
-                time_sta = time.perf_counter()
-                file_CM.write("{:8f}\n".format(fx))
-                time_end = time.perf_counter()
-                self.timer["run"]["file_CM"] += time_end - time_sta
+        print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
 
-                # print("mesh after:", mesh)
+    def _output_results(self):
+        print("Make ColorMap")
 
-            if iterations > 0:
-                fx_order = np.argsort(fx_list)
-                minimum_point = []
-                print("mesh_list[fx_order[0]]:")
-                print(self.mesh_list[fx_order[0]])
-                for index in range(1, dimension + 1):
-                    minimum_point.append(self.mesh_list[fx_order[0]][index])
+        time_sta = time.perf_counter()
 
-                time_sta = time.perf_counter()
-                file_CM.write("#Minimum point :")
-                for value in minimum_point:
-                    file_CM.write(" {:8f}".format(value))
-                file_CM.write("\n")
-                file_CM.write("#R-factor : {:8f}\n".format(fx_list[fx_order[0]]))
-                file_CM.write("#see Log{}\n".format(round(self.mesh_list[fx_order[0]][0])))
-                time_end = time.perf_counter()
-                self.timer["run"]["file_CM"] += time_end - time_sta
+        with open("ColorMap.txt", "w") as fp:
+            fp.write("#" + " ".join(self.label_list) + " fval\n")
+
+            for x, fx in zip(self.mesh_list, self.fx_list):
+                fp.write(" ".join(
+                    map(lambda v: "{:8f}".format(v), (*x[1:], fx))
+                    ) + "\n")
+
+            if len(self.mesh_list) > 0:
+                fp.write("#Minimum point : " + " ".join(
+                    map(lambda v: "{:8f}".format(v), self.opt_mesh[1:])
+                ) + "\n")
+                fp.write("#R-factor : {:8f}\n".format(self.opt_fx))
+                fp.write("#see Log{:d}\n".format(round(self.opt_mesh[0])))
             else:
-                file_CM.write("# No mesh point\n")
+                fp.write("# No mesh point\n")
 
-        print(
-            "complete main process : rank {:08d}/{:08d}".format(
-                self.mpirank, self.mpisize
-            )
-        )
+        time_end = time.perf_counter()
+        self.timer["run"]["file_CM"] = time_end - time_sta
 
     def _prepare(self) -> None:
         # do nothing
         pass
 
     def _post(self) -> None:
+        if self.mpisize > 1:
+            fx_lists = self.mpicomm.allgather(self.fx_list)
+            results = [v for vs in fx_lists for v in vs]
+
+            mesh_lists = self.mpicomm.allgather(self.mesh_list)
+            coords = [v for vs in mesh_lists for v in vs]
+        else:
+            results = self.fx_list
+            coords = self.mesh_list
+
         if self.mpirank == 0:
-            with open("ColorMap.txt", "w") as file_output:
-                for i in range(self.mpisize):
-                    with open(os.path.join(str(i), "ColorMap.txt"), "r") as file_input:
-                        for line in file_input:
-                            line = line.lstrip()
-                            if not line.startswith("#"):
-                                file_output.write(line)
+            with open("ColorMap.txt", "w") as fp:
+                for x, fx in zip(coords, results):
+                    fp.write(" ".join(
+                        map(lambda v: "{:8f}".format(v), (*x[1:], fx))
+                    ) + "\n")
