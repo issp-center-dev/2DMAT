@@ -1,14 +1,15 @@
 順問題ソルバーの追加
-======================
+================================
 
 ベンチマーク関数ソルバー
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``py2dmat`` では探索アルゴリズムのテストに利用できる順問題ソルバーとして、 ``analytical`` ソルバーを準備しています。
+``py2dmat`` では探索アルゴリズムのテストに利用できる順問題ソルバーとして ``analytical`` ソルバーを用意しています。
 
-``analytical`` ソルバーを使うには、入力ファイルの ``[solver]`` セクションの ``name`` を ``"analytical"`` に設定します。
-また、 ``function_name`` パラメータを用いてベンチマーク関数 :math:`f(x)` を選択します。
-たとえば、 Himmelblau 関数を用いる場合には ::
+``analytical`` ソルバーを使うには、入力ファイルの ``[solver]`` セクションの ``name`` を ``"analytical"`` に設定し、 ``function_name`` パラメータを用いてベンチマーク関数 :math:`f(x)` を選択します。
+たとえば、 Himmelblau 関数を用いる場合には
+
+.. code-block:: toml
 
     [solver]
     name = "analytical"
@@ -18,7 +19,7 @@
 利用可能な関数の詳細は :doc:`analytical ソルバーのリファレンス <../solver/analytical>` を参照してください。
 
 順問題ソルバーの追加
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ユーザ定義の順問題ソルバーを定義・解析する一番簡単な方法は、 ``analytical`` ソルバーに追加することです。
 ここでは例として、 `Booth関数 <https://en.wikipedia.org/wiki/Test_functions_for_optimization>`_
@@ -27,7 +28,7 @@
 
    f(x,y) = (x+2y-7)^{2} + (2x+y-5)^{2}
 
-を追加してみましょう（最小値は :math:`f(1,3) = 0` ）。
+を追加してみましょう。(最小値は :math:`f(1,3) = 0`)
 
 そのためには、 ``py2dmat`` のソースコードをダウンロードし、ファイルを編集する必要があります。
 ダウンロード方法や、ソースコードからの実行方法などは、 :doc:`インストールページ <../start>` を参照してください。
@@ -50,8 +51,7 @@
             )
         return (xs[0] + 2 * xs[1] - 7.0) ** 2 + (2 * xs[0] + xs[1] - 5.0) ** 2
 
-つぎに、入力ファイルの ``solver.function_name`` パラメータで ``booth`` 関数を指定できるようにするために、
-``Solver`` クラスのコンストラクタ (``__init__``) 中の if 分岐に以下のコードを挿入します。
+つぎに、入力ファイルの ``solver.function_name`` パラメータで ``booth`` 関数を指定できるようにするために、``Solver`` クラスのコンストラクタ (``__init__``) 中の if 分岐に以下のコードを挿入します。
 
 .. code-block:: python
 
@@ -59,7 +59,9 @@
             self.set_function(booth)
 
 この改造した ``analytical`` ソルバーでは、 Booth 関数の最適化が行なえます。
-たとえばNelder-Mead 法による最適化は、以下の入力ファイル (``input.toml``) を ::
+たとえばNelder-Mead 法による最適化は、以下の入力ファイル (``input.toml``) を
+
+.. code-block::
 
     [base]
     dimension = 2
@@ -78,7 +80,9 @@
     name = "analytical"
     function_name = "booth"
 
-``src/py2dmat_main.py`` に渡せば実行可能です::
+``src/py2dmat_main.py`` に渡せば実行可能です。
+
+.. code-block::
 
     $ python3 src/py2dmat_main.py input.toml
 

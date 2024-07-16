@@ -1,15 +1,18 @@
 ``Algorithm`` の定義
-======================
+================================
 
-``Algorithm`` クラスは ``py2dmat.algorithm.AlgorithmBase`` を継承したクラスとして定義します。 ::
+``Algorithm`` クラスは ``py2dmat.algorithm.AlgorithmBase`` を継承したクラスとして定義します。
+
+.. code-block:: python
 
     import py2dmat
 
     class Algorithm(py2dmat.algorithm.AlgorithmBase):
         pass
 
+
 ``AlgorithmBase``
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``AlgorithmBase`` クラスは次のメソッドを提供します。
 
@@ -61,7 +64,14 @@
 - ``run(self) -> None``
 
     - 最適化アルゴリズムを実行します
-    - ``self.proc_dir`` に移動し、 ``self._run()`` を実行した後、元のディレクトリに戻ります
+    - 以下の処理を行います
+
+      #. ``self.proc_dir`` に移動する
+      #. ``self.runner.prepare()`` を実行する
+      #. ``self._run()`` を実行する
+      #. ``self.runner.post()`` を実行する
+      #. 元のディレクトリに戻る
+    - ``self.prepare()`` の後に実行する必要があります
 
 - ``post(self) -> None``
 
@@ -75,36 +85,22 @@
     - それぞれの関数でかかった時間を計測し、結果をファイル出力します
 
 
-- ``_read_param(self, info: py2dmat.Info) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]``
-
-    - 連続なパラメータ空間を定義するためのヘルパーメソッドです
-    - ``info.algorithm["param"]`` から探索パラメータの初期値や最小値、最大値、単位を取得します
-    - 詳細は :ref:`min_search の入力ファイル <minsearch_input_param>` を参照してください
-
-- ``_mesh_grid(self, info: py2dmat.Info, split: bool = False) -> Tuple[np.ndarray, np.ndarray]``
-
-    - 離散的なパラメータ空間を定義するためのヘルパーメソッドです
-    - ``info.algorithm["param"]`` を読み取り次を返します:
-
-        - ``D`` 次元の候補点 ``N`` 個からなる集合 (``NxD`` 次元の行列として)
-        - ``N`` 個の候補点のID(index)
-
-    - ``split`` が ``True`` の場合、候補点集合は分割され各MPI ランクに配られます
-    - 詳細は :ref:`mapper の入力ファイル <mapper_input_param>` を参照してください
-
 
 ``Algorithm``
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``Algorithm`` は少なくとも次のメソッドを定義しなければなりません。
 
-- ``__init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None)``
+- ``__init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None, domain = None)``
 
-    - 引数はそのまま基底クラスのコンストラクタに転送してください
+    - ``info`` および ``runner`` 引数はそのまま基底クラスのコンストラクタに転送してください
 
         - ``super().__init__(info=info, runner=runner)``
 
     - 入力パラメータである ``info`` から必要な設定を読み取り、保存してください
+
+    - ``domain`` が指定されている場合は、探索領域を ``domain`` から取得します。
+      指定されていない場合は ``py2dmat.domain.Region(info)`` (探索領域が連続的な場合) または ``py2dmat.domain.MeshGrid(info)`` (離散的な場合) を用いて ``info`` から作成します。
 
 - ``_prepare(self) -> None``
 
@@ -113,11 +109,57 @@
 - ``_run(self) -> None``
 
     - 最適化アルゴリズムを記述します
-    - 探索パラメータ ``x`` から対応する目的関数の値 ``f(x)`` を得る方法 ::
+    - 探索パラメータ ``x`` から対応する目的関数の値 ``f(x)`` を得るには、次のように Runner クラスのメソッドを呼び出します。
 
-        message = py2dmat.Message(x, step, set)
-        fx = self.runner.submit(message)
+      .. code-block:: python
+
+	 args = (step, set)
+         fx = self.runner.submit(x, args)
 
 - ``_post(self) -> None``
 
     - 最適化アルゴリズムの後処理を記述します
+
+
+
+``Domain`` の定義
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+探索領域を記述する 2種類のクラスが用意されています。
+
+``Region`` クラス
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+連続的なパラメータ空間を定義するためのヘルパークラスです。
+
+- コンストラクタ引数は ``Info`` または ``param=`` にdict形式のパラメータを取ります。
+
+  - ``Info`` 型の引数の場合、 ``Info.algorithm.param`` から探索範囲の最小値・最大値・単位や初期値を取得します。
+
+  - dict 型の引数の場合は ``Info.algorithm.param`` 相当の内容を辞書形式で受け取ります。
+
+  - 詳細は :ref:`min_search の入力ファイル <minsearch_input_param>` を参照してください。
+
+- ``initialize(self, rng, limitation, num_walkers)`` を呼んで初期値の設定を行います。引数は乱数発生器 ``rng``, 制約条件 ``limitation``, walker の数 ``num_walkers`` です。
+
+
+``MeshGrid`` クラス
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+離散的的なパラメータ空間を定義するためのヘルパークラスです。
+
+- コンストラクタ引数は ``Info`` または ``param=`` にdict形式のパラメータを取ります。
+
+  - ``Info`` 型の引数の場合、 ``Info.algorithm.param`` から探索範囲の最小値・最大値・単位や初期値を取得します。
+
+  - dict 型の引数の場合は ``Info.algorithm.param`` 相当の内容を辞書形式で受け取ります。
+
+  - 詳細は :ref:`mapper の入力ファイル <mapper_input_param>` を参照してください
+
+- ``do_split(self)`` メソッドは、候補点の集合を分割して各MPIランクに配分します。
+
+- 入出力について
+
+  - ``from_file(cls, path)`` クラスメソッドは、 ``path`` からメッシュデータを読み込んで ``MeshGrid`` クラスのインスタンスを作成します。
+
+  - ``store_file(self, path)`` メソッドは、メッシュの情報を ``path`` のファイルに書き出します。

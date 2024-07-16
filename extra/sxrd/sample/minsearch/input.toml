@@ -1,5 +1,6 @@
 [base]
 dimension = 2
+output_dir = "output"
 
 [solver]
 name = "sxrd"

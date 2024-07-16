@@ -43,4 +43,5 @@ plt.scatter(
 plt.xlim(-6.0, 6.0)
 plt.ylim(-6.0, 6.0)
 plt.colorbar(label="log10(f)")
-plt.savefig("output/res.pdf")
+plt.savefig("output/ColorMapFig.pdf")
+# plt.savefig("output/ColorMapFig.png")

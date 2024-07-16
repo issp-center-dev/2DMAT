@@ -1,5 +1,6 @@
 [base]
 dimension = 3
+output_dir = "output"
 
 [solver]
 name = "sim-trhepd-rheed"

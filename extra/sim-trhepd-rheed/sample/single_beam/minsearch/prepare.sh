@@ -1,2 +1,4 @@
-rm -rf 0
-rm -f ./res.txt
+#!/bin/sh
+
+rm -f ./bulkP.b
+rm -rf ./output

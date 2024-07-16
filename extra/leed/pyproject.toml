@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "leed"
+name = "py2dmat-leed"
 version = "1.0-dev"
 description = "LEED solver module for Py2DMAT: data-analysis software of quantum beam diffraction experiments for 2D material structure"
 authors = ["2DMAT developers <2dmat-dev@issp.u-tokyo.ac.jp>"]

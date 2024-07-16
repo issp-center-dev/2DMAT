@@ -1,2 +1,3 @@
-rm -rf ./0
-rm -f ./BayesData.txt
+#!/bin/sh
+
+rm -rf output

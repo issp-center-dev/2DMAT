@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "sim-trhepd-rheed"
+name = "py2dmat-sim-trhepd-rheed"
 version = "1.0-dev"
 description = "SIM-TRHEPD-RHEED solver module for Py2DMAT: data-analysis software of quantum beam diffraction experiments for 2D material structure"
 authors = ["2DMAT developers <2dmat-dev@issp.u-tokyo.ac.jp>"]
@@ -29,7 +29,7 @@ py2dmat = "^2"
 #pynvim = "^0.4.3"
 
 [tool.poetry.scripts]
-sim-trhepd-rheed = "sim_trhepd_rheed._main:main"
+py2dmat-sim-trhepd-rheed = "sim_trhepd_rheed._main:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

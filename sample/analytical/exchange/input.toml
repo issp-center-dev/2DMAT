@@ -2,6 +2,10 @@
 dimension = 2
 output_dir = "output"
 
+[solver]
+name = "analytical"
+function_name = "himmelblau"
+
 [algorithm]
 name = "exchange"
 seed = 12345
@@ -13,11 +17,8 @@ initial_list = [0.0, 0.0]
 unit_list = [0.3, 0.3]
 
 [algorithm.exchange]
-Tmin = 0.1
-Tmax = 10.0
+Tmin = 0.01
+Tmax = 100.0
 numsteps = 10000
 numsteps_exchange = 100
-
-[solver]
-name = "analytical"
-function_name = "himmelblau"
+nreplica_per_proc = 20
