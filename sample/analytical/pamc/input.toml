@@ -2,6 +2,14 @@
 dimension = 2
 output_dir = "output"
 
+[solver]
+name = "analytical"
+function_name = "himmelblau"
+
+[runner]
+[runner.log]
+interval = 20
+
 [algorithm]
 name = "pamc"
 seed = 12345
@@ -13,12 +21,8 @@ unit_list = [0.3, 0.3]
 
 [algorithm.pamc]
 bmin = 0.0
-bmax = 1.0
-Tnum = 11
+bmax = 200.0
+Tnum = 21
 Tlogspace = false
 numsteps_annealing = 100
 nreplica_per_proc = 100
-
-[solver]
-name = "analytical"
-function_name = "himmelblau"

@@ -2,19 +2,19 @@
 dimension = 2
 output_dir = "output"
 
+[solver]
+name = "analytical"
+function_name = "himmelblau"
+
 [algorithm]
 name = "bayes"
 seed = 12345
 
 [algorithm.param]
-max_list = [6.0, 6.0]
 min_list = [-6.0, -6.0]
+max_list = [6.0, 6.0]
 num_list = [61, 61]
 
 [algorithm.bayes]
 random_max_num_probes = 20
 bayes_max_num_probes = 40
-
-[solver]
-name = "analytical"
-function_name = "himmelblau"

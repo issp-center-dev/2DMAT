@@ -2,6 +2,14 @@
 dimension = 2
 output_dir = "output"
 
+[solver]
+name = "analytical"
+function_name = "himmelblau"
+
+[runner]
+[runner.log]
+interval = 20
+
 [algorithm]
 name = "mapper"
 seed = 12345
@@ -10,11 +18,3 @@ seed = 12345
 max_list = [6.0, 6.0]
 min_list = [-6.0, -6.0]
 num_list = [31, 31]
-
-[solver]
-name = "analytical"
-function_name = "himmelblau"
-
-[runner]
-[runner.log]
-interval = 20
