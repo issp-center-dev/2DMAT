@@ -1,10 +1,12 @@
 [base]
 dimension = 2
 output_dir = "output"
+
 [solver]
 name = "sxrd"
+
 [solver.config]
-sxrd_exec_file = "./sxrdcalc"
+sxrd_exec_file = "sxrdcalc"
 bulk_struc_in_file = "sic111-r3xr3.blk"
 [solver.param]
 scale_factor = 1.0
@@ -37,8 +39,11 @@ domain_occupancy = 1.0
     displace_vector = [[2, 0.0, 0.0, 1.0]]
 [solver.reference]
 f_in_file = "sic111-r3xr3_f.dat"
+
 [algorithm]
-name = "mapper"
+name = "minsearch"
 label_list = ["z1", "z2"]
 [algorithm.param]
-mesh_path = "./MeshData.txt"
+min_list = [-0.2, -0.2]
+max_list = [0.2, 0.2]
+initial_list = [0.0, 0.0]
