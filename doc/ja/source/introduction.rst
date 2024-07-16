@@ -4,18 +4,20 @@
 2DMATとは
 ----------------------
 
-2DMATは，順問題ソルバーに対して探索アルゴリズムを適用して最適解を探すためのフレームワークです.  順問題ソルバーはユーザー自身で定義することが可能です.
-標準的な順問題ソルバーとしては2次元物質構造解析向け実験データ解析ソフトウェアが用意されています. 順問題ソルバーでは原子位置などをパラメータとし得られたデータと実験データとのずれを損失関数として与えます.
-探索アルゴリズムを組み合わせ, この損失関数を最小化することで, 最適なパラメータを推定します.
-現バージョンでは, 順問題ソルバーとして量子ビーム回折実験の全反射高速陽電子回折実験（Total-reflection high-energy positron diffraction ,TRHEPD，トレプト）[1, 2],sxrd[3], leed[4]に対応しており,
-探索アルゴリズムはNelder-Mead法[5], グリッド型探索法[6], ベイズ最適化[7], レプリカ交換モンテカルロ法[8], ポピュレーションアニーリングモンテカルロ法[9, 10, 11]が実装されています. 今後は, 本フレームワークをもとにより多くの順問題ソルバーおよび探索アルゴリズムを実装していく予定です.
+2DMATは、順問題ソルバーに対して探索アルゴリズムを適用して最適解を探すためのフレームワークです。
+順問題ソルバーはユーザー自身で定義することが可能です。
+標準的な順問題ソルバーとしては2次元物質構造解析向け実験データ解析ソフトウェアが用意されています。
+順問題ソルバーでは原子位置などをパラメータとし得られたデータと実験データとのずれを損失関数として与えます。
+探索アルゴリズムを組み合わせ、この損失関数を最小化することで、最適なパラメータを推定します。
+現バージョンでは、順問題ソルバーとして量子ビーム回折実験の全反射高速陽電子回折法(Total-reflection high-energy positron diffraction: TRHEPD)[1, 2], 表面X線回折法(sxrd)[3], 低速電子線回折法(leed)[4]に対応しており、探索アルゴリズムはNelder-Mead法[5], グリッド型探索法[6], ベイズ最適化[7], レプリカ交換モンテカルロ法[8], ポピュレーションアニーリングモンテカルロ法[9, 10, 11]が実装されています。
+今後は、本フレームワークをもとにより多くの順問題ソルバーおよび探索アルゴリズムを実装していく予定です。
 
 [1] レビューとして， `Y．Fukaya, et al., J. Phys. D: Appl. Phys. 52, 013002 (2019) <https://iopscience.iop.org/article/10.1088/1361-6463/aadf14>`_;
 `兵頭俊夫，「全反射高速陽電子回折　(TRHEPD)による表面構造解析」，固体物理 53, 705 (2018) <https://www.agne.co.jp/kotaibutsuri/kota1053.htm>`_.
 
 [2] `T. Hanada, Y. Motoyama, K. Yoshimi, and T. Hoshi, Computer Physics Communications 277, 108371 (2022). <https://doi.org/10.1016/j.cpc.2022.108371>`_
 
-[3] W. Voegeli, K. Akimoto, T. Aoyama, K. Sumitani, S. Nakatani, H. Tajiri, T. Takahashi, Y. Hisada, S. Mukainakano, X. Zhang, H. Sugiyama, H. Kawata, Applied Surface Science 252 (2006) 5259.
+[3] `W. Voegeli, K. Akimoto, T. Aoyama, K. Sumitani, S. Nakatani, H. Tajiri, T. Takahashi, Y. Hisada, S. Mukainakano, X. Zhang, H. Sugiyama, H. Kawata, Applied Surface Science 252 (2006) 5259. <https://doi.org/10.1016/j.apsusc.2005.12.019>`_
 
 [4] `M.A. Van Hove, W. Moritz, H. Over, P.J. Rous, A. Wander, A. Barbieri, N. Materer, U. Starke, G.A. Somorjai, Automated determination of complex surface structures by LEED, Surface Science Reports, Volume 19, 191-229 (1993). <https://doi.org/10.1016/0167-5729(93)90011-D>`_
 
@@ -36,35 +38,35 @@
 ライセンス
 ----------------------
 | 本ソフトウェアのプログラムパッケージおよびソースコード一式はGNU
-  General Public License version 3（GPL v3）に準じて配布されています。
+  General Public License version 3(GPL v3)に準じて配布されています。
 
 Copyright (c) <2020-> The University of Tokyo. All rights reserved.
 
-本ソフトウェアは2020年度 東京大学物性研究所 ソフトウェア高度化プロジェクトの支援を受け開発されました。
+本ソフトウェアは2020年度・2021年度・2024年度 東京大学物性研究所 ソフトウェア高度化プロジェクトの支援を受け開発されました。
 2DMATを引用する際には以下の文献を引用してください。
 
-“Data-analysis software framework 2DMAT and its application to experimental measurements for two-dimensional material structures”,
-Y. Motoyama, K. Yoshimi, I. Mochizuki, H. Iwamoto, H. Ichinose, and T. Hoshi, Computer Physics Communications 280, 108465 (2022).
+"Data-analysis software framework 2DMAT and its application to experimental measurements for two-dimensional material structures", Y. Motoyama, K. Yoshimi, I. Mochizuki, H. Iwamoto, H. Ichinose, and T. Hoshi, Computer Physics Communications 280, 108465 (2022).
 
 Bibtex:
 
-@article{MOTOYAMA2022108465,
-title = {Data-analysis software framework 2DMAT and its application to experimental measurements for two-dimensional material structures},
-journal = {Computer Physics Communications},
-volume = {280},
-pages = {108465},
-year = {2022},
-issn = {0010-4655},
-doi = {https://doi.org/10.1016/j.cpc.2022.108465},
-url = {https://www.sciencedirect.com/science/article/pii/S0010465522001849},
-author = {Yuichi Motoyama and Kazuyoshi Yoshimi and Izumi Mochizuki and Harumichi Iwamoto and Hayato Ichinose and Takeo Hoshi}
-}
+|  @article{MOTOYAMA2022108465,
+|    title = {Data-analysis software framework 2DMAT and its application to experimental measurements for two-dimensional material structures},
+|    journal = {Computer Physics Communications},
+|    volume = {280},
+|    pages = {108465},
+|    year = {2022},
+|    issn = {0010-4655},
+|    doi = {https://doi.org/10.1016/j.cpc.2022.108465},
+|    url = {https://www.sciencedirect.com/science/article/pii/S0010465522001849},
+|    author = {Yuichi Motoyama and Kazuyoshi Yoshimi and Izumi Mochizuki and Harumichi Iwamoto and Hayato Ichinose and Takeo Hoshi}
+|  }
 
 
 
 バージョン履歴
 ----------------------
 
+- v3.0.0 : 2024-XX-XX
 - v2.1.0 : 2022-04-08
 - v2.0.0 : 2022-01-17
 - v1.0.1 : 2021-04-15
@@ -75,15 +77,22 @@ author = {Yuichi Motoyama and Kazuyoshi Yoshimi and Izumi Mochizuki and Harumich
 ----------------------
 2DMATは以下のメンバーで開発しています.
 
+- v3.0.0 -
+
+  - 本山 裕一 (東京大学 物性研究所)
+  - 吉見 一慶 (東京大学 物性研究所)
+  - 青山 龍美 (東京大学 物性研究所)
+  - 星　 健夫 (核融合科学研究所)
+
 - v2.0.0 -
 
   - 本山 裕一 (東京大学 物性研究所)
   - 吉見 一慶 (東京大学 物性研究所)
   - 岩本 晴道 (鳥取大学 大学院工学研究科)
-  - 星 健夫 (鳥取大学 大学院工学研究科)
+  - 星　 健夫 (鳥取大学 大学院工学研究科)
 
 - v0.1.0 -
 
   - 本山 裕一 (東京大学 物性研究所)
   - 吉見 一慶 (東京大学 物性研究所)
-  - 星 健夫 (鳥取大学 大学院工学研究科)
+  - 星　 健夫 (鳥取大学 大学院工学研究科)

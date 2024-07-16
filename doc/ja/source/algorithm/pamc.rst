@@ -6,9 +6,11 @@
 前準備
 ~~~~~~~~
 
-MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_ をインストールしておく必要があります。::
+MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_ をインストールしておく必要があります。
 
-  python3 -m pip install mpi4py
+.. code-block:: bash
+
+    $ python3 -m pip install mpi4py
 
 入力パラメータ
 ~~~~~~~~~~~~~~~~~~~
@@ -154,7 +156,7 @@ MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 本ファイルで探索するグリッド空間を定義します。
-1列目にメッシュのインデックス（実際には使用されません）、
+1列目にメッシュのインデックス(実際には使用されません)、
 2列目以降は探索空間の座標を指定します。
 
 以下、サンプルを記載します。
@@ -203,7 +205,7 @@ MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedo
 
 各温度点(``#``) ごと、モンテカルロサンプリングで提案されたパラメータと、対応する目的関数の値です。
 1列目にステップ数、2列目にプロセス内のwalker 番号、3列目にレプリカの逆温度、4列目に目的関数の値、5列目からパラメータが記載されます。
-最後の2列はそれぞれレプリカの重み (Neal-Jarzynski weight) と祖先（計算開始時のレプリカ番号）です。
+最後の2列はそれぞれレプリカの重み (Neal-Jarzynski weight) と祖先(計算開始時のレプリカ番号)です。
 
 .. code-block::
 
@@ -263,7 +265,7 @@ MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedo
 ^^^^^^^^^^^^^^
 
 各温度ごとに、全レプリカの情報をまとめたものです。
-1列目は逆温度が、2列目と3列目には目的関数の期待値およびその標準誤差が、4列目にはレプリカの総数が、5列目には規格化因子（分配関数）の比の対数
+1列目は逆温度が、2列目と3列目には目的関数の期待値およびその標準誤差が、4列目にはレプリカの総数が、5列目には規格化因子(分配関数)の比の対数
 
 .. math::
 
@@ -292,7 +294,7 @@ MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedo
 ^^^^^^^^^^^^
 
 分布パラメータ :math:`\beta_i` のもとでの配位 :math:`x` の重みを
-:math:`f_i(x)` と書くと（例えばボルツマン因子 :math:`f_i(x) = \exp\left[-\beta_i E(x)\right]`\ ）、
+:math:`f_i(x)` と書くと(例えばボルツマン因子 :math:`f_i(x) = \exp\left[-\beta_i E(x)\right]`\ )、
 :math:`A` の期待値は
 
 .. math::
@@ -303,9 +305,9 @@ MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedo
    = \int \mathrm{d}xA(x)\tilde{f}_i(x)
 
 とかけます。
-ここで :math:`Z = \int \mathrm{d} x f_i(x)` は規格化因子（分配関数）で、 :math:`\tilde{f}(x) = f(x)/Z` は配位 :math:`x` の確率密度です。
+ここで :math:`Z = \int \mathrm{d} x f_i(x)` は規格化因子(分配関数)で、 :math:`\tilde{f}(x) = f(x)/Z` は配位 :math:`x` の確率密度です。
 
-目的は複数の分布パラメータについてこの期待値および規格化因子（の比）を数値的に求めることです。
+目的は複数の分布パラメータについてこの期待値および規格化因子(の比)を数値的に求めることです。
 
 Annealed Importance Sampling (AIS) [1]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -330,7 +332,7 @@ Annealed Importance Sampling (AIS) [1]
 
    \int \mathrm{d}x \tilde{f}_i(x) T_i(x, x') = \tilde{f}_i(x')
 
-を満たすようにとります（つまりは普通のMCMCにおける遷移確率行列）。
+を満たすようにとります(つまりは普通のMCMCにおける遷移確率行列)。
 
 .. math::
 

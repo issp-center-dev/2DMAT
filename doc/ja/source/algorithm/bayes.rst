@@ -4,17 +4,17 @@
 .. _PHYSBO: https://pasums.issp.u-tokyo.ac.jp/physbo
 
 ``bayes`` はベイズ最適化を用いてパラメータ探索を行う ``Algorithm`` です。
-
 実装には `PHYSBO`_ を用いています。
 
 前準備
 ~~~~~~
-あらかじめ `PHYSBO`_ をインストールしておく必要があります。::
+あらかじめ `PHYSBO`_ をインストールしておく必要があります。
 
-  python3 -m pip install physbo
+.. code-block:: bash
 
-`mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_ がインストールされている場合、
-MPI 並列計算が可能です。
+    $ python3 -m pip install physbo
+
+`mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_ がインストールされている場合、MPI 並列計算が可能です。
 
 入力パラメータ
 ~~~~~~~~~~~~~~~~~~~~~
@@ -77,7 +77,7 @@ MPI 並列計算が可能です。
   形式: string型 (default: ``TS`` )
 
   説明: スコア関数を指定するパラメータ。
-  ``EI``, ``PI``, ``TS`` より選択可能で、それぞれ "expected improvement", "probability of improvement", "Thompson sampling" を行う。
+  ``EI``, ``PI``, ``TS`` より選択可能で、それぞれ "expected improvement", "probability of improvement", "Thompson sampling" を行います。
 
 - ``interval``
 
@@ -143,8 +143,8 @@ MPI 並列計算が可能です。
 
 `ベイズ最適化 (Bayesian optimization, BO) <https://en.wikipedia.org/wiki/Bayesian_optimization>`_ は、機械学習を援用した最適化アルゴリズムであり、特に目的関数の評価に時間がかかるときに強力な手法です。
 
-BO では目的関数 :math:`f(\vec{x})` を、評価が早く最適化のしやすいモデル関数（多くの場合ガウス過程） :math:`g(\vec{x})` で近似します。
-:math:`g` は、あらかじめ適当に決められたいくつかの点（訓練データセット） :math:`\{\vec{x}_i\}_{i=1}^N` での目的関数の値 :math:`\{f(\vec{x}_i)\}_{i=1}^N` をよく再現するように訓練されます。
+BO では目的関数 :math:`f(\vec{x})` を、評価が早く最適化のしやすいモデル関数(多くの場合ガウス過程) :math:`g(\vec{x})` で近似します。
+:math:`g` は、あらかじめ適当に決められたいくつかの点(訓練データセット) :math:`\{\vec{x}_i\}_{i=1}^N` での目的関数の値 :math:`\{f(\vec{x}_i)\}_{i=1}^N` をよく再現するように訓練されます。
 パラメータ空間の各点において、訓練された :math:`g(\vec{x})` の値の期待値およびその誤差から求められる「スコア」 (acquition function) が最適になるような点 :math:`\vec{x}_{N+1}` を次の計算候補点として提案します。
 :math:`f(\vec{x}_{N+1})` を評価し、 訓練データセットに追加、 :math:`g` を再訓練します。
 こうした探索を適当な回数繰り返した後、目的関数の値が最も良かったものを最適解として返します。
