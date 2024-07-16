@@ -2,11 +2,12 @@
 
 sh ./prepare.sh
 
-time mpiexec -np 4 py2dmat-leed input.toml
+time python3 ./simple.py
+#time python3 ./simple2.py
 
 
-result=output/ColorMap.txt
-reference=ref_ColorMap.txt
+result=output/res.txt
+reference=ref.txt
 
 echo diff $result $reference
 res=0
