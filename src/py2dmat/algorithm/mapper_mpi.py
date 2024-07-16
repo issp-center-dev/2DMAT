@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
+from typing import List, Union
+
 from pathlib import Path
 from io import open
 import numpy as np
@@ -21,14 +23,25 @@ import os
 import time
 
 import py2dmat
-
+import py2dmat.domain
 
 class Algorithm(py2dmat.algorithm.AlgorithmBase):
-    mesh_list: np.ndarray
+    #mesh_list: np.ndarray
+    mesh_list: List[Union[int, float]]
 
-    def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
+    def __init__(self, info: py2dmat.Info,
+                 runner: py2dmat.Runner = None,
+                 domain = None) -> None:
         super().__init__(info=info, runner=runner)
-        self.mesh_list, actions = self._meshgrid(info, split=True)
+
+        if domain and isinstance(domain, py2dmat.domain.MeshGrid):
+            self.domain = domain
+        else:
+            self.domain = py2dmat.domain.MeshGrid(info)
+
+        self.domain.do_split()
+        self.mesh_list = self.domain.grid_local
+
 
     def _run(self) -> None:
         # Make ColorMap
@@ -48,11 +61,10 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             self.timer["run"]["file_CM"] = time_end - time_sta
             self.timer["run"]["submit"] = 0.0
 
-            message = py2dmat.Message([], 0, 0)
             iterations = len(self.mesh_list)
             for iteration_count, mesh in enumerate(self.mesh_list):
                 print("Iteration : {}/{}".format(iteration_count + 1, iterations))
-                print("mesh before:", mesh)
+                # print("mesh before:", mesh)
 
                 time_sta = time.perf_counter()
                 for value in mesh[1:]:
@@ -61,11 +73,11 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                 self.timer["run"]["file_CM"] += time_end - time_sta
 
                 # update information
-                message.step = int(mesh[0])
-                message.x = mesh[1:]
+                args = (int(mesh[0]), 0)
+                x = np.array(mesh[1:])
 
                 time_sta = time.perf_counter()
-                fx = run.submit(message)
+                fx = run.submit(x, args)
                 time_end = time.perf_counter()
                 self.timer["run"]["submit"] += time_end - time_sta
 
@@ -75,7 +87,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                 time_end = time.perf_counter()
                 self.timer["run"]["file_CM"] += time_end - time_sta
 
-                print("mesh after:", mesh)
+                # print("mesh after:", mesh)
 
             if iterations > 0:
                 fx_order = np.argsort(fx_list)

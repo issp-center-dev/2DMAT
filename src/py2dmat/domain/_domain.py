@@ -14,16 +14,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
+from typing import List, Dict, Union, Any
+
+from pathlib import Path
 import numpy as np
-from typing import Iterable, Union
 
+import py2dmat
 
-class Message:
-    x: np.ndarray
-    step: int
-    set: int
+class DomainBase:
+    def __init__(self, info: py2dmat.Info = None):
+        if info:
+            self.root_dir = info.base["root_dir"]
+            self.output_dir = info.base["output_dir"]
+        else:
+            self.root_dir = Path(".")
+            self.output_dir = Path(".")
 
-    def __init__(self, x: Union[np.ndarray, Iterable], step: int, set: int) -> None:
-        self.x = x
-        self.step = step
-        self.set = set
+        self.mpisize = py2dmat.mpi.size()
+        self.mpirank = py2dmat.mpi.rank()
+            
