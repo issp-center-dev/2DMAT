@@ -1,12 +1,14 @@
+#!/bin/sh
+
 sh prepare.sh
 
 ./bulk.exe
 
-time python3 ../../../../src/py2dmat_main.py input.toml
+time py2dmat-sim-trhepd-rheed input.toml
 
-echo diff ColorMap.txt ref_ColorMap.txt
+echo diff output/ColorMap.txt ref_ColorMap.txt
 res=0
-diff ColorMap.txt ref_ColorMap.txt || res=$?
+diff output/ColorMap.txt ref_ColorMap.txt || res=$?
 if [ $res -eq 0 ]; then
   echo TEST PASS
   true

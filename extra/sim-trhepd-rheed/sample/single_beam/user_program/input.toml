@@ -5,6 +5,7 @@ output_dir = "output"
 [solver]
 name = "sim-trhepd-rheed"
 run_scheme = "subprocess"
+generate_rocking_curve = true
 
 [solver.config]
 cal_number = [1]

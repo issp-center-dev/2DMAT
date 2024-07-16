@@ -56,7 +56,7 @@ for ax in (ax_T, ax_fx):
     ax.set_ylabel("z2")
     ax.set_xlim((3.0, 6.0))
     ax.set_ylim((3.0, 6.0))
-    ax.axis("square")
+    #ax.axis("square")
 cb_T = fig_T.colorbar(
     cm.ScalarMappable(norm=matplotlib.colors.Normalize(vmin=0.0, vmax=200.0), cmap="plasma"),
     ax=ax_T,

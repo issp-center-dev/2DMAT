@@ -1,12 +1,14 @@
+#!/bin/sh
+
 sh prepare.sh
 
 ./bulk.exe
 
-time python3 ../../../../src/py2dmat_main.py input.toml
+time py2dmat-sim-trhepd-rheed input.toml
 
-echo diff BayesData.txt ref_BayesData.txt
+echo diff output/BayesData.txt ref_BayesData.txt
 res=0
-diff BayesData.txt ref_BayesData.txt || res=$?
+diff output/BayesData.txt ref_BayesData.txt || res=$?
 if [ $res -eq 0 ]; then
   echo TEST PASS
   true
