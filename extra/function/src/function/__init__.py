@@ -1,3 +1,5 @@
+from .function import Solver
+
 from .Quadratics import Quadratics
 from .Quartics import Quartics
 from .Ackley import Ackley

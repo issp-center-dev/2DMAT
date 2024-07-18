@@ -3,7 +3,7 @@ import numpy as np
 import py2dmat
 #import py2dmat.algorithm.mapper_mpi as mapper
 import py2dmat.algorithm.min_search as min_search
-from function import LinearRegression
+from py2dmat.extra.function import LinearRegression
 import py2dmat.domain
 
 data = np.loadtxt("data.txt")

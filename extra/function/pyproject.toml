@@ -9,7 +9,7 @@ readme = "README.md"
 repository = "https://github.com/issp-center-dev/py2dmat-function"
 
 packages = [
-  { include = "function", from = "src" }
+  { include = "function", from = "src", to = "py2dmat/extra" }
   ]
 
 [tool.poetry.dependencies]
