@@ -18,6 +18,7 @@ from typing import List, Union
 import time
 
 import numpy as np
+import scipy
 from scipy.optimize import minimize
 
 import py2dmat
@@ -89,18 +90,27 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         f0 = run.submit(self.initial_list, (0, 0))
         iter_history.append([*self.initial_list, f0])
 
-        def _cb(intermediate_result):
-            x = intermediate_result.x
-            fun = intermediate_result.fun
-            print("eval: x={}, fun={}".format(x, fun))
-            iter_history.append([*x, fun])
+        scipy_version = [int(s) for s in scipy.__version__.split('.')]
+
+        if scipy_version[0] >= 1 and scipy_version[1] >= 11:
+            def _cb(intermediate_result):
+                x = intermediate_result.x
+                fun = intermediate_result.fun
+                print("eval: x={}, fun={}".format(x, fun))
+                iter_history.append([*x, fun])
+        else:
+            def _cb(x):
+                fun = _f_calc(x, 1)
+                print("eval: x={}, fun={}".format(x, fun))
+                iter_history.append([*x, fun])
 
         def _f_calc(x_list: np.ndarray, iset) -> float:
             # check if within region -> boundary option in minimize
-            # in_range = np.all((min_list < x_list) & (x_list < max_list))
-            # if not in_range:
-            #     print("Warning: out of range: {}".format(x_list))
-            #     return float("inf")
+            # note: 'bounds' option supported in scipy >= 1.7.0
+            in_range = np.all((min_list < x_list) & (x_list < max_list))
+            if not in_range:
+                print("Warning: out of range: {}".format(x_list))
+                return float("inf")
 
             # check if limitation satisfied
             in_limit = self.runner.limitation.judge(x_list)
@@ -123,7 +133,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             self.initial_list,
             method="Nelder-Mead",
             args=(0,),
-            bounds=[(a,b) for a,b in zip(min_list, max_list)],
+            # bounds=[(a,b) for a,b in zip(min_list, max_list)],
             options={
                 "xatol": self.xtol,
                 "fatol": self.ftol,
@@ -200,7 +210,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                 fp.write(f"fx = {fxs[idx]}\n")
                 for x, y in zip(label_list, xs[idx]):
                     fp.write(f"{x} = {y}\n")
-                fp.write(f"index = {idx}\n")
-                for x, y in zip(label_list, x0s[idx]):
-                    fp.write(f"initial {x} = {y}\n")
-
+                if len(results) > 1:
+                    fp.write(f"index = {idx}\n")
+                    for x, y in zip(label_list, x0s[idx]):
+                        fp.write(f"initial {x} = {y}\n")
