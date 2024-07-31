@@ -1,8 +1,8 @@
-Install of py2dmat
-=============================
+Installation of py2dmat
+================================
 
 Prerequisites
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - Python3 (>=3.6.8)
 
     - The following Python packages are required.
@@ -15,9 +15,11 @@ Prerequisites
         - scipy (required for Nelder-Mead method)
         - physbo (>=0.3, required for Baysian optimization)
 
+
 How to download and install
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You can install the ``py2dmat`` python package and the ``py2dmat`` command using the method shown below.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can install the ``py2dmat`` python package and the ``py2dmat`` command following the instructions shown below.
 
 - Installation using PyPI (recommended)
 
@@ -39,28 +41,41 @@ You can install the ``py2dmat`` python package and the ``py2dmat`` command using
     -  Sample files are included in the source code.
     - ``git clone https://github.com/issp-center-dev/2DMAT``
 
-Note that among the direct problem solvers used in ``py2dmat``,
-the following solver must be installed separately:
-
-- TRHEPD forward problem solver (``sim-trhepd-rheed``)
-- SXRD forward problem solver (``sxrdcalc``)
-- LEED forward problem solver (``satleed``)
-
-Please refer to the tutorials of each solver for installation details.
 
 How to run
-~~~~~~~~~~~~~
-In ``py2dmat`` , the analysis is done by using a predefined optimization algorithm ``Algorithm`` and a direct problem solver ``Solver`` ::
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In ``py2dmat``, the analysis is carried out by using a predefined optimization algorithm ``Algorithm`` and a direct problem solver ``Solver``.
+
+.. code-block:: bash
     
     $ py2dmat input.toml
 
 See :doc:`algorithm/index` for the predefined ``Algorithm`` and :doc:`solver/index` for the ``Solver``.
 
+The direct problem solvers for analyses of experimental data of two-dimensional material structure are provided as separate modules.
+To perform these analyses, you need to install the modules and the required software packages.
+At present, the following modules are provided:
+
+- 2DMAT-SIM-TRHEPD-RHEED module for Total Refrection High-energy Positron Diffraction (TRHEPD)
+
+- 2DMAT-SXRD module for Surface X-ray Diffraction (SXRD)
+
+- 2DMAT-LEED module for Low-energy Electron Diffraction (LEED)
+  
 If you want to prepare the ``Algorithm`` or ``Solver`` by yourself, use the ``py2dmat`` package.
 See :doc:`customize/index` for details.
 
+The program can be executed without installing ``py2dmat`` command; instead, run ``src/py2dmat_main.py`` script directly as follows. It would be convenient when you are rewriting programs.
+
+.. code-block:: bash
+
+   $ python3 src/py2dmat_main.py input
+
+
 How to uninstall
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Please type the following command:
 
 .. code-block:: bash
