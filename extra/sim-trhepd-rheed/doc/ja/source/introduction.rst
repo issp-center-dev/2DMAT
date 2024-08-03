@@ -28,8 +28,7 @@ Copyright (c) <2020-> The University of Tokyo. All rights reserved.
 本ソフトウェアは2020年度および2024年度 東京大学物性研究所 ソフトウェア高度化プロジェクトの支援を受け開発されました。
 2DMATを引用する際には以下の文献を引用してください。
 
-"Data-analysis software framework 2DMAT and its application to experimental measurements for two-dimensional material structures",
-Y. Motoyama, K. Yoshimi, I. Mochizuki, H. Iwamoto, H. Ichinose, and T. Hoshi, Computer Physics Communications 280, 108465 (2022).
+"Data-analysis software framework 2DMAT and its application to experimental measurements for two-dimensional material structures", Y. Motoyama, K. Yoshimi, I. Mochizuki, H. Iwamoto, H. Ichinose, and T. Hoshi, `Computer Physics Communications 280, 108465 (2022) <https://doi.org/10.1016/j.cpc.2022.108465>`_.
 
 Bibtex:
 
