@@ -1,7 +1,16 @@
 ``Solver`` の定義
 ================================
 
-順問題を記述する ``Solver`` は、入力変数に対して目的関数の値を返す ``evaluate`` メソッドを持つクラスとして次のように定義します。
+順問題を記述する ``Solver`` は、入力変数に対して目的関数の値を返す ``evaluate`` メソッドを持つクラスとして以下のように定義します。
+
+- ``Solver`` クラスは ``py2dmat.solver.SolverBase`` を継承するクラスとします。
+
+  .. code-block:: python
+
+     import py2dmat
+
+     class Solver(py2dmat.solver.SolverBase):
+         pass
 
 - コンストラクタ
 
@@ -9,23 +18,22 @@
 
   .. code-block:: python
 
-     class Solver:
-         def __init__(self, info: py2dmat.Info):
-	     pass
+     def __init__(self, info: py2dmat.Info):
+         super().__init__(info)
+	 ...
 
-  コンストラクタでは、引数で指定した info からパラメータを取得します。基本パラメータを info.base から、ソルバー固有のパラメータを info.solver からそれぞれ取り出して適宜セットします。
+  必ず ``info`` を引数として基底クラスのコンストラクタを呼び出してください。
+  基底クラスのコンストラクタでは、次のインスタンス変数が設定されます。
 
-  ディレクトリに関する規約は次の通りです。
+  - ``self.root_dir`` はルートディレクトリです。 ``info.base["root_dir"]`` から取得され、 ``py2dmat`` を実行するディレクトリになります。外部プログラムやデータファイルなどを参照する際に起点として利用できます。
 
-  - ``root_dir`` はルートディレクトリです。 ``info.base["root_dir"]`` から取得でき、 ``py2dmat`` を実行するディレクトリになります。外部プログラムやデータファイルなどを参照する際に起点として利用できます。
+  - ``self.output_dir`` は出力ファイルを書き出すディレクトリです。 ``info.base["output_dir"]`` から取得されます。通例、MPI並列の場合は各ランクからのデータを集約した結果を出力します。
 
-  - ``output_dir`` は出力ファイルを書き出すディレクトリです。 ``info.base["output_dir"]`` から取得できます。通例、MPI並列の場合は各ランクからのデータを集約した結果を出力します。
-
-  - ``proc_dir`` はプロセスごとの作業用ディレクトリです。 ``output_dir / str(self.mpirank)`` が設定されます。
+  - ``self.proc_dir`` はプロセスごとの作業用ディレクトリです。 ``output_dir / str(self.mpirank)`` が設定されます。
     ソルバーの ``evaluate`` メソッドは ``proc_dir`` をカレントディレクトリとして Runner から呼び出され、MPIプロセスごとの中間結果などを出力します。
     MPIを使用しない場合もランク番号を0として扱います。
 
-  - ``work_dir`` はソルバーの作業ディレクトリです。ソルバーごとに独自に規定して使用します。
+  Solver 固有のパラメータは ``info`` の ``solver`` フィールドから取得します。必要な設定を読み取って保存します。
 
     
 - ``evaluate`` メソッド  
