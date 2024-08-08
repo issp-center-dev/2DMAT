@@ -191,21 +191,25 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             fp.write(f"function_evaluations = {self.funcalls}\n")
 
     def _post(self):
-        result = {"x0": self.initial_list,
-                  "x": self.xopt,
-                  "fx": self.fopt,}
+        result = {
+            "x": self.xopt,
+            "fx": self.fopt,
+            "x0": self.initial_list,
+        }
 
         if self.mpisize > 1:
             results = self.mpicomm.allgather(result)
         else:
             results = [result]
 
+        xs = [v["x"] for v in results]
+        fxs = [v["fx"] for v in results]
+        x0s = [v["x0"] for v in results]
+
+        idx = np.argmin(fxs)
+
         if self.mpirank == 0:
             label_list = self.label_list
-            x0s = [v["x0"] for v in results]
-            xs = [v["x"] for v in results]
-            fxs = [v["fx"] for v in results]
-            idx = np.argmin(fxs)
             with open("res.txt", "w") as fp:
                 fp.write(f"fx = {fxs[idx]}\n")
                 for x, y in zip(label_list, xs[idx]):
@@ -214,3 +218,5 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                     fp.write(f"index = {idx}\n")
                     for x, y in zip(label_list, x0s[idx]):
                         fp.write(f"initial {x} = {y}\n")
+
+        return {"x": xs[idx], "fx": fxs[idx], "x0": x0s[idx]}

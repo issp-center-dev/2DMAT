@@ -1,30 +1,28 @@
 Usage
-===========
+================================
 
 The following flow solves the optimization problem.
 The number of flow corresponds the comment in the program example.
 
-1. Define your ``Algorithm`` and/or ``Solver``
+1. Define your ``Algorithm`` and/or ``Solver``.
 
-   - Of course, classes that ``py2dmat`` defines are available
+   - Classes that ``py2dmat`` provides are available, of course.
 
-2. Prepare the input parameter, ``info: py2dmat.Info``
+2. Prepare the input parameter, ``info: py2dmat.Info``.
 
-   - Make a dictionary as your favorite way
+   - ``Info`` class has a class method to read input files in TOML format.
+     It is also possible to prepare a set of parameters as a dict and to pass it to the constructor of ``Info`` class.
 
-      - The below example uses a TOML formatted input file for generating a dictionary
+3. Instantiate ``solver: Solver``, ``runner: py2dmat.Runner``, and ``algorithm: Algorithm``.
 
-3. Instantiate ``solver: Solver``, ``runner: py2dmat.Runner``, and ``algorithm: Algorithm``
-
-4. Invoke ``algorithm.main()``
+4. Invoke ``algorithm.main()``.
 
 
-Example
+Example:
 
 .. code-block:: python
 
     import sys
-    import tomli
     import py2dmat
 
     # (1)
@@ -38,9 +36,8 @@ Example
     
 
     # (2)
-    with open(sys.argv[1]) as f:
-        inp = tomli.load(f)
-    info = py2dmat.Info(inp)
+    input_file = sys.argv[1]
+    info = py2dmat.Info.from_file(input_file)
 
     # (3)
     solver = Solver(info)

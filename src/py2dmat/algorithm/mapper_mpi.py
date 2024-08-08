@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
-from typing import List, Union
+from typing import List, Union, Dict
 
 from pathlib import Path
 from io import open
@@ -119,7 +119,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         # do nothing
         pass
 
-    def _post(self) -> None:
+    def _post(self) -> Dict:
         if self.mpirank == 0:
             with open("ColorMap.txt", "w") as file_output:
                 for i in range(self.mpisize):
@@ -128,3 +128,4 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                             line = line.lstrip()
                             if not line.startswith("#"):
                                 file_output.write(line)
+        return {}

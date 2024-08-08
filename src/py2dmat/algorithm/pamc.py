@@ -468,8 +468,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             best_x = [self.best_x]
             best_istep = [self.best_istep]
             best_iwalker = [self.best_iwalker]
+        best_rank = np.argmin(best_fx)
         if self.mpirank == 0:
-            best_rank = np.argmin(best_fx)
             with open("best_result.txt", "w") as f:
                 f.write(f"nprocs = {self.mpisize}\n")
                 f.write(f"rank = {best_rank}\n")
@@ -500,3 +500,11 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
                     f.write(f" {self.logZs[i]}")
                     f.write(f" {self.acceptance_ratio[i]}")
                     f.write("\n")
+        return {
+            "x": best_x[best_rank],
+            "fx": best_fx[best_rank],
+            "nprocs": self.mpisize,
+            "rank": best_rank,
+            "step": best_istep[best_rank],
+            "walker": best_iwalker[best_rank],
+        }
