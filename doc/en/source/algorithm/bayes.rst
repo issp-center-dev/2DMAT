@@ -1,4 +1,4 @@
-Bayse optimization ``bayes``
+Bayesian optimization ``bayes``
 *******************************
 
 .. _PHYSBO: https://www.pasums.issp.u-tokyo.ac.jp/physbo/en
@@ -8,9 +8,11 @@ The implementation is based on `PHYSBO`_.
 
 Preparation
 ~~~~~~~~~~~~
-You will need to install `PHYSBO`_ beforehand.::
+You will need to install `PHYSBO`_ beforehand.
 
-  python3 -m pip install physbo
+.. code-block:: bash
+
+   $ python3 -m pip install physbo
 
 If `mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_ is installed, MPI parallel computing is possible.
 
@@ -52,7 +54,8 @@ If ``mesh_path`` is not defined, ``min_list``, ``max_list``, and ``num_list`` ar
 
   Format: List of integer. The length should match the value of dimension.
 
-  Description:  The number of grids the parametar can take at each dimension.
+  Description: The number of grids the parametar can take at each dimension.
+
 
 [``algorithm.bayes``] section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -122,9 +125,7 @@ Output files
 ``BayesData.txt`` 
 ^^^^^^^^^^^^^^^^^^^^^^
 
-At each step of the optimization process,
-the values of the parameters and the corresponding objective functions are listed in the order of the optimal parameters so far
-and the searched parameters at that step.
+At each step of the optimization process, the values of the parameters and the corresponding objective functions are listed in the order of the optimal parameters so far and the searched parameters at that step.
 
 .. code-block::
 

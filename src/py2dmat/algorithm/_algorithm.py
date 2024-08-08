@@ -142,17 +142,18 @@ class AlgorithmBase(metaclass=ABCMeta):
     def _run(self) -> None:
         pass
 
-    def post(self) -> None:
+    def post(self) -> Dict:
         if self.status < AlgorithmStatus.RUN:
             msg = "algorithm has not run yet"
             raise RuntimeError(msg)
         original_dir = os.getcwd()
         os.chdir(self.output_dir)
-        self._post()
+        result = self._post()
         os.chdir(original_dir)
+        return result
 
     @abstractmethod
-    def _post(self) -> None:
+    def _post(self) -> Dict:
         pass
 
     def main(self):
@@ -172,17 +173,22 @@ class AlgorithmBase(metaclass=ABCMeta):
             self.mpicomm.Barrier()
 
         time_sta = time.perf_counter()
-        self.post()
+        result = self.post()
         time_end = time.perf_counter()
         self.timer["post"]["total"] = time_end - time_sta
 
-        with open(self.proc_dir / "time.log", "w") as fw:
+        self.write_timer(self.proc_dir / "time.log")
+
+        return result
+
+    def write_timer(self, filename: Path):
+        with open(filename, "w") as fw:
             fw.write("#in units of seconds\n")
 
             def output_file(type):
-                tmp_dict = self.timer[type]
-                fw.write("#{}\n total = {}\n".format(type, tmp_dict["total"]))
-                for key, t in tmp_dict.items():
+                d = self.timer[type]
+                fw.write("#{}\n total = {}\n".format(type, d["total"]))
+                for key, t in d.items():
                     if key == "total":
                         continue
                     fw.write(" - {} = {}\n".format(key, t))

@@ -17,17 +17,17 @@
 
 [2] `T. Hanada, Y. Motoyama, K. Yoshimi, and T. Hoshi, Computer Physics Communications 277, 108371 (2022). <https://doi.org/10.1016/j.cpc.2022.108371>`_
 
-[3] `W. Voegeli, K. Akimoto, T. Aoyama, K. Sumitani, S. Nakatani, H. Tajiri, T. Takahashi, Y. Hisada, S. Mukainakano, X. Zhang, H. Sugiyama, H. Kawata, Applied Surface Science 252 (2006) 5259. <https://doi.org/10.1016/j.apsusc.2005.12.019>`_
+[3] `W. Voegeli, K. Akimoto, T. Aoyama, K. Sumitani, S. Nakatani, H. Tajiri, T. Takahashi, Y. Hisada, S. Mukainakano, X. Zhang, H. Sugiyama, H. Kawata, Applied Surface Science 252, 5259 (2006). <https://doi.org/10.1016/j.apsusc.2005.12.019>`_
 
 [4] `M.A. Van Hove, W. Moritz, H. Over, P.J. Rous, A. Wander, A. Barbieri, N. Materer, U. Starke, G.A. Somorjai, Automated determination of complex surface structures by LEED, Surface Science Reports, Volume 19, 191-229 (1993). <https://doi.org/10.1016/0167-5729(93)90011-D>`_
 
-[5] `K. Tanaka, T. Hoshi, I. Mochizuki, T. Hanada, A. Ichimiya, and T. Hyodo, Acta. Phys. Pol. A 137, 188 (2020) <http://przyrbwn.icm.edu.pl/APP/PDF/137/app137z2p25.pdf>`_.
+[5] `K. Tanaka, T. Hoshi, I. Mochizuki, T. Hanada, A. Ichimiya, and T. Hyodo, Acta. Phys. Pol. A 137, 188 (2020). <http://przyrbwn.icm.edu.pl/APP/PDF/137/app137z2p25.pdf>`_.
 
-[6] `K. Tanaka, I. Mochizuki, T. Hanada, A. Ichimiya, T. Hyodo, and T. Hoshi, JJAP Conf. Series, <https://doi.org/10.56646/jjapcp.9.0_011301>`_.
+[6] `K. Tanaka, I. Mochizuki, T. Hanada, A. Ichimiya, T. Hyodo, and T. Hoshi, JJAP Conf. Series, 9, 011301 (2023). <https://doi.org/10.56646/jjapcp.9.0_011301>`_.
 
-[7] `Y. Motoyama, R. Tamura, K. Yoshimi, K. Terayama, T. Ueno, and K. Tsuda,  Computer Physics Communications 278, 108405 (2022) <http://dx.doi.org/10.1016/j.cpc.2022.108405>`_
+[7] `Y. Motoyama, R. Tamura, K. Yoshimi, K. Terayama, T. Ueno, and K. Tsuda,  Computer Physics Communications 278, 108405 (2022). <http://dx.doi.org/10.1016/j.cpc.2022.108405>`_
 
-[8] `K. Hukushima and K. Nemoto, J. Phys. Soc. Japan, 65, 1604 (1996) <https://journals.jps.jp/doi/10.1143/JPSJ.65.1604>`_,  `R. Swendsen and J. Wang, Phys. Rev. Lett. 57, 2607 (1986) <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.57.2607>`_.
+[8] `K. Hukushima and K. Nemoto, J. Phys. Soc. Japan, 65, 1604 (1996). <https://journals.jps.jp/doi/10.1143/JPSJ.65.1604>`_,  `R. Swendsen and J. Wang, Phys. Rev. Lett. 57, 2607 (1986) <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.57.2607>`_.
 
 [9] `R. M. Neal, Statistics and Computing 11, 125-139 (2001). <https://link.springer.com/article/10.1023/A:1008923215028>`_
 
@@ -45,7 +45,7 @@ Copyright (c) <2020-> The University of Tokyo. All rights reserved.
 本ソフトウェアは2020年度・2021年度・2024年度 東京大学物性研究所 ソフトウェア高度化プロジェクトの支援を受け開発されました。
 2DMATを引用する際には以下の文献を引用してください。
 
-"Data-analysis software framework 2DMAT and its application to experimental measurements for two-dimensional material structures", Y. Motoyama, K. Yoshimi, I. Mochizuki, H. Iwamoto, H. Ichinose, and T. Hoshi, Computer Physics Communications 280, 108465 (2022).
+`"Data-analysis software framework 2DMAT and its application to experimental measurements for two-dimensional material structures", Y. Motoyama, K. Yoshimi, I. Mochizuki, H. Iwamoto, H. Ichinose, and T. Hoshi, Computer Physics Communications 280, 108465 (2022) <https://doi.org/10.1016/j.cpc.2022.108465>`_.
 
 Bibtex:
 

@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
-from typing import List, Union
+from typing import List, Union, Dict
 
 from pathlib import Path
 from io import open
@@ -118,7 +118,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         # do nothing
         pass
 
-    def _post(self) -> None:
+    def _post(self) -> Dict:
         if self.mpisize > 1:
             fx_lists = self.mpicomm.allgather(self.fx_list)
             results = [v for vs in fx_lists for v in vs]
@@ -135,3 +135,6 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                     fp.write(" ".join(
                         map(lambda v: "{:8f}".format(v), (*x[1:], fx))
                     ) + "\n")
+
+        return {}
+

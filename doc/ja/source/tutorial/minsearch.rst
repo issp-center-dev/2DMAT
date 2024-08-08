@@ -97,7 +97,7 @@ Nelder-Mead法による最適化
 
 .. code-block::
 
-    $ cd sample/minsearch
+    $ cd sample/analytical/minsearch
 
 メインプログラムを実行します。計算時間は通常のPCで数秒程度で終わります。
 

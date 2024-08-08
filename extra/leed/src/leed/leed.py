@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
-from typing import Dict, List
+from typing import Dict, List, Tuple
 import itertools
 import os
 import os.path
@@ -29,34 +29,12 @@ import py2dmat
 from py2dmat import exception
 
 
-class Solver:
-    #-----
-    root_dir: Path
-    output_dir: Path
-    proc_dir: Path
-    work_dir: Path
-    _name: str
-    dimension: int
-    timer: Dict[str, Dict]
-    #-----
+class Solver(py2dmat.solver.SolverBase):
     path_to_solver: Path
-
     dimension: int
 
     def __init__(self, info: py2dmat.Info):
-        #-----
-        #super().__init__(info)
-        self.root_dir = info.base["root_dir"]
-        self.output_dir = info.base["output_dir"]
-        self.proc_dir = self.output_dir / str(py2dmat.mpi.rank())
-        self.work_dir = self.proc_dir
-        self._name = ""
-        self.timer = {"prepare": {}, "run": {}, "post": {}}
-        if "dimension" in info.solver:
-            self.dimension = info.solver["dimension"]
-        else:
-            self.dimension = info.base["dimension"]
-        #-----
+        super().__init__(info)
 
         self._name = "leed"
         info_s = info.solver
@@ -101,10 +79,6 @@ class Solver:
                     f"ERROR: input file ({file}) is not found in ({self.path_to_base_dir})"
                 )
         self.input = Solver.Input(info)
-
-    @property
-    def name(self) -> str:
-        return self._name
 
     def evaluate(self, x: np.ndarray, args = (), nprocs: int = 1, nthreads: int = 1) -> float:
         self.prepare(x, args)

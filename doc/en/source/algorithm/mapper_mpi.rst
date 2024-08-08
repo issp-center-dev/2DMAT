@@ -7,9 +7,11 @@ In the case of MPI execution, the set of candidate points is divided into equal 
 Preparation
 ~~~~~~~~~~~~
 
-For MPI parallelism, you need to install `mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_.::
+For MPI parallelism, you need to install `mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_.
 
-  python3 -m pip install mpi4py
+.. code-block::
+
+   $ python3 -m pip install mpi4py
 
 Input parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -60,6 +62,7 @@ Mesh definition file
 Define the grid space to be explored in this file.
 1 + ``dimension`` columns are required.
 The first column is the index of the mesh, and the second and subsequent columns are the values of parameter.
+The lines starting from ``#`` are ignored as comments.
 
 A sample file for two dimensions is shown below.
 
@@ -82,8 +85,8 @@ Output file
 ``ColorMap.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This file contains the candidate parameters for each mesh and the ``R-factor`` at that time.
-The mesh data is listed in the order of the variables defined in ``string_list`` in the ``[solver]`` - ``[param]`` sections of the input file, and the value of the ``R-factor`` is listed last.
+This file contains the candidate parameters for each mesh and the function value at that time.
+The mesh data is listed in the order of the variables defined in ``string_list`` in the ``[solver]`` - ``[param]`` sections of the input file, and the value of the function value is listed last.
 
 Below, output example is shown.
 

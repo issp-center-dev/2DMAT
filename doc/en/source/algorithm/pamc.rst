@@ -6,9 +6,11 @@ Population Annealing Monte Carlo ``pamc``
 Preparation
 ~~~~~~~~~~~~~~~~
 
-`mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_ should be installed for the MPI parallelization ::
+`mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_ should be installed for the MPI parallelization.
 
-  python3 -m pip install mpi4py
+.. code-block::
+
+   $ python3 -m pip install mpi4py
 
 Input parameters
 ~~~~~~~~~~~~~~~~~~~
@@ -28,14 +30,16 @@ Otherwise, continuous space is used.
 
     Format: List of float. Length should be equal to ``dimension``.
 
-    Description: Initial value of parameters.
+    Description:
+    Initial value of parameters.
     If not defined, these will be initialize randomly.
 
   - ``unit_list``
 
     Format: List of float. Length should be equal to ``dimension``.
 
-    Description: Unit length of each parameter.
+    Description:
+    Unit length of each parameter.
     ``Algorithm`` makes parameters dimensionless and normalized by dividing these by ``unit_list``.
     If not defined, each component will be 1.0.
 
@@ -43,18 +47,19 @@ Otherwise, continuous space is used.
 
     Format: List of float. Length should be equal to ``dimension``.
 
-    Description: Minimum value of each parameter.
-                 When a parameter falls below this value during the Monte Carlo search,
-                 the solver is not evaluated and the value is considered infinite.
-
+    Description:
+    Minimum value of each parameter.
+    When a parameter falls below this value during the Monte Carlo search,
+    the solver is not evaluated and the value is considered infinite.
 
   - ``max_list``
 
     Format: List of float. Length should be equal to ``dimension``.
 
-    Description: Maximum value of each parameter.
-                 When a parameter exceeds this value during the Monte Carlo search,
-                 the solver is not evaluated and the value is considered infinite.
+    Description:
+    Maximum value of each parameter.
+    When a parameter exceeds this value during the Monte Carlo search,
+    the solver is not evaluated and the value is considered infinite.
 
 - Discrete space
 
@@ -473,4 +478,4 @@ References
 
 [2] K. Hukushima and Y. Iba, AIP Conf. Proc. **690**, 200 (2003).
 
-[3] J. Machta, PRE **82**, 026704 (2010).
+[3] J. Machta, Phys. Rev. E **82**, 026704 (2010).
