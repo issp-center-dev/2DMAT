@@ -3,6 +3,7 @@ import numpy as np
 import py2dmat
 import py2dmat.util.toml
 import py2dmat.algorithm.mapper_mpi as pm_alg
+#import py2dmat.algorithm.min_search as pm_alg
 import py2dmat.solver.function
 
 
@@ -20,4 +21,6 @@ solver.set_function(my_objective_fn)
 runner = py2dmat.Runner(solver, info)
 
 alg = pm_alg.Algorithm(info, runner)
-alg.main()
+retv = alg.main()
+
+print(retv)
