@@ -153,3 +153,4 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             print("Best Solution:")
             for x, y in zip(label_list, self.xopt):
                 print(x, "=", y)
+        return {"x": self.xopt, "fx": self.best_fx}
