@@ -217,3 +217,4 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             f.write(f"fx = {self.fopt}\n")
             for x, y in zip(label_list, self.xopt):
                 f.write(f"{x} = {y}\n")
+        return {"x": self.xopt, "fx": self.fopt}
