@@ -2,47 +2,42 @@
 ================================
 
 ``Solver`` is a class that describes the direct problem, providing a method ``evaluate`` that returns the value of the objective function from the input parameters.
-It is defined as a derived class of ``py2dmat.solver.SolverBase``:
 
-.. code-block:: python
+- ``Solver`` is define as a derived class of ``py2dmat.solver.SolverBase``.
 
-    import py2dmat
+  .. code-block:: python
 
-    class Solver(py2dmat.solver.SolverBase):
-        pass
+     import py2dmat
 
-The following methods should be defined.
+     class Solver(py2dmat.solver.SolverBase):
+         pass
 
-- constructor
+- Constructor
 
   Solver class should have a constructor that takes an ``Info`` class object as an argument:
 
   .. code-block:: python
 
      def __init__(self, info: py2dmat.Info):
-         pass
+         super().__init__(info)
 
-  - It is required to call the constructor of the base class.
+  It is required to call the constructor of the base class with the info object.
+  There the following instance variables are introduced:
 
-    - ``super().__init__(info)``    
+  - ``self.root_dir: pathlib.Path`` : Root directory
 
-  - The constructor of ``SolverBase`` defines the following instance variables.
+    This parameter is taken from ``info.base["root_dir"]``, and represents the directory in which ``py2dmat`` is executed. It can be referred as a root location when the external programs or data files are read.
 
-    - ``self.root_dir: pathlib.Path`` : Root directory
+  - ``self.output_dir: pathlib.Path`` : Output directory
 
-      - use ``info.base["root_dir"]``
+    This parameter is taken from ``info.base["output_dir"]``, and used for the directory in which the result files are written. Usually, when the MPI parallelization is applied, the accumulated results are stored.
 
-    - ``self.output_dir: pathlib.Path`` : Output directory
+  - ``self.proc_dir: pathlib.Path`` : Working directory for each MPI process by the form ``self.output_dir / str(mpirank)``
 
-      - use ``info.base["output_dir"]``
+    The ``evaluate`` method of Solver is called from Runner with the ``proc_dir`` directory set as the current directory, in which the intermediate results produced by each rank are stored. When the MPI parallelization is not used, the rank number is treated as 0.
 
-    - ``self.proc_dir: pathlib.Path`` : Working directory for each MPI process
-
-      - as ``self.output_dir / str(mpirank)``
-
-  - ``work_dir`` may be defined to be used for workspace of the solver.
-	  
-  - See the input parameter ``info`` and save as instance variables.
+  The parameters for the Solver class can be obtained from ``solver`` field of ``info`` object.
+  The required parameters should be taken and stored.
 
 - ``evaluate`` method
 

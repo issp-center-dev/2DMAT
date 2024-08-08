@@ -20,17 +20,10 @@ import py2dmat
 
 # type hints
 from pathlib import Path
-from typing import Callable, Optional, Dict
+from typing import Callable, Optional, Dict, Tuple
 
 
-class Solver:
-    root_dir: Path
-    output_dir: Path
-    proc_dir: Path
-    work_dir: Path
-    _name: str
-    dimension: int
-    timer: Dict[str, Dict]
+class Solver(py2dmat.solver.SolverBase):
     _func: Optional[Callable[[np.ndarray], float]]
 
     def __init__(self,
@@ -44,21 +37,8 @@ class Solver:
         info: Info
         fn: callable object
         """
-        self.root_dir = info.base["root_dir"]
-        self.output_dir = info.base["output_dir"]
-        self.proc_dir = self.output_dir / str(py2dmat.mpi.rank())
-        self.work_dir = self.proc_dir
-
-        self.dimension = info.solver.get("dimension") or info.base.get("dimension")
-
         self._name = "function"
         self._func = fn
-
-        self.timer = {"prepare": {}, "run": {}, "post": {}}
-
-    @property
-    def name(self) -> str:
-        return self._name
 
     def evaluate(self, x: np.ndarray, args = (), nprocs: int = 1, nthreads: int = 1) -> float:
         if self._func is None:
