@@ -66,24 +66,22 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             time_end = time.perf_counter()
             self.timer["run"]["submit"] += time_end - time_sta
 
-            fx_list.append(fx)
+            fx_list.append([mesh[0], fx])
             # print("mesh after:", mesh)
 
         self.fx_list = fx_list
 
         if iterations > 0:
-            fx_order = np.argsort(fx_list)
-            # minimum_point = []
-            # print("mesh_list[fx_order[0]]:")
-            # print(self.mesh_list[fx_order[0]])
-            # for index in range(1, dimension + 1):
-            #     minimum_point.append(self.mesh_list[fx_order[0]][index])
-            opt_index = fx_order[0]
-            self.opt_fx = fx_list[opt_index]
-            self.opt_mesh = np.array(self.mesh_list[opt_index])
+            opt_index = np.argsort(fx_list, axis=0)[0][1]
+            opt_id, opt_fx = fx_list[opt_index]
+            opt_mesh = self.mesh_list[opt_index]
 
-            print("minimum_point: {}".format(self.opt_mesh))
-            print("minimum_value: {}".format(self.opt_fx))
+            # assert opt_id == opt_mesh[0]
+
+            self.opt_fx = opt_fx
+            self.opt_mesh = opt_mesh
+
+            print(f"[{self.mpirank}] minimum_value: {opt_fx:12.8e} at {opt_mesh[1:]} (mesh {opt_mesh[0]})")
 
         self._output_results()
 
@@ -91,13 +89,12 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
     def _output_results(self):
         print("Make ColorMap")
-
         time_sta = time.perf_counter()
 
         with open("ColorMap.txt", "w") as fp:
             fp.write("#" + " ".join(self.label_list) + " fval\n")
 
-            for x, fx in zip(self.mesh_list, self.fx_list):
+            for x, (idx, fx) in zip(self.mesh_list, self.fx_list):
                 fp.write(" ".join(
                     map(lambda v: "{:8f}".format(v), (*x[1:], fx))
                     ) + "\n")
@@ -122,16 +119,13 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         if self.mpisize > 1:
             fx_lists = self.mpicomm.allgather(self.fx_list)
             results = [v for vs in fx_lists for v in vs]
-
-            mesh_lists = self.mpicomm.allgather(self.mesh_list)
-            coords = [v for vs in mesh_lists for v in vs]
         else:
             results = self.fx_list
-            coords = self.mesh_list
 
         if self.mpirank == 0:
             with open("ColorMap.txt", "w") as fp:
-                for x, fx in zip(coords, results):
+                for x, (idx, fx) in zip(self.domain.grid, results):
+                    assert x[0] == idx
                     fp.write(" ".join(
                         map(lambda v: "{:8f}".format(v), (*x[1:], fx))
                     ) + "\n")
