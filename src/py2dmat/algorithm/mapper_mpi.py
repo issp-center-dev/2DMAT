@@ -42,6 +42,8 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         self.domain.do_split()
         self.mesh_list = self.domain.grid_local
 
+        self.colormap_file = info.algorithm.get("colormap", "ColorMap.txt")
+
 
     def _run(self) -> None:
         # Make ColorMap
@@ -91,7 +93,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         print("Make ColorMap")
         time_sta = time.perf_counter()
 
-        with open("ColorMap.txt", "w") as fp:
+        with open(self.colormap_file, "w") as fp:
             fp.write("#" + " ".join(self.label_list) + " fval\n")
 
             for x, (idx, fx) in zip(self.mesh_list, self.fx_list):
@@ -123,7 +125,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             results = self.fx_list
 
         if self.mpirank == 0:
-            with open("ColorMap.txt", "w") as fp:
+            with open(self.colormap_file, "w") as fp:
                 for x, (idx, fx) in zip(self.domain.grid, results):
                     assert x[0] == idx
                     fp.write(" ".join(
