@@ -14,10 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
-from typing import List
+from typing import List, Union
 import time
 
 import numpy as np
+import scipy
 from scipy.optimize import minimize
 
 import py2dmat
@@ -44,8 +45,9 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
     itera: int
     funcalls: int
     allvecs: List[np.ndarray]
-    fx_for_simplex_list: List[float]
-    callback_list: List[List[int]]
+
+    iter_history: List[List[Union[int,float]]]
+    fev_history: List[List[Union[int,float]]]
 
     def __init__(self, info: py2dmat.Info,
                  runner: py2dmat.Runner = None,
@@ -61,8 +63,8 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         self.max_list = self.domain.max_list
         self.unit_list = self.domain.unit_list
 
-        self.domain.initialize(rng=self.rng, limitation=runner.limitation)
-        self.initial_list = self.domain.initial_list[0]
+        self.domain.initialize(rng=self.rng, limitation=runner.limitation, num_walkers=self.mpisize)
+        self.initial_list = self.domain.initial_list[self.mpirank]
 
         info_minimize = info.algorithm.get("minimize", {})
         self.initial_scale_list = info_minimize.get(
@@ -75,48 +77,54 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
     def _run(self) -> None:
         run = self.runner
-        callback_list = []
 
         min_list = self.min_list
         max_list = self.max_list
         unit_list = self.unit_list
         label_list = self.label_list
-        dimension = self.dimension
 
         step = [0]
+        iter_history = []
+        fev_history = []
 
-        def _f_calc(x_list: np.ndarray, extra_data: bool = False) -> float:
-            out_of_range = False
-            for index in range(dimension):
-                if x_list[index] < min_list[index] or x_list[index] > max_list[index]:
-                    print(
-                        "Warning: {} = {} is out of range [{}, {}].".format(
-                            label_list[index],
-                            x_list[index],
-                            min_list[index],
-                            max_list[index],
-                        )
-                    )
-                    out_of_range = True
-            
-            if not self.runner.limitation.judge(x_list):
-                msg ="Warning: "
-                msg+="Variables do not satisfy the constraint formula.\n"
-                for index in range(dimension):
-                    msg+="{} = {}\n".format(label_list[index],x_list[index])
-                print(msg,end="")
-                out_of_range = True
+        f0 = run.submit(self.initial_list, (0, 0))
+        iter_history.append([*self.initial_list, f0])
 
-            for index in range(dimension):
-                x_list[index] /= unit_list[index]
-            y = float("inf")
-            if not out_of_range:
-                step[0] += 1
-                set = 1 if extra_data else 0
-                args = (step[0], set)
-                y = run.submit(x_list, args)
-                if not extra_data:
-                    callback_list.append([step[0], *x_list, y])
+        scipy_version = [int(s) for s in scipy.__version__.split('.')]
+
+        if scipy_version[0] >= 1 and scipy_version[1] >= 11:
+            def _cb(intermediate_result):
+                x = intermediate_result.x
+                fun = intermediate_result.fun
+                print("eval: x={}, fun={}".format(x, fun))
+                iter_history.append([*x, fun])
+        else:
+            def _cb(x):
+                fun = _f_calc(x, 1)
+                print("eval: x={}, fun={}".format(x, fun))
+                iter_history.append([*x, fun])
+
+        def _f_calc(x_list: np.ndarray, iset) -> float:
+            # check if within region -> boundary option in minimize
+            # note: 'bounds' option supported in scipy >= 1.7.0
+            in_range = np.all((min_list < x_list) & (x_list < max_list))
+            if not in_range:
+                print("Warning: out of range: {}".format(x_list))
+                return float("inf")
+
+            # check if limitation satisfied
+            in_limit = self.runner.limitation.judge(x_list)
+            if not in_limit:
+                print("Warning: variables do not satisfy the constraint formula")
+                return float("inf")
+
+            x_list /= unit_list
+
+            step[0] += 1
+            args = (step[0], iset)
+            y = run.submit(x_list, args)
+            if iset == 0:
+                fev_history.append([step[0], *x_list, y])
             return y
 
         time_sta = time.perf_counter()
@@ -124,6 +132,8 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             _f_calc,
             self.initial_list,
             method="Nelder-Mead",
+            args=(0,),
+            # bounds=[(a,b) for a,b in zip(min_list, max_list)],
             options={
                 "xatol": self.xtol,
                 "fatol": self.ftol,
@@ -133,7 +143,9 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                 "maxfev": self.maxfev,
                 "initial_simplex": self.initial_simplex_list,
             },
+            callback=_cb,
         )
+
         self.xopt = optres.x
         self.fopt = optres.fun
         self.itera = optres.nit
@@ -142,79 +154,69 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         time_end = time.perf_counter()
         self.timer["run"]["min_search"] = time_end - time_sta
 
-        extra_data = True
-        fx_for_simplex_list = []
-        step[0] = 0
-        print("iteration:", self.itera)
-        print("len(allvecs):", len(self.allvecs))
+        self.iter_history = iter_history
+        self.fev_history = fev_history
 
-        time_sta = time.perf_counter()
-        for _ in range(self.itera):
-            print("step:", step[0])
-            print("allvecs[step]:", self.allvecs[step[0]])
-            fx_for_simplex_list.append(_f_calc(self.allvecs[step[0]], extra_data))
-        time_end = time.perf_counter()
-        self.timer["run"]["recalc"] = time_end - time_sta
+        self._output_results()
 
-        self.fx_for_simplex_list = fx_for_simplex_list
-        self.callback_list = callback_list
+        if self.mpisize > 1:
+            self.mpicomm.barrier()
 
     def _prepare(self):
         # make initial simplex
-        initial_simplex_list = []
-        initial_list = self.initial_list
-        initial_scale_list = self.initial_scale_list
-        initial_simplex_list.append(initial_list)
+        #   [ v0, v0+a_1*e_1, v0+a_2*e_2, ... v0+a_d*e_d ]
+        # where a = ( a_1 a_2 a_3 ... a_d ) and e_k is a unit vector along k-axis
+        v = np.array(self.initial_list)
+        a = np.array(self.initial_scale_list)
+        self.initial_simplex_list = np.vstack((v, v + np.diag(a)))
 
-        for index in range(self.dimension):
-            initial_list2 = []
-            for index2 in range(self.dimension):
-                if index2 == index:
-                    initial_list2.append(
-                        initial_list[index2] + initial_scale_list[index2]
-                    )
-                else:
-                    initial_list2.append(initial_list[index2])
-            initial_simplex_list.append(initial_list2)
+    def _output_results(self):
+        label_list = self.label_list
 
-        self.initial_list = initial_list
-        self.initial_simplex_list = initial_simplex_list
+        with open("SimplexData.txt", "w") as fp:
+            fp.write("#step " + " ".join(label_list) + " R-factor\n")
+            for i, v in enumerate(self.iter_history):
+                fp.write(str(i) + " " + " ".join(map(str,v)) + "\n")
+
+        with open("History_FunctionCall.txt", "w") as fp:
+            fp.write("#No " + " ".join(label_list) + "\n")
+            for i, v in enumerate(self.fev_history):
+                fp.write(" ".join(map(str,v)) + "\n")
+
+        with open("res.txt", "w") as fp:
+            fp.write(f"fx = {self.fopt}\n")
+            for x, y in zip(label_list, self.xopt):
+                fp.write(f"{x} = {y}\n")
+            fp.write(f"iterations = {self.itera}\n")
+            fp.write(f"function_evaluations = {self.funcalls}\n")
 
     def _post(self):
-        dimension = self.dimension
-        label_list = self.label_list
-        with open("SimplexData.txt", "w") as file_SD:
-            file_SD.write("#step")
-            for label in label_list:
-                file_SD.write(" ")
-                file_SD.write(label)
-            file_SD.write(" R-factor\n")
-            for step in range(self.itera):
-                file_SD.write(str(step))
-                for v in self.allvecs[step]:
-                    file_SD.write(f" {v}")
-                file_SD.write(f" {self.fx_for_simplex_list[step]}\n")
+        result = {
+            "x": self.xopt,
+            "fx": self.fopt,
+            "x0": self.initial_list,
+        }
 
-        with open("History_FunctionCall.txt", "w") as file_callback:
-            file_callback.write("#No")
-            for label in label_list:
-                file_callback.write(" ")
-                file_callback.write(label)
-            file_callback.write("\n")
-            for callback in self.callback_list:
-                for v in callback[0 : dimension + 2]:
-                    file_callback.write(str(v))
-                    file_callback.write(" ")
-                file_callback.write("\n")
+        if self.mpisize > 1:
+            results = self.mpicomm.allgather(result)
+        else:
+            results = [result]
 
-        print("Current function value:", self.fopt)
-        print("Iterations:", self.itera)
-        print("Function evaluations:", self.funcalls)
-        print("Solution:")
-        for x, y in zip(label_list, self.xopt):
-            print(x, "=", y)
-        with open("res.txt", "w") as f:
-            f.write(f"fx = {self.fopt}\n")
-            for x, y in zip(label_list, self.xopt):
-                f.write(f"{x} = {y}\n")
-        return {"x": self.xopt, "fx": self.fopt}
+        xs = [v["x"] for v in results]
+        fxs = [v["fx"] for v in results]
+        x0s = [v["x0"] for v in results]
+
+        idx = np.argmin(fxs)
+
+        if self.mpirank == 0:
+            label_list = self.label_list
+            with open("res.txt", "w") as fp:
+                fp.write(f"fx = {fxs[idx]}\n")
+                for x, y in zip(label_list, xs[idx]):
+                    fp.write(f"{x} = {y}\n")
+                if len(results) > 1:
+                    fp.write(f"index = {idx}\n")
+                    for x, y in zip(label_list, x0s[idx]):
+                        fp.write(f"initial {x} = {y}\n")
+
+        return {"x": xs[idx], "fx": fxs[idx], "x0": x0s[idx]}
