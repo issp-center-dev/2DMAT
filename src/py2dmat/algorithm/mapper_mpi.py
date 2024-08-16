@@ -167,7 +167,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
         if self.mpirank == 0:
             with open(self.colormap_file, "w") as fp:
-                fp.write("#" + " ".join(self.label_list) + " fval\n")
+                # fp.write("#" + " ".join(self.label_list) + " fval\n")
                 for x, (idx, fx) in zip(self.domain.grid, results):
                     assert x[0] == idx
                     fp.write(" ".join(
