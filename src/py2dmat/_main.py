@@ -34,7 +34,7 @@ def main():
     parser.add_argument("--version", action="version", version=py2dmat.__version__)
 
     mode_group = parser.add_mutually_exclusive_group()
-    mode_group.add_argument("--init", action="store_true", default=True, help="initial start (default)")
+    mode_group.add_argument("--init", action="store_true", help="initial start (default)")
     mode_group.add_argument("--resume", action="store_true", help="resume intterupted run")
     mode_group.add_argument("--cont", action="store_true", help="continue from previous run")
 
@@ -101,7 +101,7 @@ def main():
         if args.reset_rand is True:
             run_mode = "continue-initrand"
     else:
-        raise ValueError("unknown mode. choose one of --init, --resume, or --cont")
+        run_mode = "initial"  # default
 
     solver = Solver(info)
     runner = py2dmat.Runner(solver, info)
