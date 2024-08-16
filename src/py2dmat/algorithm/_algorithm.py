@@ -22,6 +22,8 @@ from enum import IntEnum
 import time
 import os
 import pathlib
+import pickle
+import shutil
 
 import numpy as np
 
@@ -37,12 +39,10 @@ from typing import List, Optional, TYPE_CHECKING, Dict, Tuple
 if TYPE_CHECKING:
     from mpi4py import MPI
 
-
 class AlgorithmStatus(IntEnum):
     INIT = 1
     PREPARE = 2
     RUN = 3
-
 
 class AlgorithmBase(metaclass=ABCMeta):
     mpicomm: Optional["MPI.Comm"]
@@ -60,6 +60,7 @@ class AlgorithmBase(metaclass=ABCMeta):
     timer: Dict[str, Dict]
 
     status: AlgorithmStatus = AlgorithmStatus.INIT
+    mode: Optional[str] = None
 
     @abstractmethod
     def __init__(
@@ -71,6 +72,7 @@ class AlgorithmBase(metaclass=ABCMeta):
         self.timer = {"init": {}, "prepare": {}, "run": {}, "post": {}}
         self.timer["init"]["total"] = 0.0
         self.status = AlgorithmStatus.INIT
+        self.mode = None
 
         self.dimension = info.algorithm.get("dimension") or info.base.get("dimension")
         if not self.dimension:
@@ -98,6 +100,12 @@ class AlgorithmBase(metaclass=ABCMeta):
             time.sleep(0.1)
         if self.mpisize > 1:
             self.mpicomm.Barrier()
+
+        # checkpointing
+        self.checkpoint = info.algorithm.get("checkpoint", False)
+        self.checkpoint_file = info.algorithm.get("checkpoint_file", "status.pickle")
+        self.checkpoint_steps = info.algorithm.get("checkpoint_steps", 65536*256)  # large number
+        self.checkpoint_interval = info.algorithm.get("checkpoint_interval", 86400*360)  # longer enough
 
         # runner
         if runner is not None:
@@ -156,7 +164,9 @@ class AlgorithmBase(metaclass=ABCMeta):
     def _post(self) -> Dict:
         pass
 
-    def main(self):
+    def main(self, run_mode: str = "initialize"):
+        self.mode = run_mode.lower()
+
         time_sta = time.perf_counter()
         self.prepare()
         time_end = time.perf_counter()
@@ -197,3 +207,39 @@ class AlgorithmBase(metaclass=ABCMeta):
             output_file("prepare")
             output_file("run")
             output_file("post")
+
+    def _save_data(self, data, filename="state.pickle", ngen=3) -> None:
+        try:
+            fn = Path(filename + ".tmp")
+            with open(fn, "wb") as f:
+                pickle.dump(data, f)
+        except Exception as e:
+            print("ERROR: {}".format(e))
+            sys.exit(1)
+
+        for idx in range(ngen-1, 0, -1):
+            fn_from = Path(filename + "." + str(idx))
+            fn_to = Path(filename + "." + str(idx+1))
+            if fn_from.exists():
+                shutil.move(fn_from, fn_to)
+        if ngen > 0:
+            if Path(filename).exists():
+                fn_to = Path(filename + "." + str(1))
+                shutil.move(Path(filename), fn_to)
+        shutil.move(Path(filename + ".tmp"), Path(filename))
+        print("save_state: write to {}".format(filename))
+
+    def _load_data(self, filename="state.pickle") -> Dict:
+        if Path(filename).exists():
+            try:
+                fn = Path(filename)
+                with open(fn, "rb") as f:
+                    data = pickle.load(f)
+            except Exception as e:
+                print("ERROR: {}".format(e))
+                sys.exit(1)
+            print("load_state: load from {}".format(filename))
+        else:
+            print("ERROR: file {} not exist.".format(filename))
+            data = {}
+        return data
