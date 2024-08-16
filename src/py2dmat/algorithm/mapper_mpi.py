@@ -43,39 +43,76 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         self.mesh_list = self.domain.grid_local
 
         self.colormap_file = info.algorithm.get("colormap", "ColorMap.txt")
+        self.local_colormap_file = Path(self.colormap_file).name + ".tmp"
 
+    def _initialize(self) -> None:
+        self.fx_list = []
+        self.timer["run"]["submit"] = 0.0
 
     def _run(self) -> None:
         # Make ColorMap
-        label_list = self.label_list
-        dimension = self.dimension
-        run = self.runner
 
-        fx_list = []
-        self.timer["run"]["submit"] = 0.0
+        # label_list = self.label_list
+        # dimension = self.dimension
 
+        # fx_list = []
+        # self.timer["run"]["submit"] = 0.0
+
+        if self.mode is None:
+            raise RuntimeError("mode unset")
+
+        if self.mode.startswith("init"):
+            # print(">>> initialize")
+            self._initialize()
+        elif self.mode.startswith("resume"):
+            # print(">>> resume")
+            self._load_state(self.checkpoint_file)
+        else:
+            raise RuntimeError("unknown mode {}".format(self.mode))
+
+        # local colormap file
+        fp = open(self.local_colormap_file, "a")
+        if self.mode.startswith("init"):
+            fp.write("#" + " ".join(self.label_list) + " fval\n")
+        
         iterations = len(self.mesh_list)
-        for iteration_count, mesh in enumerate(self.mesh_list):
-            print("Iteration : {}/{}".format(iteration_count + 1, iterations))
-            # print("mesh before:", mesh)
+        istart = len(self.fx_list)
+
+        # print(">>> iterations={}, istart={}".format(iterations, istart))
+
+        next_checkpoint_step = istart + self.checkpoint_steps
+        next_checkpoint_time = time.time() + self.checkpoint_interval
+
+        for icount in range(istart, iterations):
+            print("Iteration : {}/{}".format(icount+1, iterations))
+            mesh = self.mesh_list[icount]
 
             # update information
             args = (int(mesh[0]), 0)
             x = np.array(mesh[1:])
 
             time_sta = time.perf_counter()
-            fx = run.submit(x, args)
+            fx = self.runner.submit(x, args)
             time_end = time.perf_counter()
             self.timer["run"]["submit"] += time_end - time_sta
 
-            fx_list.append([mesh[0], fx])
-            # print("mesh after:", mesh)
+            self.fx_list.append([mesh[0], fx])
 
-        self.fx_list = fx_list
+            # write to local colormap file
+            fp.write(" ".join(
+                map(lambda v: "{:8f}".format(v), (*x, fx))
+            ) + "\n")
+
+            if self.checkpoint:
+                time_now = time.time()
+                if icount+1 >= next_checkpoint_step or time_now >= next_checkpoint_time:
+                    self._save_state(self.checkpoint_file)
+                    next_checkpoint_step = icount + 1 + self.checkpoint_steps
+                    next_checkpoint_time = time_now + self.checkpoint_interval
 
         if iterations > 0:
-            opt_index = np.argsort(fx_list, axis=0)[0][1]
-            opt_id, opt_fx = fx_list[opt_index]
+            opt_index = np.argsort(self.fx_list, axis=0)[0][1]
+            opt_id, opt_fx = self.fx_list[opt_index]
             opt_mesh = self.mesh_list[opt_index]
 
             # assert opt_id == opt_mesh[0]
@@ -86,6 +123,10 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             print(f"[{self.mpirank}] minimum_value: {opt_fx:12.8e} at {opt_mesh[1:]} (mesh {opt_mesh[0]})")
 
         self._output_results()
+
+        if Path(self.local_colormap_file).exists():
+            # print(">>> remove local colormap file {}".format(self.local_colormap_file))
+            os.remove(Path(self.local_colormap_file))
 
         print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
 
@@ -126,6 +167,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
         if self.mpirank == 0:
             with open(self.colormap_file, "w") as fp:
+                fp.write("#" + " ".join(self.label_list) + " fval\n")
                 for x, (idx, fx) in zip(self.domain.grid, results):
                     assert x[0] == idx
                     fp.write(" ".join(
@@ -134,3 +176,32 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
         return {}
 
+    def _save_state(self, filename) -> None:
+        data = {
+            #-- _algorithm
+            "mpisize": self.mpisize,
+            "mpirank": self.mpirank,
+            #"rng": self.rng.get_state(),
+            "timer": self.timer,
+            #-- mapper
+            "fx_list": self.fx_list,
+        }
+        self._save_data(data, filename)
+
+    def _load_state(self, filename, restore_rng=True):
+        data = self._load_data(filename)
+        if not data:
+            print("ERROR: Load status file failed")
+            sys.exit(1)
+
+        #-- _algorithm
+        assert self.mpisize == data["mpisize"]
+        assert self.mpirank == data["mpirank"]
+
+        # if restore_rng:
+        #     self.rng = np.random.RandomState()
+        #     self.rng.set_state(data["rng"])
+        self.timer = data["timer"]
+
+        #-- mapper
+        self.fx_list = data["fx_list"]
