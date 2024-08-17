@@ -258,7 +258,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         next_checkpoint_time = time.time() + self.checkpoint_interval
 
         if self.verbose:
-            print("β mean[f] Err[f] nreplica log(Z/Z0) acceptance_ratio")
+            print("\u03b2 mean[f] Err[f] nreplica log(Z/Z0) acceptance_ratio")
 
         numT = len(self.betas)
         while self.Tindex < numT:
