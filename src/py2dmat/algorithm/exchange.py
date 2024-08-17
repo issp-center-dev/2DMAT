@@ -83,17 +83,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
         super().__init__(info=info, runner=runner, nwalkers=nwalkers)
 
-        # if self.mpicomm is None:
-        #     msg = "ERROR: algorithm.exchange requires mpi4py, but mpi4py cannot be imported"
-        #     raise ImportError(msg)
-
         self.nreplica = self.mpisize * self.nwalkers
         self.input_as_beta, self.betas = read_Ts(info_exchange, numT=self.nreplica)
-        # self.Tindex = np.arange(
-        #     self.mpirank * self.nwalkers, (self.mpirank + 1) * self.nwalkers
-        # )
-        # self.rep2T = np.arange(self.nreplica)
-        # self.T2rep = np.arange(self.nreplica)
 
         self.numsteps = info_exchange["numsteps"]
         self.numsteps_exchange = info_exchange["numsteps_exchange"]
@@ -137,12 +128,6 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             raise RuntimeError("unknown mode {}".format(self.mode))
 
         beta = self.betas[self.Tindex]
-        # self.exchange_direction = True
-
-        # self.istep = 0
-
-        # # first step
-        # self._evaluate()
 
         if self.mode.startswith("init"):
             # first step
@@ -168,15 +153,6 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
         next_checkpoint_step = self.istep + self.checkpoint_steps
         next_checkpoint_time = time.time() + self.checkpoint_interval
-
-        # print(">>> checkpoint={}".format(self.checkpoint))
-        # print(">>> checkpoint_file={}".format(self.checkpoint_file))
-        # print(">>> checkpoint_steps={}".format(self.checkpoint_steps))
-        # print(">>> checkpoint_interval={}".format(self.checkpoint_interval))
-        # print(">>> istep=               {}".format(self.istep))
-        # print(">>> next_checkpoint_step={}".format(next_checkpoint_step))
-        # print(">>> current_time=        {}".format(time.time()))
-        # print(">>> next_checkpoint_time={}".format(next_checkpoint_time))
 
         while self.istep < self.numsteps:
             # print(">>> istep={}".format(self.istep))

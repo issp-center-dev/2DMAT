@@ -120,8 +120,6 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
                 self.domain = py2dmat.domain.Region(info)
 
         if self.iscontinuous:
-            # self.domain.initialize(rng=self.rng, limitation=self.runner.limitation, num_walkers=nwalkers)
-            # self.x = self.domain.initial_list
             self.xmin = self.domain.min_list
             self.xmax = self.domain.max_list
             self.xunit = self.domain.unit_list
@@ -129,20 +127,12 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         else:
             self.node_coordinates = np.array(self.domain.grid)[:, 1:]
             self.nnodes = self.node_coordinates.shape[0]
-            # self.inode = self.rng.randint(self.nnodes, size=self.nwalkers)
-            # self.x = self.node_coordinates[self.inode, :]
             self._setup_neighbour(info_param)
 
-        # self.fx = np.zeros(self.nwalkers)
-        # self.best_fx = 0.0
-        # self.best_istep = 0
-        # self.best_iwalker = 0
         time_end = time.perf_counter()
         self.timer["init"]["total"] = time_end - time_sta
         self.Tindex = 0
         self.input_as_beta = False
-        # self.naccepted = 0
-        # self.ntrial = 0
 
     def _initialize(self):
         if self.iscontinuous:

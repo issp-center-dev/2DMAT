@@ -26,7 +26,6 @@ import py2dmat
 import py2dmat.domain
 
 class Algorithm(py2dmat.algorithm.AlgorithmBase):
-    #mesh_list: np.ndarray
     mesh_list: List[Union[int, float]]
 
     def __init__(self, info: py2dmat.Info,
@@ -51,12 +50,6 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
     def _run(self) -> None:
         # Make ColorMap
-
-        # label_list = self.label_list
-        # dimension = self.dimension
-
-        # fx_list = []
-        # self.timer["run"]["submit"] = 0.0
 
         if self.mode is None:
             raise RuntimeError("mode unset")
