@@ -19,6 +19,7 @@ from typing import List, Dict, Union
 from io import open
 import copy
 import time
+import sys
 
 import numpy as np
 
@@ -104,9 +105,9 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.verbose = True and self.mpirank == 0
 
         numT = self._find_scheduling(info_pamc)
-        
+
         # super()._initialize()
-            
+
         #self.betas = self.read_Ts(info_pamc, numT=numT)
         self.input_as_beta, self.betas = read_Ts(info_pamc, numT=numT)
         self.betas.sort()
@@ -134,7 +135,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         # self.acceptance_ratio = np.zeros(numT)
 
         #self._initialize()
-        
+
         time_end = time.perf_counter()
         self.timer["init"]["total"] = time_end - time_sta
 
@@ -147,7 +148,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         # self.Tindex = 0
 
         numT = len(self.betas)
-            
+
         self.logZ = 0.0
         self.logZs = np.zeros(numT)
         self.logweights = np.zeros(self.nwalkers)
@@ -168,8 +169,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.fx_from_reset = np.zeros((self.resampling_interval, self.nwalkers))
         self.naccepted_from_reset = np.zeros((self.resampling_interval, 2), dtype=int)
         self.acceptance_ratio = np.zeros(numT)
-        
-        
+
+
     def _find_scheduling(self, info_pamc) -> int:
         numsteps = info_pamc.get("numsteps", 0)
         numsteps_annealing = info_pamc.get("numsteps_annealing", 0)
@@ -205,9 +206,13 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             numT = len(ss)
 
         return numT
-    
+
     def _run(self) -> None:
 
+        if self.mode is None:
+            raise RuntimeError("mode unset")
+
+        restore_rng = not self.mode.endswith("-initrand")
         if self.mode.startswith("init"):
             self._initialize()
 
@@ -216,19 +221,16 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             self.istep = 0
 
             beta = self.betas[self.Tindex]
-
             self._evaluate()
 
             file_trial = open("trial_T0.txt", "w")
-            self._write_result_header(file_trial, ("weight", "ancestor"))
+            self._write_result_header(file_trial, ["weight", "ancestor"])
             self._write_result(file_trial, [np.exp(self.logweights), self.walker_ancestors])
             file_trial.close()
 
             file_result = open("result_T0.txt", "w")
-            self._write_result_header(file_result, ("weight", "ancestor"))
-            self._write_result(
-                file_result, [np.exp(self.logweights), self.walker_ancestors]
-            )
+            self._write_result_header(file_result, ["weight", "ancestor"])
+            self._write_result(file_result, [np.exp(self.logweights), self.walker_ancestors])
             file_result.close()
 
             self.istep += 1
@@ -239,8 +241,21 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             self.best_istep = 0
             self.best_iwalker = 0
 
+        elif self.mode.startswith("resume"):
+            self._load_state(self.checkpoint_file, mode="resume", restore_rng=restore_rng)
+
+        elif self.mode.startswith("continue"):
+            self._load_state(self.checkpoint_file, mode="continue", restore_rng=restore_rng)
+
+            self.Tindex = 0
+            self.index_from_reset = 0
+            self.istep = 0
+
         else:
             raise RuntimeError("unknown mode {}".format(self.mode))
+
+        next_checkpoint_step = self.istep + self.checkpoint_steps
+        next_checkpoint_time = time.time() + self.checkpoint_interval
 
         if self.verbose:
             print("β mean[f] Err[f] nreplica log(Z/Z0) acceptance_ratio")
@@ -278,6 +293,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             file_trial.close()
             file_result.close()
 
+            # print(">>> istep={}".format(self.istep))
+
             self.fx_from_reset[self.index_from_reset, :] = self.fx[:]
             self.naccepted_from_reset[self.index_from_reset, 0] = self.naccepted
             self.naccepted_from_reset[self.index_from_reset, 1] = self.ntrial
@@ -299,11 +316,25 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
             self.Tindex += 1
 
+            if self.checkpoint:
+                time_now = time.time()
+                if self.istep >= next_checkpoint_step or time_now >= next_checkpoint_time:
+                    # print(">>> checkpoint")
+                    self._save_state(self.checkpoint_file)
+                    next_checkpoint_step = self.istep + self.checkpoint_steps
+                    next_checkpoint_time = time_now + self.checkpoint_interval
+
         if self.index_from_reset > 0:
             res = self._gather_information(self.index_from_reset)
             self._save_stats(res)
         file_result.close()
         file_trial.close()
+
+        # store final state for continuation
+        if self.checkpoint:
+            # print(">>> store final state")
+            self._save_state(self.checkpoint_file)
+
         if self.mpisize > 1:
             self.mpicomm.barrier()
         print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
@@ -564,3 +595,94 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             "step": best_istep[best_rank],
             "walker": best_iwalker[best_rank],
         }
+
+    def _save_state(self, filename) -> None:
+        data = {
+            #-- _algorithm
+            "mpisize": self.mpisize,
+            "mpirank": self.mpirank,
+            "rng": self.rng.get_state(),
+            "timer": self.timer,
+            #-- montecarlo
+            "x": self.x,
+            "fx": self.fx,
+            "inode": self.inode,
+            "istep": self.istep,
+            "best_x": self.best_x,
+            "best_fx": self.best_fx,
+            "best_istep": self.best_istep,
+            "best_iwalker": self.best_iwalker,
+            "naccepted": self.naccepted,
+            "ntrial": self.ntrial,
+            #-- pamc
+            "Tindex": self.Tindex,
+            "index_from_reset": self.index_from_reset,
+            "logZ": self.logZ,
+            "logZs": self.logZs,
+            "logweights": self.logweights,
+            "Fmeans": self.Fmeans,
+            "Ferrs": self.Ferrs,
+            "nreplicas": self.nreplicas,
+            "populations": self.populations,
+            "family_lo": self.family_lo,
+            "family_hi": self.family_hi,
+            "walker_ancestors": self.walker_ancestors,
+            "fx_from_reset": self.fx_from_reset,
+            "naccepted_from_reset": self.naccepted_from_reset,
+            "acceptance_ratio": self.acceptance_ratio,
+        }
+        self._save_data(data, filename)
+
+    def _load_state(self, filename, mode="resume", restore_rng=True):
+        data = self._load_data(filename)
+        if not data:
+            print("ERROR: Load status file failed")
+            sys.exit(1)
+
+        #-- _algorithm
+        assert self.mpisize == data["mpisize"]
+        assert self.mpirank == data["mpirank"]
+
+        if restore_rng:
+            self.rng = np.random.RandomState()
+            self.rng.set_state(data["rng"])
+        self.timer = data["timer"]
+
+        #-- montecarlo
+        self.x = data["x"]
+        self.fx = data["fx"]
+        self.inode = data["inode"]
+
+        if mode == "resume":
+            self.istep = data["istep"]
+
+        self.best_x = data["best_x"]
+        self.best_fx = data["best_fx"]
+        self.best_istep = data["best_istep"]
+        self.best_iwalker = data["best_iwalker"]
+
+        self.naccepted = data["naccepted"]
+        self.ntrial = data["ntrial"]
+
+        #-- pamc
+        self.Tindex = data["Tindex"]
+        self.index_from_reset = data["index_from_reset"]
+        self.logZ = data["logZ"]
+        self.logZs = data["logZs"]
+        self.logweights = data["logweights"]
+        self.Fmeans = data["Fmeans"]
+        self.Ferrs = data["Ferrs"]
+        self.nreplicas = data["nreplicas"]
+        self.populations = data["populations"]
+
+        #assert self.mpirank * self.nwalkers == data["family_lo"]
+        #assert (self.mpirank+1) * self.nwalkers == data["family_hi"]
+        self.family_lo = data["family_lo"]
+        self.family_hi = data["family_hi"]
+
+        self.fx_from_reset = data["fx_from_reset"]
+        self.walker_ancestors = data["walker_ancestors"]
+        self.naccepted_from_reset = data["naccepted_from_reset"]
+        self.acceptance_ratio = data["acceptance_ratio"]
+
+
