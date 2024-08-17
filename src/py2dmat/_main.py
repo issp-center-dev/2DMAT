@@ -95,11 +95,11 @@ def main():
     elif args.resume is True:
         run_mode = "resume"
         if args.reset_rand is True:
-            run_mode = "resume-initrand"
+            run_mode = "resume-resetrand"
     elif args.cont is True:
         run_mode = "continue"
         if args.reset_rand is True:
-            run_mode = "continue-initrand"
+            run_mode = "continue-resetrand"
     else:
         run_mode = "initial"  # default
 

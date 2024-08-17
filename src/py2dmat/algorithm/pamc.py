@@ -180,7 +180,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         if self.mode is None:
             raise RuntimeError("mode unset")
 
-        restore_rng = not self.mode.endswith("-initrand")
+        restore_rng = not self.mode.endswith("-resetrand")
         if self.mode.startswith("init"):
             self._initialize()
 
