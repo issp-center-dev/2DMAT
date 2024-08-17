@@ -223,15 +223,17 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             print("β mean[f] Err[f] nreplica log(Z/Z0) acceptance_ratio")
 
         file_trial = open("trial_T0.txt", "w")
+        self._write_result_header(file_trial, ("weight", "ancestor"))
+        self._write_result(file_trial, [np.exp(self.logweights), self.walker_ancestors])
+        file_trial.close()
+
         file_result = open("result_T0.txt", "w")
         self._write_result_header(file_result, ("weight", "ancestor"))
         self._write_result(
             file_result, [np.exp(self.logweights), self.walker_ancestors]
         )
-        self._write_result_header(file_trial, ("weight", "ancestor"))
-        self._write_result(file_trial, [np.exp(self.logweights), self.walker_ancestors])
-        file_trial.close()
         file_result.close()
+
         self.istep += 1
 
         minidx = np.argmin(self.fx)
@@ -240,18 +242,25 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.best_istep = 0
         self.best_iwalker = 0
 
-        index_from_reset = 0
-        for Tindex, beta in enumerate(self.betas):
-            self.Tindex = Tindex
+        self.index_from_reset = 0
+        # for Tindex, beta in enumerate(self.betas):
+        #     self.Tindex = Tindex
 
-            if Tindex > 0:
-                file_trial = open(f"trial_T{Tindex}.txt", "w")
-                file_result = open(f"result_T{Tindex}.txt", "w")
-                self._write_result_header(file_result, ["weight", "ancestor"])
-                self._write_result_header(file_trial, ["weight", "ancestor"])
-            else:
+        numT = len(self.betas)
+
+        while self.Tindex < numT:
+            # print(">>> Tindex = {}".format(self.Tindex))
+            Tindex = self.Tindex
+            beta = self.betas[self.Tindex]
+
+            if Tindex == 0:
                 file_trial = open(f"trial_T{Tindex}.txt", "a")
                 file_result = open(f"result_T{Tindex}.txt", "a")
+            else:  # Tindex=1,2,...
+                file_trial = open(f"trial_T{Tindex}.txt", "w")
+                self._write_result_header(file_trial, ["weight", "ancestor"])
+                file_result = open(f"result_T{Tindex}.txt", "w")
+                self._write_result_header(file_result, ["weight", "ancestor"])
 
             if self.nwalkers != 0:
                 for _ in range(self.numsteps_for_T[Tindex]):
@@ -271,25 +280,29 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             file_trial.close()
             file_result.close()
 
-            self.fx_from_reset[index_from_reset, :] = self.fx[:]
-            self.naccepted_from_reset[index_from_reset, 0] = self.naccepted
-            self.naccepted_from_reset[index_from_reset, 1] = self.ntrial
+            self.fx_from_reset[self.index_from_reset, :] = self.fx[:]
+            self.naccepted_from_reset[self.index_from_reset, 0] = self.naccepted
+            self.naccepted_from_reset[self.index_from_reset, 1] = self.ntrial
             self.naccepted = 0
             self.ntrial = 0
-            index_from_reset += 1
+            self.index_from_reset += 1
 
             if Tindex == len(self.betas) - 1:
                 break
+
             dbeta = self.betas[Tindex + 1] - self.betas[Tindex]
             self.logweights += -dbeta * self.fx
-            if index_from_reset == self.resampling_interval:
+            if self.index_from_reset == self.resampling_interval:
                 time_sta = time.perf_counter()
                 self._resample()
                 time_end = time.perf_counter()
                 self.timer["run"]["resampling"] += time_end - time_sta
-                index_from_reset = 0
-        if index_from_reset > 0:
-            res = self._gather_information(index_from_reset)
+                self.index_from_reset = 0
+
+            self.Tindex += 1
+
+        if self.index_from_reset > 0:
+            res = self._gather_information(self.index_from_reset)
             self._save_stats(res)
         file_result.close()
         file_trial.close()
