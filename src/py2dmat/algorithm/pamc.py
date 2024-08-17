@@ -101,6 +101,41 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
         super().__init__(info=info, runner=runner, nwalkers=nwalkers)
 
+        numT = self._find_scheduling(info_pamc)
+        
+        super()._initialize()
+            
+        #self.betas = self.read_Ts(info_pamc, numT=numT)
+        self.input_as_beta, self.betas = read_Ts(info_pamc, numT=numT)
+        self.betas.sort()
+        self.Tindex = 0
+
+        self.logZ = 0.0
+        self.logZs = np.zeros(numT)
+        self.logweights = np.zeros(self.nwalkers)
+
+        self.Fmeans = np.zeros(numT)
+        self.Ferrs = np.zeros(numT)
+        nreplicas = self.mpisize * self.nwalkers
+        self.nreplicas = np.full(numT, nreplicas)
+
+        self.populations = np.zeros((numT, self.nwalkers), dtype=int)
+        self.family_lo = self.nwalkers * self.mpirank
+        self.family_hi = self.nwalkers * (self.mpirank + 1)
+        self.walker_ancestors = np.arange(self.family_lo, self.family_hi)
+        self.fix_nwalkers = info_pamc.get("fix_num_replicas", True)
+        self.resampling_interval = info_pamc.get("resampling_interval", 1)
+        if self.resampling_interval < 1:
+            self.resampling_interval = numT + 1
+        self.fx_from_reset = np.zeros((self.resampling_interval, self.nwalkers))
+        self.naccepted_from_reset = np.zeros((self.resampling_interval, 2), dtype=int)
+        self.acceptance_ratio = np.zeros(numT)
+
+        time_end = time.perf_counter()
+        self.timer["init"]["total"] = time_end - time_sta
+
+    def _find_scheduling(self, info_pamc) -> int:
+        print(">>> _find_scheduling")
         numsteps = info_pamc.get("numsteps", 0)
         numsteps_annealing = info_pamc.get("numsteps_annealing", 0)
         numT = info_pamc.get("Tnum", 0)
@@ -134,37 +169,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             self.numsteps_for_T = np.array(ss)
             numT = len(ss)
 
-        super()._initialize()
-            
-        #self.betas = self.read_Ts(info_pamc, numT=numT)
-        self.input_as_beta, self.betas = read_Ts(info_pamc, numT=numT)
-        self.betas.sort()
-        self.Tindex = 0
-
-        self.logZ = 0.0
-        self.logZs = np.zeros(numT)
-        self.logweights = np.zeros(self.nwalkers)
-
-        self.Fmeans = np.zeros(numT)
-        self.Ferrs = np.zeros(numT)
-        nreplicas = self.mpisize * self.nwalkers
-        self.nreplicas = np.full(numT, nreplicas)
-
-        self.populations = np.zeros((numT, self.nwalkers), dtype=int)
-        self.family_lo = self.nwalkers * self.mpirank
-        self.family_hi = self.nwalkers * (self.mpirank + 1)
-        self.walker_ancestors = np.arange(self.family_lo, self.family_hi)
-        self.fix_nwalkers = info_pamc.get("fix_num_replicas", True)
-        self.resampling_interval = info_pamc.get("resampling_interval", 1)
-        if self.resampling_interval < 1:
-            self.resampling_interval = numT + 1
-        self.fx_from_reset = np.zeros((self.resampling_interval, self.nwalkers))
-        self.naccepted_from_reset = np.zeros((self.resampling_interval, 2), dtype=int)
-        self.acceptance_ratio = np.zeros(numT)
-
-        time_end = time.perf_counter()
-        self.timer["init"]["total"] = time_end - time_sta
-
+        return numT
+    
     def _run(self) -> None:
         beta = self.betas[self.Tindex]
         self.istep = 0
