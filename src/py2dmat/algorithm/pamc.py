@@ -27,6 +27,7 @@ import py2dmat.exception
 import py2dmat.algorithm.montecarlo
 import py2dmat.util.separateT
 import py2dmat.util.resampling
+from py2dmat.algorithm.montecarlo import read_Ts
 
 
 class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
@@ -133,7 +134,10 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             self.numsteps_for_T = np.array(ss)
             numT = len(ss)
 
-        self.betas = self.read_Ts(info_pamc, numT=numT)
+        super()._initialize()
+            
+        #self.betas = self.read_Ts(info_pamc, numT=numT)
+        self.input_as_beta, self.betas = read_Ts(info_pamc, numT=numT)
         self.betas.sort()
         self.Tindex = 0
 
