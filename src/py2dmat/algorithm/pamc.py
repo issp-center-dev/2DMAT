@@ -104,7 +104,6 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.verbose = True and self.mpirank == 0
 
         numT = self._find_scheduling(info_pamc)
-        print(">>> numT={}".format(numT))
         
         # super()._initialize()
             
@@ -145,10 +144,9 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         # #self.betas = self.read_Ts(info_pamc, numT=numT)
         # self.input_as_beta, self.betas = read_Ts(info_pamc, numT=numT)
         # self.betas.sort()
-        self.Tindex = 0
+        # self.Tindex = 0
 
         numT = len(self.betas)
-        print(">>> initialize: numT={}".format(numT))
             
         self.logZ = 0.0
         self.logZs = np.zeros(numT)
@@ -173,7 +171,6 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         
         
     def _find_scheduling(self, info_pamc) -> int:
-        print(">>> _find_scheduling")
         numsteps = info_pamc.get("numsteps", 0)
         numsteps_annealing = info_pamc.get("numsteps_annealing", 0)
         numT = info_pamc.get("Tnum", 0)
@@ -211,43 +208,44 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     
     def _run(self) -> None:
 
-        self._initialize()
+        if self.mode.startswith("init"):
+            self._initialize()
 
-        
-        beta = self.betas[self.Tindex]
-        self.istep = 0
+            self.Tindex = 0
+            self.index_from_reset = 0
+            self.istep = 0
 
-        self._evaluate()
+            beta = self.betas[self.Tindex]
+
+            self._evaluate()
+
+            file_trial = open("trial_T0.txt", "w")
+            self._write_result_header(file_trial, ("weight", "ancestor"))
+            self._write_result(file_trial, [np.exp(self.logweights), self.walker_ancestors])
+            file_trial.close()
+
+            file_result = open("result_T0.txt", "w")
+            self._write_result_header(file_result, ("weight", "ancestor"))
+            self._write_result(
+                file_result, [np.exp(self.logweights), self.walker_ancestors]
+            )
+            file_result.close()
+
+            self.istep += 1
+
+            minidx = np.argmin(self.fx)
+            self.best_x = copy.copy(self.x[minidx, :])
+            self.best_fx = np.min(self.fx[minidx])
+            self.best_istep = 0
+            self.best_iwalker = 0
+
+        else:
+            raise RuntimeError("unknown mode {}".format(self.mode))
 
         if self.verbose:
             print("β mean[f] Err[f] nreplica log(Z/Z0) acceptance_ratio")
 
-        file_trial = open("trial_T0.txt", "w")
-        self._write_result_header(file_trial, ("weight", "ancestor"))
-        self._write_result(file_trial, [np.exp(self.logweights), self.walker_ancestors])
-        file_trial.close()
-
-        file_result = open("result_T0.txt", "w")
-        self._write_result_header(file_result, ("weight", "ancestor"))
-        self._write_result(
-            file_result, [np.exp(self.logweights), self.walker_ancestors]
-        )
-        file_result.close()
-
-        self.istep += 1
-
-        minidx = np.argmin(self.fx)
-        self.best_x = copy.copy(self.x[minidx, :])
-        self.best_fx = np.min(self.fx[minidx])
-        self.best_istep = 0
-        self.best_iwalker = 0
-
-        self.index_from_reset = 0
-        # for Tindex, beta in enumerate(self.betas):
-        #     self.Tindex = Tindex
-
         numT = len(self.betas)
-
         while self.Tindex < numT:
             # print(">>> Tindex = {}".format(self.Tindex))
             Tindex = self.Tindex
@@ -287,7 +285,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             self.ntrial = 0
             self.index_from_reset += 1
 
-            if Tindex == len(self.betas) - 1:
+            if Tindex == numT - 1:
                 break
 
             dbeta = self.betas[Tindex + 1] - self.betas[Tindex]
@@ -308,11 +306,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         file_trial.close()
         if self.mpisize > 1:
             self.mpicomm.barrier()
-        print(
-            "complete main process : rank {:08d}/{:08d}".format(
-                self.mpirank, self.mpisize
-            )
-        )
+        print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
 
     def _gather_information(self, numT: int = None) -> Dict[str, np.ndarray]:
         """
