@@ -101,6 +101,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
         super().__init__(info=info, runner=runner, nwalkers=nwalkers)
 
+        self.verbose = True and self.mpirank == 0
+
         numT = self._find_scheduling(info_pamc)
         print(">>> numT={}".format(numT))
         
@@ -217,8 +219,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
         self._evaluate()
 
-        bprint = True
-        if bprint and self.mpirank == 0:
+        if self.verbose:
             print("β mean[f] Err[f] nreplica log(Z/Z0) acceptance_ratio")
 
         file_trial = open("trial_T0.txt", "w")
@@ -357,7 +358,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         res["logweights"] = logweights
         return res
 
-    def _save_stats(self, info: Dict[str, np.ndarray], bprint: bool = True) -> None:
+    def _save_stats(self, info: Dict[str, np.ndarray]) -> None:
         fxs = info["fxs"]
         numT, nreplicas = fxs.shape
         endTindex = self.Tindex + 1
@@ -394,18 +395,16 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             w = np.exp(logweights[-1, :] - bdiff * fxs[-1, :])
             self.logZ = self.logZs[startTindex] + np.log(w.mean())
 
-        if bprint and self.mpirank == 0:
+        if self.verbose:
             for iT in range(startTindex, endTindex):
-                for v in [
+                print(" ".join(map(str, [
                     self.betas[iT],
                     self.Fmeans[iT],
                     self.Ferrs[iT],
                     self.nreplicas[iT],
                     self.logZs[iT],
                     self.acceptance_ratio[iT],
-                ]:
-                    print(v, end=" ")
-                print()
+                ])))
 
     def _resample(self) -> None:
         res = self._gather_information()
