@@ -90,7 +90,7 @@ Otherwise, continuous space is used.
 
   Description: The number of interval Monte Carlo steps between lowering "temperature".
 
-- ``numT``
+- ``Tnum``
 
   Format: Integer
 
