@@ -138,6 +138,11 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             )
             time_end = time.perf_counter()
             self.timer["run"]["random_search"] = time_end - time_sta
+
+            # store initial state
+            if self.checkpoint:
+                print(">>> store initial state")
+                self._save_state(self.checkpoint_file)
         else:
             if self.istep >= self.bayes_max_num_probes:
                 res = copy.deepcopy(self.policy.history)
@@ -146,6 +151,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         next_checkpoint_time = time.time() + self.checkpoint_interval
 
         while self.istep < self.bayes_max_num_probes:
+            print(">>> step {}".format(self.istep+1))
             intv = 0 if self.istep % self.interval == 0 else -1
             
             time_sta = time.perf_counter()
@@ -241,9 +247,10 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                          file_training=tmp_tran,
                          file_predictor=tmp_pred)
 
-        shutil.move(tmp_hist, self.file_history)
-        shutil.move(tmp_tran, self.file_training)
-        shutil.move(tmp_pred, self.file_predictor)
+        if self.mpirank == 0:
+            shutil.move(tmp_hist, self.file_history)
+            shutil.move(tmp_tran, self.file_training)
+            shutil.move(tmp_pred, self.file_predictor)
 
     def _load_state(self, filename, mode="resume", restore_rng=True):
         data = self._load_data(filename)
