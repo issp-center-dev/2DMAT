@@ -18,13 +18,13 @@ from typing import List
 import time
 import shutil
 import copy
+from pathlib import Path
 
 import physbo
 import numpy as np
 
 import py2dmat
 import py2dmat.domain
-
 
 class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
@@ -65,12 +65,13 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         self.interval = info_bayes.get("interval", 5)
         self.num_rand_basis = info_bayes.get("num_rand_basis", 5000)
 
-        print("# parameter")
-        print(f"random_max_num_probes = {self.random_max_num_probes}")
-        print(f"bayes_max_num_probes = {self.bayes_max_num_probes}")
-        print(f"score = {self.score}")
-        print(f"interval = {self.interval}")
-        print(f"num_rand_basis = {self.num_rand_basis}")
+        if self.mpirank == 0:
+            print("# parameter")
+            print(f"random_max_num_probes = {self.random_max_num_probes}")
+            print(f"bayes_max_num_probes = {self.bayes_max_num_probes}")
+            print(f"score = {self.score}")
+            print(f"interval = {self.interval}")
+            print(f"num_rand_basis = {self.num_rand_basis}")
 
         #self.mesh_list, actions = self._meshgrid(info, split=False)
         if domain and isinstance(domain, py2dmat.domain.MeshGrid):
@@ -82,6 +83,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
         comm = self.mpicomm if self.mpisize > 1 else None
         self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
+
         if "seed" in info.algorithm:
             seed = info.algorithm["seed"]
             self.policy.set_seed(seed)
@@ -90,7 +92,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         self.file_history = "history.npz"
         self.file_training = "training.npz"
         self.file_predictor = "predictor.dump"
-        
+
     def _initialize(self):
         self.istep = 0
         self.param_list = []
@@ -130,7 +132,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
         fx_list = self.fx_list
         param_list = self.param_list
-        
+
         if self.mode.startswith("init"):
             time_sta = time.perf_counter()
             res = self.policy.random_search(
@@ -141,7 +143,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
             # store initial state
             if self.checkpoint:
-                print(">>> store initial state")
+                # print(">>> store initial state")
                 self._save_state(self.checkpoint_file)
         else:
             if self.istep >= self.bayes_max_num_probes:
@@ -151,9 +153,9 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         next_checkpoint_time = time.time() + self.checkpoint_interval
 
         while self.istep < self.bayes_max_num_probes:
-            print(">>> step {}".format(self.istep+1))
+            # print(">>> step {}".format(self.istep+1))
             intv = 0 if self.istep % self.interval == 0 else -1
-            
+
             time_sta = time.perf_counter()
             res = self.policy.bayes_search(
                 max_num_probes=1,
@@ -170,11 +172,11 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             if self.checkpoint:
                 time_now = time.time()
                 if self.istep >= next_checkpoint_step or time_now >= next_checkpoint_time:
-                    print(">>> checkpointing")
+                    # print(">>> checkpointing")
 
                     self.fx_list = fx_list
                     self.param_list = param_list
-                    
+
                     self._save_state(self.checkpoint_file)
                     next_checkpoint_step = self.istep + self.checkpoint_steps
                     next_checkpoint_time = time_now + self.checkpoint_interval
@@ -184,9 +186,11 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         self.fx_list = fx_list
         self.param_list = param_list
 
+        # physbo.search.utility.show_search_results(self.policy.history, 20)
+
         # store final state for continuation
         if self.checkpoint:
-            print(">>> store final state")
+            # print(">>> store final state")
             self._save_state(self.checkpoint_file)
 
     def _prepare(self) -> None:
@@ -239,18 +243,10 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         self._save_data(data, filename)
 
         #-- bayes
-        tmp_hist = "tmp_" + self.file_history
-        tmp_tran = "tmp_" + self.file_training
-        tmp_pred = "tmp_" + self.file_predictor
-        
-        self.policy.save(file_history=tmp_hist,
-                         file_training=tmp_tran,
-                         file_predictor=tmp_pred)
+        self.policy.save(file_history=Path(self.output_dir, self.file_history),
+                         file_training=Path(self.output_dir, self.file_training),
+                         file_predictor=Path(self.output_dir, self.file_predictor))
 
-        if self.mpirank == 0:
-            shutil.move(tmp_hist, self.file_history)
-            shutil.move(tmp_tran, self.file_training)
-            shutil.move(tmp_pred, self.file_predictor)
 
     def _load_state(self, filename, mode="resume", restore_rng=True):
         data = self._load_data(filename)
@@ -272,7 +268,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         self.istep = data["istep"]
         self.param_list = data["param_list"]
         self.fx_list = data["fx_list"]
-        
-        self.policy.load(file_history=data["file_history"],
-                         file_training=data["file_training"],
-                         file_predictor=data["file_predictor"])
+
+        self.policy.load(file_history=Path(self.output_dir, self.file_history),
+                         file_training=Path(self.output_dir, self.file_training),
+                         file_predictor=Path(self.output_dir, self.file_predictor))
