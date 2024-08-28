@@ -103,3 +103,26 @@ Below, output example is shown.
     6.000000 4.000000 0.069351
     6.000000 3.750000 0.071868
     ...
+
+Restart
+~~~~~~~~~~~~~~~~~~~~~~
+The execution mode is specified by the ``run_mode`` parameter to the ``Algorithm.main()`` method.
+The operation of each mode is described as follows.
+The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` options of ``py2dmat`` command, respectively.
+
+- ``"initialize"`` (default)
+
+  The program is started from the initial state.
+  If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:
+
+  #. the specified number of grid points has been evaluated, or the specified period of time has passed.
+  #. at the end of the execution.
+
+- ``"resume"``
+
+  The program execution is resumed from the latest checkpoint.
+  The conditions such as the number of MPI processes should be kept the same.
+
+- ``"continue"``
+
+  The continue mode is not supported.

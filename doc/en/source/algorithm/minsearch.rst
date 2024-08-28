@@ -141,3 +141,7 @@ The following is an example of the output.
     z1 = 5.230524973874179
     z2 = 4.370622919269477
     z3 = 3.5961444501081647
+
+Restart
+~~~~~~~~~~~
+The restarting is not supported for the optimization by the Nelder-Mead method.

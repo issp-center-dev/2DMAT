@@ -137,6 +137,39 @@ At each step of the optimization process, the values of the parameters and the c
     ...
 
 
+Restart
+~~~~~~~~~~~~~~~~~~~~~~
+The execution mode is specified by the ``run_mode`` parameter to the ``Algorithm.main()`` method.
+The operation of each mode is described as follows.
+The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` options of ``py2dmat`` command, respectively.
+
+- ``"initialize"`` (default)
+
+  The program is started from the initial state.
+  First, it performs the random sampling for the number of times specified by ``random_max_num_probes`` parameter.
+  Then, it performs the Bayes optimization for the number of times specified by ``bayes_max_num_probes``.
+
+  If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:
+
+  #. when the random sampling is finished.
+  #. during the Bayesian optimization, the specified number of iteration has been done, or the specified period of time has passed.
+  #. at the end of the execution.
+
+- ``"resume"``
+
+  The program execution is resumed from the latest checkpoint.
+  The conditions such as the number of MPI processes should be kept the same.
+
+  It is noted that the results obtaind from the resumed run from the interruption and those obtained from the uninterrupted run do not exactly match.
+
+- ``"continue"``
+
+  The program execution of the Bayes optimization is continued from the previous run.
+  The value of ``bayes_max_num_probes`` should be increased. The step counter is taken over.
+
+  ``resume`` and ``continue`` are basically the same in this case.
+
+
 Algorithm Description
 ~~~~~~~~~~~~~~~~~~~~~~
 
