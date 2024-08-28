@@ -215,9 +215,18 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         elif self.mode.startswith("continue"):
             self._load_state(self.checkpoint_file, mode="continue", restore_rng=restore_rng)
 
-            self.Tindex = 0
-            self.index_from_reset = 0
-            self.istep = 0
+            Tindex = self.Tindex
+
+            dbeta = self.betas[Tindex + 1] - self.betas[Tindex]
+            self.logweights += -dbeta * self.fx
+            if self.index_from_reset == self.resampling_interval:
+                time_sta = time.perf_counter()
+                self._resample()
+                time_end = time.perf_counter()
+                self.timer["run"]["resampling"] += time_end - time_sta
+                self.index_from_reset = 0
+
+            self.Tindex += 1
 
         else:
             raise RuntimeError("unknown mode {}".format(self.mode))
@@ -287,21 +296,21 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             if self.checkpoint:
                 time_now = time.time()
                 if self.istep >= next_checkpoint_step or time_now >= next_checkpoint_time:
-                    # print(">>> checkpoint")
+                    print(">>> checkpoint")
                     self._save_state(self.checkpoint_file)
                     next_checkpoint_step = self.istep + self.checkpoint_steps
                     next_checkpoint_time = time_now + self.checkpoint_interval
+
+        # store final state for continuation
+        if self.checkpoint:
+            print(">>> store final state")
+            self._save_state(self.checkpoint_file)
 
         if self.index_from_reset > 0:
             res = self._gather_information(self.index_from_reset)
             self._save_stats(res)
         file_result.close()
         file_trial.close()
-
-        # store final state for continuation
-        if self.checkpoint:
-            # print(">>> store final state")
-            self._save_state(self.checkpoint_file)
 
         if self.mpisize > 1:
             self.mpicomm.barrier()
@@ -583,6 +592,9 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             "naccepted": self.naccepted,
             "ntrial": self.ntrial,
             #-- pamc
+            "betas": self.betas,
+            "input_as_beta": self.input_as_beta,
+            "numsteps_for_T": self.numsteps_for_T,
             "Tindex": self.Tindex,
             "index_from_reset": self.index_from_reset,
             "logZ": self.logZ,
@@ -621,8 +633,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.fx = data["fx"]
         self.inode = data["inode"]
 
-        if mode == "resume":
-            self.istep = data["istep"]
+        self.istep = data["istep"]
 
         self.best_x = data["best_x"]
         self.best_fx = data["best_fx"]
@@ -635,13 +646,57 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         #-- pamc
         self.Tindex = data["Tindex"]
         self.index_from_reset = data["index_from_reset"]
+
+        if mode == "resume":
+            # check if scheduling is as stored
+            betas = data["betas"]
+            input_as_beta = data["input_as_beta"]
+            numsteps_for_T = data["numsteps_for_T"]
+
+            assert np.all(betas == self.betas)
+            assert input_as_beta == self.input_as_beta
+            assert np.all(numsteps_for_T == self.numsteps_for_T)
+            assert self.Tindex < len(self.betas)
+
+        elif mode == "continue":
+            # check if scheduling is continuous
+            betas = data["betas"]
+            input_as_beta = data["input_as_beta"]
+            numsteps_for_T = data["numsteps_for_T"]
+
+            print(">>> old betas={}".format(betas))
+            print(">>> new betas={}".format(self.betas))
+
+            assert input_as_beta == self.input_as_beta
+            if not betas[-1] == self.betas[0]:
+                print("ERROR: temperator is not continuous")
+                sys.exit(1)
+            self.betas = np.concatenate([betas, self.betas[1:]])
+            self.numsteps_for_T = np.concatenate([numsteps_for_T, self.numsteps_for_T[1:]])
+
+            print(">>> concatenated={}".format(self.betas))
+
+        else:
+            pass
+
+        numT = len(self.betas)
+
+        nreplicas = self.mpisize * self.nwalkers
+
+        self.logZs = np.zeros(numT)
+        self.Fmeans = np.zeros(numT)
+        self.Ferrs = np.zeros(numT)
+        self.nreplicas = np.full(numT, nreplicas)
+        self.populations = np.zeros((numT, self.nwalkers), dtype=int)
+        self.acceptance_ratio = np.zeros(numT)
+
         self.logZ = data["logZ"]
-        self.logZs = data["logZs"]
+        self.logZs[0:len(data["logZs"])] = data["logZs"]
         self.logweights = data["logweights"]
-        self.Fmeans = data["Fmeans"]
-        self.Ferrs = data["Ferrs"]
-        self.nreplicas = data["nreplicas"]
-        self.populations = data["populations"]
+        self.Fmeans[0:len(data["Fmeans"])] = data["Fmeans"]
+        self.Ferrs[0:len(data["Ferrs"])] = data["Ferrs"]
+        self.nreplicas[0:len(data["nreplicas"])] = data["nreplicas"]
+        self.populations[0:len(data["populations"])] = data["populations"]
 
         self.family_lo = data["family_lo"]
         self.family_hi = data["family_hi"]
@@ -649,6 +704,6 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.fx_from_reset = data["fx_from_reset"]
         self.walker_ancestors = data["walker_ancestors"]
         self.naccepted_from_reset = data["naccepted_from_reset"]
-        self.acceptance_ratio = data["acceptance_ratio"]
+        self.acceptance_ratio[0:len(data["acceptance_ratio"])] = data["acceptance_ratio"]
 
 
