@@ -123,7 +123,6 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             self._load_state(self.checkpoint_file, mode="resume", restore_rng=restore_rng)
         elif self.mode.startswith("continue"):
             self._load_state(self.checkpoint_file, mode="continue", restore_rng=restore_rng)
-            self.istep = 0
         else:
             raise RuntimeError("unknown mode {}".format(self.mode))
 
@@ -400,8 +399,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.fx = data["fx"]
         self.inode = data["inode"]
 
-        if mode == "resume":
-            self.istep = data["istep"]
+        self.istep = data["istep"]
 
         self.best_x = data["best_x"]
         self.best_fx = data["best_fx"]
