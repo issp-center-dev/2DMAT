@@ -265,7 +265,7 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
   The program execution is continued from the previous run.
   The value of ``numsteps`` should be increased. The step counter is taken over.
 
-  ``resume`` and ``continue`` are basically the same in this case.
+  For example: in the first run, the calculation is carried out for 1000 steps with ``numsteps = 1000``. In the next run, the calculation is continued with ``numsteps = 2000``, where the calculations from 1001st step to 2000th step are carried out.
 
 
 Algorithm

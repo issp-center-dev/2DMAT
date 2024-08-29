@@ -80,7 +80,7 @@ The hyper parameters are defined.
 
   Description: Parameter to specify the score function.
   ``EI`` (expected improvement), ``PI`` (probability of improvement), and ``TS`` (Thompson sampling) can be chosen.
-  
+
 - ``interval``
 
   Format: Integer (default: 5)
@@ -167,7 +167,7 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
   The program execution of the Bayes optimization is continued from the previous run.
   The value of ``bayes_max_num_probes`` should be increased. The step counter is taken over.
 
-  ``resume`` and ``continue`` are basically the same in this case.
+  For example: in the first run, the calculation is carried out for 100 Bayesian optimization steps with ``bayes_max_num_probes=100``. In the next run, the calculation is continued with ``bayes_max_num_probes=200``, where the calculations from 101st step to 200th step are carried out.
 
 
 Algorithm Description
