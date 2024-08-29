@@ -24,6 +24,7 @@ import os
 import pathlib
 import pickle
 import shutil
+import copy
 
 import numpy as np
 
@@ -73,6 +74,9 @@ class AlgorithmBase(metaclass=ABCMeta):
         self.timer["init"]["total"] = 0.0
         self.status = AlgorithmStatus.INIT
         self.mode = None
+
+        # keep copy of parameters
+        self.info = copy.deepcopy(info.algorithm)
 
         self.dimension = info.algorithm.get("dimension") or info.base.get("dimension")
         if not self.dimension:
@@ -243,3 +247,33 @@ class AlgorithmBase(metaclass=ABCMeta):
             print("ERROR: file {} not exist.".format(filename))
             data = {}
         return data
+
+    def _show_parameters(self):
+        if self.mpirank == 0:
+            info = flatten_dict(self.info)
+            for k, v in info.items():
+                print("{:16s}: {}".format(k, v))
+
+    def _check_parameters(self, param=None):
+        info = flatten_dict(self.info)
+        info_prev = flatten_dict(param)
+
+        for k,v in info.items():
+            w = info_prev.get(k, None)
+            if v != w:
+                if self.mpirank == 0:
+                    print("WARNING: parameter {} changed from {} to {}".format(k, w, v))
+            if self.mpirank == 0:
+                print("{:16s}: {}".format(k, v))
+
+# utility
+def flatten_dict(d, parent_key="", separator="."):
+    items = []
+    if d:
+        for key_, val in d.items():
+            key = parent_key + separator + key_ if parent_key else key_
+            if isinstance(val, dict):
+                items.extend(flatten_dict(val, key, separator=separator).items())
+            else:
+                items.append((key, val))
+    return dict(items)

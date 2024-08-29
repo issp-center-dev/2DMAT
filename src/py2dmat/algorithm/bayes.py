@@ -100,6 +100,8 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         self.timer["run"]["random_search"] = 0.0
         self.timer["run"]["bayes_search"] = 0.0
 
+        self._show_parameters()
+
     def _run(self) -> None:
         runner = self.runner
         mesh_list = self.mesh_list
@@ -231,6 +233,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             "mpirank": self.mpirank,
             "rng": self.rng.get_state(),
             "timer": self.timer,
+            "info": self.info,
             #-- bayes
             "istep": self.istep,
             "param_list": self.param_list,
@@ -263,6 +266,9 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             self.rng.set_state(data["rng"])
             np.random.set_state(data["random_number"])
         self.timer = data["timer"]
+
+        info = data["info"]
+        self._check_parameters(info)
 
         #-- bayes
         self.istep = data["istep"]

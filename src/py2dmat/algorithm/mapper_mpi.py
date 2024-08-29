@@ -47,6 +47,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
     def _initialize(self) -> None:
         self.fx_list = []
         self.timer["run"]["submit"] = 0.0
+        self._show_parameters()
 
     def _run(self) -> None:
         # Make ColorMap
@@ -67,7 +68,7 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         fp = open(self.local_colormap_file, "a")
         if self.mode.startswith("init"):
             fp.write("#" + " ".join(self.label_list) + " fval\n")
-        
+
         iterations = len(self.mesh_list)
         istart = len(self.fx_list)
 
@@ -176,8 +177,10 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             "mpirank": self.mpirank,
             #"rng": self.rng.get_state(),
             "timer": self.timer,
+            "info": self.info,
             #-- mapper
             "fx_list": self.fx_list,
+            "mesh_size": len(self.mesh_list),
         }
         self._save_data(data, filename)
 
@@ -196,5 +199,10 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         #     self.rng.set_state(data["rng"])
         self.timer = data["timer"]
 
+        info = data["info"]
+        self._check_parameters(info)
+
         #-- mapper
         self.fx_list = data["fx_list"]
+
+        assert len(self.mesh_list) == data["mesh_size"]

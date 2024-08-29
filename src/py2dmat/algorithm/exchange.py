@@ -109,6 +109,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.exchange_direction = True
         self.istep = 0
 
+        self._show_parameters()
+
     def _run(self) -> None:
         # print(">>> _run")
 
@@ -359,6 +361,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             "mpirank": self.mpirank,
             "rng": self.rng.get_state(),
             "timer": self.timer,
+            "info": self.info,
             #-- montecarlo
             "x": self.x,
             "fx": self.fx,
@@ -393,6 +396,9 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             self.rng = np.random.RandomState()
             self.rng.set_state(data["rng"])
         self.timer = data["timer"]
+
+        info = data["info"]
+        self._check_parameters(info)
 
         #-- montecarlo
         self.x = data["x"]

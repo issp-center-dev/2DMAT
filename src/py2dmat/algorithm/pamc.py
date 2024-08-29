@@ -139,6 +139,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.naccepted_from_reset = np.zeros((self.resampling_interval, 2), dtype=int)
         self.acceptance_ratio = np.zeros(numT)
 
+        self._show_parameters()
+
     def _find_scheduling(self, info_pamc) -> int:
         numsteps = info_pamc.get("numsteps", 0)
         numsteps_annealing = info_pamc.get("numsteps_annealing", 0)
@@ -580,6 +582,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             "mpirank": self.mpirank,
             "rng": self.rng.get_state(),
             "timer": self.timer,
+            "info": self.info,
             #-- montecarlo
             "x": self.x,
             "fx": self.fx,
@@ -628,6 +631,9 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             self.rng.set_state(data["rng"])
         self.timer = data["timer"]
 
+        info = data["info"]
+        self._check_parameters(info)
+
         #-- montecarlo
         self.x = data["x"]
         self.fx = data["fx"]
@@ -664,17 +670,12 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             input_as_beta = data["input_as_beta"]
             numsteps_for_T = data["numsteps_for_T"]
 
-            print(">>> old betas={}".format(betas))
-            print(">>> new betas={}".format(self.betas))
-
             assert input_as_beta == self.input_as_beta
             if not betas[-1] == self.betas[0]:
                 print("ERROR: temperator is not continuous")
                 sys.exit(1)
             self.betas = np.concatenate([betas, self.betas[1:]])
             self.numsteps_for_T = np.concatenate([numsteps_for_T, self.numsteps_for_T[1:]])
-
-            print(">>> concatenated={}".format(self.betas))
 
         else:
             pass
