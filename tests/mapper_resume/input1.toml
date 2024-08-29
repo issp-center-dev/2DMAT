@@ -1,0 +1,20 @@
+[base]
+dimension = 2
+output_dir = "output1"
+
+[solver]
+name = "analytical"
+function_name = "rosenbrock"
+delay = 0.2
+
+[algorithm]
+name = "mapper"
+label_list = ["z1", "z2"]
+seed = 1
+checkpoint = true
+checkpoint_steps = 40
+
+[algorithm.param]
+min_list = [-5.0, -5.0]
+max_list = [5.0, 5.0]
+num_list = [11, 11]
