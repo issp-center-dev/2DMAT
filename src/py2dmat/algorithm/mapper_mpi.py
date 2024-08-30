@@ -26,7 +26,6 @@ import py2dmat
 import py2dmat.domain
 
 class Algorithm(py2dmat.algorithm.AlgorithmBase):
-    #mesh_list: np.ndarray
     mesh_list: List[Union[int, float]]
 
     def __init__(self, info: py2dmat.Info,
@@ -42,90 +41,168 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         self.domain.do_split()
         self.mesh_list = self.domain.grid_local
 
+        self.colormap_file = info.algorithm.get("colormap", "ColorMap.txt")
+        self.local_colormap_file = Path(self.colormap_file).name + ".tmp"
+
+    def _initialize(self) -> None:
+        self.fx_list = []
+        self.timer["run"]["submit"] = 0.0
+        self._show_parameters()
 
     def _run(self) -> None:
         # Make ColorMap
-        label_list = self.label_list
-        dimension = self.dimension
-        run = self.runner
-        print("Make ColorMap")
-        with open("ColorMap.txt", "w") as file_CM:
-            fx_list = []
+
+        if self.mode is None:
+            raise RuntimeError("mode unset")
+
+        if self.mode.startswith("init"):
+            # print(">>> initialize")
+            self._initialize()
+        elif self.mode.startswith("resume"):
+            # print(">>> resume")
+            self._load_state(self.checkpoint_file)
+        else:
+            raise RuntimeError("unknown mode {}".format(self.mode))
+
+        # local colormap file
+        fp = open(self.local_colormap_file, "a")
+        if self.mode.startswith("init"):
+            fp.write("#" + " ".join(self.label_list) + " fval\n")
+
+        iterations = len(self.mesh_list)
+        istart = len(self.fx_list)
+
+        # print(">>> iterations={}, istart={}".format(iterations, istart))
+
+        next_checkpoint_step = istart + self.checkpoint_steps
+        next_checkpoint_time = time.time() + self.checkpoint_interval
+
+        for icount in range(istart, iterations):
+            print("Iteration : {}/{}".format(icount+1, iterations))
+            mesh = self.mesh_list[icount]
+
+            # update information
+            args = (int(mesh[0]), 0)
+            x = np.array(mesh[1:])
+
             time_sta = time.perf_counter()
-            file_CM.write("#")
-            for label in label_list:
-                file_CM.write(f"{label} ")
-            file_CM.write("fval\n")
+            fx = self.runner.submit(x, args)
             time_end = time.perf_counter()
+            self.timer["run"]["submit"] += time_end - time_sta
 
-            self.timer["run"]["file_CM"] = time_end - time_sta
-            self.timer["run"]["submit"] = 0.0
+            self.fx_list.append([mesh[0], fx])
 
-            iterations = len(self.mesh_list)
-            for iteration_count, mesh in enumerate(self.mesh_list):
-                print("Iteration : {}/{}".format(iteration_count + 1, iterations))
-                # print("mesh before:", mesh)
+            # write to local colormap file
+            fp.write(" ".join(
+                map(lambda v: "{:8f}".format(v), (*x, fx))
+            ) + "\n")
 
-                time_sta = time.perf_counter()
-                for value in mesh[1:]:
-                    file_CM.write("{:8f} ".format(value))
-                time_end = time.perf_counter()
-                self.timer["run"]["file_CM"] += time_end - time_sta
+            if self.checkpoint:
+                time_now = time.time()
+                if icount+1 >= next_checkpoint_step or time_now >= next_checkpoint_time:
+                    self._save_state(self.checkpoint_file)
+                    next_checkpoint_step = icount + 1 + self.checkpoint_steps
+                    next_checkpoint_time = time_now + self.checkpoint_interval
 
-                # update information
-                args = (int(mesh[0]), 0)
-                x = np.array(mesh[1:])
+        if iterations > 0:
+            opt_index = np.argsort(self.fx_list, axis=0)[0][1]
+            opt_id, opt_fx = self.fx_list[opt_index]
+            opt_mesh = self.mesh_list[opt_index]
 
-                time_sta = time.perf_counter()
-                fx = run.submit(x, args)
-                time_end = time.perf_counter()
-                self.timer["run"]["submit"] += time_end - time_sta
+            # assert opt_id == opt_mesh[0]
 
-                fx_list.append(fx)
-                time_sta = time.perf_counter()
-                file_CM.write("{:8f}\n".format(fx))
-                time_end = time.perf_counter()
-                self.timer["run"]["file_CM"] += time_end - time_sta
+            self.opt_fx = opt_fx
+            self.opt_mesh = opt_mesh
 
-                # print("mesh after:", mesh)
+            print(f"[{self.mpirank}] minimum_value: {opt_fx:12.8e} at {opt_mesh[1:]} (mesh {opt_mesh[0]})")
 
-            if iterations > 0:
-                fx_order = np.argsort(fx_list)
-                minimum_point = []
-                print("mesh_list[fx_order[0]]:")
-                print(self.mesh_list[fx_order[0]])
-                for index in range(1, dimension + 1):
-                    minimum_point.append(self.mesh_list[fx_order[0]][index])
+        self._output_results()
 
-                time_sta = time.perf_counter()
-                file_CM.write("#Minimum point :")
-                for value in minimum_point:
-                    file_CM.write(" {:8f}".format(value))
-                file_CM.write("\n")
-                file_CM.write("#R-factor : {:8f}\n".format(fx_list[fx_order[0]]))
-                file_CM.write("#see Log{}\n".format(round(self.mesh_list[fx_order[0]][0])))
-                time_end = time.perf_counter()
-                self.timer["run"]["file_CM"] += time_end - time_sta
+        if Path(self.local_colormap_file).exists():
+            # print(">>> remove local colormap file {}".format(self.local_colormap_file))
+            os.remove(Path(self.local_colormap_file))
+
+        print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
+
+    def _output_results(self):
+        print("Make ColorMap")
+        time_sta = time.perf_counter()
+
+        with open(self.colormap_file, "w") as fp:
+            fp.write("#" + " ".join(self.label_list) + " fval\n")
+
+            for x, (idx, fx) in zip(self.mesh_list, self.fx_list):
+                fp.write(" ".join(
+                    map(lambda v: "{:8f}".format(v), (*x[1:], fx))
+                    ) + "\n")
+
+            if len(self.mesh_list) > 0:
+                fp.write("#Minimum point : " + " ".join(
+                    map(lambda v: "{:8f}".format(v), self.opt_mesh[1:])
+                ) + "\n")
+                fp.write("#R-factor : {:8f}\n".format(self.opt_fx))
+                fp.write("#see Log{:d}\n".format(round(self.opt_mesh[0])))
             else:
-                file_CM.write("# No mesh point\n")
+                fp.write("# No mesh point\n")
 
-        print(
-            "complete main process : rank {:08d}/{:08d}".format(
-                self.mpirank, self.mpisize
-            )
-        )
+        time_end = time.perf_counter()
+        self.timer["run"]["file_CM"] = time_end - time_sta
 
     def _prepare(self) -> None:
         # do nothing
         pass
 
     def _post(self) -> Dict:
+        if self.mpisize > 1:
+            fx_lists = self.mpicomm.allgather(self.fx_list)
+            results = [v for vs in fx_lists for v in vs]
+        else:
+            results = self.fx_list
+
         if self.mpirank == 0:
-            with open("ColorMap.txt", "w") as file_output:
-                for i in range(self.mpisize):
-                    with open(os.path.join(str(i), "ColorMap.txt"), "r") as file_input:
-                        for line in file_input:
-                            line = line.lstrip()
-                            if not line.startswith("#"):
-                                file_output.write(line)
+            with open(self.colormap_file, "w") as fp:
+                # fp.write("#" + " ".join(self.label_list) + " fval\n")
+                for x, (idx, fx) in zip(self.domain.grid, results):
+                    assert x[0] == idx
+                    fp.write(" ".join(
+                        map(lambda v: "{:8f}".format(v), (*x[1:], fx))
+                    ) + "\n")
+
         return {}
+
+    def _save_state(self, filename) -> None:
+        data = {
+            #-- _algorithm
+            "mpisize": self.mpisize,
+            "mpirank": self.mpirank,
+            #"rng": self.rng.get_state(),
+            "timer": self.timer,
+            "info": self.info,
+            #-- mapper
+            "fx_list": self.fx_list,
+            "mesh_size": len(self.mesh_list),
+        }
+        self._save_data(data, filename)
+
+    def _load_state(self, filename, restore_rng=True):
+        data = self._load_data(filename)
+        if not data:
+            print("ERROR: Load status file failed")
+            sys.exit(1)
+
+        #-- _algorithm
+        assert self.mpisize == data["mpisize"]
+        assert self.mpirank == data["mpirank"]
+
+        # if restore_rng:
+        #     self.rng = np.random.RandomState()
+        #     self.rng.set_state(data["rng"])
+        self.timer = data["timer"]
+
+        info = data["info"]
+        self._check_parameters(info)
+
+        #-- mapper
+        self.fx_list = data["fx_list"]
+
+        assert len(self.mesh_list) == data["mesh_size"]

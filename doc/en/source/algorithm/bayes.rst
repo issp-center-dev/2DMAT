@@ -80,7 +80,7 @@ The hyper parameters are defined.
 
   Description: Parameter to specify the score function.
   ``EI`` (expected improvement), ``PI`` (probability of improvement), and ``TS`` (Thompson sampling) can be chosen.
-  
+
 - ``interval``
 
   Format: Integer (default: 5)
@@ -135,6 +135,39 @@ At each step of the optimization process, the values of the parameters and the c
     2 5.5 4.25 0.04380131351780189 5.5 4.25 0.04380131351780189
     3 5.0 4.25 0.02312528177606794 5.0 4.25 0.02312528177606794
     ...
+
+
+Restart
+~~~~~~~~~~~~~~~~~~~~~~
+The execution mode is specified by the ``run_mode`` parameter to the ``Algorithm.main()`` method.
+The operation of each mode is described as follows.
+The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` options of ``py2dmat`` command, respectively.
+
+- ``"initialize"`` (default)
+
+  The program is started from the initial state.
+  First, it performs the random sampling for the number of times specified by ``random_max_num_probes`` parameter.
+  Then, it performs the Bayes optimization for the number of times specified by ``bayes_max_num_probes``.
+
+  If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:
+
+  #. when the random sampling is finished.
+  #. during the Bayesian optimization, the specified number of iteration has been done, or the specified period of time has passed.
+  #. at the end of the execution.
+
+- ``"resume"``
+
+  The program execution is resumed from the latest checkpoint.
+  The conditions such as the number of MPI processes should be kept the same.
+
+  It is noted that the results obtaind from the resumed run from the interruption and those obtained from the uninterrupted run do not exactly match.
+
+- ``"continue"``
+
+  The program execution of the Bayes optimization is continued from the previous run.
+  The value of ``bayes_max_num_probes`` should be increased. The step counter is taken over.
+
+  For example: in the first run, the calculation is carried out for 100 Bayesian optimization steps with ``bayes_max_num_probes=100``. In the next run, the calculation is continued with ``bayes_max_num_probes=200``, where the calculations from 101st step to 200th step are carried out.
 
 
 Algorithm Description

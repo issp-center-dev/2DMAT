@@ -294,6 +294,33 @@ The sixth column is the acceptance ratio of MC updates.
     0.2 1.5919146358616842 0.2770369776964151 100 -1.538611313376179 0.9004
     ...
 
+Restart
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The execution mode is specified by the ``run_mode`` parameter to the ``Algorithm.main()`` method.
+The operation of each mode is described as follows.
+The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` options of ``py2dmat`` command, respectively.
+
+- ``"initialize"`` (default)
+
+  The program is started from the initialized state.
+  If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:
+
+  #. at the end of calculation at each temperature point, the specified number of steps has been done, or the specified period of time has passed.
+  #. at the end of the execution.
+
+- ``"resume"``
+
+  The program execution is resumed from the latest checkpoint.
+  The conditions such as the number of MPI processes should be kept the same.
+
+- ``"continue"``
+
+  The program execution is continued from the previous run.
+  The sequence of the temperature points should be specified so that it is continuous from that of the previous run.
+
+  Assume that the temperature has been lowered from ``Tmax=`` :math:`T^{(1)}` to ``Tmin=`` :math:`T^{(2)}` in the previous run, the next values should be taken as ``Tmax=`` :math:`T^{(2)}` and ``Tmin=`` :math:`T^{(3)}`.
+  In the new calculation, the temperature points are taken from :math:`T^{(2)}` to :math:`T^{(3)}` divided by ``Tnum``, namely, :math:`T_0 = T^{(2)}`, :math:`T_1`,..., :math:`T_{\text{Tnum}-1}=T^{(3)}`. (``Tnum`` can be different from the previous run.)
+
 
 Algorithm
 ~~~~~~~~~~

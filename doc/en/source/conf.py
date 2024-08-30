@@ -147,8 +147,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, '2DMAT.tex', u'2DMAT\'s Documentation',
-     u'2DMAT\'s developer team', 'manual', 'True'),
+    (master_doc, 'userguide_2dmat_en.tex', u'2DMAT Documentation',
+     u'University of Tokyo', 'manual', 'True'),
 ]
 latex_engine = 'xelatex'
 

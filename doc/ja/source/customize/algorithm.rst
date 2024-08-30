@@ -56,6 +56,15 @@
 
             - 空の辞書が3つ、 ``"prepare"``, ``"run"``, ``"post"`` という名前で定義されます
 
+	- ``self.checkpoint`` : チェックポイント機能を有効/無効にする
+
+	    - ``self.checkpoint_steps``
+	    - ``self.checkpoint_interval``
+	    - ``self.checkpoint_file``
+
+	      チェックポイント機能に関するパラメータが設定されます
+
+	      
 - ``prepare(self) -> None``
 
     - 最適化アルゴリズムの前処理をします
@@ -73,16 +82,26 @@
       #. 元のディレクトリに戻る
     - ``self.prepare()`` の後に実行する必要があります
 
-- ``post(self) -> None``
+- ``post(self) -> Dict``
 
     - 最適化結果のファイル出力など、後処理を行います
     - ``self.output_dir`` に移動し、 ``self._post()`` を実行した後、元のディレクトリに戻ります
     - ``self.run()`` のあとに実行する必要があります
 
-- ``main(self) -> None``
+- ``main(self, run_mode) -> Dict``
 
     - ``prepare``, ``run``, ``post`` を順番に実行します
     - それぞれの関数でかかった時間を計測し、結果をファイル出力します
+    - 実行モードを文字列型の引数で受け取ります。デフォルト値は ``initialize`` です。
+
+      - ``"initialize"``: 最初から実行
+      - ``"resume"``: 中断した状態から再実行
+      - ``"continue"``: 終了時の状態から継続実行
+
+      乱数の初期化を指示する場合は、 ``"-resetrand"`` が追加されます。
+      ``"continue"`` の動作はアルゴリズムによって変わります。
+      
+    - 探索の結果を辞書形式で返します
 
 
 
@@ -116,11 +135,11 @@
 	 args = (step, set)
          fx = self.runner.submit(x, args)
 
-- ``_post(self) -> None``
+- ``_post(self) -> Dict``
 
     - 最適化アルゴリズムの後処理を記述します
-
-
+    - 探索の結果を辞書形式で返します
+      
 
 ``Domain`` の定義
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

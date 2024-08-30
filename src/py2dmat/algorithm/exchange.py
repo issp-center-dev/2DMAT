@@ -24,8 +24,8 @@ import numpy as np
 
 import py2dmat
 import py2dmat.algorithm.montecarlo
-import py2dmat.util.separateT
-
+from py2dmat.algorithm.montecarlo import read_Ts
+from py2dmat.util.separateT import separateT
 
 class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     """Replica Exchange Monte Carlo
@@ -34,10 +34,12 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     ==========
     x: np.ndarray
         current configuration
+    inode: np.ndarray
+        current configuration index (discrete parameter space)
     fx: np.ndarray
         current "Energy"
-    T: float
-        current "Temperature"
+    Tindex: np.ndarray
+        current "Temperature" index
     istep: int
         current step (or, the number of calculated energies)
     best_x: np.ndarray
@@ -46,15 +48,14 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         best "Energy"
     best_istep: int
         index of best configuration
-    comm: MPI.comm
-        MPI communicator
     nreplica: int
         The number of replicas (= the number of procs)
-    rank: int
-        MPI rank
     T2rep: np.ndarray
         Mapping from temperature index to replica index
+    rep2T: np.ndarray
+        Reverse mapping from replica index to temperature index
     exchange_direction: bool
+        Parity of exchange direction
     """
 
     x: np.ndarray
@@ -72,6 +73,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     rep2T: np.ndarray
     T2rep: np.ndarray
 
+    exchange_direction: bool
+
     def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
         time_sta = time.perf_counter()
 
@@ -80,66 +83,112 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
         super().__init__(info=info, runner=runner, nwalkers=nwalkers)
 
-        # if self.mpicomm is None:
-        #     msg = "ERROR: algorithm.exchange requires mpi4py, but mpi4py cannot be imported"
-        #     raise ImportError(msg)
-
         self.nreplica = self.mpisize * self.nwalkers
-        self.betas = self.read_Ts(info_exchange, numT=self.nreplica)
-        self.Tindex = np.arange(
-            self.mpirank * self.nwalkers, (self.mpirank + 1) * self.nwalkers
-        )
-        self.rep2T = np.arange(self.nreplica)
-        self.T2rep = np.arange(self.nreplica)
+        self.input_as_beta, self.betas = read_Ts(info_exchange, numT=self.nreplica)
 
         self.numsteps = info_exchange["numsteps"]
         self.numsteps_exchange = info_exchange["numsteps_exchange"]
         time_end = time.perf_counter()
         self.timer["init"]["total"] = time_end - time_sta
 
-    def _run(self) -> None:
-        rank = self.mpirank
+    def _print_info(self) -> None:
+        if self.mpirank == 0:
+            pass
+        if self.mpisize > 1:
+            self.mpicomm.barrier()
 
-        beta = self.betas[self.Tindex]
-        exchange_direction = True
+    def _initialize(self) -> None:
+        super()._initialize()
 
+        self.Tindex = np.arange(
+            self.mpirank * self.nwalkers, (self.mpirank + 1) * self.nwalkers
+        )
+        self.rep2T = np.arange(self.nreplica)
+        self.T2rep = np.arange(self.nreplica)
+
+        self.exchange_direction = True
         self.istep = 0
 
-        # first step
-        self._evaluate()
+        self._show_parameters()
 
-        file_trial = open("trial.txt", "w")
-        file_result = open("result.txt", "w")
-        self._write_result_header(file_result)
-        self._write_result(file_result)
-        self._write_result_header(file_trial)
-        self._write_result(file_trial)
-        self.istep += 1
+    def _run(self) -> None:
+        # print(">>> _run")
 
-        minidx = np.argmin(self.fx)
-        self.best_x = copy.copy(self.x[minidx, :])
-        self.best_fx = np.min(self.fx[minidx])
-        self.best_istep = 0
-        self.best_iwalker = 0
+        if self.mode is None:
+            raise RuntimeError("mode unset")
+
+        restore_rng = not self.mode.endswith("-resetrand")
+
+        if self.mode.startswith("init"):
+            self._initialize()
+        elif self.mode.startswith("resume"):
+            self._load_state(self.checkpoint_file, mode="resume", restore_rng=restore_rng)
+        elif self.mode.startswith("continue"):
+            self._load_state(self.checkpoint_file, mode="continue", restore_rng=restore_rng)
+        else:
+            raise RuntimeError("unknown mode {}".format(self.mode))
+
+        beta = self.betas[self.Tindex]
+
+        if self.mode.startswith("init"):
+            # first step
+            self._evaluate()
+            self.istep += 1
+
+            file_trial = open("trial.txt", "w")
+            self._write_result_header(file_trial)
+            self._write_result(file_trial)
+
+            file_result = open("result.txt", "w")
+            self._write_result_header(file_result)
+            self._write_result(file_result)
+
+            minidx = np.argmin(self.fx)
+            self.best_x = copy.copy(self.x[minidx, :])
+            self.best_fx = np.min(self.fx[minidx])
+            self.best_istep = 0
+            self.best_iwalker = 0
+        else:
+            file_trial = open("trial.txt", "a")
+            file_result = open("result.txt", "a")
+
+        next_checkpoint_step = self.istep + self.checkpoint_steps
+        next_checkpoint_time = time.time() + self.checkpoint_interval
 
         while self.istep < self.numsteps:
+            # print(">>> istep={}".format(self.istep))
+
             # Exchange
             if self.istep % self.numsteps_exchange == 0:
+                # print(">>> do exchange")
                 time_sta = time.perf_counter()
                 if self.nreplica > 1:
-                    self._exchange(exchange_direction)
+                    self._exchange(self.exchange_direction)
                 if self.nreplica > 2:
-                    exchange_direction = not exchange_direction
+                    self.exchange_direction = not self.exchange_direction
                 time_end = time.perf_counter()
                 self.timer["run"]["exchange"] += time_end - time_sta
                 beta = self.betas[self.Tindex]
 
+            # print(">>> call local_update")
             self.local_update(beta, file_trial, file_result)
             self.istep += 1
 
+            if self.checkpoint:
+                time_now = time.time()
+                if self.istep >= next_checkpoint_step or time_now >= next_checkpoint_time:
+                    self._save_state(self.checkpoint_file)
+                    next_checkpoint_step = self.istep + self.checkpoint_steps
+                    next_checkpoint_time = time_now + self.checkpoint_interval
+
         file_result.close()
         file_trial.close()
-        print("complete main process : rank {:08d}/{:08d}".format(rank, self.mpisize))
+        print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
+
+        # store final state for continuation
+        if self.checkpoint:
+            # print(">>> store final state")
+            self._save_state(self.checkpoint_file)
 
     def _exchange(self, direction: bool) -> None:
         """try to exchange temperatures"""
@@ -254,7 +303,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         if self.mpirank == 0:
             print(f"start separateT {self.mpirank}")
             sys.stdout.flush()
-        py2dmat.util.separateT.separateT(
+        separateT(
             Ts=Ts,
             nwalkers=self.nwalkers,
             output_dir=self.output_dir,
@@ -304,3 +353,73 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             "step": best_istep[best_rank],
             "walker": best_iwalker[best_rank],
         }
+
+    def _save_state(self, filename) -> None:
+        data = {
+            #-- _algorithm
+            "mpisize": self.mpisize,
+            "mpirank": self.mpirank,
+            "rng": self.rng.get_state(),
+            "timer": self.timer,
+            "info": self.info,
+            #-- montecarlo
+            "x": self.x,
+            "fx": self.fx,
+            "inode": self.inode,
+            "istep": self.istep,
+            "best_x": self.best_x,
+            "best_fx": self.best_fx,
+            "best_istep": self.best_istep,
+            "best_iwalker": self.best_iwalker,
+            "naccepted": self.naccepted,
+            "ntrial": self.ntrial,
+            #-- exchange
+            "nreplica": self.nreplica,
+            "Tindex": self.Tindex,
+            "rep2T": self.rep2T,
+            "T2rep": self.T2rep,
+            "exchange_direction": self.exchange_direction,
+        }
+        self._save_data(data, filename)
+
+    def _load_state(self, filename, mode="resume", restore_rng=True):
+        data = self._load_data(filename)
+        if not data:
+            print("ERROR: Load status file failed")
+            sys.exit(1)
+
+        #-- _algorithm
+        assert self.mpisize == data["mpisize"]
+        assert self.mpirank == data["mpirank"]
+
+        if restore_rng:
+            self.rng = np.random.RandomState()
+            self.rng.set_state(data["rng"])
+        self.timer = data["timer"]
+
+        info = data["info"]
+        self._check_parameters(info)
+
+        #-- montecarlo
+        self.x = data["x"]
+        self.fx = data["fx"]
+        self.inode = data["inode"]
+
+        self.istep = data["istep"]
+
+        self.best_x = data["best_x"]
+        self.best_fx = data["best_fx"]
+        self.best_istep = data["best_istep"]
+        self.best_iwalker = data["best_iwalker"]
+
+        self.naccepted = data["naccepted"]
+        self.ntrial = data["ntrial"]
+
+        #-- exchange
+        assert self.nreplica == data["nreplica"]
+
+        self.Tindex = data["Tindex"]
+        self.rep2T = data["rep2T"]
+        self.T2rep = data["T2rep"]
+        self.exchange_direction = data["exchange_direction"]
+

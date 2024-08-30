@@ -1,0 +1,21 @@
+[base]
+dimension = 2
+output_dir = "output2"
+
+[solver]
+name = "analytical"
+function_name = "rosenbrock"
+
+[algorithm]
+name = "bayes"
+label_list = ["z1", "z2"]
+seed = 1
+checkpoint = true
+checkpoint_steps = 8
+
+[algorithm.param]
+mesh_path = "MeshData.txt"
+
+[algorithm.bayes]
+random_max_num_probes = 5
+bayes_max_num_probes = 30
