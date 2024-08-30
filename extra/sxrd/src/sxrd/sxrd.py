@@ -17,7 +17,7 @@
 from typing import Dict, List, Tuple
 import itertools
 import os
-import os.path
+import sys
 import shutil
 from pathlib import Path
 import subprocess
@@ -27,6 +27,10 @@ import numpy as np
 import py2dmat
 from py2dmat import exception
 from .input import Input
+from .parameter import SolverInfo
+
+from pydantic import ValidationError
+
 
 class Solver(py2dmat.solver.SolverBase):
     path_to_solver: Path
@@ -36,52 +40,59 @@ class Solver(py2dmat.solver.SolverBase):
         super().__init__(info)
 
         self._name = "sxrd"
-        info_s = info.solver
+        # info_s = info.solver
 
-        # Check keywords
-        def check_keywords(key, segment, registered_list):
-            if (key in registered_list) is False:
-                msg = "Error: {} in {} is not correct keyword.".format(key, segment)
-                raise RuntimeError(msg)
+        try:
+            info_s = SolverInfo(**info.solver)
+        except ValidationError as e:
+            print("ERROR: {}".format(e))
+            sys.exit(1)
 
-        keywords_solver = ["name", "config", "reference", "param"]
-        keywords = {}
-        keywords["config"] = ["sxrd_exec_file", "bulk_struc_in_file"]
-        keywords["reference"] = ["f_in_file"]
-        keywords["param"] = [
-            "scale_factor",
-            "type_vector",
-            "opt_scale_factor",
-            "domain",
-        ]
+        # # Check keywords
+        # def check_keywords(key, segment, registered_list):
+        #     if (key in registered_list) is False:
+        #         msg = "Error: {} in {} is not correct keyword.".format(key, segment)
+        #         raise RuntimeError(msg)
 
-        for key in info_s.keys():
-            check_keywords(key, "solver", keywords_solver)
-            if key == "name":
-                continue
-            for key_child in info_s[key].keys():
-                check_keywords(key_child, key, keywords[key])
+        # keywords_solver = ["name", "config", "reference", "param"]
+        # keywords = {}
+        # keywords["config"] = ["sxrd_exec_file", "bulk_struc_in_file"]
+        # keywords["reference"] = ["f_in_file"]
+        # keywords["param"] = [
+        #     "scale_factor",
+        #     "type_vector",
+        #     "opt_scale_factor",
+        #     "domain",
+        # ]
 
-        # Check keywords of param.domain list
-        keywords_domain = ["domain_occupancy", "atom"]
-        keywords_atom = [
-            "name",
-            "pos_center",
-            "DWfactor",
-            "occupancy",
-            "displace_vector",
-            "opt_DW",
-            "opt_occupancy",
-        ]
-        for domain in info_s["param"]["domain"]:
-            for key_domain in domain.keys():
-                check_keywords(key_domain, "domain", keywords_domain)
-            for atom in domain["atom"]:
-                for key_atom in atom.keys():
-                    check_keywords(key_atom, "atom", keywords_atom)
+        # for key in info_s.keys():
+        #     check_keywords(key, "solver", keywords_solver)
+        #     if key == "name":
+        #         continue
+        #     for key_child in info_s[key].keys():
+        #         check_keywords(key_child, key, keywords[key])
+
+        # # Check keywords of param.domain list
+        # keywords_domain = ["domain_occupancy", "atom"]
+        # keywords_atom = [
+        #     "name",
+        #     "pos_center",
+        #     "DWfactor",
+        #     "occupancy",
+        #     "displace_vector",
+        #     "opt_DW",
+        #     "opt_occupancy",
+        # ]
+        # for domain in info_s["param"]["domain"]:
+        #     for key_domain in domain.keys():
+        #         check_keywords(key_domain, "domain", keywords_domain)
+        #     for atom in domain["atom"]:
+        #         for key_atom in atom.keys():
+        #             check_keywords(key_atom, "atom", keywords_atom)
 
         # Set environment
-        p2solver = info_s["config"].get("sxrd_exec_file", "sxrdcalc")
+        #p2solver = info_s["config"].get("sxrd_exec_file", "sxrdcalc")
+        p2solver = info_s.config.sxrd_exec_file
         if os.path.dirname(p2solver) != "":
             # ignore ENV[PATH]
             self.path_to_solver = self.root_dir / Path(p2solver).expanduser()
@@ -92,9 +103,11 @@ class Solver(py2dmat.solver.SolverBase):
                     break
         if not os.access(self.path_to_solver, mode=os.X_OK):
             raise exception.InputError(f"ERROR: solver ({p2solver}) is not found")
-        self.path_to_f_in = info_s["reference"]["f_in_file"]
-        self.path_to_bulk = info_s["config"]["bulk_struc_in_file"]
-        self.input = Input(info)
+        #self.path_to_f_in = info_s["reference"]["f_in_file"]
+        #self.path_to_bulk = info_s["config"]["bulk_struc_in_file"]
+        self.path_to_f_in = info_s.reference.f_in_file
+        self.path_to_bulk = info_s.config.bulk_struc_in_file
+        self.input = Input(info.base, info_s)
 
     def evaluate(self, x: np.ndarray, args = (), nprocs: int = 1, nthreads: int = 1) -> float:
         self.prepare(x, args)
