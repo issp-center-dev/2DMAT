@@ -28,6 +28,7 @@ import numpy as np
 import py2dmat
 from py2dmat import exception
 from .input import Input
+from .parameter import SolverInfo
 
 class Solver(py2dmat.solver.SolverBase):
     path_to_solver: Path
@@ -37,28 +38,31 @@ class Solver(py2dmat.solver.SolverBase):
         super().__init__(info)
 
         self._name = "leed"
-        info_s = info.solver
+        # info_s = info.solver
 
-        # Check keywords
-        def check_keywords(key, segment, registered_list):
-            if (key in registered_list) is False:
-                msg = "Error: {} in {} is not correct keyword.".format(key, segment)
-                raise RuntimeError(msg)
+        self.param = SolverInfo(**info.solver)
 
-        keywords_solver = ["name", "config", "reference"]
-        keywords = {}
-        keywords["config"] = ["path_to_solver"]
-        keywords["reference"] = ["path_to_base_dir"]
+        # # Check keywords
+        # def check_keywords(key, segment, registered_list):
+        #     if (key in registered_list) is False:
+        #         msg = "Error: {} in {} is not correct keyword.".format(key, segment)
+        #         raise RuntimeError(msg)
 
-        for key in info_s.keys():
-            check_keywords(key, "solver", keywords_solver)
-            if key == "name":
-                continue
-            for key_child in info_s[key].keys():
-                check_keywords(key_child, key, keywords[key])
+        # keywords_solver = ["name", "config", "reference"]
+        # keywords = {}
+        # keywords["config"] = ["path_to_solver"]
+        # keywords["reference"] = ["path_to_base_dir"]
 
-        # Set environment
-        p2solver = info_s["config"].get("path_to_solver", "satl2.exe")
+        # for key in info_s.keys():
+        #     check_keywords(key, "solver", keywords_solver)
+        #     if key == "name":
+        #         continue
+        #     for key_child in info_s[key].keys():
+        #         check_keywords(key_child, key, keywords[key])
+
+        # # Set environment
+        # p2solver = info_s["config"].get("path_to_solver", "satl2.exe")
+        p2solver = self.param.config.path_to_solver
         if os.path.dirname(p2solver) != "":
             # ignore ENV[PATH]
             self.path_to_solver = self.root_dir / Path(p2solver).expanduser()
@@ -70,7 +74,8 @@ class Solver(py2dmat.solver.SolverBase):
         if not os.access(self.path_to_solver, mode=os.X_OK):
             raise exception.InputError(f"ERROR: solver ({p2solver}) is not found")
 
-        self.path_to_base_dir = info_s["reference"]["path_to_base_dir"]
+        # self.path_to_base_dir = info_s["reference"]["path_to_base_dir"]
+        self.path_to_base_dir = self.param.reference.path_to_base_dir
         # check files
         files = ["exp.d", "rfac.d", "tleed4.i", "tleed5.i", "tleed.o", "short.t"]
         for file in files:
