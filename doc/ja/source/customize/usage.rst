@@ -43,4 +43,4 @@
     algorithm = Algorithm(info, runner)
 
     # (4)
-    algorithm.main()
+    result = algorithm.main()

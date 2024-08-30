@@ -75,6 +75,8 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         self.maxiter = info_minimize.get("maxiter", 10000)
         self.maxfev = info_minimize.get("maxfev", 100000)
 
+        self._show_parameters()
+
     def _run(self) -> None:
         run = self.runner
 

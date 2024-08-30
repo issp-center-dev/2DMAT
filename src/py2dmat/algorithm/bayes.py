@@ -16,13 +16,15 @@
 
 from typing import List
 import time
+import shutil
+import copy
+from pathlib import Path
 
 import physbo
 import numpy as np
 
 import py2dmat
 import py2dmat.domain
-
 
 class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
@@ -63,12 +65,13 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         self.interval = info_bayes.get("interval", 5)
         self.num_rand_basis = info_bayes.get("num_rand_basis", 5000)
 
-        print("# parameter")
-        print(f"random_max_num_probes = {self.random_max_num_probes}")
-        print(f"bayes_max_num_probes = {self.bayes_max_num_probes}")
-        print(f"score = {self.score}")
-        print(f"interval = {self.interval}")
-        print(f"num_rand_basis = {self.num_rand_basis}")
+        if self.mpirank == 0:
+            print("# parameter")
+            print(f"random_max_num_probes = {self.random_max_num_probes}")
+            print(f"bayes_max_num_probes = {self.bayes_max_num_probes}")
+            print(f"score = {self.score}")
+            print(f"interval = {self.interval}")
+            print(f"num_rand_basis = {self.num_rand_basis}")
 
         #self.mesh_list, actions = self._meshgrid(info, split=False)
         if domain and isinstance(domain, py2dmat.domain.MeshGrid):
@@ -80,17 +83,30 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
         X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
         comm = self.mpicomm if self.mpisize > 1 else None
         self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
+
         if "seed" in info.algorithm:
             seed = info.algorithm["seed"]
             self.policy.set_seed(seed)
+
+        # store state
+        self.file_history = "history.npz"
+        self.file_training = "training.npz"
+        self.file_predictor = "predictor.dump"
+
+    def _initialize(self):
+        self.istep = 0
         self.param_list = []
         self.fx_list = []
+        self.timer["run"]["random_search"] = 0.0
+        self.timer["run"]["bayes_search"] = 0.0
+
+        self._show_parameters()
 
     def _run(self) -> None:
         runner = self.runner
         mesh_list = self.mesh_list
-        fx_list = []
-        param_list = []
+        # fx_list = []
+        # param_list = []
 
         class simulator:
             def __call__(self, action: np.ndarray) -> float:
@@ -102,27 +118,82 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
                 param_list.append(mesh_list[a])
                 return -fx
 
-        time_sta = time.perf_counter()
-        res = self.policy.random_search(
-            max_num_probes=self.random_max_num_probes, simulator=simulator()
-        )
-        time_end = time.perf_counter()
-        self.timer["run"]["random_search"] = time_end - time_sta
+        if self.mode is None:
+            raise RuntimeError("mode unset")
 
-        time_sta = time.perf_counter()
-        res = self.policy.bayes_search(
-            max_num_probes=self.bayes_max_num_probes,
-            simulator=simulator(),
-            score=self.score,
-            interval=self.interval,
-            num_rand_basis=self.num_rand_basis,
-        )
-        time_end = time.perf_counter()
-        self.timer["run"]["bayes_search"] = time_end - time_sta
+        restore_rng = not self.mode.endswith("-resetrand")
+
+        if self.mode.startswith("init"):
+            self._initialize()
+        elif self.mode.startswith("resume"):
+            self._load_state(self.checkpoint_file, mode="resume", restore_rng=restore_rng)
+        elif self.mode.startswith("continue"):
+            self._load_state(self.checkpoint_file, mode="continue", restore_rng=restore_rng)
+        else:
+            raise RuntimeError("unknown mode {}".format(self.mode))
+
+        fx_list = self.fx_list
+        param_list = self.param_list
+
+        if self.mode.startswith("init"):
+            time_sta = time.perf_counter()
+            res = self.policy.random_search(
+                max_num_probes=self.random_max_num_probes, simulator=simulator()
+            )
+            time_end = time.perf_counter()
+            self.timer["run"]["random_search"] = time_end - time_sta
+
+            # store initial state
+            if self.checkpoint:
+                # print(">>> store initial state")
+                self._save_state(self.checkpoint_file)
+        else:
+            if self.istep >= self.bayes_max_num_probes:
+                res = copy.deepcopy(self.policy.history)
+
+        next_checkpoint_step = self.istep + self.checkpoint_steps
+        next_checkpoint_time = time.time() + self.checkpoint_interval
+
+        while self.istep < self.bayes_max_num_probes:
+            # print(">>> step {}".format(self.istep+1))
+            intv = 0 if self.istep % self.interval == 0 else -1
+
+            time_sta = time.perf_counter()
+            res = self.policy.bayes_search(
+                max_num_probes=1,
+                simulator=simulator(),
+                score=self.score,
+                interval=intv,
+                num_rand_basis=self.num_rand_basis,
+            )
+            time_end = time.perf_counter()
+            self.timer["run"]["bayes_search"] += time_end - time_sta
+
+            self.istep += 1
+
+            if self.checkpoint:
+                time_now = time.time()
+                if self.istep >= next_checkpoint_step or time_now >= next_checkpoint_time:
+                    # print(">>> checkpointing")
+
+                    self.fx_list = fx_list
+                    self.param_list = param_list
+
+                    self._save_state(self.checkpoint_file)
+                    next_checkpoint_step = self.istep + self.checkpoint_steps
+                    next_checkpoint_time = time_now + self.checkpoint_interval
+
         self.best_fx, self.best_action = res.export_all_sequence_best_fx()
         self.xopt = mesh_list[int(self.best_action[-1]), 1:]
         self.fx_list = fx_list
         self.param_list = param_list
+
+        # physbo.search.utility.show_search_results(self.policy.history, 20)
+
+        # store final state for continuation
+        if self.checkpoint:
+            # print(">>> store final state")
+            self._save_state(self.checkpoint_file)
 
     def _prepare(self) -> None:
         # do nothing
@@ -154,3 +225,56 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             for x, y in zip(label_list, self.xopt):
                 print(x, "=", y)
         return {"x": self.xopt, "fx": self.best_fx}
+
+    def _save_state(self, filename):
+        data = {
+            #-- _algorithm
+            "mpisize": self.mpisize,
+            "mpirank": self.mpirank,
+            "rng": self.rng.get_state(),
+            "timer": self.timer,
+            "info": self.info,
+            #-- bayes
+            "istep": self.istep,
+            "param_list": self.param_list,
+            "fx_list": self.fx_list,
+            "file_history": self.file_history,
+            "file_training": self.file_training,
+            "file_predictor": self.file_predictor,
+            "random_number": np.random.get_state(),
+        }
+        self._save_data(data, filename)
+
+        #-- bayes
+        self.policy.save(file_history=Path(self.output_dir, self.file_history),
+                         file_training=Path(self.output_dir, self.file_training),
+                         file_predictor=Path(self.output_dir, self.file_predictor))
+
+
+    def _load_state(self, filename, mode="resume", restore_rng=True):
+        data = self._load_data(filename)
+        if not data:
+            print("ERROR: Load status file failed")
+            sys.exit(1)
+
+        #-- _algorithm
+        assert self.mpisize == data["mpisize"]
+        assert self.mpirank == data["mpirank"]
+
+        if restore_rng:
+            self.rng = np.random.RandomState()
+            self.rng.set_state(data["rng"])
+            np.random.set_state(data["random_number"])
+        self.timer = data["timer"]
+
+        info = data["info"]
+        self._check_parameters(info)
+
+        #-- bayes
+        self.istep = data["istep"]
+        self.param_list = data["param_list"]
+        self.fx_list = data["fx_list"]
+
+        self.policy.load(file_history=Path(self.output_dir, self.file_history),
+                         file_training=Path(self.output_dir, self.file_training),
+                         file_predictor=Path(self.output_dir, self.file_predictor))

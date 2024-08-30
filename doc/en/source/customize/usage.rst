@@ -33,7 +33,7 @@ Example:
     class Algorithm(py2dmat.algorithm.AlgorithmBase):
         # Define your algorithm
         ...
-    
+
 
     # (2)
     input_file = sys.argv[1]
@@ -45,4 +45,4 @@ Example:
     algorithm = Algorithm(info, runner)
 
     # (4)
-    algorithm.main()
+    result = algorithm.main()

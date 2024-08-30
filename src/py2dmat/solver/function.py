@@ -17,6 +17,7 @@
 import os
 import numpy as np
 import py2dmat
+import time
 
 # type hints
 from pathlib import Path
@@ -40,6 +41,9 @@ class Solver(py2dmat.solver.SolverBase):
         self._name = "function"
         self._func = None
 
+        # for debug purpose
+        self.delay = info.solver.get("delay", 0.0)
+
     def evaluate(self, x: np.ndarray, args: Tuple = (), nprocs: int = 1, nthreads: int = 1) -> float:
         self.prepare(x, args)
         cwd = os.getcwd()
@@ -58,6 +62,9 @@ class Solver(py2dmat.solver.SolverBase):
                 "ERROR: function is not set. Make sure that `set_function` is called."
             )
         self.fx = self._func(self.x)
+        # for debug purpose
+        if self.delay > 0.0:
+            time.sleep(self.delay)
 
     def get_results(self) -> float:
         return self.fx

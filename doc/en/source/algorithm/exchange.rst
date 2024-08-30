@@ -241,11 +241,38 @@ The remaining columns are the coordinates.
     3 15 28.98676409223712 3.7442621319489637 -3.868754990884034
 
 
+Restart
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The execution mode is specified by the ``run_mode`` parameter to the ``Algorithm.main()`` method.
+The operation of each mode is described as follows.
+The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` options of ``py2dmat`` command, respectively.
+
+- ``"initialize"`` (default)
+
+  The program is started from the initialized state.
+  If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:
+
+  #. the specified number of steps has been done, or the specified period of time has passed.
+  #. at the end of the execution.
+
+- ``"resume"``
+
+  The program execution is resumed from the latest checkpoint.
+  The conditions such as the number of MPI processes should be kept the same.
+
+- ``"continue"``
+
+  The program execution is continued from the previous run.
+  The value of ``numsteps`` should be increased. The step counter is taken over.
+
+  For example: in the first run, the calculation is carried out for 1000 steps with ``numsteps = 1000``. In the next run, the calculation is continued with ``numsteps = 2000``, where the calculations from 1001st step to 2000th step are carried out.
+
+
 Algorithm
-********************
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Markov chain Monte Carlo
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Markov chain Monte Carlo (MCMC) sampling explores the parameter space by moving walkers :math:`\vec{x}` stochastically according to the weight function :math:`W(\vec{x})`.
 For the weight function, the Boltzmann factor :math:`W(\vec{x}) = e^{-f(\vec{x})/T}` is generally adopted, where :math:`T>0` is the "temperature."
@@ -311,7 +338,7 @@ The solution is given as the point giving the minimum value of :math:`f(\vec{x})
 The third process of the above procedure endures that walkers can climb over the hill with a height of :math:`\Delta f \sim T`, the MCMC sampling can escape from local minima.
 
 Replica exchange Monte Carlo
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The "temperature" :math:`T` is one of the most important hyper parameters in the MCMC sampling.
 The MCMC sampling can climb over the hill with a height of :math:`T` but cannot easily escape from the deeper valley than :math:`T`.

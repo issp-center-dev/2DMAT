@@ -54,6 +54,14 @@
 
       - Three empty dictinaries, ``"prepare"``, ``"run"``, and ``"post"``, will be defined.
 
+    - ``self.checkpoint: bool`` : enable/disable checkpointing
+
+      - ``self.checkpoint_steps``
+      - ``self.checkpoint_interval``
+      - ``self.checkpoint_file``
+
+	The parameters concerning the checkpointing feature are stored.
+
 - ``prepare(self) -> None``
 
     - Prepares the algorithm.
@@ -71,17 +79,27 @@
       #. Move to the original directory.
 
     - It should be called after ``self.prepare()`` is called.
-      
-- ``post(self) -> None``
+
+- ``post(self) -> Dict``
 
     - Runs a post process of the algorithm, for example, writing the results into files.
     - Enters into ``self.output_dir``, calls ``self._post()``, and returns to the original directory.
     - It should be called after ``self.run()`` is called.
 
-- ``main(self) -> None``
+- ``main(self, run_mode) -> Dict``
 
     - Calls ``prepare``, ``run``, and ``post``.
     - Measures the elapsed times for calling functions, and writes them into a file
+    - Takes an argument for the execution mode as a string. The default value is ``initialize``.
+
+      - ``"initialize"``: start from the initial state.
+      - ``"resume"``: resume from the interrupted run.
+      - ``"continue"``: continue from the finished run.
+
+      The argument contains ``"-resetrand"`` when the random number generator should be initialized.
+      The behavior of "continue" depends on the algorithm.
+
+    - Returns the result of the optimization in the form of dictionary.
 
 
 ``Algorithm``
@@ -116,9 +134,11 @@ It is defined as a subclass of ``AlgorithmBase`` and should have the following m
 	 args = (step, set)
          fx = self.runner.submit(x, args)
 
-- ``_post(self) -> None``
+- ``_post(self) -> Dict``
 
     - Describes post-process of the algorithm.
+
+    - Returns the result of the optimization in the form of dictionary.
 
 
 Definition of ``Domain``
@@ -160,5 +180,5 @@ Two classes are preprared to specify the search region.
 - For input and output, the following methods are provided.
 
   - A class method ``from_file(cls, path)`` is prepared that reads mesh data from ``path`` and creates an instance of ``MeshGrid`` class.
-  
+
   - A method ``store_file(self, path)`` is prepared that writes the grid information to the file specified by ``path``.
