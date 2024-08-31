@@ -32,7 +32,7 @@ class SolverConfig(BaseModel):
     calculated_first_line: NonNegativeInt = Field(default=5)
     calculated_last_line: Optional[NonNegativeInt] = None
     calculated_info_line: int = Field(default=2)
-    cal_number: Union[int,Set[int]] # = Field(min_length=1)
+    cal_number: Union[int,List[int]] # = Field(min_length=1)
 
 class SolverPost(BaseModel):
     normalization: Literal["TOTAL", "MANY_BEAM", "MAX"]
@@ -55,7 +55,7 @@ class SolverReference(BaseModel):
     path: str = "experiment.txt"
     reference_first_line: NonNegativeInt = Field(default=1)
     reference_last_line: Optional[NonNegativeInt] = None
-    exp_number: Union[int,Set[int]] # = Field(min_length=1)
+    exp_number: Union[int,List[int]] # = Field(min_length=1)
 
 class SolverInfo(BaseModel):
     dimension: Optional[int] = None
