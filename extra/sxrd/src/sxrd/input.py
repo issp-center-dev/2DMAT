@@ -32,25 +32,12 @@ class Input(object):
         self.root_dir = info_base["root_dir"]
         self.output_dir = info_base["output_dir"]
 
-        # info_s = info.solver
-        # self.info_param = info_s["param"]
         self.info_param = info_s.param
-        # # Set default values
-        # # Initial values
-        # self.info_param["opt_scale_factor"] = self.info_param.get(
-        #     "opt_scale_factor", False
-        # )
-        # self.info_param["scale_factor"] = self.info_param.get("scale_factor", 1.0)
 
-        # # Read info (a, b, c, alpha, beta, gamma ) from blk or surf files.
-        # self.lattice_info = self._read_lattice_info(
-        #     info_s["config"]["bulk_struc_in_file"]
-        # )
+        # Read info (a, b, c, alpha, beta, gamma ) from blk or surf files.
         self.lattice_info = self._read_lattice_info(info_s.config.bulk_struc_in_file)
-        # # Generate input file
-        # self._write_input_file(
-        #     info_s["config"], info_s["reference"], info_s["param"]["domain"]
-        # )
+
+        # Generate input file
         self._write_input_file(info_s)
 
     def prepare(self, x: np.ndarray, args):
