@@ -61,7 +61,6 @@ class Input(object):
             self.dimension = info_base["dimension"]
 
         # read info
-        #info_s = info.solver
         self.run_scheme = info_solver.run_scheme
         self.generate_rocking_curve = info_solver.generate_rocking_curve
 
@@ -72,24 +71,12 @@ class Input(object):
             self.surf_template_width_for_fortran = 128
             self.bulk_out_width_for_fortran = 1024
 
-        # info_param = info_solver.param
-        # v = info_param.string_list
-        # if len(v) != self.dimension:
-        #     raise exception.InputError(
-        #         f"ERROR: len(string_list) != dimension ({len(v)} != {self.dimension})"
-        #     )
-        # self.string_list = v
         self.string_list = info_solver.param.string_list
         if len(self.string_list) != self.dimension:
             raise ValueError("length of string_list does not match dimension")
 
-        # info_config = info_solver.config
-        # self.surface_input_file = Path(
-        #     info_config.surface_input_file
-        # )
         self.surface_input_file = Path(info_solver.config.surface_input_file)
 
-        # filename = info_config.surface_template_file
         filename = info_solver.config.surface_template_file
         filename = Path(filename).expanduser().resolve()
         self.surface_template_file = self.root_dir / filename
@@ -155,9 +142,6 @@ class Input(object):
         if self.isLogmode:
             time_sta = time.perf_counter()
 
-        # x_list = message.x
-        # step = message.step
-        # iset = message.set
         x_list = x
         step, iset = args
 

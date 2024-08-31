@@ -63,12 +63,6 @@ class Solver(py2dmat.solver.SolverBase):
             print("ERROR: {}".format(e))
             sys.exit(1)
 
-        # self.run_scheme = info.solver.get("run_scheme", "subprocess")
-        # scheme_list = ["subprocess", "connect_so"]
-
-        # if self.run_scheme not in scheme_list:
-        #     raise exception.InputError("ERROR : solver.run_scheme should be 'subprocess' or 'connect_so'.")
-
         self.run_scheme = info_solver.run_scheme
 
         if self.run_scheme == "connect_so":
@@ -135,7 +129,6 @@ class Solver(py2dmat.solver.SolverBase):
         return result
 
     def prepare(self, x: np.ndarray, args) -> None:
-        # fitted_x_list, subdir = self.input.prepare(message)
         fitted_x_list, subdir = self.input.prepare(x, args)
         self.work_dir = self.proc_dir / Path(subdir)
 
