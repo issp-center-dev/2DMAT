@@ -16,39 +16,55 @@
 
 import numpy as np
 
-first_line = 5
-last_line = 60
-row_number = 8
+def calc(data, omega):
+    sigma = 0.5 * omega / (np.sqrt(2.0 * np.log(2.0)))
 
-omega = 0.5
-def g(x):
-    g = (0.939437 / omega) * np.exp(-2.77259 * (x ** 2.0 / omega ** 2.0))
-    return g
+    def g(x):
+        g = (1.0 / (sigma * np.sqrt(2.0 * np.pi))) * np.exp(-0.5 * x**2 / sigma**2)
+        return g
 
-file_input = open("surf-bulkP.s", "r")
-Clines = file_input.readlines()
-file_input.close()
+    conv = np.zeros(data.shape)
 
-degree_list = []
-C_list = []
-for line in Clines[first_line -1:last_line]:
-    line = line.replace(",", "")
-    data = line.split()
-    degree_list.append(float(data[0]))
-    C_list.append(float(data[row_number - 1]))
+    xs = np.array(data[:,0])
+    vs = data[:,1:]
 
-print("len(C_list):", len(C_list))
+    dxs = np.roll(xs,-1) - xs
+    dxs[-1] = dxs[-2]
 
-new_C_list = []
-for index in range(len(C_list)):
-    integral = 0.0
-    for index2 in range(len(C_list)):
-        integral += C_list[index2] * g(degree_list[index] - degree_list[index2]) * 0.1
-    new_C_list.append(integral)
+    ys = np.zeros(vs.shape)
 
-C_list = new_C_list
+    for idx in range(xs.shape[0]):
+        ys[idx] = np.einsum('ik,i,i->k', vs, g(xs-xs[idx]), dxs)
 
-file_output = open("convolution.txt", "w")
-for i in range(len(C_list)):
-    file_output.write("%f %.9f\n"%(degree_list[i], C_list[i]))
-file_output.close()
+    conv[:,0] = xs
+    conv[:,1:] = ys
+
+    return conv
+
+def read_file(filename, col_number, first_line, last_line=None):
+    if last_line:
+        nlines = last_line - first_line + 1
+    else:
+        nlines = None
+    data = np.loadtxt(filename, skiprows=first_line-1, max_rows=nlines, delimiter=",", usecols=(0,col_number-1))
+    print("number of data = {}".format(data.shape[0]))
+    return data
+
+def write_file(filename, data):
+    with open(filename, "w") as fp:
+        for t, x in zip(data[:,0], data[:,1]):
+            fp.write("%f %.9f\n" % (t, x))
+
+def main():
+    first_line = 5
+    last_line = 60
+    col_number = 8
+    omega = 0.5
+
+    data = read_file("surf-bulkP.s", col_number, first_line, last_line)
+    conv = calc(data, omega)
+
+    write_file("convolution.txt", conv)
+
+if __name__ == "__main__":
+    main()
