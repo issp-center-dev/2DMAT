@@ -1,3 +1,19 @@
+# 2DMAT -- Data-analysis software of quantum beam diffraction experiments for 2D material structure
+# Copyright (C) 2020- The University of Tokyo
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see http://www.gnu.org/licenses/.
+
 import os
 import numpy as np
 
@@ -41,7 +57,7 @@ class Output(object):
     calculated_info_line: int
     cal_number: List
 
-    def __init__(self, info, isLogmode, detail_timer):
+    def __init__(self, info_base, info_solver, isLogmode, detail_timer):
         self.mpicomm = mpi.comm()
         self.mpisize = mpi.size()
         self.mpirank = mpi.rank()
@@ -49,152 +65,169 @@ class Output(object):
         self.isLogmode = isLogmode
         self.detail_timer = detail_timer
 
-        if "dimension" in info.solver:
-            self.dimension = info.solver["dimension"]
+        if info_solver.dimension:
+            self.dimension = info_solver.dimension
         else:
-            self.dimension = info.base["dimension"]
+            self.dimension = info_base["dimension"]
 
-        info_s = info.solver
-        self.run_scheme = info_s["run_scheme"]
+        #info_s = info.solver
+        self.run_scheme = info_solver.run_scheme
 
         # If self.run_scheme == "connect_so",
         # the contents of surface_output_file are retailned in self.surf_output.
         self.surf_output = np.array([])
-        self.generate_rocking_curve = info_s.get("generate_rocking_curve", False)
+        self.generate_rocking_curve = info_solver.generate_rocking_curve
 
         # solver.post
-        info_post = info_s.get("post", {})
-        v = info_post.get("normalization", "")
-        available_normalization = ["TOTAL", "MANY_BEAM"]
-        if v == "MAX":
-            raise exception.InputError(
-                'ERROR: solver.post.normalization == "MAX" is no longer available'
-            )
-        if v not in available_normalization:
-            msg = "ERROR: solver.post.normalization must be "
-            msg += "MANY_BEAM or TOTAL"
-            raise exception.InputError(msg)
-        self.normalization = v
+        # info_post = info_solver.post
+        # v = info_post.normalization
+        # available_normalization = ["TOTAL", "MANY_BEAM"]
+        # if v == "MAX":
+        #     raise exception.InputError(
+        #         'ERROR: solver.post.normalization == "MAX" is no longer available'
+        #     )
+        # if v not in available_normalization:
+        #     msg = "ERROR: solver.post.normalization must be "
+        #     msg += "MANY_BEAM or TOTAL"
+        #     raise exception.InputError(msg)
+        # self.normalization = v
+        self.normalization = info_solver.post.normalization
 
-        v = info_post.get("weight_type", None)
-        available_weight_type = ["calc", "manual"]
-        if self.normalization == "MANY_BEAM":
-            if v is None:
-                msg = 'ERROR: If solver.post.normalization = "MANY_BEAM", '
-                msg += '"weight_type" must be set in [solver.post].'
-                raise exception.InputError(msg)
-            elif v not in available_weight_type:
-                msg = "ERROR: solver.post.weight_type must be "
-                msg += "calc or manual"
-                raise exception.InputError(msg)
-        else:
-            if v is not None:
-                if self.mpirank == 0:
-                    msg = 'NOTICE: If solver.post.normalization = "MANY_BEAM" is not set, '
-                    msg += '"solver.post.weight_type" is NOT considered in the calculation.'
-                    print(msg)
-                self.weight_type = None
-        self.weight_type = v
+        # v = info_post.get("weight_type", None)
+        # available_weight_type = ["calc", "manual"]
+        # if self.normalization == "MANY_BEAM":
+        #     if v is None:
+        #         msg = 'ERROR: If solver.post.normalization = "MANY_BEAM", '
+        #         msg += '"weight_type" must be set in [solver.post].'
+        #         raise exception.InputError(msg)
+        #     elif v not in available_weight_type:
+        #         msg = "ERROR: solver.post.weight_type must be "
+        #         msg += "calc or manual"
+        #         raise exception.InputError(msg)
+        # else:
+        #     if v is not None:
+        #         if self.mpirank == 0:
+        #             msg = 'NOTICE: If solver.post.normalization = "MANY_BEAM" is not set, '
+        #             msg += '"solver.post.weight_type" is NOT considered in the calculation.'
+        #             print(msg)
+        #         self.weight_type = None
+        # self.weight_type = v
+        self.weight_type = info_solver.post.weight_type
 
-        v = info_post.get("spot_weight", [])
+        # v = info_post.get("spot_weight", [])
+        # if self.normalization == "MANY_BEAM" and self.weight_type == "manual":
+        #     if v == []:
+        #         msg = 'ERROR: With solver.post.normalization="MANY_BEAM" and '
+        #         msg += 'solver.post.weight_type=="manual", the "spot_weight" option '
+        #         msg += "must be set in [solver.post]."
+        #         raise exception.InputError(msg)
+        #     self.spot_weight = np.array(v) / sum(v)
+        # else:
+        #     if v != []:
+        #         if self.mpirank == 0:
+        #             msg = 'NOTICE: With the specified "solver.post.normalization" option, '
+        #             msg += 'the "spot_weight" you specify in the toml file is ignored, '
+        #             msg += "since the spot_weight is automatically calculated within the program."
+        #             print(msg)
+        #     if self.normalization == "TOTAL":
+        #         self.spot_weight = np.array([1])
         if self.normalization == "MANY_BEAM" and self.weight_type == "manual":
-            if v == []:
-                msg = 'ERROR: With solver.post.normalization="MANY_BEAM" and '
-                msg += 'solver.post.weight_type=="manual", the "spot_weight" option '
-                msg += "must be set in [solver.post]."
-                raise exception.InputError(msg)
-            self.spot_weight = np.array(v) / sum(v)
-        else:
-            if v != []:
-                if self.mpirank == 0:
-                    msg = 'NOTICE: With the specified "solver.post.normalization" option, '
-                    msg += 'the "spot_weight" you specify in the toml file is ignored, '
-                    msg += "since the spot_weight is automatically calculated within the program."
-                    print(msg)
-            if self.normalization == "TOTAL":
-                self.spot_weight = np.array([1])
+            v = info_solver.post.spot_weight
+            self.spot_weight = np.array(v) / np.sum(v)
+        elif self.normalization == "TOTAL":
+            self.spot_weight = np.array([1.0])
 
-        v = info_post.get("Rfactor_type", "A")
-        if v not in ["A", "B", "A2"]:
-            raise exception.InputError("ERROR: solver.post.Rfactor_type must be A, A2 or B")
-        if self.normalization == "MANY_BEAM":
-            if (v != "A") and (v != "A2"):
-                msg = 'With solver.post.normalization="MANY_BEAM", '
-                msg += 'only solver.post.Rfactor_type="A" or "A2" is valid.'
-                raise exception.InputError(msg)
-        self.Rfactor_type = v
+        # v = info_post.get("Rfactor_type", "A")
+        # if v not in ["A", "B", "A2"]:
+        #     raise exception.InputError("ERROR: solver.post.Rfactor_type must be A, A2 or B")
+        # if self.normalization == "MANY_BEAM":
+        #     if (v != "A") and (v != "A2"):
+        #         msg = 'With solver.post.normalization="MANY_BEAM", '
+        #         msg += 'only solver.post.Rfactor_type="A" or "A2" is valid.'
+        #         raise exception.InputError(msg)
+        # self.Rfactor_type = v
+        self.Rfactor_type = info_solver.post.Rfactor_type
 
-        v = info_post.get("omega", 0.5)
-        if v <= 0.0:
-            raise exception.InputError("ERROR: omega should be positive")
-        self.omega = v
+        # v = info_post.get("omega", 0.5)
+        # if v <= 0.0:
+        #     raise exception.InputError("ERROR: omega should be positive")
+        # self.omega = v
+        self.omega = info_solver.post.omega
 
-        self.remove_work_dir = info_post.get("remove_work_dir", False)
+        # self.remove_work_dir = info_post.get("remove_work_dir", False)
+        self.remove_work_dir = info_solver.post.remove_work_dir
 
         # solver.param
-        info_param = info_s.get("param", {})
-        v = info_param.setdefault("string_list", ["value_01", "value_02"])
-        if len(v) != self.dimension:
-            raise exception.InputError(
-                f"ERROR: len(string_list) != dimension ({len(v)} != {self.dimension})"
-            )
-        self.string_list = v
+        # info_param = info_s.get("param", {})
+        # v = info_param.setdefault("string_list", ["value_01", "value_02"])
+        # if len(v) != self.dimension:
+        #     raise exception.InputError(
+        #         f"ERROR: len(string_list) != dimension ({len(v)} != {self.dimension})"
+        #     )
+        # self.string_list = v
+        self.string_list = info_solver.param.string_list
 
         # solver.reference
-        info_ref = info_s.get("reference", {})
-        v = info_ref.setdefault("reference_first_line", 1)
-        if not (isinstance(v, int) and v >= 0):
-            raise exception.InputError(
-                "ERROR: reference_first_line should be non-negative integer"
-            )
-        firstline = v
+        # info_ref = info_s.get("reference", {})
+        # v = info_ref.setdefault("reference_first_line", 1)
+        # if not (isinstance(v, int) and v >= 0):
+        #     raise exception.InputError(
+        #         "ERROR: reference_first_line should be non-negative integer"
+        #     )
+        # firstline = v
+        firstline = info_solver.reference.reference_first_line
 
         # None is dummy value
         # If "reference_last_line" is not specified in the toml file,
         # the last line of the reference file is used for the R-factor calculation.
-        v = info_ref.setdefault("reference_last_line", None)
-        if v is None:
-            reference_are_read_to_final_line = True
-        else:
-            reference_are_read_to_final_line = False
-            if not (isinstance(v, int) and v >= firstline):
-                raise exception.InputError(
-                    "ERROR: reference_last_line < reference_first_line"
-                )
-        lastline = v
+        # v = info_ref.setdefault("reference_last_line", None)
+        # if v is None:
+        #     reference_are_read_to_final_line = True
+        # else:
+        #     reference_are_read_to_final_line = False
+        #     if not (isinstance(v, int) and v >= firstline):
+        #         raise exception.InputError(
+        #             "ERROR: reference_last_line < reference_first_line"
+        #         )
+        # lastline = v
+        lastline = info_solver.reference.reference_last_line
 
-        reference_path = info_ref.get("path", "experiment.txt")
-        data_experiment = self.read_experiment(
-            reference_path, firstline, lastline, reference_are_read_to_final_line
-        )
+        #reference_path = info_ref.get("path", "experiment.txt")
+        reference_path = info_solver.reference.path
+        data_experiment = self.read_experiment(reference_path, firstline, lastline)
+
         self.angle_number_experiment = data_experiment.shape[0]
         self.beam_number_exp_raw = data_experiment.shape[1]
 
-        v = info_ref.get("exp_number", [])
-        if isinstance(v, int):
-            v = [v]
-        if len(v) == 0:
-            raise exception.InputError("ERROR: You have to set the 'solver.reference.exp_number'.")
+        # v = info_ref.get("exp_number", [])
+        # if isinstance(v, int):
+        #     v = [v]
+        # if len(v) == 0:
+        #     raise exception.InputError("ERROR: You have to set the 'solver.reference.exp_number'.")
 
-        if not isinstance(v, list):
-            raise exception.InputError("ERROR: 'solver.reference.exp_number' must be a list type.")
+        # if not isinstance(v, list):
+        #     raise exception.InputError("ERROR: 'solver.reference.exp_number' must be a list type.")
 
-        if max(v) > self.beam_number_exp_raw:
-            raise exception.InputError("ERROR: The 'solver.reference.exp_number' setting is wrong.")
+        # if max(v) > self.beam_number_exp_raw:
+        #     raise exception.InputError("ERROR: The 'solver.reference.exp_number' setting is wrong.")
 
-        if self.normalization == "MANY_BEAM" and self.weight_type == "manual":
-            if len(v) != len(self.spot_weight):
-                raise exception.InputError(
-                    "ERROR:len('solver.reference.exp_number') and len('solver.post.spot_weight') do not match."
-                )
+        # if self.normalization == "MANY_BEAM" and self.weight_type == "manual":
+        #     if len(v) != len(self.spot_weight):
+        #         raise exception.InputError(
+        #             "ERROR:len('solver.reference.exp_number') and len('solver.post.spot_weight') do not match."
+        #         )
 
-        if self.normalization == "TOTAL" and len(v) != 1:
-            msg = 'When solver.post.normalization=="TOTAL" is specified, '
-            msg += "only one beam data can be specified with "
-            msg += '"solver.reference.exp_number" option.'
-            raise exception.InputError(msg)
+        # if self.normalization == "TOTAL" and len(v) != 1:
+        #     msg = 'When solver.post.normalization=="TOTAL" is specified, '
+        #     msg += "only one beam data can be specified with "
+        #     msg += '"solver.reference.exp_number" option.'
+        #     raise exception.InputError(msg)
 
-        self.exp_number = v
+        # self.exp_number = v
+        self.exp_number = info_solver.reference.exp_number
+        if not all([v > 0 and v <= self.beam_number_exp_raw for v in self.exp_number]):
+            raise ValueError("elements of exp_number must be smaller or equal to number of rows")
+
 
         # Normalization of reference data
 
@@ -214,33 +247,41 @@ class Output(object):
             raise ValueError("normalization must be MANY_BEAM or TOTAL")
 
         # solver.config
-        info_config = info_s.get("config", {})
-        self.surface_output_file = info_config.get(
-            "surface_output_file", "surf-bulkP.s"
-        )
+        # info_config = info_s.get("config", {})
+        # self.surface_output_file = info_config.get(
+        #     "surface_output_file", "surf-bulkP.s"
+        # )
+        self.surface_output_file = Path(info_solver.config.surface_output_file)
 
-        v = info_config.get("calculated_first_line", 5)
-        if not (isinstance(v, int) and v >= 0):
-            raise exception.InputError(
-                "ERROR: solver.config.calculated_first_line should be non-negative integer"
-            )
-        self.calculated_first_line = v
+        # v = info_config.get("calculated_first_line", 5)
+        # if not (isinstance(v, int) and v >= 0):
+        #     raise exception.InputError(
+        #         "ERROR: solver.config.calculated_first_line should be non-negative integer"
+        #     )
+        # self.calculated_first_line = v
+        self.calculated_first_line = info_solver.config.calculated_first_line
 
-        v = info_config.get(
-            "calculated_last_line",
-            self.calculated_first_line + self.angle_number_experiment - 1,
-        )
-        if not (isinstance(v, int) and v >= 0):
-            raise exception.InputError(
-                "ERROR: solver.config.calculated_last_line should be non-negative integer"
-            )
-        self.calculated_last_line = v
+        # v = info_config.get(
+        #     "calculated_last_line",
+        #     self.calculated_first_line + self.angle_number_experiment - 1,
+        # )
+        # if not (isinstance(v, int) and v >= 0):
+        #     raise exception.InputError(
+        #         "ERROR: solver.config.calculated_last_line should be non-negative integer"
+        #     )
+        # self.calculated_last_line = v
+        self.calculated_last_line = info_solver.config.calculated_last_line
+        if self.calculated_last_line is None:
+            self.calculated_last_line = self.calculated_first_line + self.angle_number_experiment - 1
+            self.calculated_nlines = self.angle_number_experiment
+        else:
+            self.calculated_nlines = self.calculated_last_line - self.calculated_first_line + 1
 
         # Number of lines in the computation file
         # used for R-factor calculations.
-        self.calculated_nlines = (
-            self.calculated_last_line - self.calculated_first_line + 1
-        )
+        # self.calculated_nlines = (
+        #     self.calculated_last_line - self.calculated_first_line + 1
+        # )
 
         if self.angle_number_experiment != self.calculated_nlines:
             raise exception.InputError(
@@ -253,52 +294,48 @@ class Output(object):
         # is displayed.
         self.isWarning_calcnline = False
 
-        v = info_config.get("calculated_info_line", 2)
-        if not (isinstance(v, int) and v >= 0):
-            raise exception.InputError(
-                "ERROR: solver.config.calculated_info_line should be non-negative integer"
-            )
-        self.calculated_info_line = v
+        # v = info_config.get("calculated_info_line", 2)
+        # if not (isinstance(v, int) and v >= 0):
+        #     raise exception.InputError(
+        #         "ERROR: solver.config.calculated_info_line should be non-negative integer"
+        #     )
+        # self.calculated_info_line = v
+        self.calculated_info_line = info_solver.config.calculated_info_line
 
-        v = info_config.get("cal_number", [])
-        if isinstance(v, int):
-            v = [v]
-        if len(v) == 0:
-            raise exception.InputError("ERROR: You have to set the 'solver.config.cal_number'.")
+        # v = info_config.get("cal_number", [])
+        # if isinstance(v, int):
+        #     v = [v]
+        # if len(v) == 0:
+        #     raise exception.InputError("ERROR: You have to set the 'solver.config.cal_number'.")
 
-        if not isinstance(v, list):
-            raise exception.InputError("ERROR: 'solver.config.cal_number' must be a list type.")
+        # if not isinstance(v, list):
+        #     raise exception.InputError("ERROR: 'solver.config.cal_number' must be a list type.")
 
-        if self.normalization == "MANY_BEAM" and self.weight_type == "manual":
-            if len(self.spot_weight) != len(v):
-                raise exception.InputError(
-                    "len('solver.config.cal_number') and len('solver.post.spot_weight') do not match."
-                )
-        if self.normalization == "TOTAL" and len(v) != 1:
-            msg = 'When solver.post.normalization=="TOTAL" is specified, '
-            msg += "only one beam data can be specified with "
-            msg += '"solver.config.cal_number" option.'
-            raise exception.InputError(msg)
-        self.cal_number = v
+        # if self.normalization == "MANY_BEAM" and self.weight_type == "manual":
+        #     if len(self.spot_weight) != len(v):
+        #         raise exception.InputError(
+        #             "len('solver.config.cal_number') and len('solver.post.spot_weight') do not match."
+        #         )
+        # if self.normalization == "TOTAL" and len(v) != 1:
+        #     msg = 'When solver.post.normalization=="TOTAL" is specified, '
+        #     msg += "only one beam data can be specified with "
+        #     msg += '"solver.config.cal_number" option.'
+        #     raise exception.InputError(msg)
+        # self.cal_number = v
+        self.cal_number = info_solver.config.cal_number
 
-    def read_experiment(self, ref_path, first, last, read_to_final_line):
-        # Read experiment data
+    def read_experiment(self, ref_path, first, last=None):
         if self.mpirank == 0:
             assert first > 0
-
-            if read_to_final_line:
+            if last is None:
                 nlines = None
             else:
                 nlines = last - first + 1
-
             data_e = np.loadtxt(ref_path, skiprows=first-1, max_rows=nlines)
-
         else:
             data_e = None
-        if self.mpisize > 1:
-            data_exp = self.mpicomm.bcast(data_e, root=0)
-        else:
-            data_exp = data_e
+
+        data_exp = self.mpicomm.bcast(data_e, root=0)
         return data_exp
 
     def prepare(self, fitted_x_list):

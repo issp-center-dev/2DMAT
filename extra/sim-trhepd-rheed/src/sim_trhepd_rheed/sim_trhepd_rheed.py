@@ -1,7 +1,22 @@
+# 2DMAT -- Data-analysis software of quantum beam diffraction experiments for 2D material structure
+# Copyright (C) 2020- The University of Tokyo
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see http://www.gnu.org/licenses/.
+
 import itertools
 import os
-import os.path
-import shutil
+import sys
 import time
 import ctypes
 import subprocess
@@ -12,6 +27,9 @@ import py2dmat
 from py2dmat import exception, mpi
 from .input import Input
 from .output import Output
+from .parameter import SolverInfo
+
+from pydantic import ValidationError
 
 # for type hints
 from pathlib import Path
@@ -39,18 +57,26 @@ class Solver(py2dmat.solver.SolverBase):
 
         self._name = "sim_trhepd_rheed_mb_connect"
 
-        self.run_scheme = info.solver.get("run_scheme", "subprocess")
-        scheme_list = ["subprocess", "connect_so"]
+        try:
+            info_solver = SolverInfo(**info.solver)
+        except ValidationError as e:
+            print("ERROR: {}".format(e))
+            sys.exit(1)
 
-        if self.run_scheme not in scheme_list:
-            raise exception.InputError("ERROR : solver.run_scheme should be 'subprocess' or 'connect_so'.")
+        # self.run_scheme = info.solver.get("run_scheme", "subprocess")
+        # scheme_list = ["subprocess", "connect_so"]
+
+        # if self.run_scheme not in scheme_list:
+        #     raise exception.InputError("ERROR : solver.run_scheme should be 'subprocess' or 'connect_so'.")
+
+        self.run_scheme = info_solver.run_scheme
 
         if self.run_scheme == "connect_so":
             self.load_so()
 
         elif self.run_scheme == "subprocess":
             # path to surf.exe
-            p2solver = info.solver["config"].get("surface_exec_file", "surf.exe")
+            p2solver = info_solver.config.surface_exec_file
             if os.path.dirname(p2solver) != "":
                 # ignore ENV[PATH]
                 self.path_to_solver = self.root_dir / Path(p2solver).expanduser()
@@ -67,8 +93,8 @@ class Solver(py2dmat.solver.SolverBase):
         self.isLogmode = False
         self.set_detail_timer()
 
-        self.input = Input(info, self.isLogmode, self.detail_timer)
-        self.output = Output(info, self.isLogmode, self.detail_timer)
+        self.input = Input(info.base, info_solver, self.isLogmode, self.detail_timer)
+        self.output = Output(info.base, info_solver, self.isLogmode, self.detail_timer)
 
     def set_detail_timer(self) -> None:
         # TODO: Operate log_mode with toml file. Generate txt of detail_timer.
