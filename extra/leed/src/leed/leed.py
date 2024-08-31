@@ -27,7 +27,7 @@ import numpy as np
 
 import py2dmat
 from py2dmat import exception
-
+from .input import Input
 
 class Solver(py2dmat.solver.SolverBase):
     path_to_solver: Path
@@ -78,7 +78,7 @@ class Solver(py2dmat.solver.SolverBase):
                 raise exception.InputError(
                     f"ERROR: input file ({file}) is not found in ({self.path_to_base_dir})"
                 )
-        self.input = Solver.Input(info)
+        self.input = Input(info)
 
     def evaluate(self, x: np.ndarray, args = (), nprocs: int = 1, nthreads: int = 1) -> float:
         self.prepare(x, args)
@@ -122,38 +122,3 @@ class Solver(py2dmat.solver.SolverBase):
             raise RuntimeError(msg)
         return rfactor
 
-    class Input(object):
-        root_dir: Path
-        output_dir: Path
-        dimension: int
-
-        def __init__(self, info):
-            self.dimension = info.base["dimension"]
-            self.root_dir = info.base["root_dir"]
-            self.output_dir = info.base["output_dir"]
-
-        def prepare(self, x: np.ndarray, args):
-            x_list = x
-            #step, iset = args
-            #extra = iset > 0
-
-            # Delete output files
-            delete_files = ["search.s", "gleed.o"]
-            for file in delete_files:
-                if os.path.exists(file):
-                    os.remove(file)
-            # Generate fit file
-            # Add variables by numpy array.(Variables are updated in optimization process).
-            self._write_fit_file(x_list)
-
-        def _write_fit_file(self, variables):
-            with open("tleed4.i", "r") as fr:
-                contents = fr.read()
-            for idx, variable in enumerate(variables):
-                # FORTRAN format: F7.6
-                svariable = str(variable).zfill(6)[:6]
-                contents = contents.replace(
-                    "opt{}".format(str(idx).zfill(3)), svariable
-                )
-            with open("tleed4.i", "w") as writer:
-                writer.write(contents)
