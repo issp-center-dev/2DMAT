@@ -75,13 +75,17 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
 
     exchange_direction: bool
 
-    def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
+    def __init__(self,
+                 info: py2dmat.Info,
+                 runner: py2dmat.Runner = None,
+                 run_mode: str = "initial"
+    ) -> None:
         time_sta = time.perf_counter()
 
         info_exchange = info.algorithm["exchange"]
         nwalkers = info_exchange.get("nreplica_per_proc", 1)
 
-        super().__init__(info=info, runner=runner, nwalkers=nwalkers)
+        super().__init__(info=info, runner=runner, nwalkers=nwalkers, run_mode=run_mode)
 
         self.nreplica = self.mpisize * self.nwalkers
         self.input_as_beta, self.betas = read_Ts(info_exchange, numT=self.nreplica)

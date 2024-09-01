@@ -48,8 +48,10 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
 
     def __init__(self, info: py2dmat.Info,
                  runner: py2dmat.Runner = None,
-                 domain = None) -> None:
-        super().__init__(info=info, runner=runner)
+                 domain = None,
+                 run_mode: str = "initial"
+    ) -> None:
+        super().__init__(info=info, runner=runner, run_mode=run_mode)
 
         info_param = info.algorithm.get("param", {})
         info_bayes = info.algorithm.get("bayes", {})

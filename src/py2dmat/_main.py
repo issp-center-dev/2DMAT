@@ -105,5 +105,5 @@ def main():
 
     solver = Solver(info)
     runner = py2dmat.Runner(solver, info)
-    alg = Algorithm(info, runner)
-    alg.main(run_mode=run_mode)
+    alg = Algorithm(info, runner, run_mode=run_mode)
+    result = alg.main()
