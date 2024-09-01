@@ -104,7 +104,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         info_pamc = info.algorithm["pamc"]
         nwalkers = info_pamc.get("nreplica_per_proc", 1)
 
-        super().__init__(info=info, runner=runner, nwalkers=nwalkers)
+        super().__init__(info=info, runner=runner, nwalkers=nwalkers, run_mode=run_mode)
 
         self.verbose = True and self.mpirank == 0
 
