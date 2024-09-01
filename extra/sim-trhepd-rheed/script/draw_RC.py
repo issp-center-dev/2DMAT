@@ -38,26 +38,32 @@ def read_exp(filename):
     exp_list /= np.sum(exp_list)
     return degree_list, exp_list
 
-degree_list_ini, I_ini_list, R_ini = read_rocking_curve("RockingCurve_ini.txt")
-degree_list_con, I_con_list, R_con = read_rocking_curve("RockingCurve_con.txt")
-degree_list, exp_list = read_exp("experiment.txt")
 
-print("len(degree_list):", len(degree_list))
-print("len(exp_list):", len(exp_list))
-print("len(I_ini_list):", len(I_ini_list))
-print("len(I_con_list):", len(I_con_list))
+def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="Draw rocking curves")
+    parser.add_argument("inputfiles", nargs="+", help="rocking curve data")
+    parser.add_argument("--exp", default="experiment.txt", help="experiment data")
+    parser.add_argument("--output", default="RC.png", help="output file")
+    parser.add_argument("--no-legend", action="store_true", help="hide legend")
+    parser.add_argument("--version", action="version", version="0.1")
+    args = parser.parse_args()
 
-plt.plot(degree_list, exp_list, marker = "$o$", linewidth = 0.0, color = "red", label = "experiment")
-plt.plot(degree_list, I_ini_list, marker = "None", color = "blue", label = "initial(R-factor = %f)"%(R_ini))
-plt.plot(degree_list, I_con_list, marker = "None", color = "green", label = "converged(R-factor = %f)"%(R_con))
-plt.xlabel("degree")
-plt.ylabel("I")
-plt.legend()
-plt.savefig("RC_double.png", bbox_inches = "tight")
+    cmap = plt.get_cmap("tab10")
 
-with open("RC_double.txt", "w") as fp:
-    fp.write("#R-factor(initial) = %f\n"%(R_ini))
-    fp.write("#R-factor(converged) = %f\n"%(R_con))
-    fp.write("#degree experiment I(initial) I(converged)\n")
-    for i in range(len(degree_list)):
-        fp.write("%f %f %f %f\n"%(degree_list[i], exp_list[i], I_ini_list[i], I_con_list[i]))
+    for idx, inputfile in enumerate(args.inputfiles, 1):
+        print("input_file={}".format(inputfile))
+        d_list, i_list, rval = read_rocking_curve(inputfile)
+        plt.plot(d_list, i_list, marker="None", color=cmap(idx%10), label="Curve #%i (R-factor = %f)"%(idx, rval))
+
+    degree_list, exp_list = read_exp(args.exp)
+    plt.plot(degree_list, exp_list, marker = "$o$", linewidth = 0.0, color = "red", label = "experiment")
+
+    plt.xlabel("degree")
+    plt.ylabel("I")
+    if (not args.no_legend) and len(args.inputfiles) <= 8:
+        plt.legend()
+    plt.savefig(args.output, bbox_inches = "tight")
+
+if __name__ == "__main__":
+    main()

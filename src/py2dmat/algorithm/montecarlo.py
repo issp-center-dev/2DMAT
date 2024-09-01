@@ -95,10 +95,11 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
     def __init__(self, info: py2dmat.Info,
                  runner: py2dmat.Runner = None,
                  domain = None,
-                 nwalkers: int = 1
+                 nwalkers: int = 1,
+                 run_mode: str = "initial"
     ) -> None:
         time_sta = time.perf_counter()
-        super().__init__(info=info, runner=runner)
+        super().__init__(info=info, runner=runner, run_mode=run_mode)
         self.nwalkers = nwalkers
 
         if domain:

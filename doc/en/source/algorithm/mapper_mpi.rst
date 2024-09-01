@@ -106,11 +106,11 @@ Below, output example is shown.
 
 Restart
 ~~~~~~~~~~~~~~~~~~~~~~
-The execution mode is specified by the ``run_mode`` parameter to the ``Algorithm.main()`` method.
+The execution mode is specified by the ``run_mode`` parameter to the constructor.
 The operation of each mode is described as follows.
 The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` options of ``py2dmat`` command, respectively.
 
-- ``"initialize"`` (default)
+- ``"initial"`` (default)
 
   The program is started from the initial state.
   If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:
