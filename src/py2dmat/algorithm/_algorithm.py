@@ -65,7 +65,10 @@ class AlgorithmBase(metaclass=ABCMeta):
 
     @abstractmethod
     def __init__(
-        self, info: py2dmat.Info, runner: Optional[py2dmat.Runner] = None
+            self,
+            info: py2dmat.Info,
+            runner: Optional[py2dmat.Runner] = None,
+            run_mode: str = "initial"
     ) -> None:
         self.mpicomm = mpi.comm()
         self.mpisize = mpi.size()
@@ -73,7 +76,7 @@ class AlgorithmBase(metaclass=ABCMeta):
         self.timer = {"init": {}, "prepare": {}, "run": {}, "post": {}}
         self.timer["init"]["total"] = 0.0
         self.status = AlgorithmStatus.INIT
-        self.mode = None
+        self.mode = run_mode.lower()
 
         # keep copy of parameters
         self.info = copy.deepcopy(info.algorithm)
@@ -168,9 +171,7 @@ class AlgorithmBase(metaclass=ABCMeta):
     def _post(self) -> Dict:
         pass
 
-    def main(self, run_mode: str = "initialize"):
-        self.mode = run_mode.lower()
-
+    def main(self):
         time_sta = time.perf_counter()
         self.prepare()
         time_end = time.perf_counter()
