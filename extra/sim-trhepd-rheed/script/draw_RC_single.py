@@ -14,26 +14,32 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
+import numpy as np
 import matplotlib.pyplot as plt
 
-file_input = open("RockingCurve.txt")
-lines_ini = file_input.readlines()
-file_input.close()
+def read_rocking_curve(filename):
+    degree_list = []
+    ival_list = []
+    r_factor = 0.0
+    with open(filename, "r") as fp:
+        lines = fp.readlines()
+        for line in lines:
+            if line[0] == "#":
+                if line[1] == "f":
+                    r_factor = float((line.split())[2])
+                continue
+            v = line.split()
+            degree_list.append(float(v[0]))
+            ival_list.append(float(v[1]))
+    return degree_list, ival_list, r_factor
 
-degree_list = []
-I_list = []
-exp_list = []
-for line in lines_ini:
-    if line[0] == "#":
-        if line[1] == "R":
-            data = line.split()
-            Rfactor = float(data[2])
-        continue
-    data = line.split()
-    print("data[0]:", data[0])
-    degree_list.append(float(data[0]))
-    I_list.append(float(data[3]))
-    exp_list.append(float(data[4]))
+def read_exp(filename):
+    degree_list, exp_list = np.loadtxt(filename, unpack=True)
+    exp_list /= np.sum(exp_list)
+    return degree_list, exp_list
+
+degree_list_rc, I_list, Rfactor = read_rocking_curve("RockingCurve.txt")
+degree_list, exp_list = read_exp("experiment.txt")
 
 print("len(degree_list):", len(degree_list))
 print("len(exp_list):", len(exp_list))
