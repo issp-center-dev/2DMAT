@@ -94,7 +94,11 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     Fmeans: np.ndarray
     Ferrs: np.ndarray
 
-    def __init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None) -> None:
+    def __init__(self,
+                 info: py2dmat.Info,
+                 runner: py2dmat.Runner = None,
+                 run_mode: str = "initial"
+    ) -> None:
         time_sta = time.perf_counter()
 
         info_pamc = info.algorithm["pamc"]
