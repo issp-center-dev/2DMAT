@@ -68,7 +68,8 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
     x: np.ndarray
     xmin: np.ndarray
     xmax: np.ndarray
-    xunit: np.ndarray
+    #xunit: np.ndarray
+    xstep: np.ndarray
 
     # discrete problem
     inode: np.ndarray
@@ -115,7 +116,6 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
             if "mesh_path" in info_param:
                 self.iscontinuous = False
                 self.domain = py2dmat.domain.MeshGrid(info)
-
             else:
                 self.iscontinuous = True
                 self.domain = py2dmat.domain.Region(info)
@@ -123,7 +123,10 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         if self.iscontinuous:
             self.xmin = self.domain.min_list
             self.xmax = self.domain.max_list
-            self.xunit = self.domain.unit_list
+            #self.xunit = self.domain.unit_list
+            if "step_list" not in info_param:
+                raise ValueError("ERROR: algorithm.param.step_list not specified")
+            self.xstep = info_param.get("step_list")
 
         else:
             self.node_coordinates = np.array(self.domain.grid)[:, 1:]
@@ -213,7 +216,7 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
             proposal
         """
         if self.iscontinuous:
-            dx = self.rng.normal(size=(self.nwalkers, self.dimension)) * self.xunit
+            dx = self.rng.normal(size=(self.nwalkers, self.dimension)) * self.xstep
             proposed = current + dx
         else:
             proposed_list = [self.rng.choice(self.neighbor_list[i]) for i in current]

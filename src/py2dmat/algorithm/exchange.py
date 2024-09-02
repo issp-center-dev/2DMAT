@@ -61,7 +61,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     x: np.ndarray
     xmin: np.ndarray
     xmax: np.ndarray
-    xunit: np.ndarray
+    #xunit: np.ndarray
+    xstep: np.ndarray
 
     numsteps: int
     numsteps_exchange: int
