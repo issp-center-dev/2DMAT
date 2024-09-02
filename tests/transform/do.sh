@@ -1,3 +1,5 @@
+#!/bin/sh
+
 rm -f output_transform/ColorMap.txt
 python3 ../../src/py2dmat_main.py input_transform.toml
 

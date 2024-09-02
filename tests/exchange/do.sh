@@ -1,6 +1,8 @@
+#!/bin/sh
+
 rm -rf output
 
-time mpiexec --oversubscribe -np 4 python3 ../../src/py2dmat_main.py input.toml
+time mpiexec -np 4 python3 ../../src/py2dmat_main.py input.toml
 
 resfile=output/best_result.txt
 

@@ -1,3 +1,5 @@
+#!/bin/sh
+
 rm -rf output
 
 time python3 ../../src/py2dmat_main.py input.toml

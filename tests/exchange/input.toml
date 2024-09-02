@@ -9,6 +9,7 @@ seed = 12345
 [algorithm.param]
 min_list = [-5.0, -5.0]
 max_list = [5.0, 5.0]
+step_list = [1.0, 1.0]
 
 [algorithm.exchange]
 numsteps = 10000

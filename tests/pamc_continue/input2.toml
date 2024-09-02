@@ -11,7 +11,7 @@ checkpoint_steps = 1000
 [algorithm.param]
 min_list = [-10.0]
 max_list = [10.0]
-unit_list = [0.25]
+step_list = [0.25]
 
 [algorithm.pamc]
 # numsteps = 100
