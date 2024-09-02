@@ -41,8 +41,7 @@ For details, see the input file section of the manual.
   [algorithm.param]
   min_list = [3.0, 3.0]
   max_list = [6.0, 6.0]
-  initial_list = [0.0, 0.0]
-  unit_list = [0.3, 0.3]
+  step_list = [0.3, 0.3]
 
   [algorithm.exchange]
   Tmin = 0.1
@@ -67,9 +66,7 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 
 - ``min_list`` is a lower bound and ``max_list`` is an upper bound.
 
-- ``initial_list`` is an initial value.
-
-- ``unit_list`` is the unit of each parameter.
+- ``unit_list`` is step length in one Monte Carlo update (deviation of Gaussian distribution).
 
 ``[algorithm.exchange]`` section sets the hyper parameters for RXMC.
 

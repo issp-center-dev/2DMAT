@@ -34,15 +34,6 @@ Otherwise, continuous space is used.
     Initial value of parameters.
     If not defined, these will be initialize randomly.
 
-  - ``unit_list``
-
-    Format: List of float. Length should be equal to ``dimension``.
-
-    Description:
-    Unit length of each parameter.
-    ``Algorithm`` makes parameters dimensionless and normalized by dividing these by ``unit_list``.
-    If not defined, each component will be 1.0.
-
   - ``min_list``
 
     Format: List of float. Length should be equal to ``dimension``.
@@ -60,6 +51,13 @@ Otherwise, continuous space is used.
     Maximum value of each parameter.
     When a parameter exceeds this value during the Monte Carlo search,
     the solver is not evaluated and the value is considered infinite.
+
+  - ``step_list``
+
+    Format: List of float. Length should be equal to ``dimension``.
+
+    Description:
+    The step length in one Monte Carlo update (deviation of Gaussian distribution).
 
 - Discrete space
 

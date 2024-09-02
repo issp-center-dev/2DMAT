@@ -45,7 +45,7 @@
     [algorithm.param]
     max_list = [6.0, 6.0]
     min_list = [-6.0, -6.0]
-    unit_list = [0.3, 0.3]
+    step_list = [0.3, 0.3]
 
     [algorithm.pamc]
     bmin = 0.0
@@ -69,7 +69,7 @@
 
 - ``min_list`` と ``max_list`` はそれぞれ探索範囲の最小値と最大値を指定します。
 
-- ``unit_list`` はモンテカルロ更新の際の変化幅(ガウス分布の偏差)です。
+- ``step_list`` はモンテカルロ更新の際の変化幅(ガウス分布の偏差)です。
 
 ``[algorithm.pamc]`` セクションは、ポピュレーションアニーリングのハイパーパラメータを指定します。
 
