@@ -27,7 +27,7 @@ seed = 12345
 [algorithm.param]
 min_list = [3.0, 3.0]
 max_list = [6.0, 6.0]
-unit_list = [0.3, 0.3]
+step_list = [0.3, 0.3]
 
 [algorithm.pamc]
 numsteps_annealing = 5
