@@ -68,7 +68,6 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
     x: np.ndarray
     xmin: np.ndarray
     xmax: np.ndarray
-    #xunit: np.ndarray
     xstep: np.ndarray
 
     # discrete problem
@@ -123,11 +122,19 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         if self.iscontinuous:
             self.xmin = self.domain.min_list
             self.xmax = self.domain.max_list
-            #self.xunit = self.domain.unit_list
-            if "step_list" not in info_param:
-                raise ValueError("ERROR: algorithm.param.step_list not specified")
-            self.xstep = info_param.get("step_list")
 
+            if "step_list" in info_param:
+                self.xstep = info_param.get("step_list")
+
+            elif "unit_list" in info_param:
+                # for compatibility, unit_list can also be accepted for step size.
+                if self.mpirank == 0:
+                    print("WARNING: unit_list is obsolete. use step_list instead")
+                self.xstep = info_param.get("unit_list")
+            else:
+                # neither step_list nor unit_list is specified, report error.
+                # default value not assumed.
+                raise ValueError("ERROR: algorithm.param.step_list not specified")
         else:
             self.node_coordinates = np.array(self.domain.grid)[:, 1:]
             self.nnodes = self.node_coordinates.shape[0]
