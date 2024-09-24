@@ -1,3 +1,5 @@
+#!/bin/sh
+
 rm -rf output
 
 time mpiexec --oversubscribe -np 2 python3 -m mpi4py ../../src/py2dmat_main.py input.toml

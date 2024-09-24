@@ -42,8 +42,7 @@
   [algorithm.param]
   min_list = [3.0, 3.0]
   max_list = [6.0, 6.0]
-  initial_list = [0.0, 0.0]
-  unit_list = [0.3, 0.3]
+  step_list = [0.3, 0.3]
 
   [algorithm.exchange]
   Tmin = 0.1
@@ -66,9 +65,7 @@
 
 - ``min_list`` と ``max_list`` はそれぞれ探索範囲の最小値と最大値を指定します。
 
-- ``initial_list`` は初期値を指定します。
-
-- ``unit_list`` は各パラメータの単位を指定します。
+- ``step_list`` はモンテカルロ更新の際の変化幅(ガウス分布の偏差)です。
 
 ``[algorithm.exchange]`` サブセクションは、レプリカ交換モンテカルロ法のハイパーパラメータを指定します。
 

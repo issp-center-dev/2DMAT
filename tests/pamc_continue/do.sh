@@ -1,6 +1,6 @@
 #!/bin/sh
 
-CMD="mpiexec -np 2 python3 -u ../../src/py2dmat_main.py"
+CMD="mpiexec --oversubscribe -np 2 python3 -u ../../src/py2dmat_main.py"
 
 rm -rf output1
 

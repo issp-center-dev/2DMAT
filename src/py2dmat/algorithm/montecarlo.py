@@ -68,7 +68,7 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
     x: np.ndarray
     xmin: np.ndarray
     xmax: np.ndarray
-    xunit: np.ndarray
+    xstep: np.ndarray
 
     # discrete problem
     inode: np.ndarray
@@ -115,7 +115,6 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
             if "mesh_path" in info_param:
                 self.iscontinuous = False
                 self.domain = py2dmat.domain.MeshGrid(info)
-
             else:
                 self.iscontinuous = True
                 self.domain = py2dmat.domain.Region(info)
@@ -123,8 +122,19 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         if self.iscontinuous:
             self.xmin = self.domain.min_list
             self.xmax = self.domain.max_list
-            self.xunit = self.domain.unit_list
 
+            if "step_list" in info_param:
+                self.xstep = info_param.get("step_list")
+
+            elif "unit_list" in info_param:
+                # for compatibility, unit_list can also be accepted for step size.
+                if self.mpirank == 0:
+                    print("WARNING: unit_list is obsolete. use step_list instead")
+                self.xstep = info_param.get("unit_list")
+            else:
+                # neither step_list nor unit_list is specified, report error.
+                # default value not assumed.
+                raise ValueError("ERROR: algorithm.param.step_list not specified")
         else:
             self.node_coordinates = np.array(self.domain.grid)[:, 1:]
             self.nnodes = self.node_coordinates.shape[0]
@@ -213,7 +223,7 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
             proposal
         """
         if self.iscontinuous:
-            dx = self.rng.normal(size=(self.nwalkers, self.dimension)) * self.xunit
+            dx = self.rng.normal(size=(self.nwalkers, self.dimension)) * self.xstep
             proposed = current + dx
         else:
             proposed_list = [self.rng.choice(self.neighbor_list[i]) for i in current]

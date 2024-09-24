@@ -49,7 +49,7 @@ For details, see the input file section of the manual.
     [algorithm.param]
     max_list = [6.0, 6.0]
     min_list = [-6.0, -6.0]
-    unit_list = [0.3, 0.3]
+    step_list = [0.3, 0.3]
 
     [algorithm.pamc]
     bmin = 0.0
@@ -74,7 +74,7 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 
 - ``min_list`` is a lower bound and ``max_list`` is an upper bound.
 
-- ``unit_list`` is step length in one MC update (deviation of Gaussian distribution).
+- ``unit_list`` is step length in one Monte Carlo update (deviation of Gaussian distribution).
 
 ``[algorithm.pamc]`` section sets the parameters for PAMC.
 
