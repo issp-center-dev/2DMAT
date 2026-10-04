@@ -79,6 +79,7 @@ Y. Motoyama, K. Yoshimi, I. Mochizuki, H. Iwamoto, H. Ichinose, and T. Hoshi, Co
 
 Bibtex:
 
+```bibtex
 @article{MOTOYAMA2022108465,
 title = {Data-analysis software framework 2DMAT and its application to experimental measurements for two-dimensional material structures},
 journal = {Computer Physics Communications},
@@ -90,6 +91,7 @@ doi = {https://doi.org/10.1016/j.cpc.2022.108465},
 url = {https://www.sciencedirect.com/science/article/pii/S0010465522001849},
 author = {Yuichi Motoyama and Kazuyoshi Yoshimi and Izumi Mochizuki and Harumichi Iwamoto and Hayato Ichinose and Takeo Hoshi}
 }
+```
 
 ## Copyright
 
