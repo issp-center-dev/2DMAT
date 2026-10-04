@@ -86,8 +86,8 @@
 <li><p>先頭の <code class="docutils literal notranslate"><span class="pre">~</span></code> はホームディレクトリに展開されます</p></li>
 <li><p>デフォルトはカレントディレクトリ <code class="docutils literal notranslate"><span class="pre">&quot;.&quot;</span></code> です</p></li>
 <li><p>具体的には次のコードが実行されます</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;root_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">))</span>
-<span class="n">base</span><span class="p">[</span><span class="s2">&quot;root_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"root_dir"</span><span class="p">,</span> <span class="s2">"."</span><span class="p">))</span>
+<span class="n">base</span><span class="p">[</span><span class="s2">"root_dir"</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
 </pre></div>
 </div>
 </li>
@@ -102,9 +102,9 @@
 <li><p>相対パスが設定されていた場合、 <code class="docutils literal notranslate"><span class="pre">root_dir</span></code> を起点とした相対パスとして解釈されます</p></li>
 <li><p>デフォルトは <code class="docutils literal notranslate"><span class="pre">&quot;.&quot;</span></code> 、つまり <code class="docutils literal notranslate"><span class="pre">root_dir</span></code> と同一ディレクトリです</p></li>
 <li><p>具体的には次のコードが実行されます</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;work_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">))</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"work_dir"</span><span class="p">,</span> <span class="s2">"."</span><span class="p">))</span>
 <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
-<span class="n">base</span><span class="p">[</span><span class="s2">&quot;work_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">base</span><span class="p">[</span><span class="s2">&quot;root_dir&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">p</span>
+<span class="n">base</span><span class="p">[</span><span class="s2">"work_dir"</span><span class="p">]</span> <span class="o">=</span> <span class="n">base</span><span class="p">[</span><span class="s2">"root_dir"</span><span class="p">]</span> <span class="o">/</span> <span class="n">p</span>
 </pre></div>
 </div>
 </li>

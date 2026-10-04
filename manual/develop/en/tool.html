@@ -151,8 +151,8 @@ If you have QE installed, you can also run the calculation as is.</p>
 </ol>
 <p>The file format of the input file is <code class="docutils literal notranslate"><span class="pre">toml</span></code>. The following section describes the contents of the input file using <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> in the <code class="docutils literal notranslate"><span class="pre">tool/todft/sample/111</span></code> folder. The contents of the file are as follows.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Main</span><span class="p">]</span>
-<span class="n">input_xyz_file</span> <span class="o">=</span> <span class="s2">&quot;surf_bulk_new111.xyz&quot;</span>
-<span class="n">output_file_head</span> <span class="o">=</span> <span class="s2">&quot;surf_bulk_new111_ext&quot;</span>
+<span class="n">input_xyz_file</span> <span class="o">=</span> <span class="s2">"surf_bulk_new111.xyz"</span>
+<span class="n">output_file_head</span> <span class="o">=</span> <span class="s2">"surf_bulk_new111_ext"</span>
 <span class="p">[</span><span class="n">Main</span><span class="o">.</span><span class="n">param</span><span class="p">]</span>
 <span class="n">z_margin</span> <span class="o">=</span> <span class="mf">0.001</span>
 <span class="n">slab_margin</span> <span class="o">=</span> <span class="mf">10.0</span>
@@ -161,19 +161,19 @@ If you have QE installed, you can also run the calculation as is.</p>
 <span class="p">[</span><span class="n">Main</span><span class="o">.</span><span class="n">lattice</span><span class="p">]</span>
 <span class="n">unit_vec</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">7.67932</span><span class="p">,</span> <span class="mf">0.00000</span><span class="p">,</span> <span class="mf">0.00000</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.00000</span><span class="p">,</span> <span class="mf">3.83966</span><span class="p">,</span> <span class="mf">0.00000</span><span class="p">]]</span>
 <span class="p">[</span><span class="n">ASE</span><span class="p">]</span>
-<span class="n">solver_name</span> <span class="o">=</span> <span class="s2">&quot;qe&quot;</span>
+<span class="n">solver_name</span> <span class="o">=</span> <span class="s2">"qe"</span>
 <span class="n">kpts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>        <span class="c1"># sampling k points (Monkhorst-Pack grid)</span>
-<span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;mpirun -np 4 ./pw.x -in espresso.pwi &gt; espresso.pwo&quot;</span>
+<span class="n">command</span> <span class="o">=</span> <span class="s2">"mpirun -np 4 ./pw.x -in espresso.pwi &gt; espresso.pwo"</span>
 <span class="p">[</span><span class="n">Solver</span><span class="p">]</span>
 <span class="p">[</span><span class="n">Solver</span><span class="o">.</span><span class="n">control</span><span class="p">]</span>
-<span class="n">calculation</span><span class="o">=</span><span class="s1">&#39;bands&#39;</span> <span class="c1"># &#39;scf&#39;,&#39;realx&#39;,&#39;bands&#39;,...</span>
-<span class="n">pseudo_dir</span><span class="o">=</span><span class="s1">&#39;./&#39;</span>     <span class="c1"># Pseudopotential directory</span>
+<span class="n">calculation</span><span class="o">=</span><span class="s1">'bands'</span> <span class="c1"># 'scf','realx','bands',...</span>
+<span class="n">pseudo_dir</span><span class="o">=</span><span class="s1">'./'</span>     <span class="c1"># Pseudopotential directory</span>
 <span class="p">[</span><span class="n">Solver</span><span class="o">.</span><span class="n">system</span><span class="p">]</span>
 <span class="n">ecutwfc</span> <span class="o">=</span> <span class="mf">20.0</span>        <span class="c1"># Cut-off energy in Ry</span>
 <span class="n">nbands</span><span class="o">=</span><span class="mi">33</span>           <span class="c1"># # of bands (only used in band structure calc</span>
 <span class="p">[</span><span class="n">Solver</span><span class="o">.</span><span class="n">pseudo</span><span class="p">]</span>
-<span class="n">Si</span> <span class="o">=</span> <span class="s1">&#39;Si.pbe-mt_fhi.UPF&#39;</span>
-<span class="n">H</span> <span class="o">=</span> <span class="s1">&#39;H.pbe-mt_fhi.UPF&#39;</span>
+<span class="n">Si</span> <span class="o">=</span> <span class="s1">'Si.pbe-mt_fhi.UPF'</span>
+<span class="n">H</span> <span class="o">=</span> <span class="s1">'H.pbe-mt_fhi.UPF'</span>
 </pre></div>
 </div>
 <p>The input file consists of three sections: <code class="docutils literal notranslate"><span class="pre">Main</span></code>, <code class="docutils literal notranslate"><span class="pre">ASE</span></code>, and <code class="docutils literal notranslate"><span class="pre">Solver</span></code>.
@@ -266,7 +266,7 @@ For example, in the case of QE, <code class="docutils literal notranslate"><span
 <p>The output is the result of the replacement of the lowest level atom with H and the addition of H to form a tetrahedral structure.
 The actual output is as follows.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">14</span>
-<span class="n">Lattice</span><span class="o">=</span><span class="s2">&quot;7.67932 0.0 0.0  0.0 3.83966 0.0  0.0 0.0 17.0241&quot;</span> <span class="n">Properties</span><span class="o">=</span><span class="n">species</span><span class="p">:</span><span class="n">S</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="n">pos</span><span class="p">:</span><span class="n">R</span><span class="p">:</span><span class="mi">3</span> <span class="n">pbc</span><span class="o">=</span><span class="s2">&quot;T T T&quot;</span>
+<span class="n">Lattice</span><span class="o">=</span><span class="s2">"7.67932 0.0 0.0  0.0 3.83966 0.0  0.0 0.0 17.0241"</span> <span class="n">Properties</span><span class="o">=</span><span class="n">species</span><span class="p">:</span><span class="n">S</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="n">pos</span><span class="p">:</span><span class="n">R</span><span class="p">:</span><span class="mi">3</span> <span class="n">pbc</span><span class="o">=</span><span class="s2">"T T T"</span>
 <span class="n">Si</span>  <span class="mf">1.219476</span>  <span class="mf">0.000000</span>  <span class="mf">4.264930</span>
 <span class="n">Si</span>  <span class="mf">6.459844</span>  <span class="mf">0.000000</span>  <span class="mf">4.987850</span>
 <span class="n">Si</span>  <span class="mf">1.800417</span>  <span class="mf">1.919830</span>  <span class="mf">3.404650</span>
